@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { Header } from './components/Header';
 import { CryptogramGrid } from './components/CryptogramGrid';
@@ -29,6 +29,8 @@ import {
 
 export default function App() {
   useDailyNotification();
+
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   // Puzzles State
   const [allPuzzles, setAllPuzzles] = useState<PuzzleData[]>(INITIAL_PUZZLES);
@@ -130,11 +132,35 @@ export default function App() {
     return syms;
   }, [words]);
 
-  // Auto-select first symbol on puzzle change
+  // Auto-load or reset state on puzzle change
   useEffect(() => {
-    if (uniqueSymbols.length > 0) {
-      setSelectedSymbolId(uniqueSymbols[0].symbolId);
+    const savedProgressStr = localStorage.getItem(`cryptogram_progress_${currentPuzzle.id}`);
+    
+    if (savedProgressStr) {
+      try {
+        const savedProgress = JSON.parse(savedProgressStr);
+        setMappings(savedProgress.mappings || {});
+        setPencilMappings(savedProgress.pencilMappings || {});
+        setTimerSeconds(savedProgress.timerSeconds || 0);
+        setHintsUsed(savedProgress.hintsUsed || 0);
+        setHintsRemaining(savedProgress.hintsRemaining ?? 3);
+        setIsSolved(savedProgress.isSolved || false);
+        setIsTimerRunning(savedProgress.isSolved ? false : true);
+        setShowErrors(false);
+        
+        if (uniqueSymbols.length > 0) {
+          setSelectedSymbolId(uniqueSymbols[0].symbolId);
+        }
+      } catch {
+        resetPuzzleState();
+      }
+    } else {
+      resetPuzzleState();
     }
+    playPaperRustle();
+  }, [currentPuzzle, uniqueSymbols]);
+
+  const resetPuzzleState = () => {
     setMappings({});
     setPencilMappings({});
     setTimerSeconds(0);
@@ -143,8 +169,10 @@ export default function App() {
     setHintsRemaining(3);
     setIsSolved(false);
     setShowErrors(false);
-    playPaperRustle();
-  }, [currentPuzzle]);
+    if (uniqueSymbols.length > 0) {
+      setSelectedSymbolId(uniqueSymbols[0].symbolId);
+    }
+  };
 
   // Timer Tick
   useEffect(() => {
@@ -154,6 +182,22 @@ export default function App() {
     }, 100);
     return () => clearInterval(interval);
   }, [isTimerRunning, isSolved]);
+
+  // Save progress automatically
+  useEffect(() => {
+    // Only save if we actually have symbols loaded, preventing overwrite on initial empty mount
+    if (uniqueSymbols.length > 0) {
+      const progress = {
+        mappings,
+        pencilMappings,
+        timerSeconds,
+        hintsUsed,
+        hintsRemaining,
+        isSolved
+      };
+      localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(progress));
+    }
+  }, [mappings, pencilMappings, timerSeconds, hintsUsed, hintsRemaining, isSolved, currentPuzzle.id, uniqueSymbols]);
 
   // Check Solution
   useEffect(() => {
@@ -406,8 +450,43 @@ export default function App() {
     });
   }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionDate]);
 
+  // Handle Cell Tap (mobile keyboard trigger)
+  const handleSelectSymbol = useCallback((symId: string) => {
+    setSelectedSymbolId(symId);
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f7f3e8] text-stone-900 flex flex-col justify-between selection:bg-amber-200">
+      <input
+        ref={hiddenInputRef}
+        type="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck="false"
+        className="fixed opacity-0 pointer-events-none w-0 h-0"
+        style={{ left: '-9999px', top: '50%' }}
+        value=""
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val.length > 0) {
+            const char = val[val.length - 1];
+            if (/^[a-zA-Z]$/.test(char)) {
+              handleKeyPress(char.toUpperCase());
+            }
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Backspace' || e.key === 'Delete') {
+            e.preventDefault();
+            handleBackspace();
+          }
+        }}
+      />
+      
       {/* Header with Masthead and Live Status */}
       <Header
         currentPuzzle={currentPuzzle}
@@ -432,7 +511,7 @@ export default function App() {
             mappings={mappings}
             pencilMappings={pencilMappings}
             selectedSymbolId={selectedSymbolId}
-            onSelectSymbol={(symId) => setSelectedSymbolId(symId)}
+            onSelectSymbol={handleSelectSymbol}
             showErrors={showErrors}
             isSolved={isSolved}
           />
