@@ -1,0 +1,6 @@
+{
+  "name": "The Daily Cryptogram",
+  "description": "A newspaper-themed Zodiac-style cryptogram game with daily puzzles, global leaderboards, and codebreaking cipher mechanics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

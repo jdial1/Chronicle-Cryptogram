@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-masthead {
+    font-family: 'Cinzel', 'Playfair Display', serif;
+  }
+  .font-newspaper {
+    font-family: 'Newsreader', 'Old Standard TT', 'Georgia', serif;
+  }
+  .font-treatise {
+    font-family: 'Old Standard TT', 'Newsreader', 'Georgia', serif;
+  }
+  .font-letterpress {
+    font-family: 'IM Fell English', 'Newsreader', serif;
+  }
+  .font-headline {
+    font-family: 'Playfair Display', 'Old Standard TT', serif;
+  }
+  .font-typewriter {
+    font-family: 'Special Elite', 'Cutive Mono', 'Courier Prime', monospace;
+  }
+  .font-mimeo {
+    font-family: 'Special Elite', 'Cutive Mono', monospace;
+  }
+  .font-mono-code {
+    font-family: 'Courier Prime', 'Cutive Mono', monospace;
+  }
+  .font-gothic {
+    font-family: 'UnifrakturMaguntia', cursive;
+  }
+  .font-handwritten {
+    font-family: 'Special Elite', 'Courier Prime', monospace;
+  }
+  .font-scribble {
+    font-family: 'Courier Prime', monospace;
+  }
+}
+
+/* Scanned Document & Vintage Newsprint Textures */
+.bg-scanned-doc {
+  background-color: #f4eee2;
+  background-image: 
+    radial-gradient(#d3c7b2 0.8px, transparent 0.8px),
+    radial-gradient(#c7baa2 0.5px, #f4eee2 0.5px);
+  background-size: 24px 24px, 12px 12px;
+  background-position: 0 0, 6px 6px;
+  box-shadow: inset 0 0 80px rgba(100, 80, 50, 0.08), 0 4px 20px rgba(35, 28, 20, 0.12);
+}
+
+.bg-newsprint {
+  background-color: #f6f1e7;
+  background-image: 
+    radial-gradient(#d8ccb6 0.75px, transparent 0.75px), 
+    radial-gradient(#d8ccb6 0.75px, #f6f1e7 0.75px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+}
+
+.bg-parchment-card {
+  background-color: #fbf8f0;
+  box-shadow: 0 1px 3px rgba(44, 39, 32, 0.08), 0 4px 12px rgba(44, 39, 32, 0.06);
+}
+
+.scanned-ink {
+  color: #111110;
+  text-shadow: 0.2px 0.2px 0.4px rgba(0, 0, 0, 0.35);
+}
+
+.scanned-underline {
+  border-bottom: 2px solid #1c1917;
+  padding-bottom: 1px;
+}
+
+.scanned-double-underline {
+  border-bottom: 3px double #1c1917;
+  padding-bottom: 1px;
+}
+
+.scanned-highlight {
+  background-color: #ff9500;
+  color: #000000;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.border-vintage-double {
+  border-style: double;
+  border-width: 4px;
+  border-color: #292524;
+}
+
+.newspaper-rule {
+  height: 1px;
+  background: repeating-linear-gradient(90deg, #292524, #292524 6px, transparent 6px, transparent 8px);
+}
+
+/* Zodiac Symbol Cell Grid Animations */
+@keyframes cipherPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.animate-cipher-pulse {
+  animation: cipherPulse 1.2s ease-in-out infinite;
+}
+
+/* Custom scrollbars for newspaper layout */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #ede6d8;
+}
+::-webkit-scrollbar-thumb {
+  background: #b8ac98;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8e806a;
+}
