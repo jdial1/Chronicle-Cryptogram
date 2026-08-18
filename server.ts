@@ -330,7 +330,7 @@ async function startServer() {
       }
 
       const promptText = `
-You are a master cryptographer and 1960s-1970s vintage newspaper editor for "The Chronicle Cryptogram" (inspired by historical mysterious Zodiac cipher dispatches, Bletchley Park, and espionage).
+You are a master cryptographer and 1960s-1970s vintage newspaper editor for "Chronicle Cryptogram" (inspired by historical mysterious Zodiac cipher dispatches, Bletchley Park, and espionage).
 
 Generate a captivating, authentic cryptogram puzzle in valid JSON format.
 The theme is: "${theme}".
@@ -448,7 +448,7 @@ Write a short, engaging 1-2 sentence vintage detective-style hint.
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`The Daily Cryptogram server running on http://localhost:${PORT}`);
+    console.log(`Chronicle Cryptogram server running on http://localhost:${PORT}`);
   });
 }
 

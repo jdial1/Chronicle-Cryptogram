@@ -56,7 +56,7 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono-code font-bold rounded-xs border transition-colors ${
               selectedSymbolId
                 ? 'bg-[#faf6ed] hover:bg-stone-200 text-stone-800 border-stone-400 cursor-pointer'
-                : 'bg-stone-200 text-stone-400 border-stone-300 cursor-not-allowed opacity-60'
+                : 'bg-stone-200 text-stone-600 border-stone-400 cursor-not-allowed'
             }`}
             title="Erase Current Symbol Mapping (Backspace / Delete)"
           >
@@ -78,12 +78,12 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             disabled={hintsRemaining <= 0}
             className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono-code font-bold rounded-xs shadow-xs transition-transform active:scale-95 cursor-pointer ${
               hintsRemaining > 0
-                ? 'bg-amber-700 hover:bg-amber-800 text-amber-50'
-                : 'bg-stone-300 text-stone-500 cursor-not-allowed'
+                ? 'bg-amber-600 hover:bg-amber-700 text-stone-950'
+                : 'bg-stone-300 text-stone-700 cursor-not-allowed'
             }`}
             title="Reveal 1 Symbol"
           >
-            <Lightbulb className="w-3.5 h-3.5 text-amber-200 fill-amber-200" />
+            <Lightbulb className="w-3.5 h-3.5" />
             <span>HINT ({hintsRemaining})</span>
           </button>
 
@@ -92,7 +92,7 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             onClick={onToggleShowErrors}
             className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono-code font-bold rounded-xs border transition-colors cursor-pointer ${
               showErrors
-                ? 'bg-red-700 text-white border-red-800'
+                ? 'bg-red-600 text-stone-950 border-red-800'
                 : 'bg-[#faf6ed] text-stone-800 border-stone-400 hover:bg-stone-100'
             }`}
             title="Highlight Incorrect Mappings"
@@ -117,6 +117,8 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             onClick={() => setShowVirtualKeys(!showVirtualKeys)}
             className="flex items-center gap-1 px-2 py-1 text-xs font-mono-code text-stone-700 hover:text-stone-950 bg-[#faf6ed] border border-stone-400 rounded-xs cursor-pointer ml-1"
             title={showVirtualKeys ? 'Hide Onscreen Keys' : 'Show Onscreen Keys'}
+            aria-expanded={showVirtualKeys}
+            aria-label={showVirtualKeys ? 'Hide onscreen keyboard' : 'Show onscreen keyboard'}
           >
             <Keyboard className="w-3.5 h-3.5 text-stone-600" />
             {showVirtualKeys ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -137,7 +139,7 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
                   className={`flex-1 min-w-[36px] sm:min-w-[48px] h-9 sm:h-11 flex items-center justify-center font-mono-code text-xs font-bold rounded-xs border border-stone-500 shadow-xs transition-transform active:scale-95 ${
                     selectedSymbolId
                       ? 'bg-[#e5dec9] hover:bg-[#d8d0b8] text-stone-900 cursor-pointer'
-                      : 'bg-stone-200 text-stone-400 opacity-60 cursor-not-allowed'
+                      : 'bg-stone-200 text-stone-600 cursor-not-allowed'
                   }`}
                   title="Erase Current Symbol Mapping"
                 >

@@ -6,7 +6,7 @@
   "auth": {
     "providers": {
       "googleSignIn": {
-        "oAuthBrandDisplayName": "The Chronicle Cryptogram",
+        "oAuthBrandDisplayName": "Chronicle Cryptogram",
         "supportEmail": "jdial1@users.noreply.github.com",
         "authorizedRedirectUris": [
           "https://jdial1.github.io",

@@ -19,12 +19,20 @@ interface CaseFileModalProps {
   focusFragmentKey?: string | null;
 }
 
+function dossierSubject(name: string) {
+  return name.replace(/^(Detective|Dr\.)\s+/i, '').replace(/\.+$/g, '').trim();
+}
+
+function dossierRole(dossier: string) {
+  return dossier.replace(/\.+$/g, '').trim();
+}
+
 function NoteBody({ fragment }: { fragment: AssembledFragment }) {
   return (
-    <p className="font-newspaper text-sm text-stone-800 leading-relaxed">
+    <p className="font-typewriter text-[13px] text-stone-800 leading-[23px] scanned-ink">
       {fragment.segments.map((segment, index) =>
         segment.kind === 'quote' ? (
-          <span key={index} className="font-typewriter font-bold text-stone-950 tracking-wide">
+          <span key={index} className="scanned-highlight font-typewriter tracking-wide">
             {segment.value}
           </span>
         ) : (
@@ -78,109 +86,115 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
 
   if (!isOpen) return null;
 
+  const subject = character ? dossierSubject(character.name) : '';
+  const role = character ? dossierRole(character.dossier) : '';
+
   return (
     <div
-      className="fixed inset-0 z-[55] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs select-none"
+      className="modal-backdrop z-[55] select-none"
       onClick={onClose}
     >
       <div
-        className="bg-[#fcf9f2] w-full max-w-3xl rounded-sm border-2 border-stone-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="casefile-title"
+        className="modal-sheet max-w-3xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="bg-stone-900 text-stone-100 p-3 sm:p-4 flex items-center justify-between border-b-2 border-amber-600">
+        <div className="modal-masthead">
           <div className="flex items-center gap-2 min-w-0">
-            <FileText className="w-5 h-5 text-amber-400 shrink-0" />
-            <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-masthead font-bold tracking-wide text-amber-100 uppercase">
-                Bureau Case Files
-              </h2>
-              <p className="text-[11px] font-mono-code text-stone-400 truncate">
-                Fragments unlocked by decoded Morning Editions and Night Extras
-              </p>
-            </div>
+            <FileText className="w-5 h-5 shrink-0" />
+            <h2 id="casefile-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
+              Bureau Case Files
+            </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-stone-100 rounded hover:bg-stone-800 transition-colors cursor-pointer"
+            className="shrink-0 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {dossiers.length > 0 && (
-          <div className="flex gap-1 overflow-x-auto p-2 sm:p-3 border-b border-stone-400 bg-[#f4ede0]">
-            {dossiers.map((entry) => {
-              const selected = entry.id === character?.id;
-              return (
-                <button
-                  key={entry.id}
-                  type="button"
-                  onClick={() => setActiveId(entry.id)}
-                  className={`shrink-0 px-2.5 py-1.5 border rounded-xs text-left cursor-pointer ${
-                    selected
-                      ? 'bg-stone-950 text-amber-100 border-stone-950'
-                      : 'bg-[#fdfbf6] text-stone-800 border-stone-400 hover:border-stone-700'
-                  }`}
-                >
-                  <span className="block font-typewriter font-bold text-[10px] uppercase tracking-wider">
-                    {entry.name}
-                  </span>
-                  <span className={`block text-[10px] font-treatise ${selected ? 'text-amber-200/80' : 'text-stone-500'}`}>
-                    {entry.notes.length} {entry.notes.length === 1 ? 'fragment' : 'fragments'}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {dossiers.length > 0 ? (
+          <div className="flex flex-col flex-1 min-h-0 bg-[#d9d0bc]">
+            <div
+              className="shrink-0 flex items-end overflow-x-auto snap-x snap-mandatory gap-1 px-3 pt-2"
+              role="tablist"
+              aria-label="Dossiers"
+            >
+              {dossiers.map((entry, index) => {
+                const selected = entry.id === character?.id;
+                const tilt = ['-rotate-10', '-rotate-10', '-rotate-10', '-rotate-10'][index % 4];
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setActiveId(entry.id)}
+                    className={`shrink-0 snap-start min-w-[5.5rem] min-h-11 sm:min-h-0 px-2.5 pt-1.5 pb-1 border-t border-x rounded-t-sm text-left cursor-pointer ${
+                      selected
+                        ? 'bg-[#f6f1e7] text-stone-950 border-stone-700 -mb-px pb-2 z-10 relative'
+                        : 'bg-[#c4baa4] text-stone-700 border-stone-500/80 hover:bg-[#d0c6b0]'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block font-typewriter font-bold text-[10px] uppercase tracking-wider origin-left ${tilt}`}
+                    >
+                      {entry.file}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
-        <div ref={notesRef} className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint">
-          {dossiers.length === 0 || !character ? (
-            <p className="font-treatise italic text-stone-600 text-sm">
-              No decoded fragments. Solve the daily cryptograms to open the first dossier.
-            </p>
-          ) : (
-            <>
-              <div className="mb-4 border-b border-stone-400 pb-2">
-                <h3 className="font-headline font-black text-xl text-stone-950 uppercase tracking-tight">
-                  {character.name}
-                </h3>
-                <p className="font-typewriter text-[10px] uppercase tracking-widest text-stone-500">
-                  {character.dossier}
-                </p>
+            <div className="flex flex-col flex-1 min-h-0 bg-newsprint border-t-2 border-stone-700">
+              <div className="hidden sm:block shrink-0 px-4 py-2 border-b border-stone-400 bg-[#efe8d8] font-typewriter text-[10px] uppercase tracking-[0.16em] text-stone-700">
+                <span>Subject: {subject}</span>
+                <span className="mx-2 text-stone-400" aria-hidden="true">|</span>
+                <span>Role: {role}</span>
               </div>
-              <ol className="space-y-3">
+              <div ref={notesRef} className="flex-1 overflow-y-auto px-3 py-3 sm:px-4 sm:p-4 space-y-3">
                 {notes.map((fragment) => {
                   const key = fragmentKey(fragment);
                   const highlighted = key === focusFragmentKey;
                   return (
-                    <li
+                    <article
                       key={key}
                       data-fragment={key}
-                      className={`p-3 border rounded-xs bg-[#fdfbf6] ${
-                        highlighted ? 'border-amber-700 ring-2 ring-amber-600' : 'border-stone-400'
+                      className={`evidence-slip border border-stone-700 px-3 pt-2 pb-3 ${
+                        highlighted ? 'ring-2 ring-amber-700' : ''
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="font-typewriter font-black text-[10px] uppercase tracking-widest text-amber-800">
-                          Day {fragment.editionNumber} — {fragment.title}
+                      <div className="flex items-start justify-between gap-2 mb-2 pl-4 sm:pl-8">
+                        <span className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+                          Day {fragment.editionNumber} · {fragment.title}
                         </span>
                         {highlighted && (
-                          <span className="font-typewriter font-bold text-[9px] uppercase tracking-widest text-amber-700">
+                          <span className="shrink-0 font-typewriter font-bold text-[9px] uppercase tracking-widest text-red-800/85 -rotate-2">
                             Just filed
                           </span>
                         )}
                       </div>
-                      <NoteBody fragment={fragment} />
-                    </li>
+                      <div className="pl-4 sm:pl-8">
+                        <NoteBody fragment={fragment} />
+                      </div>
+                    </article>
                   );
                 })}
-              </ol>
-            </>
-          )}
-        </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint">
+            <p className="font-treatise italic text-stone-600 text-sm">
+              No decoded fragments. Solve the daily cryptograms to open the first dossier.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -203,18 +217,18 @@ export const CaseFileToast: React.FC<CaseFileToastProps> = ({ puzzle, onOpen, on
   );
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1.5rem)] max-w-lg flex items-stretch bg-stone-950 text-amber-100 border-2 border-amber-600 shadow-2xl">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1.5rem)] max-w-lg flex items-stretch bg-[#ebe4d4] text-stone-950 border-2 border-stone-800 shadow-2xl">
       <button
         type="button"
         onClick={onOpen}
-        className="flex-1 flex items-center gap-2 min-w-0 px-4 py-3 text-left cursor-pointer hover:bg-stone-900"
+        className="flex-1 flex items-center gap-2 min-w-0 px-4 py-3 text-left cursor-pointer hover:bg-[#e0d5c0]"
       >
-        <FileText className="w-5 h-5 text-amber-400 shrink-0" />
+        <FileText className="w-5 h-5 shrink-0" />
         <span className="min-w-0">
           <span className="block font-typewriter font-black text-xs uppercase tracking-widest">
             Case File Updated
           </span>
-          <span className="block font-treatise text-xs text-amber-200/90 truncate">
+          <span className="block font-treatise text-xs text-stone-700 truncate">
             {names.join(' · ')}
           </span>
         </span>
@@ -222,7 +236,7 @@ export const CaseFileToast: React.FC<CaseFileToastProps> = ({ puzzle, onOpen, on
       <button
         type="button"
         onClick={onDismiss}
-        className="px-3 text-stone-400 hover:text-white cursor-pointer"
+        className="px-3 text-stone-700 hover:text-stone-950 cursor-pointer"
         aria-label="Dismiss"
       >
         <X className="w-4 h-4" />

@@ -17,6 +17,16 @@ export function isPrimerPuzzle(puzzle: PuzzleData) {
   return puzzle.editionNumber === 0;
 }
 
+export function articleDek(puzzle: PuzzleData) {
+  return puzzle.subheadline.replace(/^LATE CITY FINAL\s+[—–-]\s+/u, '');
+}
+
+export function articleByline(puzzle: PuzzleData) {
+  return puzzle.authorOrSource
+    .replace(/^The Chronicle Night Post(?:\s+[—–-]|,)\s*/u, '')
+    .replace(/^Journal Entry\s*[-—–]\s*/u, '');
+}
+
 export function isNightUnlockedForDate(
   puzzles: PuzzleData[],
   solvedPuzzleIds: string[],
@@ -34,6 +44,14 @@ export function formatEditionDate(iso: string) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export function formatEditionDateShort(iso: string) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
     year: 'numeric',
   });

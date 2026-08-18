@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CryptogramWord, SymbolMapping } from '../types';
+import { DecodedStamp, RotateCcw } from '../icons';
 
 interface CryptogramGridProps {
   words: CryptogramWord[];
@@ -10,6 +11,11 @@ interface CryptogramGridProps {
   isSolved: boolean;
 }
 
+const ZOOM_MIN = 0.8;
+const ZOOM_MAX = 1.6;
+const ZOOM_STEP = 0.15;
+const ZOOM_DEFAULT = 1;
+
 export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   words,
   mappings,
@@ -18,26 +24,68 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   showErrors,
   isSolved,
 }) => {
+  const [zoom, setZoom] = useState(ZOOM_DEFAULT);
+  const zoomBtn =
+    'w-8 h-8 flex items-center justify-center font-typewriter font-bold text-base text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default hover:bg-amber-100';
+
   return (
     <div
       id="cryptogram-board"
-      className={`w-full bg-[#f4eee2] p-4 sm:p-7 md:p-9 border-2 border-stone-900 rounded-xs bg-scanned-doc relative select-none overflow-hidden ${
-        isSolved ? 'puzzle-dithered' : ''
+      role="group"
+      aria-label="Cryptogram puzzle"
+      style={{ '--cipher-zoom': isSolved ? ZOOM_DEFAULT : zoom } as React.CSSProperties}
+      className={`w-full min-w-0 bg-[#f4eee2] p-4 sm:p-7 md:p-9 border-2 border-stone-900 rounded-xs bg-scanned-doc relative select-none overflow-x-hidden ${
+        isSolved ? '' : 'pt-11 sm:pt-11 md:pt-11'
       }`}
-      aria-disabled={isSolved}
     >
-      <div className="flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 max-w-5xl mx-auto justify-center sm:justify-start">
+      {!isSolved && (
+        <div className="absolute top-1.5 right-1.5 z-20 flex items-stretch border border-stone-800 bg-[#f7f1e4] shadow-xs">
+          <button
+            type="button"
+            className={zoomBtn}
+            aria-label="Decrease puzzle text size"
+            disabled={zoom <= ZOOM_MIN}
+            onClick={() => setZoom((value) => Math.max(ZOOM_MIN, Math.round((value - ZOOM_STEP) * 100) / 100))}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className={`${zoomBtn} border-x border-stone-800`}
+            aria-label="Reset puzzle text size"
+            disabled={zoom === ZOOM_DEFAULT}
+            onClick={() => setZoom(ZOOM_DEFAULT)}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            className={zoomBtn}
+            aria-label="Increase puzzle text size"
+            disabled={zoom >= ZOOM_MAX}
+            onClick={() => setZoom((value) => Math.min(ZOOM_MAX, Math.round((value + ZOOM_STEP) * 100) / 100))}
+          >
+            +
+          </button>
+        </div>
+      )}
+      {isSolved && <DecodedStamp size="board" />}
+      <div
+        className={`flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start ${
+          isSolved ? 'puzzle-dithered' : ''
+        }`}
+      >
         {words.map((word) => (
           <div
             key={word.id}
-            className="flex items-end gap-1 sm:gap-1.5 pb-1 border-b-2 border-stone-700/80"
+            className="flex flex-wrap items-end gap-1 sm:gap-1.5 w-fit max-w-full min-w-0 pb-1 border-b-2 border-stone-700/80"
           >
             {word.symbols.map((item, charIdx) => {
               if (item.isPunctuation) {
                 return (
                   <div
                     key={`${word.id}_punct_${charIdx}`}
-                    className="flex flex-col items-center justify-end h-16 sm:h-20 px-1 font-typewriter text-2xl sm:text-3xl font-black text-stone-950 pb-1"
+                    className="cipher-punct flex flex-col items-center justify-end px-1 font-typewriter font-black text-stone-950 pb-1"
                   >
                     <span>{item.char}</span>
                   </div>
@@ -57,20 +105,24 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
                   onClick={() => {
                     if (!isSolved) onSelectSymbol(item.symbolId);
                   }}
-                  className={`group relative flex flex-col items-center justify-between w-9 h-16 sm:w-11 sm:h-20 p-1 rounded-xs ${
+                  className={`cipher-tile group relative flex flex-col items-center justify-between p-1 rounded-xs ${
                     isSolved
                       ? 'bg-[#fbf8f0] border border-stone-600/70 cursor-default'
                       : isSelected
-                      ? 'bg-[#ffe8a3] ring-2 ring-stone-950 shadow-md scale-105 z-10 cursor-pointer transition-all duration-100'
-                      : 'hover:bg-[#faeed6] bg-[#fbf8f0] border border-stone-600/70 shadow-2xs cursor-pointer transition-all duration-100'
+                      ? 'bg-[#ffe8a3] ring-2 ring-stone-950 shadow-md scale-105 z-10 cursor-pointer transition-transform duration-100'
+                      : 'hover:bg-[#faeed6] bg-[#fbf8f0] border border-stone-600/70 shadow-2xs cursor-pointer transition-colors duration-100'
                   } ${isError ? 'bg-red-100 border-red-700 ring-1 ring-red-700' : ''}`}
-                  aria-label={`Cipher symbol with target ${item.targetLetter}, currently mapped to ${mappedLetter || 'none'}`}
-                  aria-readonly={isSolved}
+                  aria-pressed={isSelected}
+                  aria-label={
+                    mappedLetter
+                      ? `Cipher glyph ${item.char}, mapped to ${mappedLetter}`
+                      : `Cipher glyph ${item.char}, unmapped`
+                  }
                 >
-                  <div className="w-full h-8 sm:h-10 flex items-center justify-center border-b border-stone-400/80 relative overflow-hidden">
+                  <div className="cipher-letter w-full flex items-center justify-center border-b border-stone-400/80 relative overflow-hidden">
                     {mappedLetter ? (
                       <span
-                        className={`font-typewriter text-xl sm:text-2xl font-black uppercase tracking-wider leading-none select-none ${
+                        className={`cipher-mapped font-typewriter font-black uppercase tracking-wider leading-none select-none ${
                           isError ? 'text-red-700' : 'text-stone-950 scanned-ink'
                         }`}
                       >
@@ -86,7 +138,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
                   </div>
 
                   <div
-                    className={`w-full h-7 sm:h-8 flex items-center justify-center font-treatise text-lg sm:text-2xl font-bold ${
+                    className={`cipher-glyph w-full flex items-center justify-center font-treatise font-bold ${
                       isSelected
                         ? 'text-stone-950 font-black scale-110'
                         : 'text-stone-900 group-hover:text-stone-950'

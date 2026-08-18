@@ -94,24 +94,29 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs select-none">
-      <div className="bg-[#fcf9f2] w-full max-w-2xl rounded-sm border-2 border-stone-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="bg-stone-900 text-stone-100 p-3 sm:p-4 flex items-center justify-between border-b-2 border-amber-600">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <div>
-              <h2 className="text-base sm:text-lg font-masthead font-bold tracking-wide text-amber-100 uppercase">
+    <div className="modal-backdrop z-50 select-none">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ai-cipher-title"
+        className="modal-sheet max-w-2xl"
+      >
+        <div className="modal-masthead">
+          <div className="flex items-center gap-2 min-w-0">
+            <Sparkles className="w-5 h-5 shrink-0" />
+            <div className="min-w-0">
+              <h2 id="ai-cipher-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
                 AI Mystery Cipher Forge
               </h2>
-              <p className="text-[11px] font-mono-code text-stone-400">
+              <p className="modal-tagline text-[11px] font-mono-code text-stone-600 truncate">
                 Generate Instant Zodiac Cryptograms or Encode Custom Messages
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-stone-100 rounded hover:bg-stone-800 transition-colors cursor-pointer"
+            className="p-1 text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -125,7 +130,7 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
             onClick={() => setIsCustomMode(false)}
             className={`flex items-center gap-1.5 px-3 py-1.5 font-bold rounded-xs cursor-pointer ${
               !isCustomMode
-                ? 'bg-stone-900 text-amber-100 shadow-xs'
+                ? 'bg-amber-600 text-stone-950 shadow-xs'
                 : 'bg-[#faf6ee] text-stone-700 hover:bg-stone-200 border border-stone-400'
             }`}
           >
@@ -137,7 +142,7 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
             onClick={() => setIsCustomMode(true)}
             className={`flex items-center gap-1.5 px-3 py-1.5 font-bold rounded-xs cursor-pointer ${
               isCustomMode
-                ? 'bg-stone-900 text-amber-100 shadow-xs'
+                ? 'bg-amber-600 text-stone-950 shadow-xs'
                 : 'bg-[#faf6ee] text-stone-700 hover:bg-stone-200 border border-stone-400'
             }`}
           >
@@ -147,7 +152,7 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
         </div>
 
         {/* Content Form */}
-        <form onSubmit={handleGenerate} className="flex-1 overflow-y-auto p-4 sm:p-6 bg-newsprint space-y-4">
+        <form onSubmit={handleGenerate} className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 bg-newsprint space-y-4">
           {errorMessage && (
             <div className="p-3 bg-red-100 border border-red-400 text-red-900 text-xs font-mono-code rounded-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-700 shrink-0" />
@@ -182,10 +187,11 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
 
               {/* Optional Custom AI Prompt */}
               <div>
-                <label className="block text-xs font-mono-code font-bold uppercase text-stone-700 mb-1">
+                <label htmlFor="cipher-prompt" className="block text-xs font-mono-code font-bold uppercase text-stone-700 mb-1">
                   Optional Topic / Mystery Details (e.g., "Set in foggy Victorian London"):
                 </label>
                 <input
+                  id="cipher-prompt"
                   type="text"
                   placeholder="Enter optional storyline clue or keywords..."
                   value={customPrompt}
@@ -196,10 +202,11 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
             </>
           ) : (
             <div>
-              <label className="block text-xs font-mono-code font-bold uppercase text-stone-700 mb-1">
+              <label htmlFor="cipher-custom" className="block text-xs font-mono-code font-bold uppercase text-stone-700 mb-1">
                 Enter Your Custom Secret Message to Encrypt:
               </label>
               <textarea
+                id="cipher-custom"
                 required
                 rows={4}
                 value={customText}
@@ -226,7 +233,7 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
                   onClick={() => setDifficulty(d)}
                   className={`py-2 text-center border font-bold rounded-xs cursor-pointer ${
                     difficulty === d
-                      ? 'bg-stone-900 text-amber-100 border-stone-900 shadow-xs'
+                      ? 'bg-amber-600 text-stone-950 border-stone-900 shadow-xs'
                       : 'bg-[#faf6ee] text-stone-800 hover:bg-stone-200 border-stone-400'
                   }`}
                 >
@@ -240,16 +247,16 @@ export const AICipherGeneratorModal: React.FC<AICipherGeneratorModalProps> = ({
             <button
               type="submit"
               disabled={isGenerating}
-              className="w-full py-2.5 bg-amber-700 hover:bg-amber-800 text-amber-50 font-mono-code font-bold text-xs uppercase tracking-wider rounded-xs shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-colors"
+              className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-mono-code font-bold text-xs uppercase tracking-wider rounded-xs shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-colors"
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Transcribing Zodiac Glyphs...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-amber-200" />
+                  <Sparkles className="w-4 h-4" />
                   <span>{isCustomMode ? 'Encode & Play Now' : 'Forge AI Cryptogram'}</span>
                 </>
               )}

@@ -2,37 +2,30 @@
 
 @layer utilities {
   .font-masthead {
-    font-family: 'Cinzel', 'Playfair Display', serif;
+    font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
   }
-  .font-newspaper {
-    font-family: 'Newsreader', 'Old Standard TT', 'Georgia', serif;
-  }
+  .font-newspaper,
   .font-treatise {
-    font-family: 'Old Standard TT', 'Newsreader', 'Georgia', serif;
+    font-family: 'Newsreader', Georgia, serif;
   }
   .font-letterpress {
-    font-family: 'IM Fell English', 'Newsreader', serif;
+    font-family: 'IM Fell English', 'Newsreader', Georgia, serif;
   }
   .font-headline {
-    font-family: 'Playfair Display', 'Old Standard TT', serif;
+    font-family: 'Playfair Display', Georgia, serif;
   }
-  .font-typewriter {
-    font-family: 'Special Elite', 'Cutive Mono', 'Courier Prime', monospace;
-  }
-  .font-mimeo {
-    font-family: 'Special Elite', 'Cutive Mono', monospace;
-  }
-  .font-mono-code {
-    font-family: 'Courier Prime', 'Cutive Mono', monospace;
+  .font-typewriter,
+  .font-mimeo,
+  .font-mono-code,
+  .font-handwritten,
+  .font-scribble {
+    font-family: 'Special Elite', ui-monospace, monospace;
   }
   .font-gothic {
-    font-family: 'UnifrakturMaguntia', cursive;
+    font-family: 'UnifrakturMaguntia', Palatino, serif;
   }
-  .font-handwritten {
-    font-family: 'Special Elite', 'Courier Prime', monospace;
-  }
-  .font-scribble {
-    font-family: 'Courier Prime', monospace;
+  .text-newsprint {
+    color: #f7f3e8;
   }
 }
 
@@ -48,6 +41,7 @@
 }
 
 .puzzle-dithered {
+  position: relative;
   pointer-events: none;
   filter: grayscale(0.35) contrast(1.12) brightness(0.96);
 }
@@ -64,11 +58,59 @@
   z-index: 2;
 }
 
+#cryptogram-board {
+  --cipher-zoom: 1;
+  --tile-w: 2.25rem;
+  --tile-h: 4rem;
+  --tile-letter-h: 2rem;
+  --tile-glyph-h: 1.75rem;
+  --tile-letter-size: 1.25rem;
+  --tile-glyph-size: 1.125rem;
+  --tile-punct-size: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  #cryptogram-board {
+    --tile-w: 2.75rem;
+    --tile-h: 5rem;
+    --tile-letter-h: 2.5rem;
+    --tile-glyph-h: 2rem;
+    --tile-letter-size: 1.5rem;
+    --tile-glyph-size: 1.5rem;
+    --tile-punct-size: 1.875rem;
+  }
+}
+
+#cryptogram-board .cipher-tile {
+  width: calc(var(--tile-w) * var(--cipher-zoom));
+  height: calc(var(--tile-h) * var(--cipher-zoom));
+  flex-shrink: 0;
+}
+
+#cryptogram-board .cipher-punct {
+  height: calc(var(--tile-h) * var(--cipher-zoom));
+  font-size: calc(var(--tile-punct-size) * var(--cipher-zoom));
+  flex-shrink: 0;
+}
+
+#cryptogram-board .cipher-letter {
+  height: calc(var(--tile-letter-h) * var(--cipher-zoom));
+}
+
+#cryptogram-board .cipher-glyph {
+  height: calc(var(--tile-glyph-h) * var(--cipher-zoom));
+  font-size: calc(var(--tile-glyph-size) * var(--cipher-zoom));
+}
+
+#cryptogram-board .cipher-mapped {
+  font-size: calc(var(--tile-letter-size) * var(--cipher-zoom));
+}
+
 .bg-newsprint {
   background-color: #f6f1e7;
   background-image: 
-    radial-gradient(#d8ccb6 0.75px, transparent 0.75px), 
-    radial-gradient(#d8ccb6 0.75px, #f6f1e7 0.75px);
+    radial-gradient(rgba(216, 204, 182, 0.72) 0.75px, transparent 0.75px), 
+    radial-gradient(rgba(216, 204, 182, 0.72) 0.75px, #f6f1e7 0.75px);
   background-size: 28px 28px;
   background-position: 0 0, 14px 14px;
 }
@@ -94,10 +136,18 @@
 }
 
 .scanned-highlight {
-  background-color: #ff9500;
-  color: #000000;
-  padding: 0 4px;
   font-weight: bold;
+  color: #1c1917;
+  padding: 0.05em 0.22em;
+  background-image: linear-gradient(
+    -2.5deg,
+    transparent 8%,
+    #f4e04a 8%,
+    #f7e56a 88%,
+    transparent 88%
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .border-vintage-double {
@@ -111,18 +161,187 @@
   background: repeating-linear-gradient(90deg, #292524, #292524 6px, transparent 6px, transparent 8px);
 }
 
-/* Zodiac Symbol Cell Grid Animations */
-@keyframes cipherPulse {
-  0%, 100% {
-    transform: scale(1);
+.fold-corner-card {
+  --fold-paper: #fdfbf6;
+  position: relative;
+  background: var(--fold-paper);
+}
+
+.fold-corner-card.is-reading {
+  --fold-paper: #fef3c7;
+}
+
+.fold-corner-card::before,
+.fold-corner-card::after {
+  content: "";
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.fold-corner-card::before {
+  right: 0;
+  bottom: 0;
+  border: 15px solid var(--fold-paper);
+  border-top-color: transparent;
+  border-left-color: transparent;
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.45);
+  transform: translate(-22px, -22px) rotate(178deg) scale(73%);
+  transform-origin: 100% 100%;
+  z-index: 4;
+  border-radius: 0% 0% 10%;
+}
+
+.fold-corner-card::after {
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 22px 22px;
+  border-color: transparent transparent #f8f3e8 transparent;
+  z-index: 3;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  padding: 0;
+  align-items: stretch;
+}
+
+.modal-sheet {
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fcf9f2;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 599px) {
+  .modal-sheet {
+    max-width: 100% !important;
+    max-height: 100dvh !important;
   }
-  50% {
-    transform: scale(1.04);
+
+  .modal-backdrop.is-slip {
+    padding: 1rem;
+    align-items: center;
+  }
+
+  .modal-sheet.is-slip {
+    height: auto;
+    max-height: none !important;
+    max-width: 24rem !important;
+    border: 2px solid #292524;
+    border-radius: 2px;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .is-slip .modal-masthead {
+    padding-top: 0.5rem;
+    min-height: 0;
+  }
+
+  .is-slip .modal-action-dock {
+    padding-bottom: 0;
   }
 }
 
-.animate-cipher-pulse {
-  animation: cipherPulse 1.2s ease-in-out infinite;
+.modal-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: #ebe4d4;
+  color: #1c1917;
+  border-bottom: 2px solid #b45309;
+  padding: 0.5rem 0.75rem;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  min-height: 3.25rem;
+}
+
+.modal-masthead button[aria-label="Close"] {
+  flex-shrink: 0;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-tagline {
+  display: none;
+}
+
+.modal-action-dock {
+  flex-shrink: 0;
+  background: #ebe4d4;
+  border-top: 2px solid #b45309;
+  padding: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 600px) {
+  .modal-backdrop {
+    padding: 1rem;
+    align-items: center;
+  }
+
+  .modal-sheet {
+    height: auto;
+    max-height: 90vh !important;
+    border: 2px solid #292524;
+    border-radius: 2px;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .modal-masthead {
+    padding: 0.75rem 1rem;
+    min-height: 0;
+  }
+
+  .modal-masthead button[aria-label="Close"] {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .modal-tagline {
+    display: block;
+  }
+
+  .modal-action-dock {
+    padding: 0.625rem 1rem;
+    padding-bottom: 0.625rem;
+  }
+}
+
+.evidence-slip {
+  background-color: #f3ead8;
+  background-image:
+    linear-gradient(90deg, rgba(160, 70, 50, 0.08) 0, rgba(160, 70, 50, 0.08) 2px, transparent 2px),
+    repeating-linear-gradient(
+      transparent,
+      transparent 22px,
+      rgba(120, 100, 70, 0.14) 22px,
+      rgba(120, 100, 70, 0.14) 23px
+    );
+  background-position: 1rem 0, 0 0.15rem;
+  box-shadow: 1px 2px 0 rgba(41, 37, 36, 0.18), 0 0 0 1px #c4b79a;
+}
+
+@media (min-width: 600px) {
+  .evidence-slip {
+    background-position: 1.75rem 0, 0 0.15rem;
+  }
 }
 
 /* Custom scrollbars for newspaper layout */

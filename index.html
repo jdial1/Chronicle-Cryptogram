@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chronicle Cryptogram</title>
     <link rel="icon" type="image/png" href="./pwa-192x192.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
@@ -14,11 +14,17 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Cinzel:wght@700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Cutive+Mono&family=IM+Fell+English:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Patrick+Hand&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Special+Elite&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=IM+Fell+English&family=Newsreader:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=Special+Elite&family=UnifrakturMaguntia&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=IM+Fell+English&family=Newsreader:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=Special+Elite&family=UnifrakturMaguntia&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=IM+Fell+English&family=Newsreader:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=Special+Elite&family=UnifrakturMaguntia&display=swap">
+    </noscript>
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"Chronicle Cryptogram","applicationCategory":"GameApplication","operatingSystem":"Any","description":"A vintage newspaper-styled Zodiac cipher puzzle game with daily cryptograms and global competitive leaderboards.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
   </head>
   <body class="bg-[#f7f3e8] text-[#1c1917] antialiased selection:bg-[#78350f] selection:text-amber-100 min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

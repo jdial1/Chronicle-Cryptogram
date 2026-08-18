@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import confetti from 'canvas-confetti';
 import { Header } from './components/Header';
 import { CryptogramGrid } from './components/CryptogramGrid';
 import { LeaderboardModal } from './components/LeaderboardModal';
@@ -8,6 +7,7 @@ import { ArchiveModal } from './components/ArchiveModal';
 import { AICipherGeneratorModal } from './components/AICipherGeneratorModal';
 import { FrequencyAnalysisModal } from './components/FrequencyAnalysisModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
+import { ArticleReaderModal } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { PrimerCoach } from './components/PrimerCoach';
 import { TodayStatsBulletin, LiveStatsRow, NightPostButton } from './components/TodayStatsBulletin';
@@ -18,7 +18,7 @@ import {
   fragmentsUpdatedByPuzzle,
 } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
-import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate } from './utils/edition';
+import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline } from './utils/edition';
 import { useDailyNotification } from './utils/useDailyNotification';
 import { useAuth } from './utils/useAuth';
 import {
@@ -45,9 +45,9 @@ import {
   playBackspaceClunk,
   playSolvedBell,
   playHintSound,
-  playPaperRustle,
   setAudioEnabled,
 } from './utils/audio';
+import { Search } from './icons';
 
 function isHardPuzzle(puzzle: PuzzleData) {
   return (
@@ -194,6 +194,7 @@ export default function App() {
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [isFrequencyOpen, setIsFrequencyOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
+  const [isArticleOpen, setIsArticleOpen] = useState(false);
 
   if (progressReadyId !== currentPuzzle.id) {
     const loaded = loadPuzzleState(currentPuzzle);
@@ -207,6 +208,7 @@ export default function App() {
     setShowErrors(false);
     setSelectedSymbolId(null);
     setIsSolveBulletinOpen(false);
+    setIsArticleOpen(false);
     setCaseFileToastPuzzle(null);
   }
 
@@ -259,7 +261,6 @@ export default function App() {
     } else if (uniqueSymbols.length > 0) {
       setSelectedSymbolId(uniqueSymbols[0].symbolId);
     }
-    playPaperRustle();
   }, [currentPuzzle.id]);
 
   useEffect(() => {
@@ -413,11 +414,13 @@ export default function App() {
       }
       playSolvedBell();
 
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
+      void import('canvas-confetti').then(({ default: fireConfetti }) => {
+        fireConfetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
+        });
       });
 
       const nextSolved = Array.from(new Set([...solvedPuzzleIds, currentPuzzle.id]));
@@ -515,7 +518,6 @@ export default function App() {
     if (window.confirm('Are you sure you want to reset all symbol mappings for this cryptogram?')) {
       setMappings({});
       setShowErrors(false);
-      playPaperRustle();
     }
   }, []);
 
@@ -664,18 +666,22 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col justify-between selection:bg-amber-200 ${
-        nightEdition ? 'bg-[#1a1612] text-amber-50' : 'bg-[#f7f3e8] text-stone-900'
+      className={`min-h-screen flex flex-col justify-between selection:bg-stone-300 selection:text-stone-950 ${
+        nightEdition ? 'bg-[#cfc3a8] text-stone-950' : 'bg-[#f7f3e8] text-stone-900'
       }`}
     >
+      <label htmlFor="cipher-letter-input" className="sr-only">
+        Type a letter to map the selected cipher glyph
+      </label>
       <input
+        id="cipher-letter-input"
         ref={hiddenInputRef}
         type="text"
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="none"
         spellCheck="false"
-        className="fixed opacity-0 pointer-events-none w-0 h-0"
+        className="fixed opacity-0 pointer-events-none w-0 h-0 text-base"
         style={{ left: '-9999px', top: '50%' }}
         value=""
         onChange={(e) => {
@@ -719,30 +725,38 @@ export default function App() {
       />
 
       {/* Main Newspaper Layout */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
+      <main className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
         {/* Authentic Newspaper Story Headline & Subdeck */}
         <section
-          className={`text-center sm:text-left pt-1 pb-3 ${
-            nightEdition ? 'border-b-2 border-amber-700' : 'border-b-2 border-stone-900'
+          className={`relative text-center sm:text-left pt-1 pb-3 pr-10 ${
+            nightEdition ? 'border-b-2 border-amber-800' : 'border-b-2 border-stone-900'
           }`}
         >
+          <button
+            type="button"
+            onClick={() => setIsArticleOpen(true)}
+            className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-stone-800 hover:bg-amber-100 cursor-pointer"
+            aria-label="Open article"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           <h2
-            className={`text-2xl sm:text-3xl md:text-4xl font-black tracking-tight uppercase leading-snug ${
-              nightEdition ? 'font-letterpress text-amber-100' : 'font-headline text-stone-950'
+            className={`text-[calc(1.5rem+2pt)] sm:text-[calc(1.875rem+2pt)] md:text-[calc(2.25rem+2pt)] font-black tracking-tight uppercase leading-snug ${
+              nightEdition ? 'font-letterpress text-stone-950' : 'font-headline text-stone-950'
             }`}
           >
             {currentPuzzle.headline}
           </h2>
-          <p className={`font-treatise text-sm sm:text-base italic mt-1 ${nightEdition ? 'text-amber-100/80' : 'text-stone-800'}`}>
-            {currentPuzzle.subheadline} —{' '}
-            <span className={`not-italic font-semibold font-newspaper ${nightEdition ? 'text-amber-200' : 'text-stone-950'}`}>
-              {currentPuzzle.authorOrSource}
-            </span>
+          <p className="font-treatise text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800">
+            {articleDek(currentPuzzle)}
+          </p>
+          <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
+            — {articleByline(currentPuzzle)}
           </p>
         </section>
 
         {/* The Interactive Zodiac Cryptogram Board */}
-        <section className="flex-1 flex flex-col justify-center">
+        <section className="flex-1 flex flex-col justify-center min-w-0">
           {isPrimerPuzzle(currentPuzzle) && !boardSolved && (
             <PrimerCoach
               words={words}
@@ -777,7 +791,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleOpenTodayEdition}
-                className="w-full px-4 py-2.5 bg-stone-950 hover:bg-stone-800 text-amber-100 font-typewriter font-bold text-xs uppercase rounded-xs cursor-pointer shadow-xs transition-colors"
+                className="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase rounded-xs cursor-pointer shadow-xs transition-colors"
               >
                 Decode Today's Edition
               </button>
@@ -812,7 +826,6 @@ export default function App() {
         onClose={() => setIsSolveBulletinOpen(false)}
         currentPuzzle={currentPuzzle}
         timerSeconds={timerSeconds}
-        isHardUnlocked={isHardUnlocked}
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
         onOpenTodayEdition={handleOpenTodayEdition}
       />
@@ -881,6 +894,15 @@ export default function App() {
         onSelectSymbolFromFreq={(symId) => {
           if (boardReady && !isSolved) setSelectedSymbolId(symId);
         }}
+      />
+
+      <ArticleReaderModal
+        isOpen={isArticleOpen}
+        onClose={() => setIsArticleOpen(false)}
+        headline={currentPuzzle.headline}
+        body={articleDek(currentPuzzle)}
+        byline={articleByline(currentPuzzle)}
+        night={nightEdition}
       />
 
       <HowToPlayModal

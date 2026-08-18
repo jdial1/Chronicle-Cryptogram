@@ -26,24 +26,29 @@ export const FrequencyAnalysisModal: React.FC<FrequencyAnalysisModalProps> = ({
   const englishFrequenciesList = Object.entries(ENGLISH_LETTER_FREQUENCIES).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs select-none">
-      <div className="bg-[#fcf9f2] w-full max-w-3xl rounded-sm border-2 border-stone-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="bg-stone-900 text-stone-100 p-3 sm:p-4 flex items-center justify-between border-b-2 border-amber-600">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-amber-400" />
-            <div>
-              <h2 className="text-base sm:text-lg font-masthead font-bold tracking-wide text-amber-100 uppercase">
+    <div className="modal-backdrop z-50 select-none">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="frequency-title"
+        className="modal-sheet max-w-3xl"
+      >
+        <div className="modal-masthead">
+          <div className="flex items-center gap-2 min-w-0">
+            <BarChart3 className="w-5 h-5 shrink-0" />
+            <div className="min-w-0">
+              <h2 id="frequency-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
                 Cryptanalyst Frequency Table
               </h2>
-              <p className="text-[11px] font-mono-code text-stone-400">
+              <p className="modal-tagline text-[11px] font-mono-code text-stone-600 truncate">
                 Symbol Distribution vs. Standard English Letter Frequencies (ETAOIN SHRDLU)
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-stone-100 rounded hover:bg-stone-800 transition-colors cursor-pointer"
+            className="p-1 text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -51,19 +56,20 @@ export const FrequencyAnalysisModal: React.FC<FrequencyAnalysisModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4 bg-newsprint">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4 bg-newsprint">
           {/* Left: Active Cipher Symbol Frequencies */}
           <div className="bg-[#fdfbf6] p-3 sm:p-4 border border-stone-400 rounded-xs shadow-xs">
             <div className="flex items-center justify-between border-b-2 border-stone-800 pb-2 mb-3">
               <h3 className="font-headline font-bold text-sm text-stone-900 uppercase">
                 Current Puzzle Symbols ({symbolFrequencies.length} Unique)
               </h3>
-              <span className="text-[10px] font-mono-code text-stone-500 uppercase">Sorted by Count</span>
+              <span className="text-[10px] font-mono-code text-stone-700 uppercase">Sorted by Count</span>
             </div>
 
             <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
               {symbolFrequencies.map((item) => (
                 <button
+                  type="button"
                   key={item.symbolId}
                   onClick={() => {
                     if (onSelectSymbolFromFreq) onSelectSymbolFromFreq(item.symbolId);
@@ -79,17 +85,17 @@ export const FrequencyAnalysisModal: React.FC<FrequencyAnalysisModalProps> = ({
                       <span className="font-bold text-stone-900">
                         {item.count} {item.count === 1 ? 'time' : 'times'}
                       </span>
-                      <span className="text-[10px] text-stone-500">{item.percentage.toFixed(1)}% of text</span>
+                      <span className="text-[10px] text-stone-700">{item.percentage.toFixed(1)}% of text</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10px]">Mapped:</span>
+                    <span className="text-stone-700 text-[10px]">Mapped:</span>
                     <span
                       className={`w-6 h-6 flex items-center justify-center font-handwritten text-lg font-bold rounded-xs ${
                         item.mappedLetter
                           ? 'bg-amber-300 text-[#0f172a] border border-stone-800 font-bold'
-                          : 'bg-stone-200 text-stone-400 border border-dashed border-stone-400'
+                          : 'bg-stone-200 text-stone-700 border border-dashed border-stone-500'
                       }`}
                     >
                       {item.mappedLetter || '?'}
@@ -107,7 +113,7 @@ export const FrequencyAnalysisModal: React.FC<FrequencyAnalysisModalProps> = ({
                 <h3 className="font-headline font-bold text-sm text-stone-900 uppercase">
                   Standard English Frequencies
                 </h3>
-                <span className="text-[10px] font-mono-code text-stone-500">Normal Prose</span>
+                <span className="text-[10px] font-mono-code text-stone-700">Normal Prose</span>
               </div>
 
               <div className="grid grid-cols-4 gap-1 text-xs font-mono-code max-h-[160px] overflow-y-auto">
@@ -153,8 +159,9 @@ export const FrequencyAnalysisModal: React.FC<FrequencyAnalysisModalProps> = ({
         {/* Footer */}
         <div className="p-3 bg-[#f4eee1] border-t border-stone-400 flex justify-end">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-1.5 bg-stone-800 hover:bg-stone-900 text-stone-100 rounded-xs font-mono-code font-bold text-xs cursor-pointer"
+            className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 rounded-xs font-mono-code font-bold text-xs cursor-pointer"
           >
             Return to Cipher
           </button>

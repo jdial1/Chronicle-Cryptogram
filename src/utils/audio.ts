@@ -80,39 +80,6 @@ export function playBackspaceClunk() {
   osc.stop(now + 0.07);
 }
 
-// 3. Newsprint Page Rustle / Flip
-export function playPaperRustle() {
-  if (!soundEnabled) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  const bufferSize = ctx.sampleRate * 0.12;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-
-  const noise = ctx.createBufferSource();
-  noise.buffer = buffer;
-
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.frequency.setValueAtTime(1800, ctx.currentTime);
-  filter.Q.setValueAtTime(0.8, ctx.currentTime);
-
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.08, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-
-  noise.connect(filter);
-  filter.connect(gain);
-  gain.connect(ctx.destination);
-
-  noise.start();
-}
-
-// 4. Triumph Victory Dispatch Chime / Bell
 export function playSolvedBell() {
   if (!soundEnabled) return;
   const ctx = getAudioContext();

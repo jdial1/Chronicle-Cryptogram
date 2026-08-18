@@ -40,11 +40,33 @@ function readSubscribed() {
 }
 
 export function useDailyNotification() {
-  const supported = typeof window !== 'undefined' && 'Notification' in window;
+  const notificationApi = typeof window !== 'undefined' && 'Notification' in window;
   const [permission, setPermission] = useState<NotificationPermission>(() =>
-    supported ? Notification.permission : 'denied'
+    notificationApi ? Notification.permission : 'denied'
   );
   const [subscribed, setSubscribed] = useState(readSubscribed);
+  const [pwaReady, setPwaReady] = useState(false);
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    let cancelled = false;
+    const markReady = () => {
+      if (!cancelled && navigator.serviceWorker.controller) setPwaReady(true);
+    };
+    markReady();
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        if (!cancelled && reg.active) setPwaReady(true);
+      })
+      .catch(() => {});
+    navigator.serviceWorker.addEventListener('controllerchange', markReady);
+    return () => {
+      cancelled = true;
+      navigator.serviceWorker.removeEventListener('controllerchange', markReady);
+    };
+  }, []);
+
+  const supported = notificationApi && pwaReady;
 
   useEffect(() => {
     if (!supported) return;
@@ -58,7 +80,7 @@ export function useDailyNotification() {
       return;
     }
     showPaperNotice(
-      'The Daily Cryptogram',
+      'Chronicle Cryptogram',
       "The new paper has arrived! Uncover today's mystery."
     )
       .then(() => {
@@ -82,7 +104,7 @@ export function useDailyNotification() {
     const today = todayIsoDate();
     localStorage.setItem(LAST_KEY, today);
     await showPaperNotice(
-      'The Daily Cryptogram',
+      'Chronicle Cryptogram',
       'You are on the delivery list. We will ring when a new edition is on the stands.'
     ).catch(() => {});
   }, [subscribed, supported]);

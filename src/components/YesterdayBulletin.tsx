@@ -25,19 +25,21 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
   return (
     <section className="w-full bg-[#f6f1e6] border-2 border-stone-900 rounded-xs shadow-xs bg-scanned-doc overflow-hidden mb-2">
       {/* Newspaper Top Dispatch Ribbon */}
-      <div className="bg-stone-950 text-[#f7f3e8] px-3 sm:px-4 py-1.5 flex items-center justify-between flex-wrap gap-2 text-xs font-typewriter">
+      <div className="bg-[#ebe4d4] text-stone-950 px-3 sm:px-4 py-1.5 flex items-center justify-between flex-wrap gap-2 text-xs font-typewriter border-b border-stone-400">
         <div className="flex items-center gap-2 font-bold tracking-wider">
-          <span className="bg-stone-800 text-amber-200 px-1.5 py-0.5 text-[10px] uppercase font-bold rounded-xs">
+          <span className="bg-[#d6c9b0] text-stone-950 px-1.5 py-0.5 text-[10px] uppercase font-bold rounded-xs">
             YESTERDAY'S REPORT
           </span>
-          <span className="text-stone-300">
+          <span className="text-stone-600">
             Official Solution Transcript & Solve Records
           </span>
         </div>
 
         <button
+          type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-1 text-amber-200 hover:text-amber-100 font-semibold cursor-pointer font-typewriter text-xs"
+          aria-expanded={isExpanded}
+          className="flex items-center gap-1 text-stone-950 hover:text-stone-700 font-semibold cursor-pointer font-typewriter text-xs"
         >
           <span>{isExpanded ? 'Hide Record' : 'View Record & Quote'}</span>
           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -50,7 +52,7 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Zap className="w-4 h-4 text-amber-800 fill-amber-500 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
+            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
               Quickest Solve
             </span>
               <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
@@ -63,7 +65,7 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Users className="w-4 h-4 text-stone-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
+            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
               Total Solvers
             </span>
             <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
@@ -76,7 +78,7 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <TrendingUp className="w-4 h-4 text-emerald-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
+            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
               Solve Rate
             </span>
             <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
@@ -89,7 +91,7 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Award className="w-4 h-4 text-stone-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
+            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
               Average Time
             </span>
               <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
@@ -116,7 +118,7 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
             <div className="flex items-center justify-end gap-2 pt-1 font-typewriter">
               <button
                 onClick={() => onViewYesterdayPuzzle('Easy')}
-                className="flex items-center gap-1 px-2.5 py-1 bg-stone-900 hover:bg-stone-800 text-amber-100 font-typewriter font-bold text-xs rounded-xs cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs rounded-xs cursor-pointer"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Play Yesterday's Puzzle</span>

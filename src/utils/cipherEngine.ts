@@ -137,24 +137,47 @@ export interface HomophonicCipherMap {
   symbolIdToInfo: Record<string, { glyph: string; targetLetter: string; name: string }>;
 }
 
-/**
- * Deterministically constructs a cipher mapping with frequency suppression from the 54 Zodiac killer symbols
- */
-export function buildCipherAlphabet(seedString: string, isHomophonic: boolean = true): HomophonicCipherMap {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-  // Deterministic seed hash
+function hashSeed(seedString: string): number {
   let hash = 0;
   for (let i = 0; i < seedString.length; i++) {
     hash = (hash << 5) - hash + seedString.charCodeAt(i);
     hash |= 0;
   }
+  return hash;
+}
 
-  // Shuffle symbols deterministically based on seed
+function nextSeed(currentSeed: number): number {
+  return (currentSeed * 9301 + 49297) % 233280;
+}
+
+function xorWithHashedKey(bytes: number[], puzzleId: string): number[] {
+  let seed = Math.abs(hashSeed(puzzleId)) || 1;
+  return bytes.map((byte) => {
+    seed = nextSeed(seed);
+    return byte ^ Math.floor((seed / 233280) * 256);
+  });
+}
+
+export function encryptOriginalText(text: string, puzzleId: string): string {
+  const cipherBytes = xorWithHashedKey(Array.from(new TextEncoder().encode(text)), puzzleId);
+  return cipherBytes.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+export function decryptOriginalText(cipherHex: string, puzzleId: string): string {
+  const cipherBytes: number[] = [];
+  for (let i = 0; i < cipherHex.length; i += 2) {
+    cipherBytes.push(parseInt(cipherHex.slice(i, i + 2), 16));
+  }
+  return new TextDecoder().decode(new Uint8Array(xorWithHashedKey(cipherBytes, puzzleId)));
+}
+
+export function buildCipherAlphabet(seedString: string, isHomophonic: boolean = true): HomophonicCipherMap {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
   const symbols = [...ZODIAC_SYMBOLS_PALETTE];
-  let currentSeed = Math.abs(hash);
+  let currentSeed = Math.abs(hashSeed(seedString));
   for (let i = symbols.length - 1; i > 0; i--) {
-    currentSeed = (currentSeed * 9301 + 49297) % 233280;
+    currentSeed = nextSeed(currentSeed);
     const j = Math.floor((currentSeed / 233280) * (i + 1));
     const temp = symbols[i];
     symbols[i] = symbols[j];

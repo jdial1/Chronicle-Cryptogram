@@ -161,24 +161,29 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs select-none">
-      <div className="bg-[#fcf9f2] w-full max-w-3xl rounded-sm border-2 border-stone-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Newspaper Masthead Modal Header */}
-        <div className="bg-stone-900 text-stone-100 p-3 sm:p-4 flex items-center justify-between border-b-2 border-amber-600">
-          <div className="flex items-center gap-2.5">
-            <Trophy className="w-5 h-5 text-amber-400 fill-amber-400" />
-            <div>
-              <h2 className="text-base sm:text-lg font-masthead font-bold tracking-wide text-amber-100 uppercase">
+    <div className="modal-backdrop z-50 select-none">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leaderboard-title"
+        className="modal-sheet max-w-3xl"
+      >
+        <div className="modal-masthead">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Trophy className="w-5 h-5 fill-current shrink-0" />
+            <div className="min-w-0">
+              <h2 id="leaderboard-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
                 Global Codebreaker Leaderboard
               </h2>
-              <p className="text-[11px] font-mono-code text-stone-400">
+              <p className="modal-tagline text-[11px] font-mono-code text-stone-600 truncate">
                 {currentPuzzleTitle}
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-stone-400 hover:text-stone-100 rounded hover:bg-stone-800 transition-colors cursor-pointer"
+            className="p-1 text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -192,7 +197,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               onClick={() => setActiveTab('today_easy')}
               className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
                 activeTab === 'today_easy'
-                  ? 'bg-emerald-800 text-emerald-100 shadow-xs'
+                  ? 'bg-emerald-700 text-stone-950 shadow-xs'
                   : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
               }`}
             >
@@ -202,7 +207,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               onClick={() => setActiveTab('today_hard')}
               className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
                 activeTab === 'today_hard'
-                  ? 'bg-amber-900 text-amber-100 shadow-xs'
+                  ? 'bg-amber-800 text-stone-950 shadow-xs'
                   : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
               }`}
             >
@@ -213,7 +218,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 onClick={() => setActiveTab('yesterday_easy')}
                 className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
                   activeTab === 'yesterday_easy'
-                    ? 'bg-stone-900 text-amber-100 shadow-xs'
+                    ? 'bg-amber-600 text-stone-950 shadow-xs'
                     : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
                 }`}
               >
@@ -225,7 +230,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 onClick={() => setActiveTab('yesterday_hard')}
                 className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
                   activeTab === 'yesterday_hard'
-                    ? 'bg-stone-900 text-amber-100 shadow-xs'
+                    ? 'bg-amber-600 text-stone-950 shadow-xs'
                     : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
                 }`}
               >
@@ -235,9 +240,11 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={loadBoard}
-            className="flex items-center gap-1 text-stone-600 hover:text-stone-900 p-1 cursor-pointer"
+            className="flex items-center gap-1 text-stone-700 hover:text-stone-900 p-1 cursor-pointer"
             title="Refresh Live Standings"
+            aria-label="Refresh live standings"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
@@ -256,7 +263,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             <button
               type="button"
               onClick={onSignIn}
-              className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-amber-50 font-mono-code font-bold text-xs rounded-xs cursor-pointer"
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-mono-code font-bold text-xs rounded-xs cursor-pointer"
             >
               Sign In With Google
             </button>
@@ -274,8 +281,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
             <form onSubmit={handleSubmitScore} className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-mono-code">
               <div>
-                <label className="block text-[10px] text-stone-600 font-bold uppercase mb-0.5">Agent Codename</label>
+                <label htmlFor="agent-codename" className="block text-[10px] text-stone-700 font-bold uppercase mb-0.5">Agent Codename</label>
                 <input
+                  id="agent-codename"
                   type="text"
                   required
                   maxLength={20}
@@ -287,8 +295,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] text-stone-600 font-bold uppercase mb-0.5">Bureau Title</label>
+                <label htmlFor="bureau-title" className="block text-[10px] text-stone-700 font-bold uppercase mb-0.5">Bureau Title</label>
                 <select
+                  id="bureau-title"
                   value={selectedBadge}
                   onChange={(e) => setSelectedBadge(e.target.value)}
                   className="w-full px-2 py-1.5 bg-white border border-stone-400 rounded-xs text-stone-900 font-semibold"
@@ -302,8 +311,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[10px] text-stone-600 font-bold uppercase mb-0.5">Country / Region</label>
+                <label htmlFor="agent-country" className="block text-[10px] text-stone-700 font-bold uppercase mb-0.5">Country / Region</label>
                 <select
+                  id="agent-country"
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
                   className="w-full px-2 py-1.5 bg-white border border-stone-400 rounded-xs text-stone-900 font-semibold"
@@ -320,7 +330,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting || !codename.trim()}
-                  className="w-full py-1.5 bg-amber-700 hover:bg-amber-800 text-amber-50 font-bold rounded-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-bold rounded-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isSubmitting ? 'Verifying...' : 'Post to Leaderboard'}</span>
@@ -344,23 +354,25 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         {/* Search Bar */}
         <div className="p-2 sm:p-3 bg-[#fdfbf6] border-b border-stone-300 flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-stone-500 absolute left-2.5 top-2.5" />
+            <Search className="w-4 h-4 text-stone-700 absolute left-2.5 top-2.5" />
             <input
-              type="text"
+              id="leaderboard-search"
+              type="search"
               placeholder="Search by agent codename, title, or country..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search by agent codename, title, or country"
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-stone-400 rounded-xs font-newspaper text-stone-900"
             />
           </div>
         </div>
 
         {/* Leaderboard Table */}
-        <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-newsprint">
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 bg-newsprint">
           <div className="border border-stone-400 rounded-xs bg-[#fdfbf7] overflow-hidden shadow-xs">
             <table className="w-full text-left border-collapse text-xs font-mono-code">
               <thead>
-                <tr className="bg-stone-800 text-stone-100 border-b border-stone-700">
+                <tr className="bg-[#ebe4d4] text-stone-950 border-b border-stone-400">
                   <th className="p-2 sm:p-2.5 text-center w-12">Rank</th>
                   <th className="p-2 sm:p-2.5">Agent Codename & Badge</th>
                   <th className="p-2 sm:p-2.5 text-right">Time</th>
@@ -372,7 +384,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               <tbody className="divide-y divide-stone-300">
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-stone-500 italic font-newspaper">
+                    <td colSpan={6} className="p-6 text-center text-stone-700 italic font-newspaper">
                       No matching records found in the cryptographic archives.
                     </td>
                   </tr>
@@ -401,7 +413,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                               2
                             </span>
                           ) : isTop3 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-700 text-amber-100 font-bold">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-700 text-stone-950 font-bold">
                               3
                             </span>
                           ) : (
@@ -465,8 +477,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         <div className="p-3 bg-[#f4eee1] border-t border-stone-400 flex items-center justify-between text-xs font-mono-code text-stone-600">
           <span>Official Timings Certified by Bureau of Cryptanalysis</span>
           <button
+            type="button"
             onClick={onClose}
-            className="px-3 py-1 bg-stone-800 hover:bg-stone-900 text-stone-100 rounded-xs font-bold cursor-pointer"
+            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-stone-950 rounded-xs font-bold cursor-pointer"
           >
             Close Records
           </button>

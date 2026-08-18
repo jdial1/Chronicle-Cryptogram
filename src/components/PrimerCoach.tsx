@@ -75,9 +75,9 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
 
   return (
     <aside className="mb-3 border-2 border-stone-800 bg-[#f8f3e8] overflow-hidden">
-      <div className="bg-stone-900 text-amber-100 px-3 py-1.5 flex items-center justify-between gap-2">
+      <div className="bg-[#ebe4d4] text-stone-950 px-3 py-1.5 flex items-center justify-between gap-2 border-b border-stone-400">
         <span className="flex items-center gap-2 min-w-0">
-          <Key className="w-4 h-4 text-amber-400 shrink-0" />
+          <Key className="w-4 h-4 shrink-0" />
           <span className="font-typewriter font-black text-[10px] uppercase tracking-widest truncate">
             Five Tells Of English
           </span>
@@ -86,7 +86,7 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
           <button
             type="button"
             onClick={onOpenHandbook}
-            className="inline-flex items-center gap-1 font-typewriter font-bold text-[10px] uppercase tracking-widest text-amber-300 hover:text-amber-100 cursor-pointer"
+            className="inline-flex items-center gap-1 font-typewriter font-bold text-[10px] uppercase tracking-widest text-stone-700 hover:text-stone-950 cursor-pointer"
           >
             <BookOpen className="w-3.5 h-3.5" />
             Handbook
@@ -105,7 +105,7 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
                   ? 'border-emerald-700/50 bg-emerald-50/70'
                   : active
                     ? 'border-amber-700 bg-amber-100/70 ring-1 ring-amber-700'
-                    : 'border-stone-300 bg-[#fdfbf6] opacity-70'
+                    : 'border-stone-300 bg-[#fdfbf6]'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -156,6 +156,8 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
                       : 'bg-[#fdfbf6] border-stone-400 hover:border-stone-700'
                 }`}
                 title={`${item.count} ${item.count === 1 ? 'time' : 'times'}${item.mappedLetter ? ` → ${item.mappedLetter}` : ''}`}
+                aria-label={`Glyph ${item.glyph}, ${item.count} ${item.count === 1 ? 'time' : 'times'}${item.mappedLetter ? `, mapped to ${item.mappedLetter}` : ', unmapped'}`}
+                aria-pressed={selected}
               >
                 <span className="font-treatise text-base leading-none text-stone-950">{item.glyph}</span>
                 <span className="font-typewriter font-black text-[10px] text-stone-800 leading-none mt-0.5">

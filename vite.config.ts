@@ -15,7 +15,26 @@ export default defineConfig(() => {
         injectRegister: false,
         includeAssets: ['apple-touch-icon.png', 'mask-icon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}']
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+                expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] }
+              }
+            }
+          ]
         },
         manifest: {
           start_url: '.',
