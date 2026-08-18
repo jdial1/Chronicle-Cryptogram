@@ -106,7 +106,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
           <button
             type="button"
             onClick={onClose}
-            className="w-full min-h-12 sm:w-auto sm:min-h-0 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer"
+            className="woodblock-stamp w-full min-h-12 sm:w-auto sm:min-h-0 px-4 py-1.5 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer"
           >
             I'm Ready to Decode
           </button>

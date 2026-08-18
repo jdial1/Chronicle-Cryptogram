@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from '../icons';
+import { Search, X } from '../icons';
 
 interface ArticleReaderModalProps {
   isOpen: boolean;
@@ -14,9 +14,6 @@ const ZOOM_MIN = 0.9;
 const ZOOM_MAX = 1.8;
 const ZOOM_STEP = 0.15;
 const ZOOM_DEFAULT = 1;
-
-const zoomBtn =
-  'w-8 h-8 flex items-center justify-center font-typewriter font-bold text-base text-stone-950 cursor-pointer disabled:opacity-30 disabled:cursor-default hover:bg-stone-200';
 
 export function DropCapParagraph({
   text,
@@ -86,28 +83,26 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
         </div>
 
         <div className="relative flex-1 min-h-0 flex flex-col bg-newsprint">
-          <div className="absolute top-1.5 right-1.5 z-20 flex items-stretch border border-stone-800 bg-[#f7f1e4]">
+          <div className="absolute top-1.5 right-1.5 z-20 brass-loupe">
             <button
               type="button"
-              className={`${zoomBtn} border-r border-stone-800`}
               aria-label="Decrease article text size"
               disabled={zoom <= ZOOM_MIN}
               onClick={() =>
                 setZoom((value) => Math.max(ZOOM_MIN, Math.round((value - ZOOM_STEP) * 100) / 100))
               }
             >
-              −
+              <Search className="w-3 h-3" />
             </button>
             <button
               type="button"
-              className={zoomBtn}
               aria-label="Increase article text size"
               disabled={zoom >= ZOOM_MAX}
               onClick={() =>
                 setZoom((value) => Math.min(ZOOM_MAX, Math.round((value + ZOOM_STEP) * 100) / 100))
               }
             >
-              +
+              <Search className="w-5 h-5" />
             </button>
           </div>
           <div

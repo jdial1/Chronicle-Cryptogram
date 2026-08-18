@@ -80,7 +80,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 16,
     title: 'The Lone Wolf',
     parts: [
-      t('Realizing the entire NYPD is on the mob payroll, I know I must ', 'Morning'),
+      t('The Mayor is out and I cannot trust my own Chief. I know I must ', 'Morning'),
       q('Morning'),
       t('. I officially burn my bridges and go rogue.', 'Morning'),
     ],
@@ -150,9 +150,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 9,
     title: 'The Mother Twist',
     parts: [
-      t('The ultimate liar. Born out of wedlock before her marriage, a birth certificate proves '),
+      t('The ultimate liar. A birth certificate in the wall safe proves '),
       q('Morning'),
-      t(', hiding an illegitimate past from high society.', 'Morning'),
+      t('. The girl was born out of wedlock before Beatrice married Vance.', 'Morning'),
     ],
   },
   {
@@ -344,9 +344,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 25,
     title: 'The Convict',
     parts: [
-      t('Tackled into the Hudson. '),
+      t('Tackled into the Hudson. Under the lights he finally said it: '),
       q('Morning'),
-      t('. ', 'Morning'),
+      t('. Then he named his partner. ', 'Morning'),
       q('Evening'),
       t('.', 'Evening'),
     ],

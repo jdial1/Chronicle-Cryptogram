@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CryptogramWord, SymbolMapping } from '../types';
-import { DecodedStamp, RotateCcw } from '../icons';
+import { DecodedStamp, Search } from '../icons';
 
 interface CryptogramGridProps {
   words: CryptogramWord[];
@@ -25,8 +25,6 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   isSolved,
 }) => {
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
-  const zoomBtn =
-    'w-8 h-8 flex items-center justify-center font-typewriter font-bold text-base text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default hover:bg-amber-100';
 
   return (
     <div
@@ -39,33 +37,30 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
       }`}
     >
       {!isSolved && (
-        <div className="absolute top-1.5 right-1.5 z-20 flex items-stretch border border-stone-800 bg-[#f7f1e4] shadow-xs">
+        <div className="absolute top-1.5 right-1.5 z-20 brass-loupe">
           <button
             type="button"
-            className={zoomBtn}
             aria-label="Decrease puzzle text size"
             disabled={zoom <= ZOOM_MIN}
             onClick={() => setZoom((value) => Math.max(ZOOM_MIN, Math.round((value - ZOOM_STEP) * 100) / 100))}
           >
-            −
+            <Search className="w-3 h-3" />
           </button>
           <button
             type="button"
-            className={`${zoomBtn} border-x border-stone-800`}
             aria-label="Reset puzzle text size"
             disabled={zoom === ZOOM_DEFAULT}
             onClick={() => setZoom(ZOOM_DEFAULT)}
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <Search className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            className={zoomBtn}
             aria-label="Increase puzzle text size"
             disabled={zoom >= ZOOM_MAX}
             onClick={() => setZoom((value) => Math.min(ZOOM_MAX, Math.round((value + ZOOM_STEP) * 100) / 100))}
           >
-            +
+            <Search className="w-5 h-5" />
           </button>
         </div>
       )}

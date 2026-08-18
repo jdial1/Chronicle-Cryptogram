@@ -226,6 +226,7 @@ export const Header: React.FC<HeaderProps> = ({
           : 'bg-[#fbf7ee] text-stone-800 border-b-2 border-stone-900'
       }`}
     >
+      <title>Chronicle Cryptogram</title>
       <div className="px-3 sm:px-6 py-4 sm:py-6 text-center overflow-hidden">
         <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
           {night ? (

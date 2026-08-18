@@ -35,7 +35,7 @@ function NoteBody({ fragment }: { fragment: AssembledFragment }) {
     <p className="font-typewriter text-[13px] text-stone-800 leading-[23px] scanned-ink">
       {fragment.segments.map((segment, index) =>
         segment.kind === 'quote' ? (
-          <span key={index} className="scanned-highlight font-typewriter tracking-wide">
+          <span key={index} className="scanned-double-underline font-typewriter tracking-wide">
             {segment.value}
           </span>
         ) : (

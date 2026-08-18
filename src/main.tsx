@@ -4,6 +4,7 @@ import App from './App.tsx';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 
+document.title = 'Chronicle Cryptogram';
 registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')!).render(

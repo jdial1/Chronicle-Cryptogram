@@ -803,7 +803,7 @@ export default function App() {
           <DropCapParagraph
             text={articleDek(currentPuzzle)}
             night={nightEdition}
-            className="font-treatise text-left text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800 leading-[1.65]"
+            className="article-dek-board font-treatise text-left text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800 leading-[1.65]"
           />
           <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
             — {articleByline(currentPuzzle)}
@@ -824,7 +824,7 @@ export default function App() {
             />
           )}
           {isFirebaseEnabled && boardSolved && !isSolveBulletinOpen && !isPrimerPuzzle(currentPuzzle) && (
-            <div className="mb-3">
+            <div className="mb-3 hidden sm:block">
               <LiveStatsRow puzzleId={currentPuzzle.id} />
             </div>
           )}
