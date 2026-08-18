@@ -22,7 +22,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '00:38.4',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'US',
       timestamp: '2026-08-17T08:12:00Z',
       isToday: true,
@@ -36,7 +35,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '00:46.2',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'CA',
       timestamp: '2026-08-17T09:05:14Z',
       isToday: true,
@@ -50,7 +48,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '00:54.8',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'GB',
       timestamp: '2026-08-17T09:40:22Z',
       isToday: true,
@@ -64,7 +61,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:08.1',
       hintsUsed: 1,
       accuracy: 95,
-      penMode: 'pen',
       countryCode: 'AU',
       timestamp: '2026-08-17T10:15:00Z',
       isToday: true,
@@ -80,7 +76,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:11.4',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'US',
       timestamp: '2026-08-17T09:14:22Z',
       isToday: true,
@@ -94,7 +89,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:24.8',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'GB',
       timestamp: '2026-08-17T10:02:11Z',
       isToday: true,
@@ -108,7 +102,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:38.2',
       hintsUsed: 1,
       accuracy: 96,
-      penMode: 'pen',
       countryCode: 'CA',
       timestamp: '2026-08-17T11:45:00Z',
       isToday: true,
@@ -122,7 +115,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:55.0',
       hintsUsed: 1,
       accuracy: 94,
-      penMode: 'pen',
       countryCode: 'AU',
       timestamp: '2026-08-17T12:10:45Z',
       isToday: true,
@@ -136,7 +128,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '02:22.3',
       hintsUsed: 2,
       accuracy: 92,
-      penMode: 'pencil',
       countryCode: 'DE',
       timestamp: '2026-08-17T13:20:18Z',
       isToday: true,
@@ -152,7 +143,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '00:42.1',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'US',
       timestamp: '2026-08-16T14:10:00Z',
     },
@@ -167,7 +157,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:14.2',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'FR',
       timestamp: '2026-08-16T15:22:00Z',
     },
@@ -182,7 +171,6 @@ const leaderboardStore: Record<string, LeaderboardEntry[]> = {
       timeFormatted: '01:52.5',
       hintsUsed: 0,
       accuracy: 100,
-      penMode: 'pen',
       countryCode: 'US',
       timestamp: '2026-08-15T18:00:00Z',
     },
@@ -269,7 +257,7 @@ async function startServer() {
 
   // Submit Leaderboard Entry
   app.post('/api/leaderboard/submit', (req: Request, res: Response) => {
-    const { puzzleId, codename, titleBadge, timeSeconds, timeFormatted, hintsUsed, accuracy, penMode, countryCode } = req.body;
+    const { puzzleId, codename, titleBadge, timeSeconds, timeFormatted, hintsUsed, accuracy, countryCode } = req.body;
 
     if (!puzzleId || !codename || typeof timeSeconds !== 'number') {
       return res.status(400).json({ error: 'Invalid submission data' });
@@ -288,7 +276,6 @@ async function startServer() {
       timeFormatted: timeFormatted || `${Math.floor(timeSeconds / 60)}:${(timeSeconds % 60).toFixed(1)}`,
       hintsUsed: Number(hintsUsed) || 0,
       accuracy: Math.min(100, Math.max(0, Number(accuracy) || 100)),
-      penMode: penMode === 'pencil' ? 'pencil' : 'pen',
       countryCode: (countryCode || 'US').toUpperCase().substring(0, 2),
       timestamp: new Date().toISOString(),
       isToday: true,

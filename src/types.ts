@@ -69,14 +69,12 @@ export interface LeaderboardEntry {
   timeFormatted: string; // '01:42.5'
   hintsUsed: number;
   accuracy: number; // 0-100%
-  penMode: 'pen' | 'pencil';
   countryCode: string;
   timestamp: string;
   isToday?: boolean;
 }
 
-export type SymbolMapping = Record<string, string>; // symbolId -> mappedLetter ('A'-'Z' or '')
-export type PencilMapping = Record<string, string[]>; // symbolId -> array of candidate letters
+export type SymbolMapping = Record<string, string>;
 
 export interface GameStats {
   puzzlesPlayed: number;
@@ -87,4 +85,21 @@ export interface GameStats {
   totalTimePlayed: number;
   averageAccuracy: number;
   leaderboardSubmissions: number;
+}
+
+export interface PuzzleProgress {
+  mappings: SymbolMapping;
+  timerSeconds: number;
+  hintsUsed: number;
+  hintsRemaining: number;
+  isSolved: boolean;
+}
+
+export interface PuzzleLiveStats {
+  puzzleId: string;
+  startedCount: number;
+  completeCount: number;
+  totalTimeSeconds: number;
+  fastestTime: number | null;
+  fastestSolverName: string | null;
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Delete, Lightbulb, CheckSquare, Edit3, PenTool, RotateCcw, Keyboard, ChevronDown, ChevronUp } from 'lucide-react';
+import { Delete, Lightbulb, CheckSquare, RotateCcw, Keyboard, ChevronDown, ChevronUp } from '../icons';
 import { SymbolMapping } from '../types';
 
 interface VirtualKeyboardProps {
@@ -10,8 +10,6 @@ interface VirtualKeyboardProps {
   onUseHint: () => void;
   onToggleShowErrors: () => void;
   showErrors: boolean;
-  penMode: 'pen' | 'pencil';
-  onTogglePenMode: () => void;
   mappings: SymbolMapping;
   selectedSymbolId: string | null;
   selectedLetter: string;
@@ -32,8 +30,6 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   onUseHint,
   onToggleShowErrors,
   showErrors,
-  penMode,
-  onTogglePenMode,
   mappings,
   selectedSymbolId,
   selectedLetter,
@@ -51,38 +47,8 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
       className="w-full bg-[#f4eee1] p-3 sm:p-4 border-2 border-stone-800 shadow-md max-w-4xl mx-auto rounded-sm select-none mt-2"
     >
       {/* Sleek Decoder Control Bar */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        {/* Left: Pen vs Pencil Mode & Erase */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-[#faf6ed] p-0.5 rounded border border-stone-400">
-            <button
-              type="button"
-              onClick={onTogglePenMode}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono-code font-bold rounded-xs transition-colors cursor-pointer ${
-                penMode === 'pen'
-                  ? 'bg-stone-900 text-amber-100 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950'
-              }`}
-              title="Ink Pen: Direct Cipher Mapping"
-            >
-              <PenTool className="w-3.5 h-3.5 text-amber-300" />
-              <span>PEN</span>
-            </button>
-            <button
-              type="button"
-              onClick={onTogglePenMode}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono-code font-bold rounded-xs transition-colors cursor-pointer ${
-                penMode === 'pencil'
-                  ? 'bg-stone-700 text-stone-100 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950'
-              }`}
-              title="Graphite Pencil: Pencil Marks"
-            >
-              <Edit3 className="w-3.5 h-3.5 text-stone-300" />
-              <span>PENCIL</span>
-            </button>
-          </div>
-
           <button
             type="button"
             onClick={onClearSymbol}

@@ -1,0 +1,340 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (Firebase Auth uid)
+    // Fields:
+    //   - uid: string (required, immutable, must equal userId)
+    //   - displayName: string (required, 1-80)
+    //   - photoURL: string (optional, empty or https URL, <= 500)
+    //   - codename: string (required, 1-24)
+    //   - titleBadge: string (required, 1-60)
+    //   - countryCode: string (required, exactly 2 A-Z)
+    //   - puzzlesPlayed: number (required, 0-100000)
+    //   - puzzlesSolved: number (required, 0-100000)
+    //   - currentStreak: number (required, 0-100000)
+    //   - maxStreak: number (required, 0-100000)
+    //   - fastestTime: number|null (optional, 0-86400 when number)
+    //   - totalTimePlayed: number (required, 0-100000000)
+    //   - averageAccuracy: number (required, 0-100)
+    //   - leaderboardSubmissions: number (required, 0-100000)
+    //   - solvedPuzzleIds: list (required, <= 500 string ids)
+    //   - createdAt: timestamp (required, immutable)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: users/{userId}/progress
+    // Document ID: {puzzleId}
+    // Fields:
+    //   - puzzleId: string (required, immutable, 1-80, equals document id)
+    //   - mappings: map (required, <= 40 keys)
+    //   - timerSeconds: number (required, 0-86400)
+    //   - hintsUsed: number (required, 0-20)
+    //   - hintsRemaining: number (required, 0-3)
+    //   - isSolved: boolean (required, cannot revert to false)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: starts
+    // Document ID: {uid}_{puzzleId}
+    // Fields:
+    //   - uid: string (required, immutable, equals auth.uid)
+    //   - puzzleId: string (required, 1-80)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: solves
+    // Document ID: {uid}_{puzzleId}
+    // Fields:
+    //   - uid: string (required, immutable, equals auth.uid)
+    //   - puzzleId: string (required, 1-80)
+    //   - timeSeconds: number (required, > 0, <= 86400)
+    //   - hintsUsed: number (required, 0-20)
+    //   - accuracy: number (required, 0-100)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: puzzleStats
+    // Document ID: {puzzleId}
+    // Fields:
+    //   - puzzleId: string (required, immutable, equals document id)
+    //   - startedCount: number (required, >= 0)
+    //   - completeCount: number (required, >= 0)
+    //   - totalTimeSeconds: number (required, >= 0)
+    //   - fastestTime: number|null
+    //   - fastestSolverName: string|null (<= 80)
+    //   - updatedAt: timestamp (required)
+    // Public read is intentional: aggregate solve counts and times only.
+    //
+    // Collection: leaderboard/{puzzleId}/entries
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required, immutable, equals userId and auth.uid)
+    //   - puzzleId: string (required, immutable, equals parent puzzleId)
+    //   - codename: string (required, 1-24)
+    //   - titleBadge: string (required, 1-60)
+    //   - timeSeconds: number (required, > 0, <= 86400)
+    //   - timeFormatted: string (required, 1-16)
+    //   - hintsUsed: number (required, 0-20)
+    //   - accuracy: number (required, 0-100)
+    //   - countryCode: string (required, exactly 2 A-Z)
+    //   - timestamp: timestamp (required)
+    // Public read is intentional: competitive codenames and times only.
+    //
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function isRecentTimestamp(time) {
+      return time is timestamp &&
+        time > request.time - duration.value(5, 'm') &&
+        time <= request.time;
+    }
+
+    function inRange(value, minVal, maxVal) {
+      return value is number && value >= minVal && value <= maxVal;
+    }
+
+    function validString(value, minLen, maxLen) {
+      return value is string && value.size() >= minLen && value.size() <= maxLen;
+    }
+
+    function validCountry(code) {
+      return code is string && code.matches('^[A-Z]{2}$');
+    }
+
+    function validPhotoUrl(url) {
+      return url is string && url.size() <= 500 &&
+        (url.size() == 0 || url.matches('^https://.*'));
+    }
+
+    function validFastest(value) {
+      return value == null || inRange(value, 0, 86400);
+    }
+
+    function validSolverName(value) {
+      return value == null || validString(value, 0, 80);
+    }
+
+    function validIdList(list) {
+      return list is list && list.size() <= 500;
+    }
+
+    function startPath(puzzleId) {
+      return /databases/$(database)/documents/starts/$(request.auth.uid + '_' + puzzleId);
+    }
+
+    function solvePath(puzzleId) {
+      return /databases/$(database)/documents/solves/$(request.auth.uid + '_' + puzzleId);
+    }
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields([
+          'uid', 'displayName', 'photoURL', 'codename', 'titleBadge', 'countryCode',
+          'puzzlesPlayed', 'puzzlesSolved', 'currentStreak', 'maxStreak', 'fastestTime',
+          'totalTimePlayed', 'averageAccuracy', 'leaderboardSubmissions', 'solvedPuzzleIds',
+          'createdAt', 'updatedAt'
+        ]) &&
+        data.uid is string && data.uid == request.auth.uid &&
+        validString(data.displayName, 1, 80) &&
+        validPhotoUrl(data.photoURL) &&
+        validString(data.codename, 1, 24) &&
+        validString(data.titleBadge, 1, 60) &&
+        validCountry(data.countryCode) &&
+        inRange(data.puzzlesPlayed, 0, 100000) &&
+        inRange(data.puzzlesSolved, 0, 100000) &&
+        inRange(data.currentStreak, 0, 100000) &&
+        inRange(data.maxStreak, 0, 100000) &&
+        validFastest(data.fastestTime) &&
+        inRange(data.totalTimePlayed, 0, 100000000) &&
+        inRange(data.averageAccuracy, 0, 100) &&
+        inRange(data.leaderboardSubmissions, 0, 100000) &&
+        validIdList(data.solvedPuzzleIds) &&
+        data.createdAt is timestamp &&
+        isRecentTimestamp(data.updatedAt);
+    }
+
+    function isValidProgress(data, puzzleId) {
+      return hasOnlyAllowedFields([
+          'puzzleId', 'mappings', 'timerSeconds',
+          'hintsUsed', 'hintsRemaining', 'isSolved', 'updatedAt'
+        ]) &&
+        data.puzzleId == puzzleId &&
+        validString(data.puzzleId, 1, 80) &&
+        data.mappings is map && data.mappings.size() <= 40 &&
+        inRange(data.timerSeconds, 0, 86400) &&
+        inRange(data.hintsUsed, 0, 20) &&
+        inRange(data.hintsRemaining, 0, 3) &&
+        data.isSolved is bool &&
+        isRecentTimestamp(data.updatedAt);
+    }
+
+    function isValidStart(data, startId) {
+      return hasOnlyAllowedFields(['uid', 'puzzleId', 'createdAt']) &&
+        data.uid == request.auth.uid &&
+        startId == request.auth.uid + '_' + data.puzzleId &&
+        validString(data.puzzleId, 1, 80) &&
+        isRecentTimestamp(data.createdAt);
+    }
+
+    function isValidSolve(data, solveId) {
+      return hasOnlyAllowedFields(['uid', 'puzzleId', 'timeSeconds', 'hintsUsed', 'accuracy', 'createdAt']) &&
+        data.uid == request.auth.uid &&
+        solveId == request.auth.uid + '_' + data.puzzleId &&
+        validString(data.puzzleId, 1, 80) &&
+        inRange(data.timeSeconds, 0.1, 86400) &&
+        inRange(data.hintsUsed, 0, 20) &&
+        inRange(data.accuracy, 0, 100) &&
+        isRecentTimestamp(data.createdAt);
+    }
+
+    function isValidPuzzleStats(data, puzzleId) {
+      return hasOnlyAllowedFields([
+          'puzzleId', 'startedCount', 'completeCount', 'totalTimeSeconds',
+          'fastestTime', 'fastestSolverName', 'updatedAt'
+        ]) &&
+        data.puzzleId == puzzleId &&
+        validString(data.puzzleId, 1, 80) &&
+        inRange(data.startedCount, 0, 100000000) &&
+        inRange(data.completeCount, 0, 100000000) &&
+        inRange(data.totalTimeSeconds, 0, 100000000000) &&
+        validFastest(data.fastestTime) &&
+        validSolverName(data.fastestSolverName) &&
+        isRecentTimestamp(data.updatedAt);
+    }
+
+    function isValidStartCreate(data, puzzleId) {
+      return isValidPuzzleStats(data, puzzleId) &&
+        data.startedCount == 1 &&
+        data.completeCount == 0 &&
+        data.totalTimeSeconds == 0 &&
+        data.fastestTime == null &&
+        data.fastestSolverName == null &&
+        existsAfter(startPath(puzzleId));
+    }
+
+    function isValidSolveCreate(data, puzzleId) {
+      return isValidPuzzleStats(data, puzzleId) &&
+        existsAfter(solvePath(puzzleId)) &&
+        data.completeCount == 1 &&
+        data.startedCount >= 1 &&
+        data.startedCount <= 2 &&
+        data.totalTimeSeconds == getAfter(solvePath(puzzleId)).data.timeSeconds &&
+        data.fastestTime == getAfter(solvePath(puzzleId)).data.timeSeconds;
+    }
+
+    function isValidStartIncrement(puzzleId) {
+      return isValidPuzzleStats(request.resource.data, puzzleId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['startedCount', 'updatedAt']) &&
+        request.resource.data.startedCount == resource.data.startedCount + 1 &&
+        !exists(startPath(puzzleId)) &&
+        existsAfter(startPath(puzzleId));
+    }
+
+    function isValidSolveIncrement(puzzleId) {
+      return isValidPuzzleStats(request.resource.data, puzzleId) &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['completeCount', 'totalTimeSeconds', 'fastestTime', 'fastestSolverName', 'updatedAt']) &&
+        !exists(solvePath(puzzleId)) &&
+        existsAfter(solvePath(puzzleId)) &&
+        request.resource.data.completeCount == resource.data.completeCount + 1 &&
+        request.resource.data.totalTimeSeconds ==
+          resource.data.totalTimeSeconds + getAfter(solvePath(puzzleId)).data.timeSeconds &&
+        (
+          (resource.data.fastestTime == null &&
+            request.resource.data.fastestTime == getAfter(solvePath(puzzleId)).data.timeSeconds) ||
+          (resource.data.fastestTime != null &&
+            getAfter(solvePath(puzzleId)).data.timeSeconds < resource.data.fastestTime &&
+            request.resource.data.fastestTime == getAfter(solvePath(puzzleId)).data.timeSeconds) ||
+          (resource.data.fastestTime != null &&
+            getAfter(solvePath(puzzleId)).data.timeSeconds >= resource.data.fastestTime &&
+            request.resource.data.fastestTime == resource.data.fastestTime &&
+            request.resource.data.fastestSolverName == resource.data.fastestSolverName)
+        );
+    }
+
+    function isValidLeaderboard(data, puzzleId, userId) {
+      return hasOnlyAllowedFields([
+          'uid', 'puzzleId', 'codename', 'titleBadge', 'timeSeconds', 'timeFormatted',
+          'hintsUsed', 'accuracy', 'countryCode', 'timestamp'
+        ]) &&
+        data.uid == userId &&
+        data.uid == request.auth.uid &&
+        data.puzzleId == puzzleId &&
+        validString(data.codename, 1, 24) &&
+        validString(data.titleBadge, 1, 60) &&
+        inRange(data.timeSeconds, 0.1, 86400) &&
+        validString(data.timeFormatted, 1, 16) &&
+        inRange(data.hintsUsed, 0, 20) &&
+        inRange(data.accuracy, 0, 100) &&
+        validCountry(data.countryCode) &&
+        isRecentTimestamp(data.timestamp);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) &&
+        isValidUser(request.resource.data) &&
+        areImmutableFieldsUnchanged(['uid', 'createdAt']);
+      allow delete: if false;
+
+      match /progress/{puzzleId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidProgress(request.resource.data, puzzleId);
+        allow update: if isOwner(userId) &&
+          isValidProgress(request.resource.data, puzzleId) &&
+          areImmutableFieldsUnchanged(['puzzleId']) &&
+          (!resource.data.isSolved || request.resource.data.isSolved == true);
+        allow delete: if false;
+      }
+    }
+
+    match /starts/{startId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidStart(request.resource.data, startId);
+      allow update, delete: if false;
+    }
+
+    match /solves/{solveId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidSolve(request.resource.data, solveId);
+      allow update, delete: if false;
+    }
+
+    match /puzzleStats/{puzzleId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+        (isValidStartCreate(request.resource.data, puzzleId) ||
+         isValidSolveCreate(request.resource.data, puzzleId));
+      allow update: if isAuthenticated() &&
+        (isValidStartIncrement(puzzleId) || isValidSolveIncrement(puzzleId));
+      allow delete: if false;
+    }
+
+    match /leaderboard/{puzzleId}/entries/{userId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidLeaderboard(request.resource.data, puzzleId, userId);
+      allow update: if isAuthenticated() &&
+        isValidLeaderboard(request.resource.data, puzzleId, userId) &&
+        areImmutableFieldsUnchanged(['uid', 'puzzleId']);
+      allow delete: if false;
+    }
+  }
+}

@@ -1,46 +1,26 @@
 import React, { useState } from 'react';
-import { Award, Zap, Users, TrendingUp, ChevronDown, ChevronUp, CheckCircle, FileText } from 'lucide-react';
+import { Award, Zap, Users, TrendingUp, ChevronDown, ChevronUp, FileText } from '../icons';
 import { PuzzleData } from '../types';
 import { formatTime } from '../utils/cipherEngine';
+import { usePuzzleStats } from '../utils/usePuzzleStats';
+import { derivePublicStats } from '../utils/firebaseStore';
 
 interface YesterdayBulletinProps {
   yesterdayStats?: PuzzleData['yesterdayStats'];
+  yesterdayPuzzleId?: string;
   onViewYesterdayPuzzle?: (difficulty?: 'Easy' | 'Hard') => void;
 }
 
 export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
   yesterdayStats,
+  yesterdayPuzzleId,
   onViewYesterdayPuzzle,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedStatMode, setSelectedStatMode] = useState<'easy' | 'hard'>('easy');
+  const liveStats = usePuzzleStats(yesterdayPuzzleId || '');
+  const currentStats = derivePublicStats(yesterdayPuzzleId ? liveStats : null);
 
-  if (!yesterdayStats) return null;
-
-  const currentStats =
-    selectedStatMode === 'easy' && yesterdayStats.easyStats
-      ? {
-          quickestSolveTime: yesterdayStats.easyStats.quickestSolveTime,
-          quickestSolverName: yesterdayStats.easyStats.quickestSolverName,
-          totalSolvers: yesterdayStats.easyStats.totalSolvers,
-          solveRatePercentage: yesterdayStats.easyStats.solveRatePercentage,
-          averageTimeSeconds: yesterdayStats.averageTimeSeconds * 0.75,
-        }
-      : selectedStatMode === 'hard' && yesterdayStats.hardStats
-      ? {
-          quickestSolveTime: yesterdayStats.hardStats.quickestSolveTime,
-          quickestSolverName: yesterdayStats.hardStats.quickestSolverName,
-          totalSolvers: yesterdayStats.hardStats.totalSolvers,
-          solveRatePercentage: yesterdayStats.hardStats.solveRatePercentage,
-          averageTimeSeconds: yesterdayStats.averageTimeSeconds * 1.25,
-        }
-      : {
-          quickestSolveTime: yesterdayStats.quickestSolveTime,
-          quickestSolverName: yesterdayStats.quickestSolverName,
-          totalSolvers: yesterdayStats.totalSolvers,
-          solveRatePercentage: yesterdayStats.solveRatePercentage,
-          averageTimeSeconds: yesterdayStats.averageTimeSeconds,
-        };
+  if (!yesterdayStats && !yesterdayPuzzleId) return null;
 
   return (
     <section className="w-full bg-[#f6f1e6] border-2 border-stone-900 rounded-xs shadow-xs bg-scanned-doc overflow-hidden mb-2">
@@ -73,9 +53,9 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
             <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
               Quickest Solve
             </span>
-            <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
-              {formatTime(currentStats.quickestSolveTime)}
-            </span>
+              <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
+                {liveStats.completeCount > 0 ? formatTime(currentStats.quickestSolveTime) : '—'}
+              </span>
           </div>
         </div>
 
@@ -112,15 +92,15 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
             <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-600 truncate">
               Average Time
             </span>
-            <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
-              {formatTime(currentStats.averageTimeSeconds)}
-            </span>
+              <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
+                {liveStats.completeCount > 0 ? formatTime(currentStats.averageTimeSeconds) : '—'}
+              </span>
           </div>
         </div>
       </div>
 
       {/* Expanded Briefing with Decoded Solution Story */}
-      {isExpanded && (
+      {isExpanded && yesterdayStats && (
         <div className="p-3 sm:p-4 bg-[#f4ede0] text-stone-900 font-treatise space-y-2.5 border-t border-stone-400 text-sm">
           <div>
             <h3 className="font-headline font-black text-sm sm:text-base text-stone-950 uppercase">

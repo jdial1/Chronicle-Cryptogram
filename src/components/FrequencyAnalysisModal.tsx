@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, BarChart3, HelpCircle, ArrowRight } from 'lucide-react';
+import { X, BarChart3, HelpCircle, ArrowRight } from '../icons';
 import { ENGLISH_LETTER_FREQUENCIES } from '../utils/cipherEngine';
 
 interface FrequencyAnalysisModalProps {

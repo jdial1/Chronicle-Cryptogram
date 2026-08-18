@@ -1,0 +1,22 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "The Chronicle Cryptogram",
+        "supportEmail": "jdial1@users.noreply.github.com",
+        "authorizedRedirectUris": [
+          "https://jdial1.github.io",
+          "http://localhost"
+        ]
+      }
+    },
+    "authorizedDomains": [
+      "localhost",
+      "jdial1.github.io"
+    ]
+  }
+}

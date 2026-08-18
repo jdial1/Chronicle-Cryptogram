@@ -8,10 +8,32 @@ import { ArchiveModal } from './components/ArchiveModal';
 import { AICipherGeneratorModal } from './components/AICipherGeneratorModal';
 import { FrequencyAnalysisModal } from './components/FrequencyAnalysisModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
-import { TodayStatsBulletin } from './components/TodayStatsBulletin';
+import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
+import { PrimerCoach } from './components/PrimerCoach';
+import { TodayStatsBulletin, LiveStatsRow, NightPostButton } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
-import { PuzzleData, SymbolMapping, PencilMapping, GameStats } from './types';
+import {
+  CaseCharacterId,
+  fragmentKey,
+  fragmentsUpdatedByPuzzle,
+} from './data/caseFiles';
+import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
+import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate } from './utils/edition';
 import { useDailyNotification } from './utils/useDailyNotification';
+import { useAuth } from './utils/useAuth';
+import {
+  DEFAULT_GAME_STATS,
+  ensureUserProfile,
+  loadCloudProgress,
+  loadUserProfile,
+  mergeGameStats,
+  mergeProgress,
+  mergeSolvedIds,
+  recordPuzzleSolve,
+  recordPuzzleStart,
+  saveCloudProgress,
+  saveUserProfile,
+} from './utils/firebaseStore';
 import {
   buildCipherAlphabet,
   parseCryptogramText,
@@ -27,82 +49,174 @@ import {
   setAudioEnabled,
 } from './utils/audio';
 
+function isHardPuzzle(puzzle: PuzzleData) {
+  return (
+    puzzle.difficultyMode === 'Hard' ||
+    puzzle.difficulty === 'Hard' ||
+    puzzle.difficulty === 'Master'
+  );
+}
+
+function getInitialPuzzle(): PuzzleData {
+  const primer = INITIAL_PUZZLES.find((puzzle) => isPrimerPuzzle(puzzle) && isMorningEdition(puzzle));
+  if (primer && !readSolvedPuzzleIds().includes(primer.id)) return primer;
+  const cutoff = publishedThroughDate(INITIAL_PUZZLES);
+  return (
+    INITIAL_PUZZLES.find(
+      (puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle) && !isPrimerPuzzle(puzzle)
+    ) ||
+    INITIAL_PUZZLES.find((puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle)) ||
+    INITIAL_PUZZLES[0]
+  );
+}
+
+function readSolvedPuzzleIds(): string[] {
+  try {
+    const saved = localStorage.getItem('cryptogram_solved_ids');
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+function readPuzzleProgress(puzzleId: string): PuzzleProgress | null {
+  try {
+    const saved = localStorage.getItem(`cryptogram_progress_${puzzleId}`);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function decodedMappings(
+  symbols: { symbolId: string; targetLetter: string }[]
+): SymbolMapping {
+  const next: SymbolMapping = {};
+  for (const symbol of symbols) {
+    next[symbol.symbolId] = symbol.targetLetter;
+  }
+  return next;
+}
+
+function decodedMappingsFromPuzzle(puzzle: PuzzleData): SymbolMapping {
+  const alphabet = buildCipherAlphabet(puzzle.id + puzzle.originalText, isHardPuzzle(puzzle));
+  const next: SymbolMapping = {};
+  for (const word of parseCryptogramText(puzzle.originalText, alphabet)) {
+    for (const symbol of word.symbols) {
+      if (!symbol.isPunctuation) next[symbol.symbolId] = symbol.targetLetter;
+    }
+  }
+  return next;
+}
+
+function puzzleWasSolved(puzzleId: string, progress: PuzzleProgress | null) {
+  return Boolean(progress?.isSolved || readSolvedPuzzleIds().includes(puzzleId));
+}
+
+function loadPuzzleState(puzzle: PuzzleData) {
+  const progress = readPuzzleProgress(puzzle.id);
+  if (puzzleWasSolved(puzzle.id, progress)) {
+    return {
+      mappings: decodedMappingsFromPuzzle(puzzle),
+      timerSeconds: progress?.timerSeconds || 0,
+      hintsUsed: progress?.hintsUsed || 0,
+      hintsRemaining: progress?.hintsRemaining ?? 3,
+      isSolved: true,
+    };
+  }
+  if (progress) {
+    return {
+      mappings: progress.mappings || {},
+      timerSeconds: progress.timerSeconds || 0,
+      hintsUsed: progress.hintsUsed || 0,
+      hintsRemaining: progress.hintsRemaining ?? 3,
+      isSolved: false,
+    };
+  }
+  return {
+    mappings: {} as SymbolMapping,
+    timerSeconds: 0,
+    hintsUsed: 0,
+    hintsRemaining: 3,
+    isSolved: false,
+  };
+}
+
+const BOOT_PUZZLE = getInitialPuzzle();
+const BOOT_STATE = loadPuzzleState(BOOT_PUZZLE);
+
 export default function App() {
-  useDailyNotification();
+  const { supported: deliverySupported, subscribed: deliverySubscribed, blocked: deliveryBlocked, toggleDelivery } =
+    useDailyNotification();
+  const { user, signIn, signOut, configured } = useAuth();
+  const startedPuzzlesRef = useRef<Set<string>>(new Set());
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   // Puzzles State
   const [allPuzzles, setAllPuzzles] = useState<PuzzleData[]>(INITIAL_PUZZLES);
-  const [currentPuzzle, setCurrentPuzzle] = useState<PuzzleData>(INITIAL_PUZZLES[0]);
-  const [solvedPuzzleIds, setSolvedPuzzleIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('cryptogram_solved_ids');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [currentPuzzle, setCurrentPuzzle] = useState<PuzzleData>(BOOT_PUZZLE);
+  const [solvedPuzzleIds, setSolvedPuzzleIds] = useState<string[]>(readSolvedPuzzleIds);
+  const [progressReadyId, setProgressReadyId] = useState('');
 
-  // Game Stats State
   const [gameStats, setGameStats] = useState<GameStats>(() => {
     try {
       const saved = localStorage.getItem('cryptogram_stats');
       return saved
         ? JSON.parse(saved)
-        : {
-            puzzlesPlayed: 0,
-            puzzlesSolved: 0,
-            currentStreak: 1,
-            maxStreak: 1,
-            fastestTime: null,
-            totalTimePlayed: 0,
-            averageAccuracy: 100,
-            leaderboardSubmissions: 0,
-          };
+        : DEFAULT_GAME_STATS;
     } catch {
-      return {
-        puzzlesPlayed: 0,
-        puzzlesSolved: 0,
-        currentStreak: 1,
-        maxStreak: 1,
-        fastestTime: null,
-        totalTimePlayed: 0,
-        averageAccuracy: 100,
-        leaderboardSubmissions: 0,
-      };
+      return DEFAULT_GAME_STATS;
     }
   });
 
-  // Sound Settings
   const [soundEnabled, setSound] = useState(true);
 
-  // Active Puzzle Decryption State
-  const [mappings, setMappings] = useState<SymbolMapping>({});
-  const [pencilMappings, setPencilMappings] = useState<PencilMapping>({});
+  const [mappings, setMappings] = useState<SymbolMapping>(BOOT_STATE.mappings);
   const [selectedSymbolId, setSelectedSymbolId] = useState<string | null>(null);
-  const [penMode, setPenMode] = useState<'pen' | 'pencil'>('pen');
   const [showErrors, setShowErrors] = useState(false);
-  const [hintsUsed, setHintsUsed] = useState(0);
-  const [hintsRemaining, setHintsRemaining] = useState(3);
-  const [isSolved, setIsSolved] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(BOOT_STATE.hintsUsed);
+  const [hintsRemaining, setHintsRemaining] = useState(BOOT_STATE.hintsRemaining);
+  const [isSolved, setIsSolved] = useState(BOOT_STATE.isSolved);
 
-  // Timer
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [timerSeconds, setTimerSeconds] = useState(BOOT_STATE.timerSeconds);
+  const [isTimerRunning, setIsTimerRunning] = useState(!BOOT_STATE.isSolved);
 
   // Modals
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [isNewspaperClippingOpen, setIsNewspaperClippingOpen] = useState(false);
+  const [isSolveBulletinOpen, setIsSolveBulletinOpen] = useState(false);
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isCaseFileOpen, setIsCaseFileOpen] = useState(false);
+  const [caseFileFocusId, setCaseFileFocusId] = useState<CaseCharacterId | null>(null);
+  const [caseFileFocusKey, setCaseFileFocusKey] = useState<string | null>(null);
+  const [caseFileToastPuzzle, setCaseFileToastPuzzle] = useState<PuzzleData | null>(null);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [isFrequencyOpen, setIsFrequencyOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
 
+  if (progressReadyId !== currentPuzzle.id) {
+    const loaded = loadPuzzleState(currentPuzzle);
+    setProgressReadyId(currentPuzzle.id);
+    setMappings(loaded.mappings);
+    setTimerSeconds(loaded.timerSeconds);
+    setHintsUsed(loaded.hintsUsed);
+    setHintsRemaining(loaded.hintsRemaining);
+    setIsSolved(loaded.isSolved);
+    setIsTimerRunning(!loaded.isSolved);
+    setShowErrors(false);
+    setSelectedSymbolId(null);
+    setIsSolveBulletinOpen(false);
+    setCaseFileToastPuzzle(null);
+  }
+
+  const boardReady = progressReadyId === currentPuzzle.id;
+  const boardSolved = boardReady && isSolved;
+  const boardMappings = boardReady ? mappings : {};
+
   // Derive Cipher Alphabet and Words using Zodiac killer symbols
   const cipherAlphabet = useMemo(() => {
-    const isHardMode = currentPuzzle.difficultyMode === 'Hard' || currentPuzzle.difficulty === 'Hard' || currentPuzzle.difficulty === 'Master';
-    return buildCipherAlphabet(currentPuzzle.id + currentPuzzle.originalText, isHardMode);
+    return buildCipherAlphabet(currentPuzzle.id + currentPuzzle.originalText, isHardPuzzle(currentPuzzle));
   }, [currentPuzzle]);
 
   const words = useMemo(() => {
@@ -113,9 +227,9 @@ export default function App() {
     const freqs = calculateSymbolFrequencies(words, cipherAlphabet);
     return freqs.map((f) => ({
       ...f,
-      mappedLetter: mappings[f.symbolId] || '',
+      mappedLetter: boardMappings[f.symbolId] || '',
     }));
-  }, [words, cipherAlphabet, mappings]);
+  }, [words, cipherAlphabet, boardMappings]);
 
   // Unique symbols list
   const uniqueSymbols = useMemo(() => {
@@ -134,47 +248,93 @@ export default function App() {
 
   // Auto-load or reset state on puzzle change
   useEffect(() => {
-    const savedProgressStr = localStorage.getItem(`cryptogram_progress_${currentPuzzle.id}`);
-    
-    if (savedProgressStr) {
-      try {
-        const savedProgress = JSON.parse(savedProgressStr);
-        setMappings(savedProgress.mappings || {});
-        setPencilMappings(savedProgress.pencilMappings || {});
-        setTimerSeconds(savedProgress.timerSeconds || 0);
-        setHintsUsed(savedProgress.hintsUsed || 0);
-        setHintsRemaining(savedProgress.hintsRemaining ?? 3);
-        setIsSolved(savedProgress.isSolved || false);
-        setIsTimerRunning(savedProgress.isSolved ? false : true);
-        setShowErrors(false);
-        
-        if (uniqueSymbols.length > 0) {
-          setSelectedSymbolId(uniqueSymbols[0].symbolId);
-        }
-      } catch {
-        resetPuzzleState();
-      }
-    } else {
-      resetPuzzleState();
-    }
-    playPaperRustle();
-  }, [currentPuzzle, uniqueSymbols]);
-
-  const resetPuzzleState = () => {
-    setMappings({});
-    setPencilMappings({});
-    setTimerSeconds(0);
-    setIsTimerRunning(true);
-    setHintsUsed(0);
-    setHintsRemaining(3);
-    setIsSolved(false);
-    setShowErrors(false);
-    if (uniqueSymbols.length > 0) {
+    if (isSolved) {
+      setSelectedSymbolId(null);
+      setSolvedPuzzleIds((prev) => {
+        if (prev.includes(currentPuzzle.id)) return prev;
+        const next = [...prev, currentPuzzle.id];
+        localStorage.setItem('cryptogram_solved_ids', JSON.stringify(next));
+        return next;
+      });
+    } else if (uniqueSymbols.length > 0) {
       setSelectedSymbolId(uniqueSymbols[0].symbolId);
     }
-  };
+    playPaperRustle();
+  }, [currentPuzzle.id]);
 
-  // Timer Tick
+  useEffect(() => {
+    if (!boardReady || isSolved || uniqueSymbols.length === 0) return;
+    if (!solvedPuzzleIds.includes(currentPuzzle.id)) return;
+    setMappings(decodedMappings(uniqueSymbols));
+    setIsSolved(true);
+    setIsTimerRunning(false);
+  }, [boardReady, isSolved, solvedPuzzleIds, currentPuzzle.id, uniqueSymbols]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const localSolved = JSON.parse(localStorage.getItem('cryptogram_solved_ids') || '[]');
+      const savedStats = localStorage.getItem('cryptogram_stats');
+      const localStats = savedStats ? JSON.parse(savedStats) : DEFAULT_GAME_STATS;
+      const profile = await loadUserProfile(user.uid);
+      if (cancelled) return;
+      const nextSolved = mergeSolvedIds(localSolved, profile?.solvedPuzzleIds || []);
+      const nextStats = mergeGameStats(localStats, profile?.gameStats || null);
+      setSolvedPuzzleIds(nextSolved);
+      setGameStats(nextStats);
+      localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
+      localStorage.setItem('cryptogram_stats', JSON.stringify(nextStats));
+      await ensureUserProfile(user, nextStats, nextSolved);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const cloud = await loadCloudProgress(user.uid, currentPuzzle.id);
+      if (cancelled || !cloud) return;
+      const local = readPuzzleProgress(currentPuzzle.id);
+      const merged = mergeProgress(local, cloud);
+      if (!merged || cancelled) return;
+      const knownSolved = Boolean(merged.isSolved);
+      const next = knownSolved
+        ? {
+            ...merged,
+            mappings: decodedMappings(uniqueSymbols),
+            isSolved: true,
+          }
+        : { ...merged, isSolved: false };
+      setMappings(next.mappings || {});
+      setTimerSeconds(next.timerSeconds || 0);
+      setHintsUsed(next.hintsUsed || 0);
+      setHintsRemaining(next.hintsRemaining ?? 3);
+      setIsSolved(next.isSolved || false);
+      setIsTimerRunning(!next.isSolved);
+      localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(next));
+      if (next.isSolved && !isPrimerPuzzle(currentPuzzle)) {
+        const solverName =
+          localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
+        recordPuzzleSolve(
+          user.uid,
+          currentPuzzle.id,
+          next.timerSeconds,
+          next.hintsUsed,
+          100,
+          solverName
+        ).catch(() => undefined);
+        startedPuzzlesRef.current.add(currentPuzzle.id);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, currentPuzzle.id, uniqueSymbols, solvedPuzzleIds]);
+
   useEffect(() => {
     if (!isTimerRunning || isSolved) return;
     const interval = setInterval(() => {
@@ -185,23 +345,59 @@ export default function App() {
 
   // Save progress automatically
   useEffect(() => {
-    // Only save if we actually have symbols loaded, preventing overwrite on initial empty mount
-    if (uniqueSymbols.length > 0) {
-      const progress = {
+    if (progressReadyId !== currentPuzzle.id || uniqueSymbols.length === 0) return;
+    const progress = {
+      mappings,
+      timerSeconds,
+      hintsUsed,
+      hintsRemaining,
+      isSolved
+    };
+    localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(progress));
+  }, [progressReadyId, mappings, timerSeconds, hintsUsed, hintsRemaining, isSolved, currentPuzzle.id, uniqueSymbols]);
+
+  useEffect(() => {
+    if (!user || uniqueSymbols.length === 0 || progressReadyId !== currentPuzzle.id) return;
+    const handle = window.setTimeout(() => {
+      saveCloudProgress(user.uid, currentPuzzle.id, {
         mappings,
-        pencilMappings,
         timerSeconds,
         hintsUsed,
         hintsRemaining,
-        isSolved
-      };
-      localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(progress));
-    }
-  }, [mappings, pencilMappings, timerSeconds, hintsUsed, hintsRemaining, isSolved, currentPuzzle.id, uniqueSymbols]);
+        isSolved,
+      }).catch(() => undefined);
+    }, 1500);
+    return () => window.clearTimeout(handle);
+  }, [user, progressReadyId, currentPuzzle.id, mappings, hintsUsed, hintsRemaining, isSolved, uniqueSymbols.length]);
 
-  // Check Solution
   useEffect(() => {
-    if (uniqueSymbols.length === 0 || isSolved) return;
+    if (!user || isSolved || Object.keys(mappings).length === 0) return;
+    if (progressReadyId !== currentPuzzle.id) return;
+    if (isPrimerPuzzle(currentPuzzle)) return;
+    if (startedPuzzlesRef.current.has(currentPuzzle.id)) return;
+    startedPuzzlesRef.current.add(currentPuzzle.id);
+    recordPuzzleStart(user.uid, currentPuzzle.id).catch(() => {
+      startedPuzzlesRef.current.delete(currentPuzzle.id);
+    });
+  }, [user, mappings, currentPuzzle.id, isSolved, progressReadyId]);
+
+  const accuracy = useMemo(() => {
+    let correct = 0;
+    let totalMapped = 0;
+    uniqueSymbols.forEach((s) => {
+      if (mappings[s.symbolId]) {
+        totalMapped++;
+        if (mappings[s.symbolId] === s.targetLetter) {
+          correct++;
+        }
+      }
+    });
+    if (totalMapped === 0) return 100;
+    return Math.round((correct / totalMapped) * 100);
+  }, [uniqueSymbols, mappings]);
+
+  useEffect(() => {
+    if (!boardReady || uniqueSymbols.length === 0 || isSolved || progressReadyId !== currentPuzzle.id) return;
 
     const allMapped = uniqueSymbols.every((s) => Boolean(mappings[s.symbolId]));
     if (!allMapped) return;
@@ -210,9 +406,13 @@ export default function App() {
     if (allCorrect) {
       setIsSolved(true);
       setIsTimerRunning(false);
+      setIsSolveBulletinOpen(true);
+      setSelectedSymbolId(null);
+      if (fragmentsUpdatedByPuzzle(currentPuzzle).length > 0) {
+        setCaseFileToastPuzzle(currentPuzzle);
+      }
       playSolvedBell();
 
-      // Trigger Confetti
       confetti({
         particleCount: 120,
         spread: 80,
@@ -220,81 +420,84 @@ export default function App() {
         colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
       });
 
-      // Update Solved History & Stats
-      setSolvedPuzzleIds((prev) => {
-        const next = Array.from(new Set([...prev, currentPuzzle.id]));
-        localStorage.setItem('cryptogram_solved_ids', JSON.stringify(next));
-        return next;
-      });
+      const nextSolved = Array.from(new Set([...solvedPuzzleIds, currentPuzzle.id]));
+      setSolvedPuzzleIds(nextSolved);
+      localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
 
-      setGameStats((prev) => {
-        const next: GameStats = {
-          ...prev,
-          puzzlesSolved: prev.puzzlesSolved + 1,
-          currentStreak: prev.currentStreak + 1,
-          maxStreak: Math.max(prev.maxStreak, prev.currentStreak + 1),
-          fastestTime:
-            prev.fastestTime === null
-              ? timerSeconds
-              : Math.min(prev.fastestTime, timerSeconds),
-          totalTimePlayed: prev.totalTimePlayed + timerSeconds,
-        };
+      const primer = isPrimerPuzzle(currentPuzzle);
+      const next: GameStats = primer
+        ? gameStats
+        : {
+            ...gameStats,
+            puzzlesSolved: gameStats.puzzlesSolved + 1,
+            currentStreak: gameStats.currentStreak + 1,
+            maxStreak: Math.max(gameStats.maxStreak, gameStats.currentStreak + 1),
+            fastestTime:
+              gameStats.fastestTime === null
+                ? timerSeconds
+                : Math.min(gameStats.fastestTime, timerSeconds),
+            totalTimePlayed: gameStats.totalTimePlayed + timerSeconds,
+          };
+      if (!primer) {
+        setGameStats(next);
         localStorage.setItem('cryptogram_stats', JSON.stringify(next));
-        return next;
-      });
+      }
+
+      if (user) {
+        if (!primer) {
+          const solverName =
+            localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
+          recordPuzzleSolve(
+            user.uid,
+            currentPuzzle.id,
+            timerSeconds,
+            hintsUsed,
+            accuracy,
+            solverName
+          ).catch(() => undefined);
+        }
+        saveUserProfile(user.uid, next, nextSolved).catch(() => undefined);
+        saveCloudProgress(user.uid, currentPuzzle.id, {
+          mappings,
+          timerSeconds,
+          hintsUsed,
+          hintsRemaining,
+          isSolved: true,
+        }).catch(() => undefined);
+      }
     }
-  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, timerSeconds]);
+  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, timerSeconds, user, hintsUsed, accuracy, solvedPuzzleIds, hintsRemaining, gameStats, progressReadyId]);
 
   // Handle Letter Input (Applies to ALL instances of the selected symbol across the message)
   const handleKeyPress = useCallback(
     (letter: string) => {
-      if (!selectedSymbolId || isSolved) return;
+      if (!selectedSymbolId || !boardReady || isSolved) return;
       playTypewriterClack();
 
       const upper = letter.toUpperCase();
+      setMappings((prev) => ({
+        ...prev,
+        [selectedSymbolId]: upper,
+      }));
 
-      if (penMode === 'pen') {
-        setMappings((prev) => {
-          // In homophonic substitution with frequency suppression, multiple symbols can decode to the same letter!
-          return {
-            ...prev,
-            [selectedSymbolId]: upper,
-          };
-        });
+      const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
+      if (currentIdx !== -1) {
+        const nextUnmapped = uniqueSymbols
+          .slice(currentIdx + 1)
+          .concat(uniqueSymbols.slice(0, currentIdx))
+          .find((s) => !mappings[s.symbolId] && s.symbolId !== selectedSymbolId);
 
-        // Automatically advance to the next unmapped symbol
-        const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
-        if (currentIdx !== -1) {
-          const nextUnmapped = uniqueSymbols
-            .slice(currentIdx + 1)
-            .concat(uniqueSymbols.slice(0, currentIdx))
-            .find((s) => !mappings[s.symbolId] && s.symbolId !== selectedSymbolId);
-
-          if (nextUnmapped) {
-            setSelectedSymbolId(nextUnmapped.symbolId);
-          }
+        if (nextUnmapped) {
+          setSelectedSymbolId(nextUnmapped.symbolId);
         }
-      } else {
-        // Pencil Mode: Toggle candidate
-        setPencilMappings((prev) => {
-          const currentPencils = prev[selectedSymbolId] || [];
-          const exists = currentPencils.includes(upper);
-          const nextPencils = exists
-            ? currentPencils.filter((l) => l !== upper)
-            : [...currentPencils, upper];
-          return {
-            ...prev,
-            [selectedSymbolId]: nextPencils,
-          };
-        });
       }
     },
-    [selectedSymbolId, isSolved, penMode, uniqueSymbols, mappings]
+    [selectedSymbolId, isSolved, boardReady, uniqueSymbols, mappings]
   );
 
   // Handle Backspace / Clear
   const handleBackspace = useCallback(() => {
-    if (!selectedSymbolId || isSolved) return;
+    if (!selectedSymbolId || !boardReady || isSolved) return;
     playBackspaceClunk();
 
     setMappings((prev) => {
@@ -302,13 +505,7 @@ export default function App() {
       delete next[selectedSymbolId];
       return next;
     });
-
-    setPencilMappings((prev) => {
-      const next = { ...prev };
-      delete next[selectedSymbolId];
-      return next;
-    });
-  }, [selectedSymbolId, isSolved]);
+  }, [selectedSymbolId, isSolved, boardReady]);
 
   const handleClearSymbol = useCallback(() => {
     handleBackspace();
@@ -317,7 +514,6 @@ export default function App() {
   const handleResetMappings = useCallback(() => {
     if (window.confirm('Are you sure you want to reset all symbol mappings for this cryptogram?')) {
       setMappings({});
-      setPencilMappings({});
       setShowErrors(false);
       playPaperRustle();
     }
@@ -325,7 +521,7 @@ export default function App() {
 
   // Use Hint (Reveals 1 unmapped or incorrect symbol)
   const handleUseHint = useCallback(() => {
-    if (hintsRemaining <= 0 || isSolved) return;
+    if (hintsRemaining <= 0 || !boardReady || isSolved) return;
 
     // Find first unmapped or incorrect symbol
     const targetSymbol = uniqueSymbols.find(
@@ -344,12 +540,12 @@ export default function App() {
 
       setSelectedSymbolId(targetSymbol.symbolId);
     }
-  }, [hintsRemaining, isSolved, uniqueSymbols, mappings]);
+  }, [hintsRemaining, isSolved, boardReady, uniqueSymbols, mappings]);
 
   // Physical Keyboard Listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if inside an input or textarea
+      if (!boardReady || isSolved) return;
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
         return;
@@ -380,23 +576,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyPress, handleBackspace, uniqueSymbols, selectedSymbolId]);
-
-  // Accuracy calculation
-  const accuracy = useMemo(() => {
-    let correct = 0;
-    let totalMapped = 0;
-    uniqueSymbols.forEach((s) => {
-      if (mappings[s.symbolId]) {
-        totalMapped++;
-        if (mappings[s.symbolId] === s.targetLetter) {
-          correct++;
-        }
-      }
-    });
-    if (totalMapped === 0) return 100;
-    return Math.round((correct / totalMapped) * 100);
-  }, [uniqueSymbols, mappings]);
+  }, [handleKeyPress, handleBackspace, uniqueSymbols, selectedSymbolId, isSolved, boardReady]);
 
   const toggleSound = () => {
     const next = !soundEnabled;
@@ -427,19 +607,37 @@ export default function App() {
   };
 
   const handleSelectPuzzle = (puzzle: PuzzleData) => {
+    if (puzzle.editionDate > publishedThroughDate(INITIAL_PUZZLES)) return;
+    if (
+      isNightEdition(puzzle) &&
+      !isNightUnlockedForDate(allPuzzles, solvedPuzzleIds, puzzle.editionDate)
+    ) {
+      return;
+    }
     setCurrentPuzzle(puzzle);
   };
 
+  const handleOpenTodayEdition = () => {
+    const cutoff = publishedThroughDate(INITIAL_PUZZLES);
+    const todayMorning = INITIAL_PUZZLES.find(
+      (puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle) && !isPrimerPuzzle(puzzle)
+    );
+    if (todayMorning) setCurrentPuzzle(todayMorning);
+    setIsSolveBulletinOpen(false);
+  };
+
   const handleNextPuzzle = () => {
-    const currentIdx = allPuzzles.findIndex((p) => p.id === currentPuzzle.id);
-    const nextIdx = (currentIdx + 1) % allPuzzles.length;
-    setCurrentPuzzle(allPuzzles[nextIdx]);
+    const cutoff = publishedThroughDate(INITIAL_PUZZLES);
+    const published = INITIAL_PUZZLES.filter((puzzle) => puzzle.editionDate <= cutoff);
+    const currentIdx = published.findIndex((p) => p.id === currentPuzzle.id);
+    if (currentIdx === -1) return;
+    const nextIdx = (currentIdx + 1) % published.length;
+    setCurrentPuzzle(published[nextIdx]);
     setIsNewspaperClippingOpen(false);
   };
 
   // Determine if Hard mode is unlocked for the current date
   const isHardUnlocked = useMemo(() => {
-    // Has the user solved an easy puzzle for the current date?
     return solvedPuzzleIds.some((id) => {
       const p = allPuzzles.find((puzzle) => puzzle.id === id);
       return (
@@ -450,16 +648,26 @@ export default function App() {
     });
   }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionDate]);
 
+  const nightEdition = isNightEdition(currentPuzzle);
+
   // Handle Cell Tap (mobile keyboard trigger)
-  const handleSelectSymbol = useCallback((symId: string) => {
-    setSelectedSymbolId(symId);
-    if (hiddenInputRef.current) {
-      hiddenInputRef.current.focus();
-    }
-  }, []);
+  const handleSelectSymbol = useCallback(
+    (symId: string) => {
+      if (!boardReady || isSolved) return;
+      setSelectedSymbolId(symId);
+      if (hiddenInputRef.current) {
+        hiddenInputRef.current.focus();
+      }
+    },
+    [boardReady, isSolved]
+  );
 
   return (
-    <div className="min-h-screen bg-[#f7f3e8] text-stone-900 flex flex-col justify-between selection:bg-amber-200">
+    <div
+      className={`min-h-screen flex flex-col justify-between selection:bg-amber-200 ${
+        nightEdition ? 'bg-[#1a1612] text-amber-50' : 'bg-[#f7f3e8] text-stone-900'
+      }`}
+    >
       <input
         ref={hiddenInputRef}
         type="text"
@@ -490,39 +698,90 @@ export default function App() {
       {/* Header with Masthead and Live Status */}
       <Header
         currentPuzzle={currentPuzzle}
+        user={user}
+        authConfigured={configured}
+        onSignIn={signIn}
+        onSignOut={signOut}
+        onOpenArchive={() => setIsArchiveOpen(true)}
+        onOpenCaseFiles={() => {
+          if (solvedPuzzleIds.length === 0) return;
+          setCaseFileFocusId(null);
+          setCaseFileFocusKey(null);
+          setCaseFileToastPuzzle(null);
+          setIsCaseFileOpen(true);
+        }}
+        onOpenHandbook={() => setIsHowToPlayOpen(true)}
+        showCaseFiles={solvedPuzzleIds.length > 0}
+        deliverySupported={deliverySupported}
+        deliverySubscribed={deliverySubscribed}
+        deliveryBlocked={deliveryBlocked}
+        onToggleDelivery={toggleDelivery}
       />
 
       {/* Main Newspaper Layout */}
       <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
         {/* Authentic Newspaper Story Headline & Subdeck */}
-        <section className="text-center sm:text-left pt-1 pb-3 border-b-2 border-stone-900">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-headline font-black tracking-tight text-stone-950 uppercase leading-snug">
+        <section
+          className={`text-center sm:text-left pt-1 pb-3 ${
+            nightEdition ? 'border-b-2 border-amber-700' : 'border-b-2 border-stone-900'
+          }`}
+        >
+          <h2
+            className={`text-2xl sm:text-3xl md:text-4xl font-black tracking-tight uppercase leading-snug ${
+              nightEdition ? 'font-letterpress text-amber-100' : 'font-headline text-stone-950'
+            }`}
+          >
             {currentPuzzle.headline}
           </h2>
-          <p className="font-treatise text-sm sm:text-base text-stone-800 italic mt-1">
-            "{currentPuzzle.subheadline}" — <span className="not-italic font-semibold text-stone-950 font-newspaper">{currentPuzzle.authorOrSource}</span>
+          <p className={`font-treatise text-sm sm:text-base italic mt-1 ${nightEdition ? 'text-amber-100/80' : 'text-stone-800'}`}>
+            {currentPuzzle.subheadline} —{' '}
+            <span className={`not-italic font-semibold font-newspaper ${nightEdition ? 'text-amber-200' : 'text-stone-950'}`}>
+              {currentPuzzle.authorOrSource}
+            </span>
           </p>
         </section>
 
         {/* The Interactive Zodiac Cryptogram Board */}
         <section className="flex-1 flex flex-col justify-center">
+          {isPrimerPuzzle(currentPuzzle) && !boardSolved && (
+            <PrimerCoach
+              words={words}
+              mappings={boardMappings}
+              isSolved={boardSolved}
+              frequencies={symbolFrequencies}
+              selectedSymbolId={boardReady ? selectedSymbolId : null}
+              onSelectSymbol={handleSelectSymbol}
+              onOpenHandbook={() => setIsHowToPlayOpen(true)}
+            />
+          )}
+          {boardSolved && !isSolveBulletinOpen && !isPrimerPuzzle(currentPuzzle) && (
+            <div className="mb-3">
+              <LiveStatsRow puzzleId={currentPuzzle.id} />
+            </div>
+          )}
           <CryptogramGrid
             words={words}
-            mappings={mappings}
-            pencilMappings={pencilMappings}
-            selectedSymbolId={selectedSymbolId}
+            mappings={boardMappings}
+            selectedSymbolId={boardReady ? selectedSymbolId : null}
             onSelectSymbol={handleSelectSymbol}
             showErrors={showErrors}
-            isSolved={isSolved}
+            isSolved={boardSolved}
           />
-          
-          {isSolved && (
-            <TodayStatsBulletin 
-              currentPuzzle={currentPuzzle}
-              timerSeconds={timerSeconds}
-              isHardUnlocked={isHardUnlocked}
-              onUnlockHardMode={() => handleSelectDifficulty('Hard')}
-            />
+          {boardSolved && !isSolveBulletinOpen && !nightEdition && !isPrimerPuzzle(currentPuzzle) && (
+            <div className="mt-3">
+              <NightPostButton onClick={() => handleSelectDifficulty('Hard')} />
+            </div>
+          )}
+          {boardSolved && !isSolveBulletinOpen && isPrimerPuzzle(currentPuzzle) && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={handleOpenTodayEdition}
+                className="w-full px-4 py-2.5 bg-stone-950 hover:bg-stone-800 text-amber-100 font-typewriter font-bold text-xs uppercase rounded-xs cursor-pointer shadow-xs transition-colors"
+              >
+                Decode Today's Edition
+              </button>
+            </div>
           )}
         </section>
       </main>
@@ -533,6 +792,9 @@ export default function App() {
         onClose={() => setIsLeaderboardOpen(false)}
         currentPuzzleId={currentPuzzle.id}
         currentPuzzleTitle={currentPuzzle.headline}
+        puzzles={allPuzzles}
+        user={user}
+        onSignIn={signIn}
         currentSolveStats={
           isSolved
             ? {
@@ -540,10 +802,19 @@ export default function App() {
                 timeFormatted: formatTime(timerSeconds),
                 hintsUsed,
                 accuracy,
-                penMode,
               }
             : null
         }
+      />
+
+      <TodayStatsBulletin
+        isOpen={isSolveBulletinOpen}
+        onClose={() => setIsSolveBulletinOpen(false)}
+        currentPuzzle={currentPuzzle}
+        timerSeconds={timerSeconds}
+        isHardUnlocked={isHardUnlocked}
+        onUnlockHardMode={() => handleSelectDifficulty('Hard')}
+        onOpenTodayEdition={handleOpenTodayEdition}
       />
 
       <NewspaperClippingModal
@@ -560,10 +831,38 @@ export default function App() {
       <ArchiveModal
         isOpen={isArchiveOpen}
         onClose={() => setIsArchiveOpen(false)}
-        puzzles={allPuzzles}
+        puzzles={INITIAL_PUZZLES}
         currentPuzzleId={currentPuzzle.id}
         onSelectPuzzle={handleSelectPuzzle}
         solvedPuzzleIds={solvedPuzzleIds}
+      />
+
+      <CaseFileModal
+        isOpen={isCaseFileOpen}
+        onClose={() => {
+          setIsCaseFileOpen(false);
+          setCaseFileFocusId(null);
+          setCaseFileFocusKey(null);
+        }}
+        puzzles={INITIAL_PUZZLES}
+        solvedPuzzleIds={solvedPuzzleIds}
+        focusCharacterId={caseFileFocusId}
+        focusFragmentKey={caseFileFocusKey}
+      />
+
+      <CaseFileToast
+        puzzle={caseFileToastPuzzle}
+        onOpen={() => {
+          if (!caseFileToastPuzzle) return;
+          const updates = fragmentsUpdatedByPuzzle(caseFileToastPuzzle);
+          const first = updates[0];
+          setCaseFileFocusId(first?.characterId || 'thorne');
+          setCaseFileFocusKey(first ? fragmentKey(first) : null);
+          setIsSolveBulletinOpen(false);
+          setCaseFileToastPuzzle(null);
+          setIsCaseFileOpen(true);
+        }}
+        onDismiss={() => setCaseFileToastPuzzle(null)}
       />
 
       <AICipherGeneratorModal
@@ -579,7 +878,9 @@ export default function App() {
         isOpen={isFrequencyOpen}
         onClose={() => setIsFrequencyOpen(false)}
         symbolFrequencies={symbolFrequencies}
-        onSelectSymbolFromFreq={(symId) => setSelectedSymbolId(symId)}
+        onSelectSymbolFromFreq={(symId) => {
+          if (boardReady && !isSolved) setSelectedSymbolId(symId);
+        }}
       />
 
       <HowToPlayModal

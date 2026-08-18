@@ -1,79 +1,96 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { todayIsoDate } from './edition';
 
-/**
- * Hook to request notification permissions and schedule a local daily notification.
- * Note: Purely local scheduled notifications while the app is completely closed 
- * are limited in web browsers without a Push Server. 
- * This approach uses a timer while the app is open/backgrounded, and checks upon opening.
- */
-export function useDailyNotification() {
-  useEffect(() => {
-    // Only run if notifications are supported
-    if (!('Notification' in window)) {
+const SUB_KEY = 'cryptogram_delivery_subscribed';
+const LAST_KEY = 'cryptogram_delivery_last';
+let openingNoticeSent = false;
+
+function iconUrl() {
+  return new URL(`${import.meta.env.BASE_URL}pwa-192x192.png`, window.location.href).href;
+}
+
+async function showPaperNotice(title: string, body: string) {
+  const options: NotificationOptions = {
+    body,
+    icon: iconUrl(),
+    badge: iconUrl(),
+    tag: 'chronicle-delivery',
+  };
+  if ('serviceWorker' in navigator) {
+    const reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise<ServiceWorkerRegistration | undefined>((resolve) => {
+        window.setTimeout(() => resolve(undefined), 1200);
+      }),
+    ]);
+    if (reg) {
+      await reg.showNotification(title, options);
       return;
     }
+  }
+  new Notification(title, options);
+}
 
-    // Ask for permission if not granted
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
+function readSubscribed() {
+  try {
+    return localStorage.getItem(SUB_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function useDailyNotification() {
+  const supported = typeof window !== 'undefined' && 'Notification' in window;
+  const [permission, setPermission] = useState<NotificationPermission>(() =>
+    supported ? Notification.permission : 'denied'
+  );
+  const [subscribed, setSubscribed] = useState(readSubscribed);
+
+  useEffect(() => {
+    if (!supported) return;
+    setPermission(Notification.permission);
+    if (Notification.permission !== 'granted' || !readSubscribed()) return;
+    const today = todayIsoDate();
+    try {
+      if (openingNoticeSent || localStorage.getItem(LAST_KEY) === today) return;
+      openingNoticeSent = true;
+    } catch {
+      return;
     }
+    showPaperNotice(
+      'The Daily Cryptogram',
+      "The new paper has arrived! Uncover today's mystery."
+    )
+      .then(() => {
+        localStorage.setItem(LAST_KEY, today);
+      })
+      .catch(() => {});
+  }, [supported]);
 
-    // Schedule next notification if permission is granted
-    if (Notification.permission === 'granted') {
-      scheduleNextNotification();
+  const toggleDelivery = useCallback(async () => {
+    if (!supported) return;
+    if (subscribed) {
+      localStorage.removeItem(SUB_KEY);
+      setSubscribed(false);
+      return;
     }
-  }, []);
+    const next = await Notification.requestPermission();
+    setPermission(next);
+    if (next !== 'granted') return;
+    localStorage.setItem(SUB_KEY, '1');
+    setSubscribed(true);
+    const today = todayIsoDate();
+    localStorage.setItem(LAST_KEY, today);
+    await showPaperNotice(
+      'The Daily Cryptogram',
+      'You are on the delivery list. We will ring when a new edition is on the stands.'
+    ).catch(() => {});
+  }, [subscribed, supported]);
 
-  const scheduleNextNotification = () => {
-    if (Notification.permission !== 'granted') return;
-
-    const now = new Date();
-    // Assuming CST is UTC-6 for this approximation 
-    // We use standard JS date math to find the next 8:00 AM CST
-    
-    // Get current time in CST
-    const cstFormatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Chicago',
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      hour12: false
-    });
-    
-    const parts = cstFormatter.formatToParts(now);
-    const getPart = (type: string) => parseInt(parts.find(p => p.type === type)?.value || '0', 10);
-    
-    // Construct local Date object representing the CST time
-    const cstNow = new Date(
-      getPart('year'),
-      getPart('month') - 1,
-      getPart('day'),
-      getPart('hour'),
-      getPart('minute'),
-      getPart('second')
-    );
-
-    const cstTarget = new Date(cstNow);
-    cstTarget.setHours(8, 0, 0, 0);
-
-    // If it's already past 8:00 AM CST today, target tomorrow
-    if (cstNow.getTime() >= cstTarget.getTime()) {
-      cstTarget.setDate(cstTarget.getDate() + 1);
-    }
-
-    const delayMs = cstTarget.getTime() - cstNow.getTime();
-
-    // Schedule notification
-    setTimeout(() => {
-      new Notification('The Daily Cryptogram', {
-        body: 'The new paper has arrived! Uncover today\'s mystery.',
-        icon: '/pwa-192x192.png'
-      });
-      // Reschedule for next day
-      scheduleNextNotification();
-    }, delayMs);
+  return {
+    supported,
+    subscribed,
+    blocked: permission === 'denied',
+    toggleDelivery,
   };
 }

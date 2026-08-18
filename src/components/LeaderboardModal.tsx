@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { X, Trophy, Medal, Award, Search, Globe, Shield, RefreshCw, Send, CheckCircle } from 'lucide-react';
-import { LeaderboardEntry } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import type { User } from 'firebase/auth';
+import { X, Trophy, Search, Shield, RefreshCw, Send, CheckCircle } from '../icons';
+import { LeaderboardEntry, PuzzleData } from '../types';
+import { fetchLeaderboard, submitLeaderboardEntry } from '../utils/firebaseStore';
 
 interface LeaderboardModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentPuzzleId: string;
   currentPuzzleTitle: string;
+  puzzles: PuzzleData[];
+  user?: User | null;
+  onSignIn?: () => void;
   currentSolveStats?: {
     timeSeconds: number;
     timeFormatted: string;
     hintsUsed: number;
     accuracy: number;
-    penMode: 'pen' | 'pencil';
   } | null;
   onScoreSubmitted?: () => void;
 }
@@ -38,48 +42,68 @@ const COUNTRIES = [
   { code: 'IN', name: 'India' },
 ];
 
+function shiftDate(iso: string, days: number) {
+  const date = new Date(`${iso}T00:00:00`);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function findPuzzleId(puzzles: PuzzleData[], editionDate: string, mode: 'Easy' | 'Hard') {
+  return puzzles.find((puzzle) => {
+    const puzzleMode = puzzle.difficultyMode || (puzzle.difficulty === 'Hard' || puzzle.difficulty === 'Master' ? 'Hard' : 'Easy');
+    return puzzle.editionDate === editionDate && puzzleMode === mode;
+  })?.id;
+}
+
 export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   isOpen,
   onClose,
   currentPuzzleId,
   currentPuzzleTitle,
+  puzzles,
+  user,
+  onSignIn,
   currentSolveStats,
   onScoreSubmitted,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    if (currentPuzzleId.includes('hard')) return 'today_hard';
-    if (currentPuzzleId.includes('2026_08_16_easy')) return 'yesterday_easy';
-    if (currentPuzzleId.includes('2026_08_16_hard')) return 'yesterday_hard';
-    return 'today_easy';
-  });
+  const currentPuzzle = puzzles.find((puzzle) => puzzle.id === currentPuzzleId);
+  const editionDate = currentPuzzle?.editionDate || puzzles[0]?.editionDate || '';
+  const yesterdayDate = editionDate ? shiftDate(editionDate, -1) : '';
+  const tabIds = useMemo(
+    () => ({
+      today_easy: findPuzzleId(puzzles, editionDate, 'Easy') || currentPuzzleId,
+      today_hard: findPuzzleId(puzzles, editionDate, 'Hard') || currentPuzzleId,
+      yesterday_easy: findPuzzleId(puzzles, yesterdayDate, 'Easy'),
+      yesterday_hard: findPuzzleId(puzzles, yesterdayDate, 'Hard'),
+    }),
+    [puzzles, editionDate, yesterdayDate, currentPuzzleId]
+  );
+
+  const [activeTab, setActiveTab] = useState<string>(() =>
+    currentPuzzleId.includes('hard') ? 'today_hard' : 'today_easy'
+  );
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Submission Form State
-  const [codename, setCodename] = useState(() => localStorage.getItem('cryptogram_codename') || '');
+  const [codename, setCodename] = useState(
+    () => localStorage.getItem('cryptogram_codename') || ''
+  );
   const [selectedBadge, setSelectedBadge] = useState(TITLE_BADGES[0]);
   const [countryCode, setCountryCode] = useState('US');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [submissionRank, setSubmissionRank] = useState<number | null>(null);
 
-  const fetchLeaderboard = async () => {
+  const loadBoard = async () => {
     setIsLoading(true);
     try {
-      let targetId = 'daily_2026_08_17_easy';
-      if (activeTab === 'today_easy') targetId = 'daily_2026_08_17_easy';
-      else if (activeTab === 'today_hard') targetId = 'daily_2026_08_17_hard';
-      else if (activeTab === 'yesterday_easy') targetId = 'daily_2026_08_16_easy';
-      else if (activeTab === 'yesterday_hard') targetId = 'daily_2026_08_16_hard';
-      else if (activeTab === 'historical') targetId = 'daily_2026_08_15_hard';
-      else targetId = currentPuzzleId;
-
-      const res = await fetch(`/api/leaderboard?puzzleId=${targetId}`);
-      const data = await res.json();
-      if (data.success && data.leaderboard) {
-        setLeaderboard(data.leaderboard);
+      const targetId = tabIds[activeTab as keyof typeof tabIds] || currentPuzzleId;
+      if (!targetId) {
+        setLeaderboard([]);
+        return;
       }
+      setLeaderboard(await fetchLeaderboard(targetId));
     } catch (e) {
       console.error('Failed to fetch leaderboard:', e);
     } finally {
@@ -89,39 +113,37 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchLeaderboard();
+      loadBoard();
     }
-  }, [isOpen, activeTab]);
+  }, [isOpen, activeTab, tabIds]);
+
+  useEffect(() => {
+    if (user?.displayName && !codename) {
+      setCodename(user.displayName.slice(0, 20));
+    }
+  }, [user, codename]);
 
   const handleSubmitScore = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!codename.trim() || !currentSolveStats || isSubmitting) return;
+    if (!codename.trim() || !currentSolveStats || isSubmitting || !user) return;
 
     setIsSubmitting(true);
     try {
       localStorage.setItem('cryptogram_codename', codename.trim());
-      const res = await fetch('/api/leaderboard/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          puzzleId: currentPuzzleId,
-          codename: codename.trim(),
-          titleBadge: selectedBadge,
-          timeSeconds: currentSolveStats.timeSeconds,
-          timeFormatted: currentSolveStats.timeFormatted,
-          hintsUsed: currentSolveStats.hintsUsed,
-          accuracy: currentSolveStats.accuracy,
-          penMode: currentSolveStats.penMode,
-          countryCode,
-        }),
+      const { rank } = await submitLeaderboardEntry(user.uid, {
+        puzzleId: currentPuzzleId,
+        codename: codename.trim(),
+        titleBadge: selectedBadge,
+        timeSeconds: currentSolveStats.timeSeconds,
+        timeFormatted: currentSolveStats.timeFormatted,
+        hintsUsed: currentSolveStats.hintsUsed,
+        accuracy: currentSolveStats.accuracy,
+        countryCode,
       });
-      const data = await res.json();
-      if (data.success) {
-        setHasSubmitted(true);
-        setSubmissionRank(data.rank);
-        fetchLeaderboard();
-        if (onScoreSubmitted) onScoreSubmitted();
-      }
+      setHasSubmitted(true);
+      setSubmissionRank(rank);
+      loadBoard();
+      if (onScoreSubmitted) onScoreSubmitted();
     } catch (err) {
       console.error('Failed to submit score:', err);
     } finally {
@@ -150,7 +172,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 Global Codebreaker Leaderboard
               </h2>
               <p className="text-[11px] font-mono-code text-stone-400">
-                Official Bureau Records & Competitive Rankings
+                {currentPuzzleTitle}
               </p>
             </div>
           </div>
@@ -186,40 +208,34 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             >
               🌙 Today Hard (#428-B)
             </button>
-            <button
-              onClick={() => setActiveTab('yesterday_easy')}
-              className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
-                activeTab === 'yesterday_easy'
-                  ? 'bg-stone-900 text-amber-100 shadow-xs'
-                  : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
-              }`}
-            >
-              ☀️ Yesterday Easy
-            </button>
-            <button
-              onClick={() => setActiveTab('yesterday_hard')}
-              className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
-                activeTab === 'yesterday_hard'
-                  ? 'bg-stone-900 text-amber-100 shadow-xs'
-                  : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
-              }`}
-            >
-              🌙 Yesterday Hard
-            </button>
-            <button
-              onClick={() => setActiveTab('historical')}
-              className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
-                activeTab === 'historical'
-                  ? 'bg-stone-900 text-amber-100 shadow-xs'
-                  : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
-              }`}
-            >
-              Zodiac 340 Legends
-            </button>
+            {tabIds.yesterday_easy && (
+              <button
+                onClick={() => setActiveTab('yesterday_easy')}
+                className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
+                  activeTab === 'yesterday_easy'
+                    ? 'bg-stone-900 text-amber-100 shadow-xs'
+                    : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
+                }`}
+              >
+                ☀️ Yesterday Easy
+              </button>
+            )}
+            {tabIds.yesterday_hard && (
+              <button
+                onClick={() => setActiveTab('yesterday_hard')}
+                className={`px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
+                  activeTab === 'yesterday_hard'
+                    ? 'bg-stone-900 text-amber-100 shadow-xs'
+                    : 'bg-[#fdfbf6] text-stone-700 hover:bg-stone-200 border border-stone-400'
+                }`}
+              >
+                🌙 Yesterday Hard
+              </button>
+            )}
           </div>
 
           <button
-            onClick={fetchLeaderboard}
+            onClick={loadBoard}
             className="flex items-center gap-1 text-stone-600 hover:text-stone-900 p-1 cursor-pointer"
             title="Refresh Live Standings"
           >
@@ -229,7 +245,25 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         </div>
 
         {/* Live Score Submission Box (if solved) */}
-        {currentSolveStats && !hasSubmitted && (
+        {currentSolveStats && !hasSubmitted && !user && (
+          <div className="p-3 sm:p-4 bg-amber-50 border-b-2 border-amber-300 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-amber-700" />
+              <span className="font-headline font-bold text-xs sm:text-sm text-stone-900 uppercase">
+                Sign in to post {currentSolveStats.timeFormatted} to the bureau ledger
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onSignIn}
+              className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-amber-50 font-mono-code font-bold text-xs rounded-xs cursor-pointer"
+            >
+              Sign In With Google
+            </button>
+          </div>
+        )}
+
+        {currentSolveStats && !hasSubmitted && user && (
           <div className="p-3 sm:p-4 bg-amber-50 border-b-2 border-amber-300">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="w-4 h-4 text-amber-700" />

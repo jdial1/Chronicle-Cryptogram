@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trophy, Copy, Check, Share2, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Trophy, Copy, Check, ArrowRight, ShieldCheck } from '../icons';
 import { PuzzleData } from '../types';
 
 interface NewspaperClippingModalProps {

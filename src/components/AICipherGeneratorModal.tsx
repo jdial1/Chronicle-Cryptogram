@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Wand2, Type, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Sparkles, Wand2, Type, AlertCircle, Loader2 } from '../icons';
 import { Difficulty, PuzzleData } from '../types';
 
 interface AICipherGeneratorModalProps {
