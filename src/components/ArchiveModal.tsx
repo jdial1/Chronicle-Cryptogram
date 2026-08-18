@@ -27,7 +27,9 @@ function DecodeStamp({ label, done }: { label: string; done: boolean }) {
       aria-label={done ? `${label} decoded` : `${label} not decoded`}
       title={done ? `${label} decoded` : `${label} not decoded`}
       className={`w-4 h-4 flex items-center justify-center rounded-full border ${
-        done ? 'border-red-600 text-red-600' : 'border-stone-500'
+        done
+          ? 'border-[color:var(--ink-cinnabar)] text-[color:var(--ink-cinnabar)]'
+          : 'border-stone-500'
       }`}
     >
       {done && <CheckCircle2 className="w-2.5 h-2.5" />}
@@ -71,7 +73,7 @@ function IssueSlot({
         )}
         {locked && (
           <span className="text-stone-600" aria-label="Locked">
-            <Lock className="w-3.5 h-3.5" />
+            <Lock className="w-3.5 h-3.5 text-[color:var(--ink-prussian)]" />
           </span>
         )}
       </div>
@@ -129,7 +131,7 @@ function UpcomingIssueCard({ date }: { date: string }) {
             {formatEditionDate(date)}
           </span>
         </div>
-        <Lock className="w-3.5 h-3.5 text-stone-700 shrink-0" />
+        <Lock className="w-3.5 h-3.5 text-[color:var(--ink-prussian)] shrink-0" />
       </div>
       <div className="relative">
         <div className="p-2.5 flex flex-row gap-2.5">

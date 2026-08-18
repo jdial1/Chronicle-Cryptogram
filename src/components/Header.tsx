@@ -50,9 +50,28 @@ export const Header: React.FC<HeaderProps> = ({
           : 'bg-[#fbf7ee] text-stone-800 border-b-2 border-stone-900'
       }`}
     >
+      <div className="px-3 sm:px-6 py-4 sm:py-6 text-center overflow-hidden">
+        <div className="w-full mx-auto flex flex-col items-center">
+          {night ? (
+            <h1 className="flex items-baseline justify-center gap-2 sm:gap-3 whitespace-nowrap">
+              <span className="font-gothic text-3xl sm:text-5xl md:text-6xl text-stone-950 leading-none">
+                The Chronicle
+              </span>
+              <span className="font-masthead font-black tracking-[0.18em] sm:tracking-[0.28em] text-sm sm:text-2xl md:text-3xl text-stone-950 uppercase">
+                Night Post
+              </span>
+            </h1>
+          ) : (
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-headline font-black tracking-tight text-stone-950 drop-shadow-xs my-0 sm:my-1 uppercase whitespace-nowrap">
+              Chronicle Cryptogram
+            </h1>
+          )}
+        </div>
+      </div>
+
       <div
         className={`px-3 sm:px-6 py-1.5 grid grid-cols-1 sm:grid-cols-3 items-center gap-2 text-xs font-newspaper tracking-wider ${
-          night ? 'border-b border-amber-900/40' : 'border-b border-stone-800'
+          night ? 'border-t border-amber-900/40' : 'border-t border-stone-800'
         }`}
       >
         {authConfigured ? (
@@ -151,25 +170,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {deliverySubscribed ? 'DELIVERY ON' : 'SUBSCRIBE TO DELIVERY'}
             </button>
-          )}
-        </div>
-      </div>
-
-      <div className="px-3 sm:px-6 py-4 sm:py-6 text-center overflow-hidden">
-        <div className="w-full mx-auto flex flex-col items-center">
-          {night ? (
-            <h1 className="flex items-baseline justify-center gap-2 sm:gap-3 whitespace-nowrap">
-              <span className="font-gothic text-3xl sm:text-5xl md:text-6xl text-stone-950 leading-none">
-                The Chronicle
-              </span>
-              <span className="font-masthead font-black tracking-[0.18em] sm:tracking-[0.28em] text-sm sm:text-2xl md:text-3xl text-stone-950 uppercase">
-                Night Post
-              </span>
-            </h1>
-          ) : (
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-headline font-black tracking-tight text-stone-950 drop-shadow-xs my-0 sm:my-1 uppercase whitespace-nowrap">
-              Chronicle Cryptogram
-            </h1>
           )}
         </div>
       </div>

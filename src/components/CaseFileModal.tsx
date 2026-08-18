@@ -172,7 +172,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
                           Day {fragment.editionNumber} · {fragment.title}
                         </span>
                         {highlighted && (
-                          <span className="shrink-0 font-typewriter font-bold text-[9px] uppercase tracking-widest text-red-800/85 -rotate-2">
+                          <span className="shrink-0 font-typewriter font-bold text-[9px] uppercase tracking-widest text-[color:var(--ink-cinnabar)] -rotate-2">
                             Just filed
                           </span>
                         )}

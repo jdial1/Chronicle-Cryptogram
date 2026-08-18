@@ -111,14 +111,6 @@ export function LiveStatsRow({ puzzleId }: { puzzleId: string }) {
   );
 }
 
-export function NightPostButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} className={inkAction}>
-      Read the Night Post
-    </button>
-  );
-}
-
 export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   currentPuzzle,
   timerSeconds,

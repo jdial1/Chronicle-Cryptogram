@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  --ink-lampblack: #1C1A17;
+  --ink-cinnabar: #9E2B1E;
+  --ink-prussian: #1E2E3D;
+  --ink-sepia: #523B2A;
+}
+
 @layer utilities {
   .font-masthead {
     font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
@@ -159,10 +166,30 @@
 }
 
 .newspaper-silhouette {
-  color: #1c1917;
-  opacity: 0.14;
+  --silhouette-ink: var(--ink-lampblack);
   pointer-events: none;
   mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+
+.newspaper-silhouette.ink-cinnabar {
+  --silhouette-ink: var(--ink-cinnabar);
+}
+
+.newspaper-silhouette.ink-sepia {
+  --silhouette-ink: var(--ink-sepia);
+}
+
+.newspaper-silhouette.ink-prussian,
+.newspaper-silhouette.is-night {
+  --silhouette-ink: var(--ink-prussian);
+}
+
+.newspaper-silhouette .woodcut-screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: url(#newsprint-ink-bleed);
 }
 
 .newspaper-silhouette svg {
@@ -173,14 +200,39 @@
   transform-origin: center;
 }
 
+.newspaper-silhouette svg > path {
+  fill: url(#woodcut-hatch-lampblack);
+  stroke: var(--silhouette-ink);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.newspaper-silhouette.ink-cinnabar svg > path {
+  fill: url(#woodcut-hatch-cinnabar);
+}
+
+.newspaper-silhouette.ink-sepia svg > path {
+  fill: url(#woodcut-hatch-sepia);
+}
+
+.newspaper-silhouette.ink-prussian svg > path,
+.newspaper-silhouette.is-night svg > path {
+  fill: url(#woodcut-hatch-prussian);
+}
+
+.newspaper-silhouette svg g path {
+  fill: none;
+  stroke: var(--silhouette-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .decoded-stamp {
   pointer-events: none;
   mix-blend-mode: multiply;
-  color: #481020;
-}
-
-.decoded-stamp.is-issue {
-  color: #3a0c14;
+  opacity: 0.88;
+  color: var(--ink-cinnabar);
 }
 
 .decoded-stamp svg {
@@ -188,19 +240,33 @@
   overflow: visible;
 }
 
+.article-deck {
+  --woodcut-size: clamp(6.5rem, 22vw, 9.25rem);
+}
+
+.article-deck::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 .article-silhouette {
-  position: absolute;
-  right: 0.15rem;
-  top: 2.25rem;
-  width: clamp(6.5rem, 22vw, 9.25rem);
+  float: right;
+  width: var(--woodcut-size, clamp(6.5rem, 22vw, 9.25rem));
   aspect-ratio: 1;
+  margin: 0.2rem 0 0.45rem 0.85rem;
+}
+
+.clipping-deck {
+  --woodcut-size: clamp(5.5rem, 20vw, 8rem);
+  padding-right: calc(var(--woodcut-size) + 0.65rem);
 }
 
 .clipping-silhouette {
   position: absolute;
   right: 0.5rem;
   bottom: 0.5rem;
-  width: clamp(5.5rem, 20vw, 8rem);
+  width: var(--woodcut-size, clamp(5.5rem, 20vw, 8rem));
   aspect-ratio: 1;
 }
 

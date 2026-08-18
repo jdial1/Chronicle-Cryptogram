@@ -3,66 +3,37 @@ import type { IconType } from 'react-icons';
 import {
   GiAnticlockwiseRotation,
   GiCalendar,
-  GiCargoCrate,
   GiCheckMark,
   GiCheckedShield,
-  GiCigar,
-  GiCrossedPistols,
   GiCrossMark,
   GiCycle,
-  GiDrowning,
   GiEnvelope,
   GiFairyWand,
   GiFastArrow,
-  GiFishingHook,
-  GiGavel,
-  GiGoldBar,
-  GiHandcuffs,
   GiHazardSign,
   GiHelp,
   GiHistogram,
-  GiHospital,
-  GiKey,
   GiKeyboard,
   GiLaurelCrown,
   GiLightBulb,
-  GiLipstick,
-  GiLockedChest,
   GiMagnifyingGlass,
   GiMedal,
-  GiMedicalPack,
   GiNewspaper,
   GiOpenBook,
   GiPadlock,
   GiPadlockOpen,
   GiPapers,
-  GiPearlNecklace,
   GiPlainArrow,
   GiPocketWatch,
-  GiPoisonBottle,
-  GiPoliceBadge,
-  GiPrisoner,
   GiQuillInk,
-  GiRadioTower,
-  GiRevolver,
-  GiSailboat,
   GiSandsOfTime,
-  GiScrollUnfurled,
-  GiSecretBook,
-  GiSecretDoor,
   GiSkeletonKey,
   GiSparkles,
-  GiSpy,
-  GiSuitcase,
-  GiSunrise,
   GiThreeFriends,
   GiTiedScroll,
-  GiTigerHead,
-  GiVial,
-  GiWantedReward,
   GiWaxSeal,
-  GiWineBottle,
 } from 'react-icons/gi';
+import { WOODCUTS, WOODCUT_INK } from './woodcuts';
 
 type InkProps = SVGProps<SVGSVGElement>;
 
@@ -99,7 +70,7 @@ export function DecodedStamp({ size = 'card' }: { size?: 'board' | 'card' }) {
   return (
     <span
       aria-hidden
-      className={`decoded-stamp absolute z-20${board ? '' : ' is-issue'}`}
+      className="decoded-stamp absolute z-20"
       style={{
         left: `${pose.left}%`,
         top: `${pose.top}%`,
@@ -222,51 +193,64 @@ export const ArrowRight = ink(GiFastArrow);
 export const ChevronDown = ink(GiPlainArrow, 'rotate-180');
 export const ChevronUp = ink(GiPlainArrow);
 
-const SILHOUETTE_SCALE: Record<string, number> = {
-  GiCigar: 1.15,
-  GiDrowning: 1.08,
-  GiKey: 1.12,
-  GiPocketWatch: 1.12,
-  GiPoisonBottle: 1.18,
-  GiRevolver: 1.14,
-  GiSuitcase: 1.32,
-  GiVial: 1.3,
-  GiWineBottle: 1.16,
-};
+function WoodcutHatch({ id, stroke }: { id: string; stroke: string }) {
+  return (
+    <pattern
+      id={id}
+      patternUnits="userSpaceOnUse"
+      width="14"
+      height="18"
+      patternTransform="rotate(-17)"
+    >
+      <g fill="none" stroke={stroke} strokeLinecap="round">
+        <path d="M-0.6 1.7 C3.4 0.8 8.2 2.5 14.8 1.5" strokeWidth="1.2" />
+        <path d="M-0.6 6.1 C4.1 5.2 9 7.1 11.4 6.4" strokeWidth="1.05" />
+        <path d="M-0.6 10.4 C3.1 9.6 9.8 11.5 14.8 10.3" strokeWidth="1.28" />
+        <path d="M2.2 14.7 C6.4 14 10.8 15.7 14.8 14.6" strokeWidth="0.92" />
+      </g>
+    </pattern>
+  );
+}
 
-const SILHOUETTES: Record<string, ComponentType<InkProps>> = {
-  GiCargoCrate: ink(GiCargoCrate),
-  GiCigar: ink(GiCigar),
-  GiCrossedPistols: ink(GiCrossedPistols),
-  GiDrowning: ink(GiDrowning),
-  GiFishingHook: ink(GiFishingHook),
-  GiGavel: ink(GiGavel),
-  GiGoldBar: ink(GiGoldBar),
-  GiHandcuffs: ink(GiHandcuffs),
-  GiHospital: ink(GiHospital),
-  GiKey: ink(GiKey),
-  GiLipstick: ink(GiLipstick),
-  GiLockedChest: ink(GiLockedChest),
-  GiMedicalPack: ink(GiMedicalPack),
-  GiPearlNecklace: ink(GiPearlNecklace),
-  GiPocketWatch: ink(GiPocketWatch),
-  GiPoisonBottle: ink(GiPoisonBottle),
-  GiPoliceBadge: ink(GiPoliceBadge),
-  GiPrisoner: ink(GiPrisoner),
-  GiRadioTower: ink(GiRadioTower),
-  GiRevolver: ink(GiRevolver),
-  GiSailboat: ink(GiSailboat),
-  GiScrollUnfurled: ink(GiScrollUnfurled),
-  GiSecretBook: ink(GiSecretBook),
-  GiSecretDoor: ink(GiSecretDoor),
-  GiSpy: ink(GiSpy),
-  GiSuitcase: ink(GiSuitcase),
-  GiSunrise: ink(GiSunrise),
-  GiTigerHead: ink(GiTigerHead),
-  GiVial: ink(GiVial),
-  GiWantedReward: ink(GiWantedReward),
-  GiWineBottle: ink(GiWineBottle),
-};
+export function WoodcutPressFilter() {
+  return (
+    <svg
+      aria-hidden
+      focusable="false"
+      className="pointer-events-none absolute left-0 top-0 h-0 w-0"
+    >
+      <defs>
+        <WoodcutHatch id="woodcut-hatch-lampblack" stroke="var(--ink-lampblack)" />
+        <WoodcutHatch id="woodcut-hatch-cinnabar" stroke="var(--ink-cinnabar)" />
+        <WoodcutHatch id="woodcut-hatch-prussian" stroke="var(--ink-prussian)" />
+        <WoodcutHatch id="woodcut-hatch-sepia" stroke="var(--ink-sepia)" />
+        <filter
+          id="newsprint-ink-bleed"
+          x="-12%"
+          y="-12%"
+          width="124%"
+          height="124%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="2" result="fiber" />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="fiber"
+            scale="0.65"
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="wobble"
+          />
+          <feMorphology in="wobble" operator="dilate" radius="0.4" result="squash" />
+          <feGaussianBlur in="squash" stdDeviation="0.42" result="slump" />
+          <feComponentTransfer in="slump">
+            <feFuncA type="table" tableValues="0 0 0.08 0.62 0.94 1" />
+          </feComponentTransfer>
+        </filter>
+      </defs>
+    </svg>
+  );
+}
 
 export function PuzzleSilhouette({
   name,
@@ -276,12 +260,14 @@ export function PuzzleSilhouette({
   className?: string;
 }) {
   if (!name) return null;
-  const Icon = SILHOUETTES[name];
+  const Icon = WOODCUTS[name];
   if (!Icon) return null;
-  const scale = SILHOUETTE_SCALE[name] ?? 1;
+  const ink = WOODCUT_INK[name] ?? 'lampblack';
   return (
-    <span className={className} aria-hidden>
-      <Icon style={scale === 1 ? undefined : { transform: `scale(${scale})` }} />
+    <span className={`${className} ink-${ink}`.trim()} aria-hidden>
+      <span className="woodcut-screen">
+        <Icon />
+      </span>
     </span>
   );
 }

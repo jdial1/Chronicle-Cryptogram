@@ -73,7 +73,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
         <div className="flex-1 min-h-0 p-4 sm:p-7 overflow-y-auto bg-[#faf6ed] text-stone-900 font-newspaper space-y-4">
           {/* Main Headline */}
           <div className="text-center border-b-2 border-stone-800 pb-3">
-            <span className="bg-red-700 text-stone-950 font-mono-code font-black text-xs px-2.5 py-0.5 uppercase tracking-widest rounded-xs inline-block mb-1.5">
+            <span className="bg-[color:var(--ink-cinnabar)] text-[#f7f3e8] font-mono-code font-black text-xs px-2.5 py-0.5 uppercase tracking-widest rounded-xs inline-block mb-1.5">
               EXTRA! EXTRA! CIPHER CRACKED
             </span>
             <h2 id="clipping-headline" className="text-2xl sm:text-4xl font-headline font-black uppercase tracking-tight text-stone-950 leading-tight">
@@ -85,10 +85,10 @@ Play Chronicle Cryptogram: ${window.location.href}`;
           </div>
 
           {/* Decoded Quote Plaque */}
-          <div className="bg-[#fdfbf7] p-4 sm:p-5 border-2 border-stone-800 rounded-xs shadow-inner relative">
+          <div className="clipping-deck bg-[#fdfbf7] p-4 sm:p-5 border-2 border-stone-800 rounded-xs shadow-inner relative">
             <PuzzleSilhouette
               name={puzzle.silhouette}
-              className="newspaper-silhouette clipping-silhouette"
+              className={`newspaper-silhouette clipping-silhouette${puzzle.editionSlot === 'Evening' ? ' is-night' : ''}`}
             />
             <div className="relative flex items-center gap-2 mb-2 font-mono-code text-xs font-bold text-stone-700">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
@@ -99,7 +99,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
             </p>
 
             {/* Vintage Red Ink Stamp */}
-            <div className="absolute -bottom-2 -right-2 transform rotate-[-8deg] border-2 border-red-700 text-red-800 font-mono-code font-black text-xs sm:text-sm px-3 py-1 bg-red-50/90 rounded-xs uppercase tracking-widest shadow-xs pointer-events-none">
+            <div className="absolute -bottom-2 -right-2 transform rotate-[-8deg] border-2 border-[color:var(--ink-cinnabar)] text-[color:var(--ink-cinnabar)] font-mono-code font-black text-xs sm:text-sm px-3 py-1 bg-[#f7f3e8]/90 rounded-xs uppercase tracking-widest shadow-xs pointer-events-none mix-blend-multiply opacity-90">
               ✓ DECODED & FILED
             </div>
           </div>

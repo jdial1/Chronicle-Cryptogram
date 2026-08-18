@@ -10,7 +10,7 @@ import { HowToPlayModal } from './components/HowToPlayModal';
 import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { PrimerCoach } from './components/PrimerCoach';
-import { TodayStatsBulletin, LiveStatsRow, NightPostButton, PrimerPathButtons } from './components/TodayStatsBulletin';
+import { TodayStatsBulletin, LiveStatsRow } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
 import {
   CaseCharacterId,
@@ -47,7 +47,8 @@ import {
   playHintSound,
   setAudioEnabled,
 } from './utils/audio';
-import { PuzzleSilhouette, Search } from './icons';
+import { PuzzleSilhouette, Search, WoodcutPressFilter } from './icons';
+import { isFirebaseEnabled } from './utils/firebase';
 
 function isHardPuzzle(puzzle: PuzzleData) {
   return (
@@ -689,6 +690,7 @@ export default function App() {
         nightEdition ? 'bg-[#cfc3a8] text-stone-950' : 'bg-[#f7f3e8] text-stone-900'
       }`}
     >
+      <WoodcutPressFilter />
       <label htmlFor="cipher-letter-input" className="sr-only">
         Type a letter to map the selected cipher glyph
       </label>
@@ -750,14 +752,10 @@ export default function App() {
       <main className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
         {/* Authentic Newspaper Story Headline & Subdeck */}
         <section
-          className={`relative text-center sm:text-left pt-1 pb-3 pr-10 ${
+          className={`article-deck relative pt-1 pb-3 ${
             nightEdition ? 'border-b-2 border-amber-800' : 'border-b-2 border-stone-900'
           }`}
         >
-          <PuzzleSilhouette
-            name={currentPuzzle.silhouette}
-            className="newspaper-silhouette article-silhouette"
-          />
           <button
             type="button"
             onClick={() => setIsArticleOpen(true)}
@@ -767,12 +765,16 @@ export default function App() {
             <Search className="w-4 h-4" />
           </button>
           <h2
-            className={`text-[calc(1.5rem+2pt)] sm:text-[calc(1.875rem+2pt)] md:text-[calc(2.25rem+2pt)] font-black tracking-tight uppercase leading-snug ${
+            className={`text-center px-11 text-[calc(1.5rem+2pt)] sm:text-[calc(1.875rem+2pt)] md:text-[calc(2.25rem+2pt)] font-black tracking-tight uppercase leading-snug ${
               nightEdition ? 'font-letterpress text-stone-950' : 'font-headline text-stone-950'
             }`}
           >
             {currentPuzzle.headline}
           </h2>
+          <PuzzleSilhouette
+            name={currentPuzzle.silhouette}
+            className={`newspaper-silhouette article-silhouette${nightEdition ? ' is-night' : ''}`}
+          />
           <DropCapParagraph
             text={articleDek(currentPuzzle)}
             night={nightEdition}
@@ -796,7 +798,7 @@ export default function App() {
               onOpenHandbook={() => setIsHowToPlayOpen(true)}
             />
           )}
-          {boardSolved && !isSolveBulletinOpen && !isPrimerPuzzle(currentPuzzle) && (
+          {isFirebaseEnabled && boardSolved && !isSolveBulletinOpen && !isPrimerPuzzle(currentPuzzle) && (
             <div className="mb-3">
               <LiveStatsRow puzzleId={currentPuzzle.id} />
             </div>
@@ -809,26 +811,6 @@ export default function App() {
             showErrors={showErrors}
             isSolved={boardSolved}
           />
-          {boardSolved && !isSolveBulletinOpen && !nightEdition && !isPrimerPuzzle(currentPuzzle) && (
-            <div className="mt-3">
-              <NightPostButton onClick={() => handleSelectDifficulty('Hard')} />
-            </div>
-          )}
-          {boardSolved && !isSolveBulletinOpen && isPrimerPuzzle(currentPuzzle) && (
-            <div className="mt-3">
-              {offerStoryCatchUp && (
-                <p className="mb-2 text-center font-newspaper text-sm text-stone-700 leading-relaxed">
-                  The story has already begun. Start on Day 1, or go to the current day.
-                </p>
-              )}
-              <PrimerPathButtons
-                offerCatchUp={offerStoryCatchUp}
-                currentEditionNumber={todayEdition?.editionNumber}
-                onOpenDayOne={handleOpenDayOne}
-                onOpenTodayEdition={handleOpenTodayEdition}
-              />
-            </div>
-          )}
         </section>
       </main>
 
