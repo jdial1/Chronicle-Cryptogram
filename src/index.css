@@ -26,7 +26,7 @@
   .font-mono-code,
   .font-handwritten,
   .font-scribble {
-    font-family: 'Special Elite', ui-monospace, monospace;
+    font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
   }
   .font-gothic {
     font-family: 'UnifrakturMaguntia', Palatino, serif;
@@ -189,7 +189,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  filter: url(#newsprint-ink-bleed);
 }
 
 .newspaper-silhouette svg {
@@ -198,14 +197,15 @@
   height: 100%;
   overflow: visible;
   transform-origin: center;
+  shape-rendering: geometricPrecision;
 }
 
 .newspaper-silhouette svg > path {
   fill: url(#woodcut-hatch-lampblack);
   stroke: var(--silhouette-ink);
-  stroke-width: 1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  stroke-width: 1.15;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
 }
 
 .newspaper-silhouette.ink-cinnabar svg > path {
@@ -224,8 +224,30 @@
 .newspaper-silhouette svg g path {
   fill: none;
   stroke: var(--silhouette-ink);
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.newspaper-silhouette.w-6 svg > path {
+  fill: url(#woodcut-hatch-lampblack-small);
+  stroke-width: 2.6;
+}
+
+.newspaper-silhouette.w-6.ink-cinnabar svg > path {
+  fill: url(#woodcut-hatch-cinnabar-small);
+}
+
+.newspaper-silhouette.w-6.ink-sepia svg > path {
+  fill: url(#woodcut-hatch-sepia-small);
+}
+
+.newspaper-silhouette.w-6.ink-prussian svg > path,
+.newspaper-silhouette.w-6.is-night svg > path {
+  fill: url(#woodcut-hatch-prussian-small);
+}
+
+.newspaper-silhouette.w-6 svg g path {
+  stroke-width: 2.2;
 }
 
 .decoded-stamp {

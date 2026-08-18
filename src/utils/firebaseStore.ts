@@ -97,6 +97,78 @@ export function mergeSolvedIds(local: string[], cloud: string[]) {
   return Array.from(new Set([...local, ...cloud]));
 }
 
+const PROGRESS_KEY = 'cryptogram_progress_';
+
+function normalizeProgress(raw: unknown): PuzzleProgress | null {
+  try {
+    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!data || typeof data !== 'object') return null;
+    const source = (data as PuzzleProgress).mappings;
+    const mappings: PuzzleProgress['mappings'] = {};
+    if (source && typeof source === 'object') {
+      for (const key of Object.keys(source).slice(0, 40)) {
+        const letter = source[key];
+        if (typeof letter === 'string' && letter) mappings[key] = letter;
+      }
+    }
+    const timerSeconds = Number((data as PuzzleProgress).timerSeconds) || 0;
+    const hintsUsed = Number((data as PuzzleProgress).hintsUsed) || 0;
+    const hintsRemaining =
+      (data as PuzzleProgress).hintsRemaining == null
+        ? 3
+        : Number((data as PuzzleProgress).hintsRemaining);
+    return {
+      mappings,
+      timerSeconds: Math.min(86400, Math.max(0, timerSeconds)),
+      hintsUsed: Math.min(20, Math.max(0, hintsUsed)),
+      hintsRemaining: Math.min(3, Math.max(0, hintsRemaining)),
+      isSolved: Boolean((data as PuzzleProgress).isSolved),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function readAllLocalProgress(): Record<string, PuzzleProgress> {
+  const out: Record<string, PuzzleProgress> = {};
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(PROGRESS_KEY)) continue;
+    const puzzleId = key.slice(PROGRESS_KEY.length);
+    if (!puzzleId) continue;
+    const parsed = normalizeProgress(localStorage.getItem(key));
+    if (parsed) out[puzzleId] = parsed;
+  }
+  return out;
+}
+
+export async function importLocalProgressToCloud(
+  uid: string,
+  localProgress: Record<string, PuzzleProgress>,
+  solvedPuzzleIds: string[]
+) {
+  if (!db) return;
+  const puzzleIds = new Set([...Object.keys(localProgress), ...solvedPuzzleIds]);
+  await Promise.all(
+    Array.from(puzzleIds).map(async (puzzleId) => {
+      if (!puzzleId || puzzleId.length > 80) return;
+      const stored = localProgress[puzzleId];
+      const local: PuzzleProgress = {
+        mappings: stored?.mappings || {},
+        timerSeconds: stored?.timerSeconds || 0,
+        hintsUsed: stored?.hintsUsed || 0,
+        hintsRemaining: stored?.hintsRemaining ?? 3,
+        isSolved: Boolean(stored?.isSolved || solvedPuzzleIds.includes(puzzleId)),
+      };
+      const cloud = await loadCloudProgress(uid, puzzleId);
+      const merged = mergeProgress(local, cloud);
+      if (!merged) return;
+      await saveCloudProgress(uid, puzzleId, merged);
+      localStorage.setItem(`${PROGRESS_KEY}${puzzleId}`, JSON.stringify(merged));
+    })
+  );
+}
+
 export async function loadUserProfile(uid: string) {
   if (!db) return null;
   const snap = await getDoc(doc(db, 'users', uid));

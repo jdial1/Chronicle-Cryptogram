@@ -93,6 +93,17 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function ownsKeyedDoc(docId) {
+      return isAuthenticated() &&
+        docId.size() > request.auth.uid.size() + 1 &&
+        docId.matches('^' + request.auth.uid + '_.+$');
+    }
+
+    function canGetKeyedDoc(docId) {
+      return ownsKeyedDoc(docId) &&
+        (resource == null || resource.data.uid == request.auth.uid);
+    }
+
     function hasOnlyAllowedFields(fields) {
       return request.resource.data.keys().hasOnly(fields);
     }
@@ -307,13 +318,13 @@ service cloud.firestore {
     }
 
     match /starts/{startId} {
-      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow read: if canGetKeyedDoc(startId);
       allow create: if isAuthenticated() && isValidStart(request.resource.data, startId);
       allow update, delete: if false;
     }
 
     match /solves/{solveId} {
-      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow read: if canGetKeyedDoc(solveId);
       allow create: if isAuthenticated() && isValidSolve(request.resource.data, solveId);
       allow update, delete: if false;
     }

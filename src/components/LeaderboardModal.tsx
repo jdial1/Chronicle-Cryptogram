@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { User } from 'firebase/auth';
 import { X, Trophy, Search, Shield, RefreshCw, Send, CheckCircle } from '../icons';
+import { GoogleDeskButton } from './Header';
 import { LeaderboardEntry, PuzzleData } from '../types';
 import { fetchLeaderboard, submitLeaderboardEntry } from '../utils/firebaseStore';
 
@@ -253,20 +254,14 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
         {/* Live Score Submission Box (if solved) */}
         {currentSolveStats && !hasSubmitted && !user && (
-          <div className="p-3 sm:p-4 bg-amber-50 border-b-2 border-amber-300 flex items-center justify-between gap-3 flex-wrap">
+          <div className="p-3 sm:p-4 bg-[#f8f3e8] border-b-2 border-stone-800 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-amber-700" />
+              <Shield className="w-4 h-4 text-stone-800" />
               <span className="font-headline font-bold text-xs sm:text-sm text-stone-900 uppercase">
                 Sign in to post {currentSolveStats.timeFormatted} to the bureau ledger
               </span>
             </div>
-            <button
-              type="button"
-              onClick={onSignIn}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-mono-code font-bold text-xs rounded-xs cursor-pointer"
-            >
-              Sign In With Google
-            </button>
+            <GoogleDeskButton onClick={onSignIn} />
           </div>
         )}
 

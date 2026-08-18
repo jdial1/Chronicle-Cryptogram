@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { PuzzleData } from '../types';
-import { FileText, BookOpen } from '../icons';
+import { PuzzleData, GameStats } from '../types';
+import { FileText, BookOpen, Type, X } from '../icons';
 import { usePWAInstall } from '../utils/usePWAInstall';
 import { isNightEdition } from '../utils/edition';
+import { formatTime } from '../utils/cipherEngine';
+import { DEFAULT_GAME_STATS } from '../utils/firebaseStore';
 
 interface HeaderProps {
   currentPuzzle: PuzzleData;
   user?: User | null;
   authConfigured?: boolean;
+  gameStats?: GameStats;
   onSignIn?: () => void;
   onSignOut?: () => void;
   onOpenArchive?: () => void;
@@ -21,10 +24,178 @@ interface HeaderProps {
   onToggleDelivery?: () => void;
 }
 
+function agentInitials(name?: string | null) {
+  const parts = (name || 'Agent').trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] || 'A';
+  const last = (parts.length > 1 ? parts[parts.length - 1][0] : '') || '';
+  return `${first}${last}`.toUpperCase();
+}
+
+function AgentPlate({
+  photoURL,
+  name,
+  night = false,
+  size = 'sm',
+  onClick,
+}: {
+  photoURL?: string | null;
+  name?: string | null;
+  night?: boolean;
+  size?: 'sm' | 'lg';
+  onClick?: () => void;
+}) {
+  const initials = agentInitials(name);
+  const box = size === 'lg' ? 'w-16 h-16 text-lg' : 'w-8 h-8 text-[10px]';
+  const className = `relative ${box} border-2 overflow-hidden shrink-0 ${
+    night ? 'border-amber-900' : 'border-stone-800'
+  } ${onClick ? 'cursor-pointer' : ''}`;
+  const mark = (
+    <>
+      {photoURL ? (
+        <img
+          src={photoURL}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover grayscale contrast-125 brightness-90"
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <span className="absolute inset-0 bg-[#3a352c]" />
+      )}
+      <span className="absolute inset-0 bg-stone-950/50 mix-blend-multiply" />
+      <span className="relative z-10 flex h-full w-full items-center justify-center font-typewriter font-black tracking-widest text-[#f7f3e8]">
+        {initials}
+      </span>
+    </>
+  );
+  if (!onClick) {
+    return <div className={className}>{mark}</div>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Open bureau file for ${name || 'agent'}`}
+      className={className}
+    >
+      {mark}
+    </button>
+  );
+}
+
+export function GoogleDeskButton({
+  onClick,
+  night = false,
+}: {
+  onClick?: () => void;
+  night?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 border-2 px-2.5 py-1 font-typewriter font-black text-[10px] uppercase tracking-[0.12em] text-stone-950 cursor-pointer ${
+        night
+          ? 'border-amber-900 bg-[#efe4cc] hover:bg-[#e4d6b8]'
+          : 'border-stone-800 bg-[#f8f3e8] hover:bg-[#ebe4d4]'
+      }`}
+    >
+      <Type className="w-3.5 h-3.5" />
+      <span className="sm:hidden">Sign in</span>
+      <span className="hidden sm:inline">Sign in with Google</span>
+    </button>
+  );
+}
+
+function AgentDossierModal({
+  user,
+  stats,
+  night,
+  onClose,
+  onSignOut,
+}: {
+  user: User;
+  stats: GameStats;
+  night: boolean;
+  onClose: () => void;
+  onSignOut?: () => void;
+}) {
+  const rows = [
+    { label: 'Editions decoded', value: String(stats.puzzlesSolved) },
+    { label: 'Current streak', value: String(stats.currentStreak) },
+    { label: 'Longest streak', value: String(stats.maxStreak) },
+    { label: 'Quickest solve', value: stats.fastestTime == null ? '—' : formatTime(stats.fastestTime) },
+    { label: 'Time on desk', value: formatTime(stats.totalTimePlayed) },
+  ];
+
+  return (
+    <div className="modal-backdrop is-slip z-50 select-none" onClick={onClose}>
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="agent-dossier-title"
+        className="modal-sheet is-slip max-w-md"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="modal-masthead">
+          <h2
+            id="agent-dossier-title"
+            className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight"
+          >
+            Bureau File
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-5 bg-newsprint">
+          <div className="flex items-center gap-3 mb-4">
+            <AgentPlate photoURL={user.photoURL} name={user.displayName} night={night} size="lg" />
+            <div className="min-w-0">
+              <p className="font-typewriter font-black text-sm uppercase tracking-widest text-stone-950 truncate">
+                {user.displayName || 'Agent'}
+              </p>
+              <p className="font-typewriter text-[10px] uppercase tracking-widest text-stone-600">
+                Field operative
+              </p>
+            </div>
+          </div>
+          <dl className="border-2 border-stone-800 divide-y divide-stone-400 bg-[#f8f3e8]">
+            {rows.map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-3 px-3 py-2">
+                <dt className="font-typewriter text-[10px] uppercase tracking-widest text-stone-600">
+                  {row.label}
+                </dt>
+                <dd className="font-typewriter font-black text-sm text-stone-950 tabular-nums">
+                  {row.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="w-full sm:w-auto min-h-12 sm:min-h-0 px-4 py-2.5 border-2 border-stone-800 bg-[#f8f3e8] hover:bg-amber-100 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer"
+          >
+            Sign Out
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export const Header: React.FC<HeaderProps> = ({
   currentPuzzle,
   user,
   authConfigured,
+  gameStats = DEFAULT_GAME_STATS,
   onSignIn,
   onSignOut,
   onOpenArchive,
@@ -38,9 +209,14 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { isInstallable, promptInstall } = usePWAInstall();
   const night = isNightEdition(currentPuzzle);
+  const [dossierOpen, setDossierOpen] = useState(false);
   const linkClass =
     'inline-flex items-center gap-1 uppercase tracking-widest underline decoration-dotted underline-offset-4 cursor-pointer hover:text-stone-950';
   const dotClass = 'hidden sm:inline text-stone-700';
+
+  useEffect(() => {
+    if (!user) setDossierOpen(false);
+  }, [user]);
 
   return (
     <header
@@ -51,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({
       }`}
     >
       <div className="px-3 sm:px-6 py-4 sm:py-6 text-center overflow-hidden">
-        <div className="w-full mx-auto flex flex-col items-center">
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
           {night ? (
             <h1 className="flex items-baseline justify-center gap-2 sm:gap-3 whitespace-nowrap">
               <span className="font-gothic text-3xl sm:text-5xl md:text-6xl text-stone-950 leading-none">
@@ -69,53 +245,32 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div
-        className={`px-3 sm:px-6 py-1.5 grid grid-cols-1 sm:grid-cols-3 items-center gap-2 text-xs font-newspaper tracking-wider ${
-          night ? 'border-t border-amber-900/40' : 'border-t border-stone-800'
-        }`}
-      >
+      <div className={night ? 'border-t border-amber-900/40' : 'border-t border-stone-800'}>
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-1.5 flex items-center gap-2 sm:gap-3 text-xs font-newspaper tracking-wider">
         {authConfigured ? (
-          <div className="hidden sm:flex items-center gap-2 font-semibold font-treatise">
+          <div className="flex items-center shrink-0">
             {user ? (
-              <>
-                {user.photoURL && (
-                  <img
-                    src={user.photoURL}
-                    alt=""
-                    className={`w-5 h-5 rounded-full ${night ? 'border border-amber-800' : 'border border-stone-700'}`}
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-                <span className="uppercase tracking-widest max-w-[10rem] truncate text-stone-900">
-                  {user.displayName || 'Agent'}
-                </span>
-                <button
-                  onClick={onSignOut}
-                  className="hover:underline cursor-pointer uppercase tracking-widest text-stone-700 hover:text-stone-950"
-                >
-                  Sign Out
-                </button>
-              </>
+              <AgentPlate
+                photoURL={user.photoURL}
+                name={user.displayName}
+                night={night}
+                onClick={() => setDossierOpen(true)}
+              />
             ) : (
-              <button
-                onClick={onSignIn}
-                className="hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-800"
-              >
-                Sign In With Google
-              </button>
+              <GoogleDeskButton onClick={onSignIn} night={night} />
             )}
           </div>
         ) : (
-          <span className="hidden sm:block" />
+          <span className="hidden sm:block shrink-0" />
         )}
-        <div className="w-full grid grid-cols-3 items-center sm:flex sm:justify-center sm:gap-3 font-semibold font-treatise">
+        <div className="flex-1 flex items-center justify-between sm:justify-center sm:gap-3 min-w-0 font-semibold font-treatise">
           <button
             type="button"
             onClick={onOpenHandbook}
-            className={`justify-self-start sm:justify-self-auto ${linkClass}`}
+            className={linkClass}
             title="Open the codebreaker's handbook"
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
             Handbook
           </button>
           {showCaseFiles ? (
@@ -124,27 +279,25 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCaseFiles}
-                className={`justify-self-center sm:justify-self-auto ${linkClass}`}
+                className={`hidden sm:inline-flex ${linkClass}`}
                 title="Open detective case files"
               >
                 <FileText className="w-3.5 h-3.5" />
                 Case Files
               </button>
             </>
-          ) : (
-            <span className="sm:hidden" />
-          )}
+          ) : null}
           <span className={dotClass}>•</span>
           <button
             type="button"
             onClick={onOpenArchive}
-            className={`justify-self-end sm:justify-self-auto ${linkClass}`}
+            className={linkClass}
             title="Browse previous Morning Editions and Night Extras"
           >
             {currentPuzzle.editionDate}
           </button>
         </div>
-        <div className="hidden sm:flex items-center justify-end gap-3 font-semibold font-treatise">
+        <div className="hidden sm:flex items-center justify-end gap-3 shrink-0 font-semibold font-treatise">
           {isInstallable && (
             <button
               onClick={promptInstall}
@@ -172,7 +325,20 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
         </div>
+        </div>
       </div>
+      {dossierOpen && user && (
+        <AgentDossierModal
+          user={user}
+          stats={gameStats}
+          night={night}
+          onClose={() => setDossierOpen(false)}
+          onSignOut={() => {
+            setDossierOpen(false);
+            onSignOut?.();
+          }}
+        />
+      )}
     </header>
   );
 };

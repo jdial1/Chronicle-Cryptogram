@@ -193,20 +193,37 @@ export const ArrowRight = ink(GiFastArrow);
 export const ChevronDown = ink(GiPlainArrow, 'rotate-180');
 export const ChevronUp = ink(GiPlainArrow);
 
-function WoodcutHatch({ id, stroke }: { id: string; stroke: string }) {
+function WoodcutHatch({
+  id,
+  stroke,
+  dense = false,
+}: {
+  id: string;
+  stroke: string;
+  dense?: boolean;
+}) {
   return (
     <pattern
       id={id}
       patternUnits="userSpaceOnUse"
-      width="14"
-      height="18"
+      width={dense ? 10 : 14}
+      height={dense ? 13 : 18}
       patternTransform="rotate(-17)"
     >
-      <g fill="none" stroke={stroke} strokeLinecap="round">
-        <path d="M-0.6 1.7 C3.4 0.8 8.2 2.5 14.8 1.5" strokeWidth="1.2" />
-        <path d="M-0.6 6.1 C4.1 5.2 9 7.1 11.4 6.4" strokeWidth="1.05" />
-        <path d="M-0.6 10.4 C3.1 9.6 9.8 11.5 14.8 10.3" strokeWidth="1.28" />
-        <path d="M2.2 14.7 C6.4 14 10.8 15.7 14.8 14.6" strokeWidth="0.92" />
+      <g fill="none" stroke={stroke} strokeLinecap="square">
+        <path
+          d={dense ? 'M-0.4 1.6 H10.8' : 'M-0.6 1.7 C3.4 0.8 8.2 2.5 14.8 1.5'}
+          strokeWidth={dense ? 2.2 : 1.05}
+        />
+        <path
+          d={dense ? 'M-0.4 5.8 H10.8' : 'M-0.6 6.1 C4.1 5.2 9 7.1 11.4 6.4'}
+          strokeWidth={dense ? 2.05 : 0.95}
+        />
+        <path
+          d={dense ? 'M-0.4 10 H10.8' : 'M-0.6 10.4 C3.1 9.6 9.8 11.5 14.8 10.3'}
+          strokeWidth={dense ? 2.3 : 1.12}
+        />
+        {!dense && <path d="M2.2 14.7 C6.4 14 10.8 15.7 14.8 14.6" strokeWidth="0.92" />}
       </g>
     </pattern>
   );
@@ -217,36 +234,18 @@ export function WoodcutPressFilter() {
     <svg
       aria-hidden
       focusable="false"
-      className="pointer-events-none absolute left-0 top-0 h-0 w-0"
+      viewBox="0 0 64 64"
+      className="pointer-events-none absolute h-16 w-16 overflow-hidden opacity-0"
     >
       <defs>
         <WoodcutHatch id="woodcut-hatch-lampblack" stroke="var(--ink-lampblack)" />
         <WoodcutHatch id="woodcut-hatch-cinnabar" stroke="var(--ink-cinnabar)" />
         <WoodcutHatch id="woodcut-hatch-prussian" stroke="var(--ink-prussian)" />
         <WoodcutHatch id="woodcut-hatch-sepia" stroke="var(--ink-sepia)" />
-        <filter
-          id="newsprint-ink-bleed"
-          x="-12%"
-          y="-12%"
-          width="124%"
-          height="124%"
-          colorInterpolationFilters="sRGB"
-        >
-          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="2" result="fiber" />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="fiber"
-            scale="0.65"
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="wobble"
-          />
-          <feMorphology in="wobble" operator="dilate" radius="0.4" result="squash" />
-          <feGaussianBlur in="squash" stdDeviation="0.42" result="slump" />
-          <feComponentTransfer in="slump">
-            <feFuncA type="table" tableValues="0 0 0.08 0.62 0.94 1" />
-          </feComponentTransfer>
-        </filter>
+        <WoodcutHatch id="woodcut-hatch-lampblack-small" stroke="var(--ink-lampblack)" dense />
+        <WoodcutHatch id="woodcut-hatch-cinnabar-small" stroke="var(--ink-cinnabar)" dense />
+        <WoodcutHatch id="woodcut-hatch-prussian-small" stroke="var(--ink-prussian)" dense />
+        <WoodcutHatch id="woodcut-hatch-sepia-small" stroke="var(--ink-sepia)" dense />
       </defs>
     </svg>
   );

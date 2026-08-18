@@ -125,9 +125,8 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
               role="tablist"
               aria-label="Dossiers"
             >
-              {dossiers.map((entry, index) => {
+              {dossiers.map((entry) => {
                 const selected = entry.id === character?.id;
-                const tilt = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][index % 4];
                 const [firstName, lastName] = tabNameLines(entry.name);
                 return (
                   <button
@@ -143,9 +142,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
                         : 'bg-[#c4baa4] text-stone-700 border-stone-500/80 hover:bg-[#d0c6b0]'
                     }`}
                   >
-                    <span
-                      className={`flex flex-col font-typewriter font-bold text-[10px] uppercase tracking-wider leading-tight origin-left ${tilt}`}
-                    >
+                    <span className="flex flex-col font-typewriter font-bold text-[10px] uppercase tracking-wider leading-tight">
                       <span>{firstName}</span>
                       {lastName && <span>{lastName}</span>}
                     </span>

@@ -24,11 +24,13 @@ import { useAuth } from './utils/useAuth';
 import {
   DEFAULT_GAME_STATS,
   ensureUserProfile,
+  importLocalProgressToCloud,
   loadCloudProgress,
   loadUserProfile,
   mergeGameStats,
   mergeProgress,
   mergeSolvedIds,
+  readAllLocalProgress,
   recordPuzzleSolve,
   recordPuzzleStart,
   saveCloudProgress,
@@ -281,9 +283,10 @@ export default function App() {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const localSolved = JSON.parse(localStorage.getItem('cryptogram_solved_ids') || '[]');
+      const localSolved = readSolvedPuzzleIds();
       const savedStats = localStorage.getItem('cryptogram_stats');
       const localStats = savedStats ? JSON.parse(savedStats) : DEFAULT_GAME_STATS;
+      const localProgress = readAllLocalProgress();
       const profile = await loadUserProfile(user.uid);
       if (cancelled) return;
       const nextSolved = mergeSolvedIds(localSolved, profile?.solvedPuzzleIds || []);
@@ -293,6 +296,27 @@ export default function App() {
       localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
       localStorage.setItem('cryptogram_stats', JSON.stringify(nextStats));
       await ensureUserProfile(user, nextStats, nextSolved);
+      if (cancelled) return;
+      await importLocalProgressToCloud(user.uid, localProgress, nextSolved);
+      if (cancelled) return;
+      const solverName =
+        localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
+      await Promise.all(
+        nextSolved.map((puzzleId) => {
+          const puzzle = INITIAL_PUZZLES.find((item) => item.id === puzzleId);
+          if (!puzzle || isPrimerPuzzle(puzzle)) return null;
+          const progress = readPuzzleProgress(puzzleId);
+          if (!progress?.isSolved || progress.timerSeconds < 0.1) return null;
+          return recordPuzzleSolve(
+            user.uid,
+            puzzleId,
+            progress.timerSeconds,
+            progress.hintsUsed,
+            100,
+            solverName
+          ).catch(() => undefined);
+        })
+      );
     })();
     return () => {
       cancelled = true;
@@ -304,7 +328,7 @@ export default function App() {
     let cancelled = false;
     (async () => {
       const cloud = await loadCloudProgress(user.uid, currentPuzzle.id);
-      if (cancelled || !cloud) return;
+      if (cancelled) return;
       const local = readPuzzleProgress(currentPuzzle.id);
       const merged = mergeProgress(local, cloud);
       if (!merged || cancelled) return;
@@ -730,6 +754,7 @@ export default function App() {
         currentPuzzle={currentPuzzle}
         user={user}
         authConfigured={configured}
+        gameStats={gameStats}
         onSignIn={signIn}
         onSignOut={signOut}
         onOpenArchive={() => setIsArchiveOpen(true)}
