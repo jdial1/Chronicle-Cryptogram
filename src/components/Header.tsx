@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
       }`}
     >
       <div
-        className={`px-3 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs font-newspaper tracking-wider ${
+        className={`px-3 sm:px-6 py-1.5 grid grid-cols-1 sm:grid-cols-3 items-center gap-2 text-xs font-newspaper tracking-wider ${
           night ? 'border-b border-amber-900/40' : 'border-b border-stone-800'
         }`}
       >
@@ -89,36 +89,7 @@ export const Header: React.FC<HeaderProps> = ({
         ) : (
           <span className="hidden sm:block" />
         )}
-        <div className="w-full sm:w-auto grid grid-cols-3 items-center sm:flex sm:justify-end sm:gap-3 font-semibold font-treatise">
-          {isInstallable && (
-            <>
-              <button
-                onClick={promptInstall}
-                className="hidden sm:inline hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-700"
-                title="Install app to your device"
-              >
-                INSTALL APP
-              </button>
-              <span className={dotClass}>•</span>
-            </>
-          )}
-          {deliverySupported && onToggleDelivery && !(deliveryBlocked && !deliverySubscribed) && (
-            <>
-              <button
-                type="button"
-                onClick={onToggleDelivery}
-                className="hover:underline cursor-pointer hidden sm:block uppercase tracking-widest text-stone-700 hover:text-stone-950"
-                title={
-                  deliverySubscribed
-                    ? 'Stop daily delivery notices'
-                    : 'Subscribe to daily delivery notifications'
-                }
-              >
-                {deliverySubscribed ? 'DELIVERY ON' : 'SUBSCRIBE TO DELIVERY'}
-              </button>
-              <span className={dotClass}>•</span>
-            </>
-          )}
+        <div className="w-full grid grid-cols-3 items-center sm:flex sm:justify-center sm:gap-3 font-semibold font-treatise">
           <button
             type="button"
             onClick={onOpenHandbook}
@@ -153,6 +124,34 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {currentPuzzle.editionDate}
           </button>
+        </div>
+        <div className="hidden sm:flex items-center justify-end gap-3 font-semibold font-treatise">
+          {isInstallable && (
+            <button
+              onClick={promptInstall}
+              className="hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-700"
+              title="Install app to your device"
+            >
+              INSTALL APP
+            </button>
+          )}
+          {isInstallable && deliverySupported && onToggleDelivery && !(deliveryBlocked && !deliverySubscribed) && (
+            <span className="text-stone-700">•</span>
+          )}
+          {deliverySupported && onToggleDelivery && !(deliveryBlocked && !deliverySubscribed) && (
+            <button
+              type="button"
+              onClick={onToggleDelivery}
+              className="hover:underline cursor-pointer uppercase tracking-widest text-stone-700 hover:text-stone-950"
+              title={
+                deliverySubscribed
+                  ? 'Stop daily delivery notices'
+                  : 'Subscribe to daily delivery notifications'
+              }
+            >
+              {deliverySubscribed ? 'DELIVERY ON' : 'SUBSCRIBE TO DELIVERY'}
+            </button>
+          )}
         </div>
       </div>
 

@@ -23,8 +23,11 @@ function dossierSubject(name: string) {
   return name.replace(/^(Detective|Dr\.)\s+/i, '').replace(/\.+$/g, '').trim();
 }
 
-function dossierRole(dossier: string) {
-  return dossier.replace(/\.+$/g, '').trim();
+function tabNameLines(name: string) {
+  const subject = dossierSubject(name);
+  const parts = subject.split(/\s+/);
+  if (parts.length < 2) return [subject];
+  return [parts[0], parts.slice(1).join(' ')];
 }
 
 function NoteBody({ fragment }: { fragment: AssembledFragment }) {
@@ -86,9 +89,6 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
 
   if (!isOpen) return null;
 
-  const subject = character ? dossierSubject(character.name) : '';
-  const role = character ? dossierRole(character.dossier) : '';
-
   return (
     <div
       className="modal-backdrop z-[55] select-none"
@@ -127,24 +127,27 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
             >
               {dossiers.map((entry, index) => {
                 const selected = entry.id === character?.id;
-                const tilt = ['-rotate-10', '-rotate-10', '-rotate-10', '-rotate-10'][index % 4];
+                const tilt = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][index % 4];
+                const [firstName, lastName] = tabNameLines(entry.name);
                 return (
                   <button
                     key={entry.id}
                     type="button"
                     role="tab"
                     aria-selected={selected}
+                    aria-label={dossierSubject(entry.name)}
                     onClick={() => setActiveId(entry.id)}
-                    className={`shrink-0 snap-start min-w-[5.5rem] min-h-11 sm:min-h-0 px-2.5 pt-1.5 pb-1 border-t border-x rounded-t-sm text-left cursor-pointer ${
+                    className={`shrink-0 snap-start min-w-[5.5rem] px-2.5 pt-1.5 pb-1 border-t border-x rounded-t-sm text-left cursor-pointer ${
                       selected
                         ? 'bg-[#f6f1e7] text-stone-950 border-stone-700 -mb-px pb-2 z-10 relative'
                         : 'bg-[#c4baa4] text-stone-700 border-stone-500/80 hover:bg-[#d0c6b0]'
                     }`}
                   >
                     <span
-                      className={`inline-block font-typewriter font-bold text-[10px] uppercase tracking-wider origin-left ${tilt}`}
+                      className={`flex flex-col font-typewriter font-bold text-[10px] uppercase tracking-wider leading-tight origin-left ${tilt}`}
                     >
-                      {entry.file}
+                      <span>{firstName}</span>
+                      {lastName && <span>{lastName}</span>}
                     </span>
                   </button>
                 );
@@ -152,11 +155,6 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
             </div>
 
             <div className="flex flex-col flex-1 min-h-0 bg-newsprint border-t-2 border-stone-700">
-              <div className="hidden sm:block shrink-0 px-4 py-2 border-b border-stone-400 bg-[#efe8d8] font-typewriter text-[10px] uppercase tracking-[0.16em] text-stone-700">
-                <span>Subject: {subject}</span>
-                <span className="mx-2 text-stone-400" aria-hidden="true">|</span>
-                <span>Role: {role}</span>
-              </div>
               <div ref={notesRef} className="flex-1 overflow-y-auto px-3 py-3 sm:px-4 sm:p-4 space-y-3">
                 {notes.map((fragment) => {
                   const key = fragmentKey(fragment);

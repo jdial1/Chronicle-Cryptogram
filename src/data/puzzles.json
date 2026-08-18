@@ -13,7 +13,8 @@
     "editionSlot": "Morning",
     "theme": "Training Primer",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSecretBook"
   },
   {
     "id": "day_1_easy",
@@ -29,7 +30,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPoisonBottle"
   },
   {
     "id": "day_1_hard",
@@ -45,7 +47,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPoisonBottle"
   },
   {
     "id": "day_2_easy",
@@ -61,7 +64,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSailboat"
   },
   {
     "id": "day_2_hard",
@@ -77,7 +81,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSailboat"
   },
   {
     "id": "day_3_easy",
@@ -93,7 +98,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiWantedReward"
   },
   {
     "id": "day_3_hard",
@@ -109,7 +115,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiWantedReward"
   },
   {
     "id": "day_4_easy",
@@ -125,7 +132,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCargoCrate"
   },
   {
     "id": "day_4_hard",
@@ -141,7 +149,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCargoCrate"
   },
   {
     "id": "day_5_easy",
@@ -157,7 +166,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiRadioTower"
   },
   {
     "id": "day_5_hard",
@@ -173,7 +183,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiRadioTower"
   },
   {
     "id": "day_6_easy",
@@ -189,7 +200,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiHospital"
   },
   {
     "id": "day_6_hard",
@@ -205,7 +217,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiHospital"
   },
   {
     "id": "day_7_easy",
@@ -221,7 +234,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiWineBottle"
   },
   {
     "id": "day_7_hard",
@@ -237,7 +251,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiWineBottle"
   },
   {
     "id": "day_8_easy",
@@ -253,7 +268,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiKey"
   },
   {
     "id": "day_8_hard",
@@ -269,7 +285,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiKey"
   },
   {
     "id": "day_9_easy",
@@ -285,7 +302,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiLockedChest"
   },
   {
     "id": "day_9_hard",
@@ -301,7 +319,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiLockedChest"
   },
   {
     "id": "day_10_easy",
@@ -317,7 +336,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSecretDoor"
   },
   {
     "id": "day_10_hard",
@@ -333,7 +353,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSecretDoor"
   },
   {
     "id": "day_11_easy",
@@ -349,7 +370,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiTigerHead"
   },
   {
     "id": "day_11_hard",
@@ -365,7 +387,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiTigerHead"
   },
   {
     "id": "day_12_easy",
@@ -381,7 +404,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiVial"
   },
   {
     "id": "day_12_hard",
@@ -397,7 +421,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiVial"
   },
   {
     "id": "day_13_easy",
@@ -413,7 +438,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiLipstick"
   },
   {
     "id": "day_13_hard",
@@ -429,7 +455,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiLipstick"
   },
   {
     "id": "day_14_easy",
@@ -445,7 +472,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiDrowning"
   },
   {
     "id": "day_14_hard",
@@ -461,7 +489,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiDrowning"
   },
   {
     "id": "day_15_easy",
@@ -477,7 +506,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCigar"
   },
   {
     "id": "day_15_hard",
@@ -493,7 +523,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCigar"
   },
   {
     "id": "day_16_easy",
@@ -509,7 +540,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPoliceBadge"
   },
   {
     "id": "day_16_hard",
@@ -525,7 +557,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPoliceBadge"
   },
   {
     "id": "day_17_easy",
@@ -541,7 +574,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiRevolver"
   },
   {
     "id": "day_17_hard",
@@ -557,7 +591,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiRevolver"
   },
   {
     "id": "day_18_easy",
@@ -573,7 +608,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSpy"
   },
   {
     "id": "day_18_hard",
@@ -589,7 +625,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSpy"
   },
   {
     "id": "day_19_easy",
@@ -605,7 +642,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiMedicalPack"
   },
   {
     "id": "day_19_hard",
@@ -621,7 +659,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiMedicalPack"
   },
   {
     "id": "day_20_easy",
@@ -637,7 +676,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSuitcase"
   },
   {
     "id": "day_20_hard",
@@ -653,7 +693,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSuitcase"
   },
   {
     "id": "day_21_easy",
@@ -669,7 +710,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiFishingHook"
   },
   {
     "id": "day_21_hard",
@@ -685,7 +727,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiFishingHook"
   },
   {
     "id": "day_22_easy",
@@ -701,7 +744,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPearlNecklace"
   },
   {
     "id": "day_22_hard",
@@ -717,7 +761,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPearlNecklace"
   },
   {
     "id": "day_23_easy",
@@ -733,7 +778,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCrossedPistols"
   },
   {
     "id": "day_23_hard",
@@ -749,7 +795,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiCrossedPistols"
   },
   {
     "id": "day_24_easy",
@@ -765,7 +812,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiHandcuffs"
   },
   {
     "id": "day_24_hard",
@@ -781,7 +829,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiHandcuffs"
   },
   {
     "id": "day_25_easy",
@@ -797,7 +846,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPrisoner"
   },
   {
     "id": "day_25_hard",
@@ -813,7 +863,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPrisoner"
   },
   {
     "id": "day_26_easy",
@@ -829,7 +880,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiGoldBar"
   },
   {
     "id": "day_26_hard",
@@ -845,7 +897,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiGoldBar"
   },
   {
     "id": "day_27_easy",
@@ -861,7 +914,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiGavel"
   },
   {
     "id": "day_27_hard",
@@ -877,7 +931,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiGavel"
   },
   {
     "id": "day_28_easy",
@@ -893,7 +948,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiScrollUnfurled"
   },
   {
     "id": "day_28_hard",
@@ -909,7 +965,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiScrollUnfurled"
   },
   {
     "id": "day_29_easy",
@@ -925,7 +982,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSunrise"
   },
   {
     "id": "day_29_hard",
@@ -941,7 +999,8 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiSunrise"
   },
   {
     "id": "day_30_easy",
@@ -957,7 +1016,8 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPocketWatch"
   },
   {
     "id": "day_30_hard",
@@ -973,6 +1033,7 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": []
+    "hints": [],
+    "silhouette": "GiPocketWatch"
   }
 ]

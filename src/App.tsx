@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { CryptogramGrid } from './components/CryptogramGrid';
 import { LeaderboardModal } from './components/LeaderboardModal';
@@ -7,10 +7,10 @@ import { ArchiveModal } from './components/ArchiveModal';
 import { AICipherGeneratorModal } from './components/AICipherGeneratorModal';
 import { FrequencyAnalysisModal } from './components/FrequencyAnalysisModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
-import { ArticleReaderModal } from './components/ArticleReaderModal';
+import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { PrimerCoach } from './components/PrimerCoach';
-import { TodayStatsBulletin, LiveStatsRow, NightPostButton } from './components/TodayStatsBulletin';
+import { TodayStatsBulletin, LiveStatsRow, NightPostButton, PrimerPathButtons } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
 import {
   CaseCharacterId,
@@ -18,7 +18,7 @@ import {
   fragmentsUpdatedByPuzzle,
 } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
-import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline } from './utils/edition';
+import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
 import { useDailyNotification } from './utils/useDailyNotification';
 import { useAuth } from './utils/useAuth';
 import {
@@ -47,7 +47,7 @@ import {
   playHintSound,
   setAudioEnabled,
 } from './utils/audio';
-import { Search } from './icons';
+import { PuzzleSilhouette, Search } from './icons';
 
 function isHardPuzzle(puzzle: PuzzleData) {
   return (
@@ -60,14 +60,7 @@ function isHardPuzzle(puzzle: PuzzleData) {
 function getInitialPuzzle(): PuzzleData {
   const primer = INITIAL_PUZZLES.find((puzzle) => isPrimerPuzzle(puzzle) && isMorningEdition(puzzle));
   if (primer && !readSolvedPuzzleIds().includes(primer.id)) return primer;
-  const cutoff = publishedThroughDate(INITIAL_PUZZLES);
-  return (
-    INITIAL_PUZZLES.find(
-      (puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle) && !isPrimerPuzzle(puzzle)
-    ) ||
-    INITIAL_PUZZLES.find((puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle)) ||
-    INITIAL_PUZZLES[0]
-  );
+  return currentMorningPuzzle(INITIAL_PUZZLES) || INITIAL_PUZZLES[0];
 }
 
 function readSolvedPuzzleIds(): string[] {
@@ -140,6 +133,12 @@ function loadPuzzleState(puzzle: PuzzleData) {
     hintsRemaining: 3,
     isSolved: false,
   };
+}
+
+function dismissMobileKeyboard(input: HTMLInputElement | null) {
+  input?.blur();
+  const active = document.activeElement;
+  if (active instanceof HTMLElement) active.blur();
 }
 
 const BOOT_PUZZLE = getInitialPuzzle();
@@ -247,6 +246,12 @@ export default function App() {
     });
     return syms;
   }, [words]);
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [currentPuzzle.id]);
 
   // Auto-load or reset state on puzzle change
   useEffect(() => {
@@ -409,6 +414,7 @@ export default function App() {
       setIsTimerRunning(false);
       setIsSolveBulletinOpen(true);
       setSelectedSymbolId(null);
+      dismissMobileKeyboard(hiddenInputRef.current);
       if (fragmentsUpdatedByPuzzle(currentPuzzle).length > 0) {
         setCaseFileToastPuzzle(currentPuzzle);
       }
@@ -478,10 +484,15 @@ export default function App() {
       playTypewriterClack();
 
       const upper = letter.toUpperCase();
-      setMappings((prev) => ({
-        ...prev,
+      const nextMappings = {
+        ...mappings,
         [selectedSymbolId]: upper,
-      }));
+      };
+      setMappings(nextMappings);
+
+      if (uniqueSymbols.every((s) => nextMappings[s.symbolId] === s.targetLetter)) {
+        dismissMobileKeyboard(hiddenInputRef.current);
+      }
 
       const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
       if (currentIdx !== -1) {
@@ -620,11 +631,14 @@ export default function App() {
   };
 
   const handleOpenTodayEdition = () => {
-    const cutoff = publishedThroughDate(INITIAL_PUZZLES);
-    const todayMorning = INITIAL_PUZZLES.find(
-      (puzzle) => puzzle.editionDate === cutoff && isMorningEdition(puzzle) && !isPrimerPuzzle(puzzle)
-    );
+    const todayMorning = currentMorningPuzzle(INITIAL_PUZZLES);
     if (todayMorning) setCurrentPuzzle(todayMorning);
+    setIsSolveBulletinOpen(false);
+  };
+
+  const handleOpenDayOne = () => {
+    const dayOne = firstCasePuzzle(INITIAL_PUZZLES);
+    if (dayOne) setCurrentPuzzle(dayOne);
     setIsSolveBulletinOpen(false);
   };
 
@@ -651,6 +665,11 @@ export default function App() {
   }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionDate]);
 
   const nightEdition = isNightEdition(currentPuzzle);
+  const todayEdition = currentMorningPuzzle(INITIAL_PUZZLES);
+  const offerStoryCatchUp =
+    isPrimerPuzzle(currentPuzzle) &&
+    storyHasBegun(INITIAL_PUZZLES) &&
+    !hasSolvedStoryPuzzle(allPuzzles, solvedPuzzleIds);
 
   // Handle Cell Tap (mobile keyboard trigger)
   const handleSelectSymbol = useCallback(
@@ -684,6 +703,9 @@ export default function App() {
         className="fixed opacity-0 pointer-events-none w-0 h-0 text-base"
         style={{ left: '-9999px', top: '50%' }}
         value=""
+        readOnly={isSolved}
+        inputMode={isSolved ? 'none' : 'text'}
+        tabIndex={isSolved ? -1 : 0}
         onChange={(e) => {
           const val = e.target.value;
           if (val.length > 0) {
@@ -732,10 +754,14 @@ export default function App() {
             nightEdition ? 'border-b-2 border-amber-800' : 'border-b-2 border-stone-900'
           }`}
         >
+          <PuzzleSilhouette
+            name={currentPuzzle.silhouette}
+            className="newspaper-silhouette article-silhouette"
+          />
           <button
             type="button"
             onClick={() => setIsArticleOpen(true)}
-            className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center border border-stone-800 hover:bg-amber-100 cursor-pointer"
+            className="absolute top-0 right-0 z-10 w-8 h-8 flex items-center justify-center border border-stone-800 hover:bg-amber-100 cursor-pointer"
             aria-label="Open article"
           >
             <Search className="w-4 h-4" />
@@ -747,9 +773,11 @@ export default function App() {
           >
             {currentPuzzle.headline}
           </h2>
-          <p className="font-treatise text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800">
-            {articleDek(currentPuzzle)}
-          </p>
+          <DropCapParagraph
+            text={articleDek(currentPuzzle)}
+            night={nightEdition}
+            className="font-treatise text-left text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800 leading-[1.65]"
+          />
           <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
             — {articleByline(currentPuzzle)}
           </p>
@@ -788,13 +816,17 @@ export default function App() {
           )}
           {boardSolved && !isSolveBulletinOpen && isPrimerPuzzle(currentPuzzle) && (
             <div className="mt-3">
-              <button
-                type="button"
-                onClick={handleOpenTodayEdition}
-                className="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase rounded-xs cursor-pointer shadow-xs transition-colors"
-              >
-                Decode Today's Edition
-              </button>
+              {offerStoryCatchUp && (
+                <p className="mb-2 text-center font-newspaper text-sm text-stone-700 leading-relaxed">
+                  The story has already begun. Start on Day 1, or go to the current day.
+                </p>
+              )}
+              <PrimerPathButtons
+                offerCatchUp={offerStoryCatchUp}
+                currentEditionNumber={todayEdition?.editionNumber}
+                onOpenDayOne={handleOpenDayOne}
+                onOpenTodayEdition={handleOpenTodayEdition}
+              />
             </div>
           )}
         </section>
@@ -828,6 +860,9 @@ export default function App() {
         timerSeconds={timerSeconds}
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
         onOpenTodayEdition={handleOpenTodayEdition}
+        onOpenDayOne={handleOpenDayOne}
+        offerStoryCatchUp={offerStoryCatchUp}
+        currentEditionNumber={todayEdition?.editionNumber}
       />
 
       <NewspaperClippingModal

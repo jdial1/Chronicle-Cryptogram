@@ -17,8 +17,21 @@ export function isPrimerPuzzle(puzzle: PuzzleData) {
   return puzzle.editionNumber === 0;
 }
 
+export function morningPuzzleOnDate(puzzles: PuzzleData[], editionDate: string) {
+  return puzzles.find(
+    (puzzle) =>
+      puzzle.editionDate === editionDate &&
+      isMorningEdition(puzzle) &&
+      !isPrimerPuzzle(puzzle)
+  );
+}
+
+export function firstCasePuzzle(puzzles: PuzzleData[]) {
+  return puzzles.find((puzzle) => puzzle.editionNumber === 1 && isMorningEdition(puzzle));
+}
+
 export function articleDek(puzzle: PuzzleData) {
-  return puzzle.subheadline.replace(/^LATE CITY FINAL\s+[—–-]\s+/u, '');
+  return puzzle.subheadline.replace(/^(?:LATE CITY FINAL|NIGHT EXTRA)\s+[—–-]\s+/u, '');
 }
 
 export function articleByline(puzzle: PuzzleData) {
@@ -78,6 +91,42 @@ export function publishedThroughDate(puzzles: PuzzleData[]) {
   const first = dates[0];
   const today = todayIsoDate();
   return today < first ? first : today;
+}
+
+export function currentMorningPuzzle(puzzles: PuzzleData[]) {
+  return morningPuzzleOnDate(puzzles, publishedThroughDate(puzzles));
+}
+
+export function storyHasBegun(puzzles: PuzzleData[]) {
+  const first = firstCasePuzzle(puzzles);
+  const current = currentMorningPuzzle(puzzles);
+  return Boolean(first && current && first.id !== current.id);
+}
+
+export function hasSolvedStoryPuzzle(puzzles: PuzzleData[], solvedPuzzleIds: string[]) {
+  return puzzles.some((puzzle) => !isPrimerPuzzle(puzzle) && solvedPuzzleIds.includes(puzzle.id));
+}
+
+export function nextIssueDate(puzzles: PuzzleData[]) {
+  const cutoff = publishedThroughDate(puzzles);
+  const future = puzzles
+    .filter(
+      (puzzle) =>
+        puzzle.id.startsWith('day_') &&
+        puzzle.category === 'Daily Featured' &&
+        puzzle.editionNumber > 0 &&
+        puzzle.editionDate > cutoff
+    )
+    .map((puzzle) => puzzle.editionDate)
+    .sort();
+  return future[0] || null;
+}
+
+export function formatIssueCountdown(ms: number) {
+  const totalMins = Math.floor(Math.max(0, ms) / 60000);
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  return `${hours}hrs ${mins}mins`;
 }
 
 export function groupPuzzlesByDate(puzzles: PuzzleData[]) {

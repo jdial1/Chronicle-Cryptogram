@@ -70,11 +70,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
         </div>
       )}
       {isSolved && <DecodedStamp size="board" />}
-      <div
-        className={`flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start ${
-          isSolved ? 'puzzle-dithered' : ''
-        }`}
-      >
+      <div className="flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start">
         {words.map((word) => (
           <div
             key={word.id}

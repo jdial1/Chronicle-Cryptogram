@@ -31,6 +31,7 @@ export interface PuzzleData {
   editionSlot?: 'Morning' | 'Evening';
   theme: string;
   category: string;
+  silhouette?: string;
   hints: {
     letter: string;
     clue: string;

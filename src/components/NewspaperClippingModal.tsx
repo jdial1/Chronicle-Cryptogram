@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trophy, Copy, Check, ArrowRight, ShieldCheck } from '../icons';
+import { X, Trophy, Copy, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
 
 interface NewspaperClippingModalProps {
@@ -86,11 +86,15 @@ Play Chronicle Cryptogram: ${window.location.href}`;
 
           {/* Decoded Quote Plaque */}
           <div className="bg-[#fdfbf7] p-4 sm:p-5 border-2 border-stone-800 rounded-xs shadow-inner relative">
-            <div className="flex items-center gap-2 mb-2 font-mono-code text-xs font-bold text-stone-700">
+            <PuzzleSilhouette
+              name={puzzle.silhouette}
+              className="newspaper-silhouette clipping-silhouette"
+            />
+            <div className="relative flex items-center gap-2 mb-2 font-mono-code text-xs font-bold text-stone-700">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
               <span>OFFICIAL DECRYPTED TRANSCRIPT:</span>
             </div>
-            <p className="font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
+            <p className="relative font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
               "{puzzle.originalText}"
             </p>
 

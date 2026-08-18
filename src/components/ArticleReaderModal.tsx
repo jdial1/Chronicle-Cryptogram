@@ -18,6 +18,34 @@ const ZOOM_DEFAULT = 1;
 const zoomBtn =
   'w-8 h-8 flex items-center justify-center font-typewriter font-bold text-base text-stone-950 cursor-pointer disabled:opacity-30 disabled:cursor-default hover:bg-stone-200';
 
+export function DropCapParagraph({
+  text,
+  className = '',
+  night = false,
+}: {
+  text: string;
+  className?: string;
+  night?: boolean;
+}) {
+  const kickerMatch = text.match(/^\([^)]*\)\s*/);
+  const kicker = kickerMatch?.[0].trim();
+  const story = (kickerMatch ? text.slice(kickerMatch[0].length) : text).trimStart();
+  const letter = story.match(/^[A-Za-z]/)?.[0];
+  const rest = letter ? story.slice(1) : story;
+
+  return (
+    <>
+      {kicker && <p className={className}>{kicker}</p>}
+      <p className={className}>
+        {letter && (
+          <span className={`article-dropcap-letter ${night ? 'is-night' : ''}`}>{letter}</span>
+        )}
+        {rest}
+      </p>
+    </>
+  );
+}
+
 export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   isOpen,
   onClose,
@@ -86,9 +114,11 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             className="flex-1 min-h-0 overflow-y-auto px-5 pt-11 pb-5 sm:px-8 sm:pt-12 sm:pb-6 text-stone-950"
             style={{ fontSize: `calc(${zoom}rem + 2pt)` }}
           >
-            <p className="font-treatise italic text-[1.05em] leading-[1.65] text-stone-800">
-              {body}
-            </p>
+            <DropCapParagraph
+              text={body}
+              night={night}
+              className="font-treatise italic text-[1.05em] leading-[1.65] text-stone-800"
+            />
           </div>
         </div>
 

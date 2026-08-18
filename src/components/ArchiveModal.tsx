@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { X, Newspaper, CheckCircle2, DecodedStamp, Lock, ChevronDown, ChevronUp } from '../icons';
+import { X, Newspaper, CheckCircle2, DecodedStamp, Lock, ChevronDown, ChevronUp, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
 import {
   formatEditionDate,
   formatEditionDateShort,
+  formatIssueCountdown,
   groupPuzzlesByDate,
   isNightUnlockedForDate,
+  nextIssueDate,
   publishedThroughDate,
 } from '../utils/edition';
 
@@ -107,6 +109,54 @@ function IssueSlot({
   );
 }
 
+function UpcomingIssueCard({ date }: { date: string }) {
+  const releaseAt = new Date(`${date}T00:00:00`).getTime();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <article className="border-2 border-stone-700 bg-[#f8f3e8]">
+      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-11 sm:min-h-0 sm:py-2 bg-[#ebe4d4] text-stone-950">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
+            {formatEditionDateShort(date)}
+          </span>
+          <span className="hidden sm:inline font-typewriter font-bold text-xs uppercase tracking-wider truncate">
+            {formatEditionDate(date)}
+          </span>
+        </div>
+        <Lock className="w-3.5 h-3.5 text-stone-700 shrink-0" />
+      </div>
+      <div className="relative">
+        <div className="p-2.5 flex flex-row gap-2.5">
+          <div className="relative flex flex-col p-3 border rounded-xs flex-1 min-w-0 bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
+            <span className="px-1.5 py-0.5 w-fit bg-[#e8e0d0] text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950">
+              Morning Edition
+            </span>
+          </div>
+          <div className="relative flex flex-col p-3 border rounded-xs w-1/4 flex-none bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
+            <span className="px-1.5 py-0.5 w-fit bg-[#d6c9b0] text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950">
+              Night Extra
+            </span>
+          </div>
+        </div>
+        <p
+          aria-live="polite"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+        >
+          <span className="px-2.5 py-1 bg-[#f8f3e8] border border-stone-800 font-typewriter font-black text-sm sm:text-base text-stone-950 tabular-nums">
+            {formatIssueCountdown(releaseAt - now)}
+          </span>
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   isOpen,
   onClose,
@@ -117,6 +167,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
 }) => {
   const issues = groupPuzzlesByDate(puzzles);
   const currentDate = publishedThroughDate(puzzles);
+  const upcomingDate = nextIssueDate(puzzles);
   const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([currentDate]));
 
   useEffect(() => {
@@ -147,7 +198,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
           <div className="flex items-center gap-2 min-w-0">
             <Newspaper className="w-5 h-5 shrink-0" />
             <h2 id="archive-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
-              Back Issues
+              Issues
             </h2>
           </div>
           <button
@@ -178,6 +229,10 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                   className="w-full flex items-center justify-between gap-2 px-3 min-h-11 sm:min-h-0 sm:py-2 bg-[#ebe4d4] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
                 >
                   <div className="flex items-center gap-2 min-w-0">
+                    <PuzzleSilhouette
+                      name={issue.morning?.silhouette ?? issue.night?.silhouette}
+                      className="newspaper-silhouette w-6 h-6 shrink-0"
+                    />
                     <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
                       {formatEditionDateShort(issue.date)}
                     </span>
@@ -233,6 +288,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
               </article>
             );
           })}
+          {upcomingDate && <UpcomingIssueCard date={upcomingDate} />}
         </div>
       </div>
     </div>

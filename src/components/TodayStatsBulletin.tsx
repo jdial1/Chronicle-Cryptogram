@@ -11,6 +11,9 @@ interface SolvedStatsProps {
   timerSeconds: number;
   onUnlockHardMode?: () => void;
   onOpenTodayEdition?: () => void;
+  onOpenDayOne?: () => void;
+  offerStoryCatchUp?: boolean;
+  currentEditionNumber?: number;
 }
 
 interface TodayStatsBulletinProps extends SolvedStatsProps {
@@ -24,6 +27,40 @@ function isHardPuzzle(puzzle: PuzzleData) {
 
 const inkAction =
   'w-full min-h-12 sm:w-auto sm:min-h-0 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
+
+const inkSecondary =
+  'w-full min-h-12 sm:w-auto sm:min-h-0 px-4 py-2.5 border-2 border-stone-800 bg-[#f8f3e8] hover:bg-amber-100 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
+
+export function PrimerPathButtons({
+  offerCatchUp,
+  currentEditionNumber,
+  onOpenDayOne,
+  onOpenTodayEdition,
+}: {
+  offerCatchUp: boolean;
+  currentEditionNumber?: number;
+  onOpenDayOne?: () => void;
+  onOpenTodayEdition: () => void;
+}) {
+  if (offerCatchUp && onOpenDayOne) {
+    return (
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button type="button" onClick={onOpenDayOne} className={inkAction}>
+          Start on Day 1
+        </button>
+        <button type="button" onClick={onOpenTodayEdition} className={inkSecondary}>
+          {currentEditionNumber != null ? `Go to Day ${currentEditionNumber}` : 'Go to Today'}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onOpenTodayEdition} className={inkAction}>
+      Decode Today's Edition
+    </button>
+  );
+}
 
 export function LiveStatsRow({ puzzleId }: { puzzleId: string }) {
   const liveStats = usePuzzleStats(puzzleId);
@@ -89,14 +126,17 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   isOpen,
   onClose,
   onOpenTodayEdition,
+  onOpenDayOne,
+  offerStoryCatchUp = false,
+  currentEditionNumber,
 }) => {
   const isHard = isHardPuzzle(currentPuzzle);
   const isPrimer = isPrimerPuzzle(currentPuzzle);
   if (!isOpen) return null;
 
   const title = isPrimer ? 'Primer decoded' : isHard ? 'Night Extra decoded' : 'Morning Edition decoded';
-  const nextLabel = isPrimer ? "Decode Today's Edition" : !isHard ? 'Read the Night Post' : null;
-  const onNext = isPrimer ? onOpenTodayEdition : !isHard ? onUnlockHardMode : undefined;
+  const showPrimerPath = isPrimer && onOpenTodayEdition;
+  const showNightPost = !isPrimer && !isHard && onUnlockHardMode;
 
   return (
     <div className="modal-backdrop is-slip z-50 select-none" onClick={onClose}>
@@ -129,19 +169,45 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
           <p className="mt-1 font-typewriter font-black text-4xl sm:text-5xl text-stone-950 tabular-nums leading-none">
             {formatTime(timerSeconds)}
           </p>
+          {showPrimerPath && offerStoryCatchUp && (
+            <p className="mt-4 font-newspaper text-sm text-stone-700 leading-relaxed">
+              The story has already begun. Start on Day 1, or go to the current day.
+            </p>
+          )}
         </div>
 
-        {nextLabel && onNext && (
+        {showPrimerPath && (
+          <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">
+            <PrimerPathButtons
+              offerCatchUp={offerStoryCatchUp}
+              currentEditionNumber={currentEditionNumber}
+              onOpenDayOne={
+                onOpenDayOne
+                  ? () => {
+                      onClose();
+                      onOpenDayOne();
+                    }
+                  : undefined
+              }
+              onOpenTodayEdition={() => {
+                onClose();
+                onOpenTodayEdition();
+              }}
+            />
+          </div>
+        )}
+
+        {showNightPost && (
           <div className="modal-action-dock sm:flex sm:justify-end sm:px-4">
             <button
               type="button"
               onClick={() => {
                 onClose();
-                onNext();
+                onUnlockHardMode?.();
               }}
               className={inkAction}
             >
-              {nextLabel}
+              Read the Night Post
             </button>
           </div>
         )}
