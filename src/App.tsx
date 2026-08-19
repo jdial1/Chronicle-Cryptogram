@@ -808,8 +808,12 @@ export default function App() {
           </p>
         </section>
 
+        {isFirebaseEnabled && boardSolved && !isPrimerPuzzle(currentPuzzle) && (
+          <LiveStatsRow puzzleId={currentPuzzle.id} />
+        )}
+
         {/* The Interactive Zodiac Cryptogram Board */}
-        <section className="flex-1 flex flex-col justify-center min-w-0">
+        <section className={`flex-1 flex flex-col min-w-0 ${boardSolved ? 'justify-start' : 'justify-center'}`}>
           {isPrimerPuzzle(currentPuzzle) && !boardSolved && (
             <PrimerCoach
               words={words}
@@ -820,11 +824,6 @@ export default function App() {
               onSelectSymbol={handleSelectSymbol}
               onOpenHandbook={() => setIsHowToPlayOpen(true)}
             />
-          )}
-          {isFirebaseEnabled && boardSolved && !isSolveBulletinOpen && !isPrimerPuzzle(currentPuzzle) && (
-            <div className="mb-3 hidden sm:block">
-              <LiveStatsRow puzzleId={currentPuzzle.id} />
-            </div>
           )}
           <CryptogramGrid
             words={words}
