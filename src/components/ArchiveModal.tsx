@@ -7,6 +7,7 @@ import {
   formatIssueCountdown,
   groupPuzzlesByDate,
   isNightUnlockedForDate,
+  issueReleaseAt,
   nextIssueDate,
   publishedThroughDate,
 } from '../utils/edition';
@@ -112,7 +113,7 @@ function IssueSlot({
 }
 
 function UpcomingIssueCard({ date }: { date: string }) {
-  const releaseAt = new Date(`${date}T00:00:00`).getTime();
+  const releaseAt = issueReleaseAt(date);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {

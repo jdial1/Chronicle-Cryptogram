@@ -1,5 +1,6 @@
 import { PuzzleData } from '../types';
 import { isMorningEdition, isNightEdition } from '../utils/edition';
+import { formatSolvedQuote } from '../utils/cipherEngine';
 
 export type CaseSlot = 'Morning' | 'Evening';
 export type CaseCharacterId =
@@ -509,7 +510,10 @@ export function assembleFragment(
     if (part.kind === 'quote') {
       const puzzle = findEditionPuzzle(puzzles, fragment.editionNumber, part.slot);
       if (!puzzle) continue;
-      segments.push({ kind: 'quote', value: puzzle.originalText });
+      segments.push({
+        kind: 'quote',
+        value: formatSolvedQuote(puzzle.originalText, puzzle.solvedInsert, puzzle.solvedSwap),
+      });
       hasQuote = true;
       continue;
     }

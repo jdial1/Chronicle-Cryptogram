@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Trophy, Copy, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
+import { formatSolvedQuote } from '../utils/cipherEngine';
 
 interface NewspaperClippingModalProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
               <span>OFFICIAL DECRYPTED TRANSCRIPT:</span>
             </div>
             <p className="relative font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
-              "{puzzle.originalText}"
+              "{formatSolvedQuote(puzzle.originalText, puzzle.solvedInsert, puzzle.solvedSwap)}"
             </p>
 
             {/* Vintage Red Ink Stamp */}

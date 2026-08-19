@@ -83,9 +83,10 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
         </div>
 
         <div className="relative flex-1 min-h-0 flex flex-col bg-newsprint">
-          <div className="absolute top-1.5 right-1.5 z-20 brass-loupe">
+          <div className="absolute top-1.5 right-1.5 z-20 flex items-center bg-transparent">
             <button
               type="button"
+              className="w-8 h-8 flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
               aria-label="Decrease article text size"
               disabled={zoom <= ZOOM_MIN}
               onClick={() =>
@@ -96,6 +97,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             </button>
             <button
               type="button"
+              className="w-8 h-8 flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
               aria-label="Increase article text size"
               disabled={zoom >= ZOOM_MAX}
               onClick={() =>

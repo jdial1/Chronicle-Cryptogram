@@ -150,27 +150,6 @@ function nextSeed(currentSeed: number): number {
   return (currentSeed * 9301 + 49297) % 233280;
 }
 
-function xorWithHashedKey(bytes: number[], puzzleId: string): number[] {
-  let seed = Math.abs(hashSeed(puzzleId)) || 1;
-  return bytes.map((byte) => {
-    seed = nextSeed(seed);
-    return byte ^ Math.floor((seed / 233280) * 256);
-  });
-}
-
-export function encryptOriginalText(text: string, puzzleId: string): string {
-  const cipherBytes = xorWithHashedKey(Array.from(new TextEncoder().encode(text)), puzzleId);
-  return cipherBytes.map((byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-export function decryptOriginalText(cipherHex: string, puzzleId: string): string {
-  const cipherBytes: number[] = [];
-  for (let i = 0; i < cipherHex.length; i += 2) {
-    cipherBytes.push(parseInt(cipherHex.slice(i, i + 2), 16));
-  }
-  return new TextDecoder().decode(new Uint8Array(xorWithHashedKey(cipherBytes, puzzleId)));
-}
-
 export function buildCipherAlphabet(seedString: string, isHomophonic: boolean = true): HomophonicCipherMap {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -313,6 +292,19 @@ export function calculateSymbolFrequencies(
       };
     })
     .sort((a, b) => b.count - a.count);
+}
+
+export function formatSolvedQuote(text: string, insert = '', swap = false) {
+  if (!insert) return text;
+  const trimmed = text.trim();
+  const body = trimmed.endsWith('.') ? trimmed.slice(0, -1) : trimmed;
+  const idx = body.lastIndexOf('. ');
+  if (idx === -1) return text;
+  const head = body.slice(0, idx).trim();
+  const tail = body.slice(idx + 2).trim();
+  const first = swap ? tail : head;
+  const second = swap ? head : tail;
+  return `${first} ${insert} ${second}.`;
 }
 
 /**

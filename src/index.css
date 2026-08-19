@@ -110,6 +110,33 @@
 
 #cryptogram-board .cipher-mapped {
   font-size: calc(var(--tile-letter-size) * var(--cipher-zoom));
+  display: inline-block;
+  transform: rotate(var(--type-rot, 0deg)) translateY(var(--type-y, 0px));
+}
+
+#cryptogram-board.is-solved {
+  --tile-h: var(--tile-letter-h);
+}
+
+#cryptogram-board.is-solved .cipher-letter {
+  border-bottom: 0;
+  height: 100%;
+}
+
+#cryptogram-board.is-solved .cipher-glyph {
+  display: none;
+}
+
+#cryptogram-board .solved-insert {
+  align-self: flex-end;
+  padding: 0 0.15em 0.15em;
+  font-family: 'Newsreader', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: calc(var(--tile-letter-size) * var(--cipher-zoom) * 0.72);
+  line-height: 1;
+  color: #44403c;
+  letter-spacing: 0.04em;
 }
 
 .bg-newsprint {
@@ -301,11 +328,8 @@
 .brass-loupe {
   display: flex;
   align-items: stretch;
-  background: linear-gradient(180deg, #dcc48a 0%, #b08948 48%, #8d6632 100%);
-  border: 1px solid #5a4216;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 240, 200, 0.5),
-    1px 1px 0 rgba(28, 26, 23, 0.3);
+  background: transparent;
+  border: 0;
 }
 
 .brass-loupe button {
@@ -314,18 +338,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2c1c08;
+  color: #1c1917;
   cursor: pointer;
   background: transparent;
   border: 0;
 }
 
-.brass-loupe button + button {
-  border-left: 1px solid #6e501c;
-}
-
 .brass-loupe button:hover:not(:disabled) {
-  background: rgba(255, 236, 196, 0.28);
+  background: rgba(28, 25, 23, 0.06);
 }
 
 .brass-loupe button:disabled {

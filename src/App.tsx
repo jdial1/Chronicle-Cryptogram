@@ -44,7 +44,6 @@ import {
 } from './utils/cipherEngine';
 import {
   playTypewriterClack,
-  playBackspaceClunk,
   playSolvedBell,
   playHintSound,
   setAudioEnabled,
@@ -537,7 +536,6 @@ export default function App() {
   // Handle Backspace / Clear
   const handleBackspace = useCallback(() => {
     if (!selectedSymbolId || !boardReady || isSolved) return;
-    playBackspaceClunk();
 
     setMappings((prev) => {
       const next = { ...prev };
@@ -835,6 +833,9 @@ export default function App() {
             onSelectSymbol={handleSelectSymbol}
             showErrors={showErrors}
             isSolved={boardSolved}
+            solvedInsert={currentPuzzle.solvedInsert}
+            solvedSwap={currentPuzzle.solvedSwap}
+            onClearLetters={handleResetMappings}
           />
         </section>
       </main>

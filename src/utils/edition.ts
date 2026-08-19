@@ -70,11 +70,65 @@ export function formatEditionDateShort(iso: string) {
   });
 }
 
-export function todayIsoDate() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+const RELEASE_TZ = 'America/Chicago';
+const RELEASE_HOUR = 8;
+const RELEASE_MINUTE = 30;
+
+function pad2(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function isoFromParts(year: number, month: number, day: number) {
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+function chicagoParts(at: Date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: RELEASE_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(at);
+  const read = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+  const hour = read('hour');
+  return {
+    year: read('year'),
+    month: read('month'),
+    day: read('day'),
+    hour: hour === 24 ? 0 : hour,
+    minute: read('minute'),
+  };
+}
+
+function shiftIsoDate(iso: string, days: number) {
+  const [year, month, day] = iso.split('-').map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1, day));
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return isoFromParts(shifted.getUTCFullYear(), shifted.getUTCMonth() + 1, shifted.getUTCDate());
+}
+
+export function issueReleaseAt(isoDate: string) {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  let utc = Date.UTC(year, month - 1, day, 14, 30, 0);
+  for (let i = 0; i < 3; i += 1) {
+    const parts = chicagoParts(new Date(utc));
+    const actual = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, 0);
+    const wanted = Date.UTC(year, month - 1, day, RELEASE_HOUR, RELEASE_MINUTE, 0);
+    utc += wanted - actual;
+  }
+  return utc;
+}
+
+export function todayIsoDate(now = new Date()) {
+  const parts = chicagoParts(now);
+  const iso = isoFromParts(parts.year, parts.month, parts.day);
+  const released =
+    parts.hour > RELEASE_HOUR || (parts.hour === RELEASE_HOUR && parts.minute >= RELEASE_MINUTE);
+  return released ? iso : shiftIsoDate(iso, -1);
 }
 
 export function publishedThroughDate(puzzles: PuzzleData[]) {

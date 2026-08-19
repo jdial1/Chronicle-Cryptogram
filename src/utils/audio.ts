@@ -56,30 +56,6 @@ export function playTypewriterClack() {
   osc.stop(now + 0.05);
 }
 
-// 2. Typewriter Backspace / Strikeout Clunk
-export function playBackspaceClunk() {
-  if (!soundEnabled) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(110, now);
-  osc.frequency.exponentialRampToValueAtTime(45, now + 0.06);
-
-  gain.gain.setValueAtTime(0.15, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start(now);
-  osc.stop(now + 0.07);
-}
-
 export function playSolvedBell() {
   if (!soundEnabled) return;
   const ctx = getAudioContext();
