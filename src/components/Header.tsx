@@ -280,7 +280,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCaseFiles}
-                className={`hidden sm:inline-flex ${linkClass}`}
+                className={linkClass}
                 title="Open detective case files"
               >
                 <FileText className="w-3.5 h-3.5" />

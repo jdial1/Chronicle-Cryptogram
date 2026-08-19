@@ -59,7 +59,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t('The initial sweep proves ', 'Morning'),
       q('Morning'),
       t('. ', 'Morning'),
-      t('I know ', 'Evening'),
+      t('Archibald knew too much about the smuggling ring. The night extra reads ', 'Evening'),
       q('Evening'),
       t('. ', 'Evening'),
       t("I'm going to find out who did it."),
@@ -72,7 +72,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     parts: [
       t('Relentless on the trail. '),
       q('Morning'),
-      t(', and I\'m willing to ride sleepless trains to Albany to chase down a single ticket stub to find her.', 'Morning'),
+      t(' I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her.', 'Morning'),
     ],
   },
   {
@@ -80,9 +80,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 16,
     title: 'The Lone Wolf',
     parts: [
-      t('The Mayor is out and I cannot trust my own Chief. I know I must ', 'Morning'),
+      t('The Mayor is out and I cannot trust my own Chief. I filed it: ', 'Morning'),
       q('Morning'),
-      t('. I officially burn my bridges and go rogue.', 'Morning'),
+      t(' I officially burn my bridges and go rogue.', 'Morning'),
     ],
   },
   {
@@ -92,7 +92,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     parts: [
       t("Crossed the ultimate line to save Clara's life. "),
       q('Morning'),
-      t(", and I'm the one who pulled the trigger.", 'Morning'),
+      t(' I am the one who pulled the trigger.', 'Morning'),
     ],
   },
   {
@@ -100,7 +100,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 24,
     title: 'The Tactician',
     parts: [
-      t('I engineered a bloody climax at the docks. Rather than calling for backup, '),
+      t('I engineered a bloody climax at the docks. Rather than calling for backup I wrote: '),
       q('Morning'),
       t('.', 'Morning'),
     ],
@@ -128,7 +128,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t('The grieving act is a sham. '),
       q('Morning'),
       t('. ', 'Morning'),
-      t('She was hunting for his secrets, knowing ', 'Evening'),
+      t('She was hunting his library for the combination behind the red sailboat. Tomorrow’s extra is titled ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -141,6 +141,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t("Intercepted wires prove she is shaking down her husband's partner. "),
       q('Morning'),
       t('. ', 'Morning'),
+      t('She knows about the poison and will go to the police if they do not pay. Tomorrow’s paper: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -163,6 +164,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t('A pawnshop trace confirms the hollow cane. '),
       q('Morning'),
       t('. ', 'Morning'),
+      t('She stole it from Arthur to walk cyanide into the gala. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -173,10 +175,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     title: 'The Killer',
     parts: [
       t("Clara's testimony confirms she didn't just plan it. "),
-      t('There were ', 'Morning'),
       q('Morning'),
       t('. ', 'Morning'),
-      t('From the priest-hole Clara swore ', 'Evening'),
+      t('From the priest-hole Clara swore she saw the cane and heard a deep voice, but not his face. Tomorrow names him: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -188,7 +189,8 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     parts: [
       t('Arrives at Pier 84 having already murdered the Doctor. '),
       q('Morning'),
-      t(', and ', 'Morning'),
+      t('. ', 'Morning'),
+      t('She would even kill her own daughter for the gold. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -199,7 +201,8 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     title: 'The Prisoner',
     parts: [
       q('Morning'),
-      t(' to keep her loot. It failed. ', 'Morning'),
+      t(' She did it to keep her loot. It failed. ', 'Morning'),
+      t('The bullion returns to the rightful heir. Tomorrow’s paper: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -209,9 +212,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 3,
     title: 'The Missing Heir',
     parts: [
-      t("Archibald's estranged daughter, who vanished three years ago. We just learned "),
+      t("Archibald's estranged daughter, who vanished three years ago. We just learned it: "),
       q('Morning'),
-      t(', and she inherits the massive fortune.', 'Morning'),
+      t(' She inherits the massive fortune.', 'Morning'),
     ],
   },
   {
@@ -219,9 +222,10 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 6,
     title: 'The Prisoner',
     parts: [
+      t('The doctor kept her drugged to hide the bootlegging routes. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
       t('. ', 'Evening'),
-      t('But the nurse confirms ', 'Morning'),
+      t('But the nurse confirms it: ', 'Morning'),
       q('Morning'),
       t('.', 'Morning'),
     ],
@@ -231,7 +235,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 10,
     title: 'The Witness',
     parts: [
-      t("Hiding in the Bowery. She watched her father's murder from a secret priest-hole, telling me to "),
+      t("Hiding in the Bowery. She watched her father's murder from a secret priest-hole. She wrote: "),
       q('Morning'),
       t('.', 'Morning'),
     ],
@@ -251,7 +255,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 18,
     title: 'The Survivor',
     parts: [
-      t('Rescued from the hit squad. She sat in the interrogation room and confirmed there were '),
+      t('Rescued from the hit squad. She sat in the interrogation room and confirmed it: '),
       q('Morning'),
       t('.', 'Morning'),
     ],
@@ -274,6 +278,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t('Takes over the company. '),
       q('Morning'),
       t('. ', 'Morning'),
+      t('She locked her father’s blackmail files in her own safe. The final extra is already titled ', 'Evening'),
       q('Evening'),
       t('. She learned to grow fangs.', 'Evening'),
     ],
@@ -283,9 +288,12 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 3,
     title: 'The Panicked Partner',
     parts: [
-      t("Archibald's business partner. He sweats bullets because "),
+      t("Archibald's business partner. He sweats bullets. We learned "),
+      q('Morning'),
+      t(' The heir is back.', 'Morning'),
+      t(' He paid to have her sent away to the sanatorium. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
-      t(', and now the heir is back.', 'Evening'),
+      t('.', 'Evening'),
     ],
   },
   {
@@ -293,9 +301,9 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 7,
     title: 'The Bootlegger',
     parts: [
-      t('The Coast Guard raid proves '),
+      t('The Coast Guard raid proves it: '),
       q('Morning'),
-      t(' of the waterfront underworld.', 'Morning'),
+      t(' He runs the waterfront underworld.', 'Morning'),
     ],
   },
   {
@@ -304,7 +312,8 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     title: 'The Mob Boss',
     parts: [
       q('Morning'),
-      t(' at The Blind Tiger speakeasy, where ', 'Morning'),
+      t(' He did it at The Blind Tiger speakeasy, where the bartender distributes the dock payoffs. ', 'Morning'),
+      t('Tomorrow’s paper: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -314,7 +323,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 14,
     title: 'The Gun Runner',
     parts: [
-      t('He is worse than a bootlegger. '),
+      t('He is worse than a bootlegger. The private ledger proves he was smuggling weapons. Tomorrow’s extra reads ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -324,7 +333,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 17,
     title: 'The Alibi',
     parts: [
-      t('Proved innocent of the physical murder. '),
+      t('Proved innocent of the physical murder. He was at the speakeasy during the killing. Tomorrow Clara talks: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -334,7 +343,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 23,
     title: 'The Viper',
     parts: [
-      t('Turns on Beatrice at Pier 84. '),
+      t('Turns on Beatrice at Pier 84. He has the poison vial and means to kill her and blame her. The next extra is already titled ', 'Evening'),
       q('Evening'),
       t('. There is no honor among thieves.', 'Evening'),
     ],
@@ -346,7 +355,8 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     parts: [
       t('Tackled into the Hudson. Under the lights he finally said it: '),
       q('Morning'),
-      t('. Then he named his partner. ', 'Morning'),
+      t('. ', 'Morning'),
+      t('Then he named his partner. Beatrice brought him the cyanide. He only drew the plan. Tomorrow’s paper: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -366,7 +376,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 7,
     title: 'The Ultimatum',
     parts: [
-      t("He wasn't suicidal; he was angry. "),
+      t("He wasn't suicidal; he was angry. He found the fake manifests and vowed to burn the ships. Tomorrow’s extra: ", 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -376,7 +386,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 9,
     title: 'The Blackmailer',
     parts: [
-      t('Far from innocent himself. '),
+      t('Far from innocent himself. Clara threatened to expose his blackmail ring to the press. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -386,7 +396,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 28,
     title: 'The Paranoid Tycoon',
     parts: [
-      t("His final cipher proved he wasn't blind. "),
+      t("His final cipher proved he wasn't blind. He knew they were plotting against him. The next edition is titled ", 'Evening'),
       q('Evening'),
       t('. ', 'Evening'),
       q('Morning'),
@@ -401,6 +411,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t('The man from the study is identified. '),
       q('Morning'),
       t('. ', 'Morning'),
+      t('He supplied the cyanide from his medical bag. Tomorrow they run: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -423,7 +434,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
       t("Vance's trusted butler. Confesses to unlocking the doors for the killers, remembering "),
       q('Morning'),
       t('. ', 'Morning'),
-      t('He claims ', 'Evening'),
+      t('The poison was delivered by the widow, but she did not act alone. Tomorrow’s extra: ', 'Evening'),
       q('Evening'),
       t('.', 'Evening'),
     ],
@@ -435,7 +446,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     parts: [
       t('Found floating in the East River with cobblestones in his pockets. He stole the ledger to blackmail the mob. '),
       q('Morning'),
-      t(', and he paid it.', 'Morning'),
+      t(' He paid it.', 'Morning'),
     ],
   },
 ];
