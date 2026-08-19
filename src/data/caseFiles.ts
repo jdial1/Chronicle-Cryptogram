@@ -111,7 +111,7 @@ export const CASE_FRAGMENTS: CaseFragment[] = [
     editionNumber: 30,
     title: 'The Civilian',
     parts: [
-      t('Turned in my badge. '),
+      t('Left my tarnished badge on a diner counter. '),
       t('Clara whispered ', 'Morning'),
       q('Morning'),
       t('. ', 'Morning'),
