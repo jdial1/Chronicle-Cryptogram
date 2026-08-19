@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FileText, X } from '../icons';
 import { PuzzleData } from '../types';
+import { EditionPlate } from './EditionPlate';
 import {
   AssembledFragment,
   CASE_CHARACTERS,
@@ -152,6 +153,21 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
             </div>
 
             <div className="flex flex-col flex-1 min-h-0 bg-newsprint border-t-2 border-stone-700">
+              {character && (
+                <div className="shrink-0 flex items-center gap-3 px-3 pt-3 sm:px-4">
+                  <EditionPlate
+                    plate={character.plate}
+                    className="casefile-header-plate"
+                    alt={character.name}
+                  />
+                  <div className="min-w-0">
+                    <h3 className="font-typewriter font-black text-sm uppercase tracking-widest text-stone-950">
+                      {character.name}
+                    </h3>
+                    <p className="font-treatise italic text-xs text-stone-700">{character.dossier}</p>
+                  </div>
+                </div>
+              )}
               <div ref={notesRef} className="flex-1 overflow-y-auto px-3 py-3 sm:px-4 sm:p-4 space-y-3">
                 {notes.map((fragment) => {
                   const key = fragmentKey(fragment);

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CryptogramWord, SymbolMapping } from '../types';
-import { DecodedStamp, RotateCcw, Search } from '../icons';
+import { DecodedStamp, PuzzleSilhouette, RotateCcw, Search } from '../icons';
 
 interface CryptogramGridProps {
   words: CryptogramWord[];
@@ -12,6 +12,8 @@ interface CryptogramGridProps {
   solvedInsert?: string;
   solvedSwap?: boolean;
   onClearLetters?: () => void;
+  silhouette?: string;
+  night?: boolean;
 }
 
 const ZOOM_MIN = 0.8;
@@ -86,6 +88,8 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   solvedInsert,
   solvedSwap,
   onClearLetters,
+  silhouette,
+  night = false,
 }) => {
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
   const jitterRef = useRef<Record<string, { letter: string; rotate: string; y: string }>>({});
@@ -246,7 +250,11 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
         </div>
       )}
       {isSolved && <DecodedStamp size="board" />}
-      <div className="flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start">
+      <PuzzleSilhouette
+        name={silhouette}
+        className={`newspaper-silhouette cipher-silhouette${night ? ' is-night' : ''}`}
+      />
+      <div className="relative z-10 flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start">
         {renderWords(rows[0])}
         {layout ? (
           <>

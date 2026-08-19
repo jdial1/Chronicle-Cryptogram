@@ -354,7 +354,7 @@
 }
 
 .article-deck {
-  --woodcut-size: clamp(6.5rem, 22vw, 9.25rem);
+  --plate-size: clamp(7.5rem, 28vw, 11.5rem);
 }
 
 @media (max-width: 639px) {
@@ -376,11 +376,49 @@
   clear: both;
 }
 
-.article-silhouette {
+.edition-plate {
   float: right;
-  width: var(--woodcut-size, clamp(6.5rem, 22vw, 9.25rem));
+  width: var(--plate-size, clamp(7.5rem, 28vw, 11.5rem));
   aspect-ratio: 1;
-  margin: 0.2rem 0 0.45rem 0.85rem;
+  margin: 0.15rem 0 0.5rem 0.9rem;
+  padding: 0;
+  shape-outside: circle(50%);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.edition-plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.edition-plate.is-night img {
+  filter: grayscale(1) sepia(0.4) hue-rotate(188deg) saturate(1.45) contrast(1.08);
+}
+
+.edition-plate.article-reader-plate {
+  float: none;
+  width: min(14rem, 42vw);
+  margin: 0 auto 1rem;
+}
+
+.edition-plate.casefile-header-plate {
+  float: none;
+  width: 5.5rem;
+  margin: 0;
+}
+
+.cipher-silhouette {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.55rem;
+  width: clamp(4.5rem, 16vw, 7.25rem);
+  aspect-ratio: 1;
+  opacity: 0.5;
+  z-index: 0;
 }
 
 .clipping-deck {

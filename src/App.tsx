@@ -9,6 +9,7 @@ import { FrequencyAnalysisModal } from './components/FrequencyAnalysisModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
 import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
+import { EditionPlate } from './components/EditionPlate';
 import { PrimerCoach } from './components/PrimerCoach';
 import { TodayStatsBulletin, LiveStatsRow } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
@@ -19,6 +20,7 @@ import {
 } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
 import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
+import { articlePlateId } from './data/plates';
 import { useDailyNotification } from './utils/useDailyNotification';
 import { useAuth } from './utils/useAuth';
 import {
@@ -48,7 +50,7 @@ import {
   playHintSound,
   setAudioEnabled,
 } from './utils/audio';
-import { PuzzleSilhouette, Search, WoodcutPressFilter } from './icons';
+import { Search, WoodcutPressFilter } from './icons';
 import { isFirebaseEnabled } from './utils/firebase';
 
 function isHardPuzzle(puzzle: PuzzleData) {
@@ -794,10 +796,7 @@ export default function App() {
           >
             {currentPuzzle.headline}
           </h2>
-          <PuzzleSilhouette
-            name={currentPuzzle.silhouette}
-            className={`newspaper-silhouette article-silhouette${nightEdition ? ' is-night' : ''}`}
-          />
+          <EditionPlate plate={articlePlateId(currentPuzzle)} night={nightEdition} />
           <DropCapParagraph
             text={articleDek(currentPuzzle)}
             night={nightEdition}
@@ -835,6 +834,8 @@ export default function App() {
             solvedInsert={currentPuzzle.solvedInsert}
             solvedSwap={currentPuzzle.solvedSwap}
             onClearLetters={handleResetMappings}
+            silhouette={currentPuzzle.silhouette}
+            night={nightEdition}
           />
         </section>
       </main>
@@ -945,6 +946,7 @@ export default function App() {
         body={articleDek(currentPuzzle)}
         byline={articleByline(currentPuzzle)}
         night={nightEdition}
+        plate={articlePlateId(currentPuzzle)}
       />
 
       <HowToPlayModal

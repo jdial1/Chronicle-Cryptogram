@@ -32,14 +32,20 @@ export type AssembledFragment = {
   segments: CaseNoteSegment[];
 };
 
-export const CASE_CHARACTERS: { id: CaseCharacterId; name: string; dossier: string; file: string }[] = [
-  { id: 'thorne', name: 'Detective Elias Thorne', dossier: 'Lead investigator', file: 'Thorne' },
-  { id: 'beatrice', name: 'Beatrice Vance', dossier: 'The widow', file: 'Beatrice' },
-  { id: 'clara', name: 'Clara Vance', dossier: 'The missing heir', file: 'Clara' },
-  { id: 'sterling', name: 'Arthur Sterling', dossier: 'The partner', file: 'Sterling' },
-  { id: 'archibald', name: 'Archibald Vance', dossier: 'The victim', file: 'Archibald' },
-  { id: 'blackwood', name: 'Dr. Aris Blackwood', dossier: 'The physician', file: 'Blackwood' },
-  { id: 'reginald', name: 'Reginald', dossier: 'The butler', file: 'Reginald' },
+export const CASE_CHARACTERS: {
+  id: CaseCharacterId;
+  name: string;
+  dossier: string;
+  file: string;
+  plate: string;
+}[] = [
+  { id: 'thorne', name: 'Detective Elias Thorne', dossier: 'Lead investigator', file: 'Thorne', plate: 'c1' },
+  { id: 'beatrice', name: 'Beatrice Vance', dossier: 'The widow', file: 'Beatrice', plate: 'c2' },
+  { id: 'clara', name: 'Clara Vance', dossier: 'The missing heir', file: 'Clara', plate: 'c3' },
+  { id: 'sterling', name: 'Arthur Sterling', dossier: 'The partner', file: 'Sterling', plate: 'c4' },
+  { id: 'archibald', name: 'Archibald Vance', dossier: 'The victim', file: 'Archibald', plate: 'c5' },
+  { id: 'blackwood', name: 'Dr. Aris Blackwood', dossier: 'The physician', file: 'Blackwood', plate: 'c6' },
+  { id: 'reginald', name: 'Reginald', dossier: 'The butler', file: 'Reginald', plate: 'c7' },
 ];
 
 function t(value: string, when?: CaseSlot): CasePart {

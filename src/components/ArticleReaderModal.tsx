@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, X } from '../icons';
+import { EditionPlate } from './EditionPlate';
 
 interface ArticleReaderModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface ArticleReaderModalProps {
   body: string;
   byline: string;
   night?: boolean;
+  plate?: string | null;
 }
 
 const ZOOM_MIN = 0.9;
@@ -50,6 +52,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
   body,
   byline,
   night = false,
+  plate,
 }) => {
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
   if (!isOpen) return null;
@@ -111,6 +114,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             className="flex-1 min-h-0 overflow-y-auto px-5 pt-11 pb-5 sm:px-8 sm:pt-12 sm:pb-6 text-stone-950"
             style={{ fontSize: `calc(${zoom}rem + 2pt)` }}
           >
+            <EditionPlate plate={plate} night={night} className="article-reader-plate" />
             <DropCapParagraph
               text={body}
               night={night}
