@@ -39,6 +39,49 @@
 }
 
 /* Scanned Document & Vintage Newsprint Textures */
+html {
+  background-color: #cac3b4;
+}
+
+html.is-night {
+  background-color: #7c7058;
+}
+
+body,
+.noir-newspaper-bg {
+  background-color: #cac3b4;
+  background-image:
+    radial-gradient(
+      circle at center,
+      transparent 40%,
+      rgba(20, 18, 15, 0.35) 100%
+    ),
+    repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent 119px,
+      rgba(0, 0, 0, 0.05) 119px,
+      rgba(0, 0, 0, 0.05) 120px
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 120px 100%, 180px 180px;
+  background-attachment: fixed;
+  background-blend-mode: multiply;
+}
+
+body.is-night,
+.noir-newspaper-bg.is-night {
+  background-color: #7c7058;
+}
+
+.edition-sheet {
+  background-color: #fbf7ee;
+}
+
+.edition-sheet.is-night {
+  background-color: #d6c9b0;
+}
+
 .bg-scanned-doc {
   background-color: #f4eee2;
   background-image: 

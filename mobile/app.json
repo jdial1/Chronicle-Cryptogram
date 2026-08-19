@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "Chronicle Cryptogram",
+    "slug": "chronicle-cryptogram",
+    "owner": "orangetopgames",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "chroniclecryptogram",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#fbf7ee"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.chroniclecryptogram.app"
+    },
+    "android": {
+      "package": "com.chroniclecryptogram.app",
+      "softwareKeyboardLayoutMode": "pan",
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "backgroundColor": "#fbf7ee",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#fbf7ee",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#78350f",
+          "defaultChannel": "delivery"
+        }
+      ],
+      "./plugins/with-adi-registration.js"
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#fbf7ee",
+      "barStyle": "dark-content"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d7adfd08-3729-4225-b745-d75eb33a7f65"
+      }
+    }
+  }
+}

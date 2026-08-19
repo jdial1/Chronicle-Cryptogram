@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { isAndroidAppShell, postToAndroidApp } from './androidApp';
 import { todayIsoDate } from './edition';
 
 const SUB_KEY = 'cryptogram_delivery_subscribed';
@@ -40,6 +41,7 @@ function readSubscribed() {
 }
 
 export function useDailyNotification() {
+  const androidApp = isAndroidAppShell();
   const notificationApi = typeof window !== 'undefined' && 'Notification' in window;
   const [permission, setPermission] = useState<NotificationPermission>(() =>
     notificationApi ? Notification.permission : 'denied'
@@ -48,7 +50,7 @@ export function useDailyNotification() {
   const [pwaReady, setPwaReady] = useState(false);
 
   useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
+    if (androidApp || !('serviceWorker' in navigator)) return;
     let cancelled = false;
     const markReady = () => {
       if (!cancelled && navigator.serviceWorker.controller) setPwaReady(true);
@@ -64,12 +66,35 @@ export function useDailyNotification() {
       cancelled = true;
       navigator.serviceWorker.removeEventListener('controllerchange', markReady);
     };
-  }, []);
-
-  const supported = notificationApi && pwaReady;
+  }, [androidApp]);
 
   useEffect(() => {
-    if (!supported) return;
+    if (!androidApp) return;
+    const onNative = (event: Event) => {
+      const detail = (event as CustomEvent<{ subscribed?: boolean; blocked?: boolean }>).detail;
+      if (detail?.blocked) {
+        setPermission('denied');
+        setSubscribed(false);
+        localStorage.removeItem(SUB_KEY);
+        return;
+      }
+      if (detail?.subscribed) {
+        setPermission('granted');
+        localStorage.setItem(SUB_KEY, '1');
+        setSubscribed(true);
+        return;
+      }
+      localStorage.removeItem(SUB_KEY);
+      setSubscribed(false);
+    };
+    window.addEventListener('chronicle-native-delivery', onNative);
+    return () => window.removeEventListener('chronicle-native-delivery', onNative);
+  }, [androidApp]);
+
+  const supported = androidApp || (notificationApi && pwaReady);
+
+  useEffect(() => {
+    if (androidApp || !supported) return;
     setPermission(Notification.permission);
     if (Notification.permission !== 'granted' || !readSubscribed()) return;
     const today = todayIsoDate();
@@ -87,10 +112,18 @@ export function useDailyNotification() {
         localStorage.setItem(LAST_KEY, today);
       })
       .catch(() => {});
-  }, [supported]);
+  }, [androidApp, supported]);
 
   const toggleDelivery = useCallback(async () => {
     if (!supported) return;
+    if (androidApp) {
+      if (subscribed) {
+        postToAndroidApp({ type: 'DELIVERY_UNSUBSCRIBE' });
+        return;
+      }
+      postToAndroidApp({ type: 'DELIVERY_SUBSCRIBE' });
+      return;
+    }
     if (subscribed) {
       localStorage.removeItem(SUB_KEY);
       setSubscribed(false);
@@ -107,7 +140,7 @@ export function useDailyNotification() {
       'Chronicle Cryptogram',
       'You are on the delivery list. We will ring when a new edition is on the stands.'
     ).catch(() => {});
-  }, [subscribed, supported]);
+  }, [androidApp, subscribed, supported]);
 
   return {
     supported,

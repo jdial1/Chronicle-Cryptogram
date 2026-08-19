@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { PuzzleData, GameStats } from '../types';
 import { FileText, BookOpen, Type, X } from '../icons';
+import { isAndroidAppShell } from '../utils/androidApp';
 import { usePWAInstall } from '../utils/usePWAInstall';
 import { isNightEdition } from '../utils/edition';
 import { formatTime } from '../utils/cipherEngine';
@@ -208,6 +209,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleDelivery,
 }) => {
   const { isInstallable, promptInstall } = usePWAInstall();
+  const androidApp = isAndroidAppShell();
   const night = isNightEdition(currentPuzzle);
   const [dossierOpen, setDossierOpen] = useState(false);
   const linkClass =
@@ -221,9 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       className={`w-full select-none ${
-        night
-          ? 'bg-[#d6c9b0] text-stone-950 border-b-4 border-amber-800'
-          : 'bg-[#fbf7ee] text-stone-800 border-b-2 border-stone-900'
+        night ? 'text-stone-950' : 'text-stone-800'
       }`}
     >
       <title>Chronicle Cryptogram</title>
@@ -298,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({
             {currentPuzzle.editionDate}
           </button>
         </div>
-        <div className="hidden sm:flex items-center justify-end gap-3 shrink-0 font-semibold font-treatise">
+        <div className={`${androidApp ? 'flex' : 'hidden sm:flex'} items-center justify-end gap-3 shrink-0 font-semibold font-treatise`}>
           {isInstallable && (
             <button
               onClick={promptInstall}

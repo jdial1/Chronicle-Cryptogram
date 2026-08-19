@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "647414230767",
+    "firebase_url": "https://chronicle-cryptogram-default-rtdb.firebaseio.com",
+    "project_id": "chronicle-cryptogram",
+    "storage_bucket": "chronicle-cryptogram.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647414230767:android:02938f0be341903cd1351a",
+        "android_client_info": {
+          "package_name": "com.chroniclecryptogram.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGwyhr-OmxCwf3rfc1Cuhyp8j6Ci94YtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

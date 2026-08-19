@@ -690,6 +690,14 @@ export default function App() {
   }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionDate]);
 
   const nightEdition = isNightEdition(currentPuzzle);
+  useEffect(() => {
+    document.documentElement.classList.toggle('is-night', nightEdition);
+    document.body.classList.toggle('is-night', nightEdition);
+    return () => {
+      document.documentElement.classList.remove('is-night');
+      document.body.classList.remove('is-night');
+    };
+  }, [nightEdition]);
   const todayEdition = currentMorningPuzzle(INITIAL_PUZZLES);
   const offerStoryCatchUp =
     isPrimerPuzzle(currentPuzzle) &&
@@ -710,8 +718,8 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col justify-between selection:bg-stone-300 selection:text-stone-950 ${
-        nightEdition ? 'bg-[#cfc3a8] text-stone-950' : 'bg-[#f7f3e8] text-stone-900'
+      className={`noir-newspaper-bg min-h-screen flex flex-col justify-between selection:bg-stone-300 selection:text-stone-950 ${
+        nightEdition ? 'is-night text-stone-950' : 'text-stone-900'
       }`}
     >
       <WoodcutPressFilter />
@@ -749,38 +757,38 @@ export default function App() {
         }}
       />
       
-      {/* Header with Masthead and Live Status */}
-      <Header
-        currentPuzzle={currentPuzzle}
-        user={user}
-        authConfigured={configured}
-        gameStats={gameStats}
-        onSignIn={signIn}
-        onSignOut={signOut}
-        onOpenArchive={() => setIsArchiveOpen(true)}
-        onOpenCaseFiles={() => {
-          if (solvedPuzzleIds.length === 0) return;
-          setCaseFileFocusId(null);
-          setCaseFileFocusKey(null);
-          setCaseFileToastPuzzle(null);
-          setIsCaseFileOpen(true);
-        }}
-        onOpenHandbook={() => setIsHowToPlayOpen(true)}
-        showCaseFiles={solvedPuzzleIds.length > 0}
-        deliverySupported={deliverySupported}
-        deliverySubscribed={deliverySubscribed}
-        deliveryBlocked={deliveryBlocked}
-        onToggleDelivery={toggleDelivery}
-      />
+      <div
+        className={`edition-sheet w-full ${
+          nightEdition
+            ? 'is-night text-stone-950 border-b-4 border-amber-800'
+            : 'text-stone-800 border-b-2 border-stone-900'
+        }`}
+      >
+        <Header
+          currentPuzzle={currentPuzzle}
+          user={user}
+          authConfigured={configured}
+          gameStats={gameStats}
+          onSignIn={signIn}
+          onSignOut={signOut}
+          onOpenArchive={() => setIsArchiveOpen(true)}
+          onOpenCaseFiles={() => {
+            if (solvedPuzzleIds.length === 0) return;
+            setCaseFileFocusId(null);
+            setCaseFileFocusKey(null);
+            setCaseFileToastPuzzle(null);
+            setIsCaseFileOpen(true);
+          }}
+          onOpenHandbook={() => setIsHowToPlayOpen(true)}
+          showCaseFiles={solvedPuzzleIds.length > 0}
+          deliverySupported={deliverySupported}
+          deliverySubscribed={deliverySubscribed}
+          deliveryBlocked={deliveryBlocked}
+          onToggleDelivery={toggleDelivery}
+        />
 
-      {/* Main Newspaper Layout */}
-      <main className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
-        {/* Authentic Newspaper Story Headline & Subdeck */}
-        <section
-          className={`article-deck relative pt-1 pb-3 ${
-            nightEdition ? 'border-b-2 border-amber-800' : 'border-b-2 border-stone-900'
-          }`}
-        >
+        <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-3 sm:pb-5">
+          <section className="article-deck relative">
           <button
             type="button"
             onClick={() => setIsArticleOpen(true)}
@@ -805,8 +813,11 @@ export default function App() {
           <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
             — {articleByline(currentPuzzle)}
           </p>
-        </section>
+          </section>
+        </div>
+      </div>
 
+      <main className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
         {isFirebaseEnabled && boardSolved && !isPrimerPuzzle(currentPuzzle) && (
           <LiveStatsRow puzzleId={currentPuzzle.id} />
         )}

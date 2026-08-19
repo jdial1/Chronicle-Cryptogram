@@ -13,7 +13,14 @@ export default defineConfig(() => {
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: false,
-        includeAssets: ['apple-touch-icon.png', 'mask-icon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
+        includeAssets: [
+          'apple-touch-icon.png',
+          'favicon-32x32.png',
+          'mask-icon.svg',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'pwa-512x512-maskable.png',
+        ],
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
           runtimeCaching: [
@@ -49,21 +56,21 @@ export default defineConfig(() => {
               src: 'pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png',
-              purpose: 'any'
+              purpose: 'any',
             },
             {
               src: 'pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
-              purpose: 'any'
+              purpose: 'any',
             },
             {
-              src: 'pwa-512x512.png',
+              src: 'pwa-512x512-maskable.png',
               sizes: '512x512',
               type: 'image/png',
-              purpose: 'maskable'
-            }
-          ]
+              purpose: 'maskable',
+            },
+          ],
         }
       })
     ],

@@ -1,0 +1,68 @@
+{
+  "defaultLanguage": "en-US",
+  "title": "Chronicle Cryptogram",
+  "shortDescription": "Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, climb the bureau board.",
+  "fullDescription": "The morning edition is on the stands. Chronicle Cryptogram is a vintage newspaper cryptogram: a substitution cipher printed like a 1920s broadsheet, with a serialized case file for solvers who stay on the beat.\n\nDecode the daily Morning Edition and Night Extra. Map symbols to letters, pull the handbook when you stall, and race the clock without giving the game away. Sign in with Google to sync progress and post times on the global codebreaker leaderboard.\n\nFeatures\n• Fresh morning and evening ciphers\n• Archive of past editions\n• Frequency analysis and primer coaching\n• Serialized case files as you solve\n• Optional Google sign-in and cloud progress\n• Optional daily paper-delivery reminder\n\nThe game is free. No ads. No in-app purchases.\n\nPrivacy policy: https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
+  "privacyPolicyUrl": "https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
+  "applicationCategory": "GAME",
+  "category": "Puzzle",
+  "tags": ["cryptogram", "cipher", "puzzle", "word", "daily"],
+  "contentRating": {
+    "questionnaire": "IARC",
+    "expected": "Everyone",
+    "notes": "Crossword / puzzle. No violence, no user-generated chat, no purchases."
+  },
+  "dataSafety": {
+    "dataCollected": [
+      {
+        "type": "Name",
+        "purpose": "App functionality",
+        "optional": true,
+        "ephemeral": false,
+        "note": "Google display name when signed in"
+      },
+      {
+        "type": "Email address",
+        "purpose": "App functionality",
+        "optional": true,
+        "ephemeral": false,
+        "note": "Google email when signed in"
+      },
+      {
+        "type": "User IDs",
+        "purpose": "App functionality",
+        "optional": true,
+        "ephemeral": false,
+        "note": "Firebase Auth UID"
+      },
+      {
+        "type": "App interactions",
+        "purpose": "App functionality",
+        "optional": false,
+        "ephemeral": false,
+        "note": "Puzzle starts, solves, times, hints, leaderboard stats stored in Firestore when signed in; local storage when signed out"
+      }
+    ],
+    "dataShared": false,
+    "dataEncryptedInTransit": true,
+    "usersCanRequestDeletion": true,
+    "securityPractices": [
+      "Data is encrypted in transit",
+      "You can request that data be deleted"
+    ]
+  },
+  "graphics": {
+    "icon": "mobile/store/icon.png (512x512, full-bleed square). Android launcher uses mobile/assets/android-icon-foreground.png (tile inset so the frame survives circular masks).",
+    "featureGraphic": "mobile/store/feature-graphic.png (1024x500, cream masthead, no device frames)",
+    "phoneScreenshots": "At least two from the running APK: puzzle grid and solved bulletin."
+  },
+  "release": {
+    "packageName": "com.chroniclecryptogram.app",
+    "track": "internal then production",
+    "artifact": "AAB from eas build --platform android --profile production",
+    "apkSideload": "eas build --platform android --profile preview",
+    "adi": "If Play Console asks for package ownership, set ADI_REGISTRATION_TOKEN and run eas build --platform android --profile adi",
+    "firebaseAndroidAppId": "1:647414230767:android:02938f0be341903cd1351a",
+    "afterFirstEasBuild": "Run eas credentials -p android, copy the upload keystore SHA-1 and SHA-256 into Firebase Android app Chronicle Cryptogram, then also add Play App Signing SHA-1/256 from Play Console after the first AAB upload."
+  }
+}

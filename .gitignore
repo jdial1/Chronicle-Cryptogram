@@ -10,3 +10,4 @@ coverage/
 .firebaserc
 *-firebase-adminsdk-*.json
 google-services.json
+!mobile/google-services.json

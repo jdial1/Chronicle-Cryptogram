@@ -202,7 +202,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
         ) : (
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint">
             <p className="font-treatise italic text-stone-600 text-sm">
-              No decoded fragments. Solve the daily cryptograms to open the first dossier.
+              No decoded fragments. Solve Chronicle Cryptogram editions to open the first dossier.
             </p>
           </div>
         )}
