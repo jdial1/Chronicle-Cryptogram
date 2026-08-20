@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Trophy, Copy, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
+import { X, Trophy, Send, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
 import { formatSolvedQuote } from '../utils/cipherEngine';
+import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 
 interface NewspaperClippingModalProps {
   isOpen: boolean;
@@ -33,25 +34,38 @@ export const NewspaperClippingModal: React.FC<NewspaperClippingModalProps> = ({
 ⏱️ Time: ${timeFormatted}
 🎯 Accuracy: ${accuracy}%
 💡 Hints Used: ${hintsUsed}
-🏆 Official Bureau Rank Verification: #1 Candidate
 Play Chronicle Cryptogram: ${window.location.href}`;
 
-  const handleCopyShare = () => {
-    navigator.clipboard.writeText(shareText);
+  const share = async () => {
+    const title = 'Chronicle Cryptogram';
+    if (isAndroidAppShell()) {
+      postToAndroidApp({ type: 'SHARE', title, text: shareText });
+      return;
+    }
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, text: shareText });
+      } catch {
+        return;
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
   return (
-    <div className="modal-backdrop z-50 select-none">
+    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="clipping-headline"
         className="modal-sheet max-w-2xl sm:border-4 sm:border-double sm:border-stone-900 relative"
+        onClick={(event) => event.stopPropagation()}
       >
         {/* Newspaper Top Extra Banner */}
-        <div className="bg-[#ebe4d4] text-stone-950 p-2 text-center border-b-2 border-stone-800">
+        <div className="bg-[color:var(--paper-masthead)] text-stone-950 p-2 text-center border-b-2 border-stone-800">
           <div className="flex items-center justify-between px-3">
             <span className="text-[10px] font-mono-code font-bold uppercase tracking-widest text-stone-700">
               SPECIAL BULLETIN EDITION
@@ -62,7 +76,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
             <button
               type="button"
               onClick={onClose}
-              className="text-stone-700 hover:text-stone-950 p-0.5 cursor-pointer"
+              className="desk-hit inline-flex items-center justify-center text-stone-700 hover:text-stone-950 cursor-pointer"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -71,7 +85,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
         </div>
 
         {/* Newspaper Clipping Body */}
-        <div className="flex-1 min-h-0 p-4 sm:p-7 overflow-y-auto bg-[#faf6ed] text-stone-900 font-newspaper space-y-4">
+        <div className="flex-1 min-h-0 p-4 sm:p-7 overflow-y-auto bg-[color:var(--paper)] text-stone-900 font-newspaper space-y-4">
           {/* Main Headline */}
           <div className="text-center border-b-2 border-stone-800 pb-3">
             <span className="bg-[color:var(--ink-cinnabar)] text-[#f7f3e8] font-mono-code font-black text-xs px-2.5 py-0.5 uppercase tracking-widest rounded-xs inline-block mb-1.5">
@@ -86,7 +100,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
           </div>
 
           {/* Decoded Quote Plaque */}
-          <div className="clipping-deck bg-[#fdfbf7] p-4 sm:p-5 border-2 border-stone-800 rounded-xs shadow-inner relative">
+          <div className="clipping-deck bg-[color:var(--paper-card)] p-4 sm:p-5 border-2 border-stone-800 rounded-xs shadow-inner relative">
             <PuzzleSilhouette
               name={puzzle.silhouette}
               className={`newspaper-silhouette clipping-silhouette${puzzle.editionSlot === 'Evening' ? ' is-night' : ''}`}
@@ -95,48 +109,48 @@ Play Chronicle Cryptogram: ${window.location.href}`;
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
               <span>OFFICIAL DECRYPTED TRANSCRIPT:</span>
             </div>
-            <p className="relative font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
+            <p className="reading-measure relative font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
               "{formatSolvedQuote(puzzle.originalText, puzzle.solvedInsert, puzzle.solvedSwap)}"
             </p>
 
             {/* Vintage Red Ink Stamp */}
-            <div className="absolute -bottom-2 -right-2 transform rotate-[-8deg] border-2 border-[color:var(--ink-cinnabar)] text-[color:var(--ink-cinnabar)] font-mono-code font-black text-xs sm:text-sm px-3 py-1 bg-[#f7f3e8]/90 rounded-xs uppercase tracking-widest shadow-xs pointer-events-none mix-blend-multiply opacity-90">
+            <div className="absolute -bottom-2 -right-2 transform rotate-[-8deg] border-2 border-[color:var(--ink-cinnabar)] text-[color:var(--ink-cinnabar)] font-mono-code font-black text-xs sm:text-sm px-3 py-1 bg-[color:var(--paper)]/90 rounded-xs uppercase tracking-widest shadow-xs pointer-events-none mix-blend-multiply opacity-90">
               ✓ DECODED & FILED
             </div>
           </div>
 
           {/* Codebreaker Stats Grid */}
           <div className="grid grid-cols-3 gap-2 py-2 border-t border-b border-stone-800 text-center font-mono-code">
-            <div className="p-2 bg-[#f4eee1] border border-stone-400 rounded-xs">
-              <span className="block text-[10px] text-stone-700 font-bold uppercase">Time Elapsed</span>
+            <div className="p-2 bg-[color:var(--paper-sheet)] border border-stone-400 rounded-xs">
+              <span className="block text-xs text-stone-700 font-bold uppercase">Time Elapsed</span>
               <span className="text-lg sm:text-xl font-bold text-stone-950">{timeFormatted}</span>
             </div>
-            <div className="p-2 bg-[#f4eee1] border border-stone-400 rounded-xs">
-              <span className="block text-[10px] text-stone-700 font-bold uppercase">Accuracy</span>
+            <div className="p-2 bg-[color:var(--paper-sheet)] border border-stone-400 rounded-xs">
+              <span className="block text-xs text-stone-700 font-bold uppercase">Accuracy</span>
               <span className="text-lg sm:text-xl font-bold text-emerald-800">{accuracy}%</span>
             </div>
-            <div className="p-2 bg-[#f4eee1] border border-stone-400 rounded-xs">
-              <span className="block text-[10px] text-stone-700 font-bold uppercase">Hints Used</span>
+            <div className="p-2 bg-[color:var(--paper-sheet)] border border-stone-400 rounded-xs">
+              <span className="block text-xs text-stone-700 font-bold uppercase">Hints Used</span>
               <span className="text-lg sm:text-xl font-bold text-stone-950">{hintsUsed}</span>
             </div>
           </div>
 
           {/* Story Context Paragraph */}
-          <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
-            Bureau officials commended the remarkable speed and deduction shown in unraveling this cryptic
-            Zodiac transmission. Your performance has been logged into today's permanent record for ranking
+          <p className="reading-measure text-xs sm:text-sm text-stone-700 leading-relaxed">
+            Bureau officials commended the remarkable speed and deduction shown in unraveling this morning
+            dispatch. Your performance has been logged into today's permanent record for ranking
             against fellow codebreakers worldwide.
           </p>
         </div>
 
         {/* Action Buttons Footer */}
-        <div className="p-3 sm:p-4 bg-[#f0eae1] border-t-2 border-stone-800 flex flex-wrap items-center justify-between gap-2">
+        <div className="p-3 sm:p-4 bg-[color:var(--paper-masthead)] border-t-2 border-stone-800 flex flex-wrap items-center justify-between gap-2">
           <button
-            onClick={handleCopyShare}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#faf6ed] hover:bg-stone-100 text-stone-900 border border-stone-500 font-mono-code font-bold text-xs rounded-xs shadow-xs cursor-pointer active:scale-95 transition-transform"
+            onClick={() => void share()}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[color:var(--paper)] hover:bg-stone-100 text-stone-900 border border-stone-500 font-mono-code font-bold text-xs rounded-xs shadow-xs cursor-pointer active:scale-95 transition-transform"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-stone-700" />}
-            <span>{copied ? 'Telegram Copied!' : 'Copy Share Telegram'}</span>
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Send className="w-4 h-4 text-stone-700" />}
+            <span>{copied ? 'Telegram Copied!' : 'Share'}</span>
           </button>
 
           <div className="flex items-center gap-2">

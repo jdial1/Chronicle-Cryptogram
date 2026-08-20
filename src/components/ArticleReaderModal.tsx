@@ -78,7 +78,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
+            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -89,7 +89,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
           <div className="absolute top-1.5 right-1.5 z-20 flex items-center bg-transparent">
             <button
               type="button"
-              className="w-8 h-8 flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
+              className="desk-hit flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
               aria-label="Decrease article text size"
               disabled={zoom <= ZOOM_MIN}
               onClick={() =>
@@ -100,7 +100,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             </button>
             <button
               type="button"
-              className="w-8 h-8 flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
+              className="desk-hit flex items-center justify-center bg-transparent border-0 text-stone-900 cursor-pointer disabled:opacity-30 disabled:cursor-default"
               aria-label="Increase article text size"
               disabled={zoom >= ZOOM_MAX}
               onClick={() =>
@@ -118,7 +118,7 @@ export const ArticleReaderModal: React.FC<ArticleReaderModalProps> = ({
             <DropCapParagraph
               text={body}
               night={night}
-              className="font-treatise italic text-[1.05em] leading-[1.65] text-stone-800"
+              className="reading-measure font-treatise italic text-[1.05em] leading-[1.65]"
             />
           </div>
         </div>

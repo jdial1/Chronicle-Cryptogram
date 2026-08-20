@@ -3,14 +3,35 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix functions run build"
+      ]
+    }
+  ],
   "auth": {
     "providers": {
+      "anonymous": true,
       "googleSignIn": {
         "oAuthBrandDisplayName": "Chronicle Cryptogram",
-        "supportEmail": "jdial1@users.noreply.github.com",
+        "supportEmail": "justinalandial@gmail.com",
         "authorizedRedirectUris": [
           "https://jdial1.github.io",
-          "http://localhost"
+          "https://chronicle-cryptogram.firebaseapp.com",
+          "http://localhost",
+          "http://localhost:3000",
+          "http://127.0.0.1",
+          "http://127.0.0.1:3000"
         ]
       }
     },

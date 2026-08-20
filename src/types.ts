@@ -90,11 +90,23 @@ export interface GameStats {
   leaderboardSubmissions: number;
 }
 
+export interface DailyHintWallet {
+  editionDate: string;
+  used: number;
+  remaining: number;
+}
+
 export interface PuzzleProgress {
   mappings: SymbolMapping;
   timerSeconds: number;
   hintsUsed: number;
   hintsRemaining: number;
+  hintedSymbolIds: string[];
+  checksUsed: number;
+  checksRemaining: number;
+  verifiedSymbolIds: string[];
+  flaggedSymbolIds: string[];
+  selectedSymbolId: string | null;
   isSolved: boolean;
 }
 

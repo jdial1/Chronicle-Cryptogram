@@ -52,8 +52,8 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Zap className="w-4 h-4 text-amber-800 fill-amber-500 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
-              Quickest Solve
+            <span className="block text-xs font-typewriter font-bold uppercase text-stone-700 truncate">
+              Quickest
             </span>
               <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
                 {liveStats.completeCount > 0 ? formatTime(currentStats.quickestSolveTime) : '—'}
@@ -65,8 +65,8 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Users className="w-4 h-4 text-stone-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
-              Total Solvers
+            <span className="block text-xs font-typewriter font-bold uppercase text-stone-700 truncate">
+              Solvers
             </span>
             <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
               {currentStats.totalSolvers.toLocaleString()}
@@ -78,8 +78,8 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <TrendingUp className="w-4 h-4 text-emerald-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
-              Solve Rate
+            <span className="block text-xs font-typewriter font-bold uppercase text-stone-700 truncate">
+              Rate
             </span>
             <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
               {currentStats.solveRatePercentage}%
@@ -91,8 +91,8 @@ export const YesterdayBulletin: React.FC<YesterdayBulletinProps> = ({
         <div className="flex items-center gap-2 p-1.5 bg-[#f8f4ea] border border-stone-300 rounded-xs">
           <Award className="w-4 h-4 text-stone-800 shrink-0" />
           <div className="overflow-hidden">
-            <span className="block text-[9px] font-typewriter font-bold uppercase text-stone-700 truncate">
-              Average Time
+            <span className="block text-xs font-typewriter font-bold uppercase text-stone-700 truncate">
+              Average
             </span>
               <span className="text-sm sm:text-base font-typewriter font-bold text-stone-950">
                 {liveStats.completeCount > 0 ? formatTime(currentStats.averageTimeSeconds) : '—'}

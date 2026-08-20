@@ -295,7 +295,7 @@ export function calculateSymbolFrequencies(
 }
 
 export function formatSolvedQuote(text: string, insert = '', swap = false) {
-  if (!insert) return text;
+  if (!insert && !swap) return text;
   const trimmed = text.trim();
   const body = trimmed.endsWith('.') ? trimmed.slice(0, -1) : trimmed;
   const idx = body.lastIndexOf('. ');
@@ -304,6 +304,8 @@ export function formatSolvedQuote(text: string, insert = '', swap = false) {
   const tail = body.slice(idx + 2).trim();
   const first = swap ? tail : head;
   const second = swap ? head : tail;
+  if (!insert) return `${first} ${second}.`;
+  if (/^[,:;]/.test(insert)) return `${first}${insert} ${second}.`;
   return `${first} ${insert} ${second}.`;
 }
 

@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@react-native-google-signin/google-signin": "^16.1.4",
+    "@notifee/react-native": "^9.1.8",
+    "@react-native-firebase/app": "^26.3.0",
+    "@react-native-firebase/messaging": "^26.3.0",
     "expo": "~57.0.14",
     "expo-constants": "~57.0.12",
-    "expo-notifications": "~57.0.12",
+    "expo-haptics": "~57.0.1",
     "expo-splash-screen": "~57.0.7",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.2",
     "expo-web-browser": "~57.0.2",
     "react": "19.2.3",
     "react-native": "0.86.2",
+    "react-native-nitro-google-signin": "^2.0.0",
+    "react-native-nitro-modules": "^0.36.5",
+    "react-native-safe-area-context": "~5.7.0",
     "react-native-webview": "13.16.1"
   },
   "devDependencies": {

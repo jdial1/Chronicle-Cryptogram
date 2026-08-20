@@ -74,6 +74,14 @@ export default defineConfig(() => {
         }
       })
     ],
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          shot: path.resolve(__dirname, 'shot.html'),
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

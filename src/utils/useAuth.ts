@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
   GoogleAuthProvider,
+  linkWithCredential,
   onAuthStateChanged,
+  signInAnonymously,
   signInWithCredential,
-  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth';
-import { auth, googleProvider, isFirebaseConfigured } from './firebase';
+import { auth, isFirebaseConfigured } from './firebase';
 import { isAndroidAppShell, postToAndroidApp } from './androidApp';
+import { onGoogleIdToken } from './googleIdentity';
 
 type NativeAuthDetail = {
   type?: string;
@@ -20,6 +22,25 @@ type AndroidAuthWindow = Window & {
   __CHRONICLE_NATIVE_AUTH__?: (detail: NativeAuthDetail) => void;
   __CHRONICLE_NATIVE_AUTH_QUEUE__?: NativeAuthDetail[];
 };
+
+async function upgradeWithGoogleCredential(
+  cred: ReturnType<typeof GoogleAuthProvider.credential>
+) {
+  if (!auth) return;
+  const current = auth.currentUser;
+  if (current?.isAnonymous) {
+    try {
+      await linkWithCredential(current, cred);
+      return;
+    } catch (err) {
+      const code = err && typeof err === 'object' && 'code' in err ? String(err.code) : '';
+      if (code !== 'auth/credential-already-in-use' && code !== 'auth/email-already-in-use') {
+        throw err;
+      }
+    }
+  }
+  await signInWithCredential(auth, cred);
+}
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -34,16 +55,24 @@ export function useAuth() {
     return onAuthStateChanged(auth, (next) => {
       setUser(next);
       setReady(true);
+      if (!next) signInAnonymously(auth).catch(() => undefined);
     });
   }, []);
 
   useEffect(() => {
-    if (!auth || !isAndroidAppShell()) return;
+    if (!auth) return;
+    const applyToken = (idToken: string) => {
+      setError(null);
+      upgradeWithGoogleCredential(GoogleAuthProvider.credential(idToken)).catch((err) => {
+        const code = err && typeof err === 'object' && 'code' in err ? String(err.code) : '';
+        setError(code || (err instanceof Error ? err.message : 'Sign-in failed'));
+      });
+    };
+    onGoogleIdToken(applyToken);
+    if (!isAndroidAppShell()) return () => onGoogleIdToken(null);
     const apply = (detail: NativeAuthDetail) => {
-      if (detail?.type === 'ID_TOKEN' && detail.idToken && auth) {
-        signInWithCredential(auth, GoogleAuthProvider.credential(detail.idToken)).catch((err) => {
-          setError(err instanceof Error ? err.message : 'Sign-in failed');
-        });
+      if (detail?.type === 'ID_TOKEN' && detail.idToken) {
+        applyToken(detail.idToken);
         return;
       }
       if (detail?.type === 'ERROR') {
@@ -62,24 +91,16 @@ export function useAuth() {
     }
     window.addEventListener('chronicle-native-auth', onNative);
     return () => {
+      onGoogleIdToken(null);
       if (w.__CHRONICLE_NATIVE_AUTH__ === apply) w.__CHRONICLE_NATIVE_AUTH__ = undefined;
       window.removeEventListener('chronicle-native-auth', onNative);
     };
   }, []);
 
   const signIn = async () => {
-    if (!auth || !googleProvider) return;
+    if (!auth) return;
     setError(null);
-    if (isAndroidAppShell()) {
-      postToAndroidApp({ type: 'GOOGLE_SIGN_IN' });
-      return;
-    }
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Sign-in failed';
-      setError(message);
-    }
+    if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_IN' });
   };
 
   const signOutUser = async () => {
@@ -89,5 +110,13 @@ export function useAuth() {
     if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_OUT' });
   };
 
-  return { user, ready, error, signIn, signOut: signOutUser, configured: isFirebaseConfigured };
+  return {
+    user,
+    identified: Boolean(user && !user.isAnonymous),
+    ready,
+    error,
+    signIn,
+    signOut: signOutUser,
+    configured: isFirebaseConfigured,
+  };
 }

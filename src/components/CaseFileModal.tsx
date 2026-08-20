@@ -112,7 +112,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
+            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -228,11 +228,11 @@ export const CaseFileToast: React.FC<CaseFileToastProps> = ({ puzzle, onOpen, on
   );
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1.5rem)] max-w-lg flex items-stretch bg-[#ebe4d4] text-stone-950 border-2 border-stone-800 shadow-2xl">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-1.5rem)] max-w-lg flex items-stretch bg-[color:var(--paper-masthead)] text-stone-950 border-2 border-stone-800 shadow-2xl">
       <button
         type="button"
         onClick={onOpen}
-        className="flex-1 flex items-center gap-2 min-w-0 px-4 py-3 text-left cursor-pointer hover:bg-[#e0d5c0]"
+        className="flex-1 flex items-center gap-2 min-w-0 px-4 py-3 text-left cursor-pointer hover:bg-[color:var(--paper-desk)]"
       >
         <FileText className="w-5 h-5 shrink-0" />
         <span className="min-w-0">
@@ -247,7 +247,7 @@ export const CaseFileToast: React.FC<CaseFileToastProps> = ({ puzzle, onOpen, on
       <button
         type="button"
         onClick={onDismiss}
-        className="px-3 text-stone-700 hover:text-stone-950 cursor-pointer"
+        className="desk-hit shrink-0 inline-flex items-center justify-center text-stone-700 hover:text-stone-950 cursor-pointer"
         aria-label="Dismiss"
       >
         <X className="w-4 h-4" />

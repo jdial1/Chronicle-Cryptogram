@@ -3,6 +3,6 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["App.tsx", "index.ts"],
+  "include": ["App.tsx", "index.ts", "dispatch.ts"],
   "exclude": ["node_modules"]
 }

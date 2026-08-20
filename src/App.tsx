@@ -4,9 +4,9 @@ import { CryptogramGrid } from './components/CryptogramGrid';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { NewspaperClippingModal } from './components/NewspaperClippingModal';
 import { ArchiveModal } from './components/ArchiveModal';
-import { AICipherGeneratorModal } from './components/AICipherGeneratorModal';
-import { FrequencyAnalysisModal } from './components/FrequencyAnalysisModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
+import { ResetLettersModal } from './components/ResetLettersModal';
+import { BureauDeskModal, bureauDeskSeen, markBureauDeskSeen } from './components/BureauDeskModal';
 import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { EditionPlate } from './components/EditionPlate';
@@ -17,6 +17,7 @@ import {
   CaseCharacterId,
   fragmentKey,
   fragmentsUpdatedByPuzzle,
+  hasDecodedFragments,
 } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
 import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
@@ -24,19 +25,36 @@ import { articlePlateId } from './data/plates';
 import { useDailyNotification } from './utils/useDailyNotification';
 import { useAuth } from './utils/useAuth';
 import {
+  DAILY_CHECKS,
+  DAILY_HINTS,
   DEFAULT_GAME_STATS,
+  clipDailyWallet,
+  clipHintedSymbolIds,
+  clipSelectedSymbolId,
   ensureUserProfile,
   importLocalProgressToCloud,
+  loadCloudDailyChecks,
+  loadCloudDailyHints,
   loadCloudProgress,
   loadUserProfile,
+  mergeDailyHints,
   mergeGameStats,
   mergeProgress,
   mergeSolvedIds,
   readAllLocalProgress,
+  readLocalProgress,
+  reconcileDailyChecks,
+  reconcileDailyHints,
   recordPuzzleSolve,
   recordPuzzleStart,
+  saveCloudDailyChecks,
+  saveCloudDailyHints,
   saveCloudProgress,
   saveUserProfile,
+  deleteCloudUserData,
+  writeLocalDailyChecks,
+  writeLocalDailyHints,
+  writeLocalProgress,
 } from './utils/firebaseStore';
 import {
   buildCipherAlphabet,
@@ -44,14 +62,11 @@ import {
   calculateSymbolFrequencies,
   formatTime,
 } from './utils/cipherEngine';
-import {
-  playTypewriterClack,
-  playSolvedBell,
-  playHintSound,
-  setAudioEnabled,
-} from './utils/audio';
+import { deskThemeIsDark, toggleDeskTheme } from './utils/deskTheme';
 import { Search, WoodcutPressFilter } from './icons';
 import { isFirebaseEnabled } from './utils/firebase';
+import { isAndroidAppShell, postToAndroidApp } from './utils/androidApp';
+import { useDialogFocus } from './utils/useDialogFocus';
 
 function isHardPuzzle(puzzle: PuzzleData) {
   return (
@@ -76,13 +91,31 @@ function readSolvedPuzzleIds(): string[] {
   }
 }
 
-function readPuzzleProgress(puzzleId: string): PuzzleProgress | null {
-  try {
-    const saved = localStorage.getItem(`cryptogram_progress_${puzzleId}`);
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
+function withHintedMappings(
+  puzzle: PuzzleData,
+  mappings: SymbolMapping,
+  hintedSymbolIds: string[]
+): SymbolMapping {
+  const decoded = decodedMappingsFromPuzzle(puzzle);
+  const next = { ...mappings };
+  for (const id of hintedSymbolIds) {
+    if (decoded[id]) next[id] = decoded[id];
   }
+  return next;
+}
+
+function liveFlaggedIds(
+  puzzle: PuzzleData,
+  mappings: SymbolMapping,
+  flaggedSymbolIds: string[],
+  lockedSymbolIds: string[]
+) {
+  const decoded = decodedMappingsFromPuzzle(puzzle);
+  return clipHintedSymbolIds(flaggedSymbolIds).filter((id) => {
+    if (lockedSymbolIds.includes(id)) return false;
+    const mapped = mappings[id];
+    return Boolean(mapped && decoded[id] && mapped !== decoded[id]);
+  });
 }
 
 function decodedMappings(
@@ -110,23 +143,51 @@ function puzzleWasSolved(puzzleId: string, progress: PuzzleProgress | null) {
   return Boolean(progress?.isSolved || readSolvedPuzzleIds().includes(puzzleId));
 }
 
-function loadPuzzleState(puzzle: PuzzleData) {
-  const progress = readPuzzleProgress(puzzle.id);
+function loadPuzzleState(puzzle: PuzzleData, puzzles: PuzzleData[] = INITIAL_PUZZLES) {
+  const progress = readLocalProgress(puzzle.id);
+  const hintedSymbolIds = clipHintedSymbolIds(progress?.hintedSymbolIds);
+  const verifiedSymbolIds = clipHintedSymbolIds(progress?.verifiedSymbolIds);
+  const lockedSymbolIds = clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds]);
+  const hintsUsed = Math.max(progress?.hintsUsed || 0, hintedSymbolIds.length);
+  const checksUsed = Math.max(progress?.checksUsed || 0, verifiedSymbolIds.length);
+  const wallet = reconcileDailyHints(puzzle.editionDate, puzzles);
+  const checkWallet = reconcileDailyChecks(puzzle.editionDate, puzzles);
+  writeLocalDailyHints(wallet);
+  writeLocalDailyChecks(checkWallet);
+  const mappings = withHintedMappings(puzzle, progress?.mappings || {}, lockedSymbolIds);
+  const flaggedSymbolIds = liveFlaggedIds(
+    puzzle,
+    mappings,
+    progress?.flaggedSymbolIds || [],
+    lockedSymbolIds
+  );
   if (puzzleWasSolved(puzzle.id, progress)) {
     return {
       mappings: decodedMappingsFromPuzzle(puzzle),
       timerSeconds: progress?.timerSeconds || 0,
-      hintsUsed: progress?.hintsUsed || 0,
-      hintsRemaining: progress?.hintsRemaining ?? 3,
+      hintsUsed,
+      hintsRemaining: wallet.remaining,
+      hintedSymbolIds,
+      checksUsed,
+      checksRemaining: checkWallet.remaining,
+      verifiedSymbolIds,
+      flaggedSymbolIds: [] as string[],
+      selectedSymbolId: null as string | null,
       isSolved: true,
     };
   }
   if (progress) {
     return {
-      mappings: progress.mappings || {},
+      mappings,
       timerSeconds: progress.timerSeconds || 0,
-      hintsUsed: progress.hintsUsed || 0,
-      hintsRemaining: progress.hintsRemaining ?? 3,
+      hintsUsed,
+      hintsRemaining: wallet.remaining,
+      hintedSymbolIds,
+      checksUsed,
+      checksRemaining: checkWallet.remaining,
+      verifiedSymbolIds,
+      flaggedSymbolIds,
+      selectedSymbolId: clipSelectedSymbolId(progress.selectedSymbolId),
       isSolved: false,
     };
   }
@@ -134,7 +195,13 @@ function loadPuzzleState(puzzle: PuzzleData) {
     mappings: {} as SymbolMapping,
     timerSeconds: 0,
     hintsUsed: 0,
-    hintsRemaining: 3,
+    hintsRemaining: wallet.remaining,
+    hintedSymbolIds,
+    checksUsed: 0,
+    checksRemaining: checkWallet.remaining,
+    verifiedSymbolIds,
+    flaggedSymbolIds,
+    selectedSymbolId: null as string | null,
     isSolved: false,
   };
 }
@@ -143,21 +210,90 @@ function dismissMobileKeyboard(input: HTMLInputElement | null) {
   input?.blur();
   const active = document.activeElement;
   if (active instanceof HTMLElement) active.blur();
+  postToAndroidApp({ type: 'CIPHER_BLUR' });
+}
+
+function selectedGlyphTile(symbolId: string, cellId?: string | null) {
+  if (cellId) {
+    const cell = document.querySelector(`[data-cipher-cell="${CSS.escape(cellId)}"]`);
+    if (cell instanceof HTMLElement && cell.getAttribute('data-cipher-symbol') === symbolId) {
+      return cell;
+    }
+  }
+  return document.querySelector(`[data-cipher-symbol="${CSS.escape(symbolId)}"]`);
+}
+
+function placeCipherInput(symbolId: string, input: HTMLInputElement, cellId?: string | null) {
+  const tile = selectedGlyphTile(symbolId, cellId);
+  if (!(tile instanceof HTMLElement)) return null;
+  const rect = tile.getBoundingClientRect();
+  input.style.left = `${rect.left}px`;
+  input.style.top = `${rect.top}px`;
+  input.style.width = `${Math.max(16, rect.width)}px`;
+  input.style.height = `${Math.max(16, rect.height)}px`;
+  return tile;
+}
+
+function letterCells(words: { symbols: { symbolId: string; isPunctuation?: boolean }[] }[]) {
+  const cells: string[] = [];
+  words.forEach((word) => {
+    word.symbols.forEach((item) => {
+      if (!item.isPunctuation) cells.push(item.symbolId);
+    });
+  });
+  return cells;
+}
+
+function cellCursor(cells: string[], selectedSymbolId: string | null) {
+  if (!selectedSymbolId) return 0;
+  const index = cells.indexOf(selectedSymbolId);
+  return index < 0 ? 0 : index;
+}
+
+function nextOpenCell(cells: string[], selectedSymbolId: string | null, mappings: SymbolMapping) {
+  if (!cells.length) return null;
+  const start = cellCursor(cells, selectedSymbolId);
+  for (let step = 1; step <= cells.length; step += 1) {
+    const id = cells[(start + step) % cells.length];
+    if (!mappings[id]) return id;
+  }
+  return null;
+}
+
+function previousCell(cells: string[], selectedSymbolId: string | null) {
+  const start = cellCursor(cells, selectedSymbolId);
+  if (start <= 0) return null;
+  return cells[start - 1];
+}
+
+function webTypeFeel(kind: 'tap' | 'key') {
+  if (isAndroidAppShell()) return;
+  try {
+    navigator.vibrate?.(kind === 'tap' ? 12 : 8);
+  } catch {
+    return;
+  }
 }
 
 const BOOT_PUZZLE = getInitialPuzzle();
 const BOOT_STATE = loadPuzzleState(BOOT_PUZZLE);
 
 export default function App() {
-  const { supported: deliverySupported, subscribed: deliverySubscribed, blocked: deliveryBlocked, toggleDelivery } =
-    useDailyNotification();
-  const { user, signIn, signOut, configured } = useAuth();
+  const { user, identified, configured, error: authError, signIn, signOut } = useAuth();
+  const {
+    supported: deliverySupported,
+    subscribed: deliverySubscribed,
+    blocked: deliveryBlocked,
+    toggleDelivery,
+    openSettings: openDeliverySettings,
+    subscribeError: deliveryError,
+  } = useDailyNotification(user?.uid);
   const startedPuzzlesRef = useRef<Set<string>>(new Set());
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   // Puzzles State
-  const [allPuzzles, setAllPuzzles] = useState<PuzzleData[]>(INITIAL_PUZZLES);
+  const allPuzzles = INITIAL_PUZZLES;
   const [currentPuzzle, setCurrentPuzzle] = useState<PuzzleData>(BOOT_PUZZLE);
   const [solvedPuzzleIds, setSolvedPuzzleIds] = useState<string[]>(readSolvedPuzzleIds);
   const [progressReadyId, setProgressReadyId] = useState('');
@@ -173,13 +309,18 @@ export default function App() {
     }
   });
 
-  const [soundEnabled, setSound] = useState(true);
+  const [darkPaper, setDarkPaper] = useState(deskThemeIsDark);
 
   const [mappings, setMappings] = useState<SymbolMapping>(BOOT_STATE.mappings);
   const [selectedSymbolId, setSelectedSymbolId] = useState<string | null>(null);
-  const [showErrors, setShowErrors] = useState(false);
+  const [selectedCellId, setSelectedCellId] = useState<string | null>(null);
   const [hintsUsed, setHintsUsed] = useState(BOOT_STATE.hintsUsed);
   const [hintsRemaining, setHintsRemaining] = useState(BOOT_STATE.hintsRemaining);
+  const [hintedSymbolIds, setHintedSymbolIds] = useState<string[]>(BOOT_STATE.hintedSymbolIds);
+  const [checksUsed, setChecksUsed] = useState(BOOT_STATE.checksUsed);
+  const [checksRemaining, setChecksRemaining] = useState(BOOT_STATE.checksRemaining);
+  const [verifiedSymbolIds, setVerifiedSymbolIds] = useState<string[]>(BOOT_STATE.verifiedSymbolIds);
+  const [flaggedSymbolIds, setFlaggedSymbolIds] = useState<string[]>(BOOT_STATE.flaggedSymbolIds);
   const [isSolved, setIsSolved] = useState(BOOT_STATE.isSolved);
 
   const [timerSeconds, setTimerSeconds] = useState(BOOT_STATE.timerSeconds);
@@ -194,32 +335,51 @@ export default function App() {
   const [caseFileFocusId, setCaseFileFocusId] = useState<CaseCharacterId | null>(null);
   const [caseFileFocusKey, setCaseFileFocusKey] = useState<string | null>(null);
   const [caseFileToastPuzzle, setCaseFileToastPuzzle] = useState<PuzzleData | null>(null);
-  const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
-  const [isFrequencyOpen, setIsFrequencyOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [isArticleOpen, setIsArticleOpen] = useState(false);
+  const [isResetLettersOpen, setIsResetLettersOpen] = useState(false);
+  const [isBureauDeskOpen, setIsBureauDeskOpen] = useState(false);
+  const [bureauPreview, setBureauPreview] = useState(false);
+  const bureauAfterRef = useRef<(() => void) | null>(null);
+  const [deskArmed, setDeskArmed] = useState(false);
+  const [viewportKeyboard, setViewportKeyboard] = useState(false);
 
   if (progressReadyId !== currentPuzzle.id) {
-    const loaded = loadPuzzleState(currentPuzzle);
+    const loaded = loadPuzzleState(currentPuzzle, allPuzzles);
     setProgressReadyId(currentPuzzle.id);
     setMappings(loaded.mappings);
     setTimerSeconds(loaded.timerSeconds);
     setHintsUsed(loaded.hintsUsed);
     setHintsRemaining(loaded.hintsRemaining);
+    setHintedSymbolIds(loaded.hintedSymbolIds);
+    setChecksUsed(loaded.checksUsed);
+    setChecksRemaining(loaded.checksRemaining);
+    setVerifiedSymbolIds(loaded.verifiedSymbolIds);
+    setFlaggedSymbolIds(loaded.flaggedSymbolIds);
     setIsSolved(loaded.isSolved);
     setIsTimerRunning(!loaded.isSolved);
-    setShowErrors(false);
-    setSelectedSymbolId(null);
+    setSelectedSymbolId(loaded.isSolved ? null : loaded.selectedSymbolId);
+    setSelectedCellId(null);
     setIsSolveBulletinOpen(false);
     setIsArticleOpen(false);
+    setIsResetLettersOpen(false);
     setCaseFileToastPuzzle(null);
+    postToAndroidApp({
+      type: 'SHEET_STACK',
+      depth:
+        Number(isBureauDeskOpen) +
+        Number(isCaseFileOpen) +
+        Number(isLeaderboardOpen) +
+        Number(isNewspaperClippingOpen) +
+        Number(isArchiveOpen) +
+        Number(isHowToPlayOpen),
+    });
   }
 
   const boardReady = progressReadyId === currentPuzzle.id;
   const boardSolved = boardReady && isSolved;
   const boardMappings = boardReady ? mappings : {};
 
-  // Derive Cipher Alphabet and Words using Zodiac killer symbols
   const cipherAlphabet = useMemo(() => {
     return buildCipherAlphabet(currentPuzzle.id + currentPuzzle.originalText, isHardPuzzle(currentPuzzle));
   }, [currentPuzzle]);
@@ -255,12 +415,14 @@ export default function App() {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+    setDeskArmed(false);
   }, [currentPuzzle.id]);
 
   // Auto-load or reset state on puzzle change
   useEffect(() => {
     if (isSolved) {
       setSelectedSymbolId(null);
+      setSelectedCellId(null);
       setSolvedPuzzleIds((prev) => {
         if (prev.includes(currentPuzzle.id)) return prev;
         const next = [...prev, currentPuzzle.id];
@@ -268,9 +430,27 @@ export default function App() {
         return next;
       });
     } else if (uniqueSymbols.length > 0) {
-      setSelectedSymbolId(uniqueSymbols[0].symbolId);
+      setSelectedSymbolId((prev) =>
+        prev && uniqueSymbols.some((s) => s.symbolId === prev) ? prev : uniqueSymbols[0].symbolId
+      );
+      setSelectedCellId(null);
     }
   }, [currentPuzzle.id]);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const sync = () => {
+      setViewportKeyboard(window.innerHeight - viewport.height > 120);
+    };
+    sync();
+    viewport.addEventListener('resize', sync);
+    viewport.addEventListener('scroll', sync);
+    return () => {
+      viewport.removeEventListener('resize', sync);
+      viewport.removeEventListener('scroll', sync);
+    };
+  }, []);
 
   useEffect(() => {
     if (!boardReady || isSolved || uniqueSymbols.length === 0) return;
@@ -284,40 +464,44 @@ export default function App() {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const localSolved = readSolvedPuzzleIds();
-      const savedStats = localStorage.getItem('cryptogram_stats');
-      const localStats = savedStats ? JSON.parse(savedStats) : DEFAULT_GAME_STATS;
-      const localProgress = readAllLocalProgress();
-      const profile = await loadUserProfile(user.uid);
-      if (cancelled) return;
-      const nextSolved = mergeSolvedIds(localSolved, profile?.solvedPuzzleIds || []);
-      const nextStats = mergeGameStats(localStats, profile?.gameStats || null);
-      setSolvedPuzzleIds(nextSolved);
-      setGameStats(nextStats);
-      localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
-      localStorage.setItem('cryptogram_stats', JSON.stringify(nextStats));
-      await ensureUserProfile(user, nextStats, nextSolved);
-      if (cancelled) return;
-      await importLocalProgressToCloud(user.uid, localProgress, nextSolved);
-      if (cancelled) return;
-      const solverName =
-        localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
-      await Promise.all(
-        nextSolved.map((puzzleId) => {
-          const puzzle = INITIAL_PUZZLES.find((item) => item.id === puzzleId);
-          if (!puzzle || isPrimerPuzzle(puzzle)) return null;
-          const progress = readPuzzleProgress(puzzleId);
-          if (!progress?.isSolved || progress.timerSeconds < 0.1) return null;
-          return recordPuzzleSolve(
-            user.uid,
-            puzzleId,
-            progress.timerSeconds,
-            progress.hintsUsed,
-            100,
-            solverName
-          ).catch(() => undefined);
-        })
-      );
+      try {
+        const localSolved = readSolvedPuzzleIds();
+        const savedStats = localStorage.getItem('cryptogram_stats');
+        const localStats = savedStats ? JSON.parse(savedStats) : DEFAULT_GAME_STATS;
+        const localProgress = readAllLocalProgress();
+        const profile = await loadUserProfile(user.uid);
+        if (cancelled) return;
+        const nextSolved = mergeSolvedIds(localSolved, profile?.solvedPuzzleIds || []);
+        const nextStats = mergeGameStats(localStats, profile?.gameStats || null);
+        setSolvedPuzzleIds(nextSolved);
+        setGameStats(nextStats);
+        localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
+        localStorage.setItem('cryptogram_stats', JSON.stringify(nextStats));
+        await ensureUserProfile(user, nextStats, nextSolved);
+        if (cancelled) return;
+        await importLocalProgressToCloud(user.uid, localProgress, nextSolved, INITIAL_PUZZLES);
+        if (cancelled) return;
+        const solverName =
+          localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
+        await Promise.all(
+          nextSolved.map((puzzleId) => {
+            const puzzle = INITIAL_PUZZLES.find((item) => item.id === puzzleId);
+            if (!puzzle) return null;
+            const progress = readLocalProgress(puzzleId);
+            if (!progress?.isSolved || progress.timerSeconds < 0.1) return null;
+            return recordPuzzleSolve(
+              user.uid,
+              puzzleId,
+              progress.timerSeconds,
+              progress.hintsUsed,
+              100,
+              solverName
+            ).catch(() => undefined);
+          })
+        );
+      } catch {
+        return;
+      }
     })();
     return () => {
       cancelled = true;
@@ -328,27 +512,62 @@ export default function App() {
     if (!user) return;
     let cancelled = false;
     (async () => {
+      try {
       const cloud = await loadCloudProgress(user.uid, currentPuzzle.id);
       if (cancelled) return;
-      const local = readPuzzleProgress(currentPuzzle.id);
+      const local = readLocalProgress(currentPuzzle.id);
       const merged = mergeProgress(local, cloud);
       if (!merged || cancelled) return;
+      const hintedSymbolIds = clipHintedSymbolIds(merged.hintedSymbolIds);
+      const verifiedSymbolIds = clipHintedSymbolIds(merged.verifiedSymbolIds);
+      const lockedSymbolIds = clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds]);
       const knownSolved = Boolean(merged.isSolved);
-      const next = knownSolved
-        ? {
-            ...merged,
-            mappings: decodedMappings(uniqueSymbols),
-            isSolved: true,
-          }
-        : { ...merged, isSolved: false };
+      const nextMappings = knownSolved
+        ? decodedMappings(uniqueSymbols)
+        : withHintedMappings(currentPuzzle, merged.mappings || {}, lockedSymbolIds);
+      const next = {
+        ...merged,
+        mappings: nextMappings,
+        hintedSymbolIds,
+        verifiedSymbolIds,
+        flaggedSymbolIds: knownSolved
+          ? []
+          : liveFlaggedIds(currentPuzzle, nextMappings, merged.flaggedSymbolIds, lockedSymbolIds),
+        isSolved: knownSolved,
+      };
+      const localWallet = reconcileDailyHints(currentPuzzle.editionDate, allPuzzles);
+      const cloudWallet = await loadCloudDailyHints(user.uid, currentPuzzle.editionDate);
+      const localChecks = reconcileDailyChecks(currentPuzzle.editionDate, allPuzzles);
+      const cloudChecks = await loadCloudDailyChecks(user.uid, currentPuzzle.editionDate);
+      if (cancelled) return;
+      const wallet = mergeDailyHints(localWallet, cloudWallet, currentPuzzle.editionDate);
+      const checkWallet = mergeDailyHints(localChecks, cloudChecks, currentPuzzle.editionDate);
+      const stored = {
+        ...next,
+        hintsRemaining: wallet.remaining,
+        checksRemaining: checkWallet.remaining,
+      };
+      writeLocalDailyHints(wallet);
+      writeLocalDailyChecks(checkWallet);
+      writeLocalProgress(currentPuzzle.id, stored);
+      saveCloudProgress(user.uid, currentPuzzle.id, stored).catch(() => undefined);
+      saveCloudDailyHints(user.uid, wallet).catch(() => undefined);
+      saveCloudDailyChecks(user.uid, checkWallet).catch(() => undefined);
       setMappings(next.mappings || {});
       setTimerSeconds(next.timerSeconds || 0);
       setHintsUsed(next.hintsUsed || 0);
-      setHintsRemaining(next.hintsRemaining ?? 3);
+      setHintsRemaining(wallet.remaining);
+      setHintedSymbolIds(hintedSymbolIds);
+      setChecksUsed(next.checksUsed || 0);
+      setChecksRemaining(checkWallet.remaining);
+      setVerifiedSymbolIds(verifiedSymbolIds);
+      setFlaggedSymbolIds(next.flaggedSymbolIds);
       setIsSolved(next.isSolved || false);
       setIsTimerRunning(!next.isSolved);
-      localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(next));
-      if (next.isSolved && !isPrimerPuzzle(currentPuzzle)) {
+      if (!next.isSolved) {
+        setSelectedSymbolId(clipSelectedSymbolId(next.selectedSymbolId));
+      }
+      if (next.isSolved) {
         const solverName =
           localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
         recordPuzzleSolve(
@@ -361,11 +580,14 @@ export default function App() {
         ).catch(() => undefined);
         startedPuzzlesRef.current.add(currentPuzzle.id);
       }
+      } catch {
+        return;
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, currentPuzzle.id, uniqueSymbols, solvedPuzzleIds]);
+  }, [user, currentPuzzle.id, currentPuzzle.editionDate, uniqueSymbols, solvedPuzzleIds, allPuzzles]);
 
   useEffect(() => {
     if (!isTimerRunning || isSolved) return;
@@ -378,15 +600,20 @@ export default function App() {
   // Save progress automatically
   useEffect(() => {
     if (progressReadyId !== currentPuzzle.id || uniqueSymbols.length === 0) return;
-    const progress = {
+    writeLocalProgress(currentPuzzle.id, {
       mappings,
       timerSeconds,
       hintsUsed,
       hintsRemaining,
-      isSolved
-    };
-    localStorage.setItem(`cryptogram_progress_${currentPuzzle.id}`, JSON.stringify(progress));
-  }, [progressReadyId, mappings, timerSeconds, hintsUsed, hintsRemaining, isSolved, currentPuzzle.id, uniqueSymbols]);
+      hintedSymbolIds,
+      checksUsed,
+      checksRemaining,
+      verifiedSymbolIds,
+      flaggedSymbolIds,
+      selectedSymbolId,
+      isSolved,
+    });
+  }, [progressReadyId, mappings, timerSeconds, hintsUsed, hintsRemaining, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, selectedSymbolId, isSolved, currentPuzzle.id, uniqueSymbols]);
 
   useEffect(() => {
     if (!user || uniqueSymbols.length === 0 || progressReadyId !== currentPuzzle.id) return;
@@ -396,16 +623,21 @@ export default function App() {
         timerSeconds,
         hintsUsed,
         hintsRemaining,
+        hintedSymbolIds,
+        checksUsed,
+        checksRemaining,
+        verifiedSymbolIds,
+        flaggedSymbolIds,
+        selectedSymbolId,
         isSolved,
       }).catch(() => undefined);
     }, 1500);
     return () => window.clearTimeout(handle);
-  }, [user, progressReadyId, currentPuzzle.id, mappings, hintsUsed, hintsRemaining, isSolved, uniqueSymbols.length]);
+  }, [user, progressReadyId, currentPuzzle.id, mappings, hintsUsed, hintsRemaining, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, selectedSymbolId, isSolved, uniqueSymbols.length]);
 
   useEffect(() => {
     if (!user || isSolved || Object.keys(mappings).length === 0) return;
     if (progressReadyId !== currentPuzzle.id) return;
-    if (isPrimerPuzzle(currentPuzzle)) return;
     if (startedPuzzlesRef.current.has(currentPuzzle.id)) return;
     startedPuzzlesRef.current.add(currentPuzzle.id);
     recordPuzzleStart(user.uid, currentPuzzle.id).catch(() => {
@@ -440,74 +672,75 @@ export default function App() {
       setIsTimerRunning(false);
       setIsSolveBulletinOpen(true);
       setSelectedSymbolId(null);
+      setSelectedCellId(null);
       dismissMobileKeyboard(hiddenInputRef.current);
       if (fragmentsUpdatedByPuzzle(currentPuzzle).length > 0) {
         setCaseFileToastPuzzle(currentPuzzle);
       }
-      playSolvedBell();
-
-      void import('canvas-confetti').then(({ default: fireConfetti }) => {
-        fireConfetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        void import('canvas-confetti').then(({ default: fireConfetti }) => {
+          fireConfetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
+          });
         });
-      });
+      }
 
       const nextSolved = Array.from(new Set([...solvedPuzzleIds, currentPuzzle.id]));
       setSolvedPuzzleIds(nextSolved);
       localStorage.setItem('cryptogram_solved_ids', JSON.stringify(nextSolved));
 
-      const primer = isPrimerPuzzle(currentPuzzle);
-      const next: GameStats = primer
-        ? gameStats
-        : {
-            ...gameStats,
-            puzzlesSolved: gameStats.puzzlesSolved + 1,
-            currentStreak: gameStats.currentStreak + 1,
-            maxStreak: Math.max(gameStats.maxStreak, gameStats.currentStreak + 1),
-            fastestTime:
-              gameStats.fastestTime === null
-                ? timerSeconds
-                : Math.min(gameStats.fastestTime, timerSeconds),
-            totalTimePlayed: gameStats.totalTimePlayed + timerSeconds,
-          };
-      if (!primer) {
-        setGameStats(next);
-        localStorage.setItem('cryptogram_stats', JSON.stringify(next));
-      }
+      const next: GameStats = {
+        ...gameStats,
+        puzzlesSolved: gameStats.puzzlesSolved + 1,
+        currentStreak: gameStats.currentStreak + 1,
+        maxStreak: Math.max(gameStats.maxStreak, gameStats.currentStreak + 1),
+        fastestTime:
+          gameStats.fastestTime === null
+            ? timerSeconds
+            : Math.min(gameStats.fastestTime, timerSeconds),
+        totalTimePlayed: gameStats.totalTimePlayed + timerSeconds,
+      };
+      setGameStats(next);
+      localStorage.setItem('cryptogram_stats', JSON.stringify(next));
 
       if (user) {
-        if (!primer) {
-          const solverName =
-            localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
-          recordPuzzleSolve(
-            user.uid,
-            currentPuzzle.id,
-            timerSeconds,
-            hintsUsed,
-            accuracy,
-            solverName
-          ).catch(() => undefined);
-        }
+        const solverName =
+          localStorage.getItem('cryptogram_codename') || user.displayName || 'Anonymous';
+        recordPuzzleSolve(
+          user.uid,
+          currentPuzzle.id,
+          timerSeconds,
+          hintsUsed,
+          accuracy,
+          solverName
+        ).catch(() => undefined);
         saveUserProfile(user.uid, next, nextSolved).catch(() => undefined);
         saveCloudProgress(user.uid, currentPuzzle.id, {
           mappings,
           timerSeconds,
           hintsUsed,
           hintsRemaining,
+          hintedSymbolIds,
+          checksUsed,
+          checksRemaining,
+          verifiedSymbolIds,
+          flaggedSymbolIds,
+          selectedSymbolId: null,
           isSolved: true,
         }).catch(() => undefined);
       }
     }
-  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, timerSeconds, user, hintsUsed, accuracy, solvedPuzzleIds, hintsRemaining, gameStats, progressReadyId]);
+  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, timerSeconds, user, hintsUsed, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, accuracy, solvedPuzzleIds, hintsRemaining, gameStats, progressReadyId]);
 
   // Handle Letter Input (Applies to ALL instances of the selected symbol across the message)
   const handleKeyPress = useCallback(
     (letter: string) => {
       if (!selectedSymbolId || !boardReady || isSolved) return;
-      playTypewriterClack();
+      if (hintedSymbolIds.includes(selectedSymbolId) || verifiedSymbolIds.includes(selectedSymbolId)) return;
+      webTypeFeel('key');
 
       const upper = letter.toUpperCase();
       const nextMappings = {
@@ -515,70 +748,193 @@ export default function App() {
         [selectedSymbolId]: upper,
       };
       setMappings(nextMappings);
+      setFlaggedSymbolIds((prev) => prev.filter((id) => id !== selectedSymbolId));
 
       if (uniqueSymbols.every((s) => nextMappings[s.symbolId] === s.targetLetter)) {
         dismissMobileKeyboard(hiddenInputRef.current);
       }
 
-      const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
-      if (currentIdx !== -1) {
-        const nextUnmapped = uniqueSymbols
-          .slice(currentIdx + 1)
-          .concat(uniqueSymbols.slice(0, currentIdx))
-          .find((s) => !mappings[s.symbolId] && s.symbolId !== selectedSymbolId);
-
-        if (nextUnmapped) {
-          setSelectedSymbolId(nextUnmapped.symbolId);
-        }
+      const nextCell = nextOpenCell(letterCells(words), selectedSymbolId, nextMappings);
+      if (nextCell) {
+        setSelectedSymbolId(nextCell);
+        setSelectedCellId(null);
       }
     },
-    [selectedSymbolId, isSolved, boardReady, uniqueSymbols, mappings]
+    [selectedSymbolId, isSolved, boardReady, uniqueSymbols, mappings, words, hintedSymbolIds, verifiedSymbolIds]
   );
 
-  // Handle Backspace / Clear
   const handleBackspace = useCallback(() => {
     if (!selectedSymbolId || !boardReady || isSolved) return;
-
+    if (hintedSymbolIds.includes(selectedSymbolId) || verifiedSymbolIds.includes(selectedSymbolId)) return;
+    if (mappings[selectedSymbolId]) {
+      setMappings((prev) => {
+        const next = { ...prev };
+        delete next[selectedSymbolId];
+        return next;
+      });
+      setFlaggedSymbolIds((prev) => prev.filter((id) => id !== selectedSymbolId));
+      return;
+    }
+    const prior = previousCell(letterCells(words), selectedSymbolId);
+    if (!prior || hintedSymbolIds.includes(prior) || verifiedSymbolIds.includes(prior)) return;
+    setSelectedSymbolId(prior);
+    setSelectedCellId(null);
     setMappings((prev) => {
       const next = { ...prev };
-      delete next[selectedSymbolId];
+      delete next[prior];
       return next;
     });
-  }, [selectedSymbolId, isSolved, boardReady]);
+    setFlaggedSymbolIds((prev) => prev.filter((id) => id !== prior));
+  }, [selectedSymbolId, isSolved, boardReady, mappings, words, hintedSymbolIds, verifiedSymbolIds]);
+
+  useEffect(() => {
+    if (!isAndroidAppShell()) return;
+    const onCipher = (event: Event) => {
+      const detail = (event as CustomEvent<{ type?: string; letter?: string }>).detail;
+      if (detail?.type === 'KEY' && detail.letter) handleKeyPress(detail.letter);
+      if (detail?.type === 'BACKSPACE') handleBackspace();
+      if (detail?.type === 'SHOW') setDeskArmed(true);
+      if (detail?.type === 'BLUR') setDeskArmed(false);
+    };
+    window.addEventListener('chronicle-native-cipher', onCipher);
+    return () => window.removeEventListener('chronicle-native-cipher', onCipher);
+  }, [handleKeyPress, handleBackspace]);
 
   const handleClearSymbol = useCallback(() => {
     handleBackspace();
   }, [handleBackspace]);
 
   const handleResetMappings = useCallback(() => {
-    if (window.confirm('Are you sure you want to reset all symbol mappings for this cryptogram?')) {
-      setMappings({});
-      setShowErrors(false);
-    }
+    setIsResetLettersOpen(true);
   }, []);
 
-  // Use Hint (Reveals 1 unmapped or incorrect symbol)
+  const confirmResetMappings = useCallback(() => {
+    const locked = clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds]);
+    setMappings(withHintedMappings(currentPuzzle, {}, locked));
+    setFlaggedSymbolIds([]);
+    setIsResetLettersOpen(false);
+  }, [currentPuzzle, hintedSymbolIds, verifiedSymbolIds]);
+
   const handleUseHint = useCallback(() => {
-    if (hintsRemaining <= 0 || !boardReady || isSolved) return;
+    if (hintsRemaining <= 0 || !boardReady || isSolved || !selectedSymbolId) return;
 
-    // Find first unmapped or incorrect symbol
-    const targetSymbol = uniqueSymbols.find(
-      (s) => !mappings[s.symbolId] || mappings[s.symbolId] !== s.targetLetter
-    );
+    const targetSymbol = uniqueSymbols.find((s) => s.symbolId === selectedSymbolId);
+    if (!targetSymbol || mappings[targetSymbol.symbolId] === targetSymbol.targetLetter) return;
+    if (hintedSymbolIds.includes(targetSymbol.symbolId) || verifiedSymbolIds.includes(targetSymbol.symbolId)) return;
 
-    if (targetSymbol) {
-      playHintSound();
-      setHintsUsed((prev) => prev + 1);
-      setHintsRemaining((prev) => prev - 1);
-
-      setMappings((prev) => ({
-        ...prev,
-        [targetSymbol.symbolId]: targetSymbol.targetLetter,
-      }));
-
-      setSelectedSymbolId(targetSymbol.symbolId);
+    const nextHinted = clipHintedSymbolIds([...hintedSymbolIds, targetSymbol.symbolId]);
+    const nextUsed = Math.max(hintsUsed + 1, nextHinted.length);
+    const nextRemaining = Math.max(0, hintsRemaining - 1);
+    const nextMappings = {
+      ...mappings,
+      [targetSymbol.symbolId]: targetSymbol.targetLetter,
+    };
+    const nextFlagged = flaggedSymbolIds.filter((id) => id !== targetSymbol.symbolId);
+    const progress = {
+      mappings: nextMappings,
+      timerSeconds,
+      hintsUsed: nextUsed,
+      hintsRemaining: nextRemaining,
+      hintedSymbolIds: nextHinted,
+      checksUsed,
+      checksRemaining,
+      verifiedSymbolIds,
+      flaggedSymbolIds: nextFlagged,
+      selectedSymbolId,
+      isSolved,
+    };
+    const wallet = clipDailyWallet(currentPuzzle.editionDate, DAILY_HINTS - nextRemaining);
+    setHintedSymbolIds(nextHinted);
+    setHintsUsed(nextUsed);
+    setHintsRemaining(nextRemaining);
+    setFlaggedSymbolIds(nextFlagged);
+    setMappings(nextMappings);
+    writeLocalProgress(currentPuzzle.id, progress);
+    writeLocalDailyHints(wallet);
+    if (user) {
+      saveCloudProgress(user.uid, currentPuzzle.id, progress).catch(() => undefined);
+      saveCloudDailyHints(user.uid, wallet).catch(() => undefined);
     }
-  }, [hintsRemaining, isSolved, boardReady, uniqueSymbols, mappings]);
+  }, [
+    hintsRemaining,
+    isSolved,
+    boardReady,
+    uniqueSymbols,
+    mappings,
+    selectedSymbolId,
+    hintedSymbolIds,
+    verifiedSymbolIds,
+    flaggedSymbolIds,
+    hintsUsed,
+    checksUsed,
+    checksRemaining,
+    timerSeconds,
+    currentPuzzle.editionDate,
+    currentPuzzle.id,
+    user,
+  ]);
+
+  const handleCheckLetter = useCallback(() => {
+    if (checksRemaining <= 0 || !boardReady || isSolved || !selectedSymbolId) return;
+
+    const targetSymbol = uniqueSymbols.find((s) => s.symbolId === selectedSymbolId);
+    if (!targetSymbol) return;
+    const mapped = mappings[targetSymbol.symbolId];
+    if (!mapped) return;
+    if (hintedSymbolIds.includes(targetSymbol.symbolId) || verifiedSymbolIds.includes(targetSymbol.symbolId)) return;
+    if (flaggedSymbolIds.includes(targetSymbol.symbolId)) return;
+
+    const correct = mapped === targetSymbol.targetLetter;
+    const nextVerified = correct
+      ? clipHintedSymbolIds([...verifiedSymbolIds, targetSymbol.symbolId])
+      : verifiedSymbolIds;
+    const nextFlagged = correct
+      ? flaggedSymbolIds.filter((id) => id !== targetSymbol.symbolId)
+      : clipHintedSymbolIds([...flaggedSymbolIds, targetSymbol.symbolId]);
+    const nextUsed = Math.max(checksUsed + 1, nextVerified.length);
+    const nextRemaining = Math.max(0, checksRemaining - 1);
+    const progress = {
+      mappings,
+      timerSeconds,
+      hintsUsed,
+      hintsRemaining,
+      hintedSymbolIds,
+      checksUsed: nextUsed,
+      checksRemaining: nextRemaining,
+      verifiedSymbolIds: nextVerified,
+      flaggedSymbolIds: nextFlagged,
+      selectedSymbolId,
+      isSolved,
+    };
+    const wallet = clipDailyWallet(currentPuzzle.editionDate, DAILY_CHECKS - nextRemaining);
+    setVerifiedSymbolIds(nextVerified);
+    setFlaggedSymbolIds(nextFlagged);
+    setChecksUsed(nextUsed);
+    setChecksRemaining(nextRemaining);
+    writeLocalProgress(currentPuzzle.id, progress);
+    writeLocalDailyChecks(wallet);
+    if (user) {
+      saveCloudProgress(user.uid, currentPuzzle.id, progress).catch(() => undefined);
+      saveCloudDailyChecks(user.uid, wallet).catch(() => undefined);
+    }
+  }, [
+    checksRemaining,
+    isSolved,
+    boardReady,
+    uniqueSymbols,
+    mappings,
+    selectedSymbolId,
+    hintedSymbolIds,
+    verifiedSymbolIds,
+    flaggedSymbolIds,
+    checksUsed,
+    hintsUsed,
+    hintsRemaining,
+    timerSeconds,
+    currentPuzzle.editionDate,
+    currentPuzzle.id,
+    user,
+  ]);
 
   // Physical Keyboard Listener
   useEffect(() => {
@@ -601,6 +957,7 @@ export default function App() {
           const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
           const nextIdx = (currentIdx + 1) % uniqueSymbols.length;
           setSelectedSymbolId(uniqueSymbols[nextIdx].symbolId);
+          setSelectedCellId(null);
         }
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
@@ -608,6 +965,7 @@ export default function App() {
           const currentIdx = uniqueSymbols.findIndex((s) => s.symbolId === selectedSymbolId);
           const prevIdx = (currentIdx - 1 + uniqueSymbols.length) % uniqueSymbols.length;
           setSelectedSymbolId(uniqueSymbols[prevIdx].symbolId);
+          setSelectedCellId(null);
         }
       }
     };
@@ -616,10 +974,8 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyPress, handleBackspace, uniqueSymbols, selectedSymbolId, isSolved, boardReady]);
 
-  const toggleSound = () => {
-    const next = !soundEnabled;
-    setSound(next);
-    setAudioEnabled(next);
+  const togglePaper = () => {
+    setDarkPaper(toggleDeskTheme());
   };
 
   const handleSelectDifficulty = (mode: 'Easy' | 'Hard') => {
@@ -644,12 +1000,207 @@ export default function App() {
     }
   };
 
+  const shouldOfferBureauDesk = () => {
+    if (bureauDeskSeen()) return false;
+    const needCreds = configured && !identified;
+    const needDispatch = deliverySupported && !deliverySubscribed && !deliveryBlocked;
+    return needCreds || needDispatch;
+  };
+
+  const showBureauDesk = (after?: () => void) => {
+    bureauAfterRef.current = after || null;
+    setIsBureauDeskOpen(true);
+  };
+
+  const openBureauDesk = (after?: () => void) => {
+    if (!shouldOfferBureauDesk()) {
+      after?.();
+      return;
+    }
+    showBureauDesk(after);
+  };
+
+  const closeBureauDesk = () => {
+    if (!bureauPreview) markBureauDeskSeen();
+    setBureauPreview(false);
+    setIsBureauDeskOpen(false);
+    const after = bureauAfterRef.current;
+    bureauAfterRef.current = null;
+    after?.();
+  };
+
+  const closeCaseFile = () => {
+    setIsCaseFileOpen(false);
+    setCaseFileFocusId(null);
+    setCaseFileFocusKey(null);
+  };
+
+  const closeSolveBulletin = () => {
+    setIsSolveBulletinOpen(false);
+    openBureauDesk();
+  };
+
+  const sheetDepth =
+    Number(Boolean(caseFileToastPuzzle)) +
+    Number(isResetLettersOpen) +
+    Number(isBureauDeskOpen) +
+    Number(isCaseFileOpen) +
+    Number(isLeaderboardOpen) +
+    Number(isNewspaperClippingOpen) +
+    Number(isSolveBulletinOpen) +
+    Number(isArchiveOpen) +
+    Number(isHowToPlayOpen) +
+    Number(isArticleOpen);
+  const sheetLocked = sheetDepth > Number(Boolean(caseFileToastPuzzle));
+
+  const closeTopSheet = () => {
+    const report = (opened = 0) => {
+      postToAndroidApp({ type: 'SHEET_STACK', depth: Math.max(0, sheetDepth - 1 + opened) });
+    };
+    if (caseFileToastPuzzle) {
+      setCaseFileToastPuzzle(null);
+      report();
+      return true;
+    }
+    if (isResetLettersOpen) {
+      setIsResetLettersOpen(false);
+      report();
+      return true;
+    }
+    if (isBureauDeskOpen) {
+      closeBureauDesk();
+      report();
+      return true;
+    }
+    if (isCaseFileOpen) {
+      closeCaseFile();
+      report();
+      return true;
+    }
+    if (isLeaderboardOpen) {
+      setIsLeaderboardOpen(false);
+      report();
+      return true;
+    }
+    if (isNewspaperClippingOpen) {
+      setIsNewspaperClippingOpen(false);
+      report();
+      return true;
+    }
+    if (isSolveBulletinOpen) {
+      closeSolveBulletin();
+      report(shouldOfferBureauDesk() ? 1 : 0);
+      return true;
+    }
+    if (isArchiveOpen) {
+      setIsArchiveOpen(false);
+      report();
+      return true;
+    }
+    if (isHowToPlayOpen) {
+      setIsHowToPlayOpen(false);
+      report();
+      return true;
+    }
+    if (isArticleOpen) {
+      setIsArticleOpen(false);
+      report();
+      return true;
+    }
+    return false;
+  };
+
+  const closeTopSheetRef = useRef(closeTopSheet);
+  closeTopSheetRef.current = closeTopSheet;
+  const sheetHistPushed = useRef(false);
+
+  useEffect(() => {
+    postToAndroidApp({ type: 'SHEET_STACK', depth: sheetDepth });
+  }, [sheetDepth]);
+
+  useEffect(() => {
+    if (isAndroidAppShell()) return;
+    const stacked = Boolean(
+      window.history.state && (window.history.state as { chronicleSheet?: boolean }).chronicleSheet
+    );
+    if (sheetDepth > 0) {
+      if (stacked) {
+        window.history.replaceState({ chronicleSheet: true }, '');
+      } else {
+        window.history.pushState({ chronicleSheet: true }, '');
+        sheetHistPushed.current = true;
+      }
+      return;
+    }
+    if (sheetHistPushed.current && stacked) {
+      sheetHistPushed.current = false;
+      window.history.back();
+      return;
+    }
+    sheetHistPushed.current = false;
+    if (stacked) window.history.replaceState(null, '');
+  }, [sheetDepth]);
+
+  useDialogFocus(sheetDepth);
+
+  useEffect(() => {
+    const focusedField = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      const tag = target.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    };
+    const onAndroidBack = () => {
+      closeTopSheetRef.current();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || focusedField(event.target)) return;
+      if (closeTopSheetRef.current()) event.preventDefault();
+    };
+    const onPop = () => {
+      if (isAndroidAppShell()) return;
+      closeTopSheetRef.current();
+    };
+    window.addEventListener('chronicle-android-back', onAndroidBack);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('chronicle-android-back', onAndroidBack);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('popstate', onPop);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.shiftKey || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b') return;
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        return;
+      }
+      e.preventDefault();
+      setBureauPreview(true);
+      showBureauDesk();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const handleSelectPuzzle = (puzzle: PuzzleData) => {
     if (puzzle.editionDate > publishedThroughDate(INITIAL_PUZZLES)) return;
     if (
       isNightEdition(puzzle) &&
       !isNightUnlockedForDate(allPuzzles, solvedPuzzleIds, puzzle.editionDate)
     ) {
+      return;
+    }
+    if (
+      shouldOfferBureauDesk() &&
+      currentPuzzle.editionNumber === 1 &&
+      isMorningEdition(currentPuzzle) &&
+      puzzle.id !== currentPuzzle.id
+    ) {
+      openBureauDesk(() => setCurrentPuzzle(puzzle));
       return;
     }
     setCurrentPuzzle(puzzle);
@@ -703,23 +1254,58 @@ export default function App() {
     isPrimerPuzzle(currentPuzzle) &&
     storyHasBegun(INITIAL_PUZZLES) &&
     !hasSolvedStoryPuzzle(allPuzzles, solvedPuzzleIds);
+  const showCaseFiles = hasDecodedFragments(INITIAL_PUZZLES, solvedPuzzleIds);
+  const deskCompact = !isSolved && (deskArmed || viewportKeyboard);
 
-  // Handle Cell Tap (mobile keyboard trigger)
   const handleSelectSymbol = useCallback(
-    (symId: string) => {
+    (symId: string, cellId?: string) => {
       if (!boardReady || isSolved) return;
       setSelectedSymbolId(symId);
-      if (hiddenInputRef.current) {
-        hiddenInputRef.current.focus();
+      setSelectedCellId(cellId ?? null);
+      webTypeFeel('tap');
+      if (isAndroidAppShell()) {
+        setDeskArmed(true);
+        postToAndroidApp({ type: 'CIPHER_FOCUS' });
+        return;
       }
+      hiddenInputRef.current?.focus();
     },
     [boardReady, isSolved]
   );
 
+  useEffect(() => {
+    if (!selectedSymbolId || isSolved || !boardReady) return;
+    const nativeDesk = isAndroidAppShell();
+    const input = hiddenInputRef.current;
+    const anchor = (scroll: boolean) => {
+      if (!nativeDesk && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
+      if (scroll) {
+        selectedGlyphTile(selectedSymbolId, selectedCellId)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    };
+
+    anchor(true);
+    const later = window.setTimeout(() => anchor(true), 380);
+    const onMove = () => anchor(false);
+    window.addEventListener('scroll', onMove, true);
+    const viewport = window.visualViewport;
+    viewport?.addEventListener('resize', onMove);
+    viewport?.addEventListener('scroll', onMove);
+    return () => {
+      window.clearTimeout(later);
+      window.removeEventListener('scroll', onMove, true);
+      viewport?.removeEventListener('resize', onMove);
+      viewport?.removeEventListener('scroll', onMove);
+    };
+  }, [selectedSymbolId, selectedCellId, isSolved, boardReady, deskCompact]);
+
   return (
     <div
       className={`noir-newspaper-bg min-h-screen flex flex-col justify-between selection:bg-stone-300 selection:text-stone-950 ${
-        nightEdition ? 'is-night text-stone-950' : 'text-stone-900'
+        nightEdition ? 'is-night text-stone-950' : 'text-stone-950'
       }`}
     >
       <WoodcutPressFilter />
@@ -730,16 +1316,32 @@ export default function App() {
         id="cipher-letter-input"
         ref={hiddenInputRef}
         type="text"
+        name="cipher-glyph"
+        lang="en"
         autoComplete="off"
         autoCorrect="off"
-        autoCapitalize="none"
-        spellCheck="false"
-        className="fixed opacity-0 pointer-events-none w-0 h-0 text-base"
-        style={{ left: '-9999px', top: '50%' }}
+        autoCapitalize="off"
+        spellCheck={false}
+        inputMode={isSolved ? 'none' : 'text'}
+        enterKeyHint="done"
+        maxLength={1}
         value=""
         readOnly={isSolved}
-        inputMode={isSolved ? 'none' : 'text'}
         tabIndex={isSolved ? -1 : 0}
+        inert={sheetLocked}
+        onFocus={() => {
+          if (!isSolved) setDeskArmed(true);
+        }}
+        onBlur={() => {
+          window.setTimeout(() => {
+            if (document.activeElement === hiddenInputRef.current) return;
+            if (document.getElementById('cryptogram-board')?.contains(document.activeElement)) {
+              hiddenInputRef.current?.focus();
+              return;
+            }
+            setDeskArmed(false);
+          }, 0);
+        }}
         onChange={(e) => {
           const val = e.target.value;
           if (val.length > 0) {
@@ -758,81 +1360,93 @@ export default function App() {
       />
       
       <div
-        className={`edition-sheet w-full ${
+        className={`edition-sheet w-full ${deskCompact ? 'is-desk-compact' : ''} ${
           nightEdition
             ? 'is-night text-stone-950 border-b-4 border-amber-800'
-            : 'text-stone-800 border-b-2 border-stone-900'
+            : 'text-stone-950 border-b-2 border-stone-900'
         }`}
+        inert={sheetLocked}
       >
         <Header
           currentPuzzle={currentPuzzle}
-          user={user}
+          user={identified ? user : null}
           authConfigured={configured}
-          gameStats={gameStats}
-          onSignIn={signIn}
-          onSignOut={signOut}
-          onOpenArchive={() => setIsArchiveOpen(true)}
+          onOpenBureau={() => showBureauDesk()}
+          onOpenArchive={() => {
+            if (
+              shouldOfferBureauDesk() &&
+              currentPuzzle.editionNumber === 1 &&
+              isMorningEdition(currentPuzzle)
+            ) {
+              openBureauDesk(() => setIsArchiveOpen(true));
+              return;
+            }
+            setIsArchiveOpen(true);
+          }}
           onOpenCaseFiles={() => {
-            if (solvedPuzzleIds.length === 0) return;
+            if (!showCaseFiles) return;
             setCaseFileFocusId(null);
             setCaseFileFocusKey(null);
             setCaseFileToastPuzzle(null);
             setIsCaseFileOpen(true);
           }}
           onOpenHandbook={() => setIsHowToPlayOpen(true)}
-          showCaseFiles={solvedPuzzleIds.length > 0}
-          deliverySupported={deliverySupported}
-          deliverySubscribed={deliverySubscribed}
-          deliveryBlocked={deliveryBlocked}
-          onToggleDelivery={toggleDelivery}
+          showCaseFiles={showCaseFiles}
         />
 
         <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-3 sm:pb-5">
           <section className="article-deck relative">
-          <button
-            type="button"
-            onClick={() => setIsArticleOpen(true)}
-            className="absolute top-0 right-0 z-10 w-8 h-8 flex items-center justify-center border border-stone-800 hover:bg-amber-100 cursor-pointer"
-            aria-label="Open article"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-          <h2
-            className={`text-center px-11 text-[calc(1.5rem+2pt)] sm:text-[calc(1.875rem+2pt)] md:text-[calc(2.25rem+2pt)] font-black tracking-tight uppercase leading-snug ${
-              nightEdition ? 'font-letterpress text-stone-950' : 'font-headline text-stone-950'
-            }`}
-          >
-            {currentPuzzle.headline}
-          </h2>
-          <EditionPlate plate={articlePlateId(currentPuzzle)} night={nightEdition} />
-          <DropCapParagraph
-            text={articleDek(currentPuzzle)}
-            night={nightEdition}
-            className="article-dek-board font-treatise text-left text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800 leading-[1.65]"
-          />
-          <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
-            — {articleByline(currentPuzzle)}
-          </p>
+            <button
+              type="button"
+              onClick={() => setIsArticleOpen(true)}
+              className="desk-hit absolute top-0 right-0 z-10 w-8 h-8 flex items-center justify-center border border-stone-800 hover:bg-amber-100 cursor-pointer"
+              aria-label="Open article"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <h2
+              className={`text-center px-11 text-[calc(1.5rem+2pt)] sm:text-[calc(1.875rem+2pt)] md:text-[calc(2.25rem+2pt)] font-black tracking-tight uppercase leading-snug ${
+                nightEdition ? 'font-letterpress text-stone-950' : 'font-headline text-stone-950'
+              }`}
+            >
+              {currentPuzzle.headline}
+            </h2>
+            <div className="article-collapse">
+              <div>
+                <EditionPlate plate={articlePlateId(currentPuzzle)} night={nightEdition} />
+                <DropCapParagraph
+                  text={articleDek(currentPuzzle)}
+                  night={nightEdition}
+                  className="article-dek-board font-treatise text-left text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] italic mt-1 text-stone-800 leading-[1.65]"
+                />
+                <p className="mt-2 font-newspaper font-semibold text-[calc(0.875rem+2pt)] sm:text-[calc(1rem+2pt)] text-stone-950">
+                  — {articleByline(currentPuzzle)}
+                </p>
+              </div>
+            </div>
           </section>
         </div>
       </div>
 
-      <main className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3">
-        {isFirebaseEnabled && boardSolved && !isPrimerPuzzle(currentPuzzle) && (
+      <main
+        className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3"
+        inert={sheetLocked}
+      >
+        {isFirebaseEnabled && boardSolved && (
           <LiveStatsRow puzzleId={currentPuzzle.id} />
         )}
 
-        {/* The Interactive Zodiac Cryptogram Board */}
-        <section className={`flex-1 flex flex-col min-w-0 ${boardSolved ? 'justify-start' : 'justify-center'}`}>
+        <section
+          className={`flex-1 flex flex-col min-w-0 ${boardSolved ? 'justify-start' : 'justify-center'}`}
+          onPointerDown={(event) => {
+            if (deskCompact) event.preventDefault();
+          }}
+        >
           {isPrimerPuzzle(currentPuzzle) && !boardSolved && (
             <PrimerCoach
               words={words}
               mappings={boardMappings}
               isSolved={boardSolved}
-              frequencies={symbolFrequencies}
-              selectedSymbolId={boardReady ? selectedSymbolId : null}
-              onSelectSymbol={handleSelectSymbol}
-              onOpenHandbook={() => setIsHowToPlayOpen(true)}
             />
           )}
           <CryptogramGrid
@@ -840,13 +1454,19 @@ export default function App() {
             mappings={boardMappings}
             selectedSymbolId={boardReady ? selectedSymbolId : null}
             onSelectSymbol={handleSelectSymbol}
-            showErrors={showErrors}
+            flaggedSymbolIds={flaggedSymbolIds}
+            lockedSymbolIds={clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds])}
             isSolved={boardSolved}
             solvedInsert={currentPuzzle.solvedInsert}
             solvedSwap={currentPuzzle.solvedSwap}
             onClearLetters={handleResetMappings}
+            onUseHint={handleUseHint}
+            onCheckLetter={handleCheckLetter}
+            hintsRemaining={hintsRemaining}
+            checksRemaining={checksRemaining}
             silhouette={currentPuzzle.silhouette}
             night={nightEdition}
+            frequencies={symbolFrequencies}
           />
         </section>
       </main>
@@ -858,7 +1478,7 @@ export default function App() {
         currentPuzzleId={currentPuzzle.id}
         currentPuzzleTitle={currentPuzzle.headline}
         puzzles={allPuzzles}
-        user={user}
+        user={identified ? user : null}
         onSignIn={signIn}
         currentSolveStats={
           isSolved
@@ -874,7 +1494,7 @@ export default function App() {
 
       <TodayStatsBulletin
         isOpen={isSolveBulletinOpen}
-        onClose={() => setIsSolveBulletinOpen(false)}
+        onClose={closeSolveBulletin}
         currentPuzzle={currentPuzzle}
         timerSeconds={timerSeconds}
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
@@ -906,11 +1526,7 @@ export default function App() {
 
       <CaseFileModal
         isOpen={isCaseFileOpen}
-        onClose={() => {
-          setIsCaseFileOpen(false);
-          setCaseFileFocusId(null);
-          setCaseFileFocusKey(null);
-        }}
+        onClose={closeCaseFile}
         puzzles={INITIAL_PUZZLES}
         solvedPuzzleIds={solvedPuzzleIds}
         focusCharacterId={caseFileFocusId}
@@ -932,24 +1548,6 @@ export default function App() {
         onDismiss={() => setCaseFileToastPuzzle(null)}
       />
 
-      <AICipherGeneratorModal
-        isOpen={isAIGeneratorOpen}
-        onClose={() => setIsAIGeneratorOpen(false)}
-        onPuzzleGenerated={(newPuz) => {
-          setAllPuzzles((prev) => [newPuz, ...prev]);
-          setCurrentPuzzle(newPuz);
-        }}
-      />
-
-      <FrequencyAnalysisModal
-        isOpen={isFrequencyOpen}
-        onClose={() => setIsFrequencyOpen(false)}
-        symbolFrequencies={symbolFrequencies}
-        onSelectSymbolFromFreq={(symId) => {
-          if (boardReady && !isSolved) setSelectedSymbolId(symId);
-        }}
-      />
-
       <ArticleReaderModal
         isOpen={isArticleOpen}
         onClose={() => setIsArticleOpen(false)}
@@ -963,6 +1561,49 @@ export default function App() {
       <HowToPlayModal
         isOpen={isHowToPlayOpen}
         onClose={() => setIsHowToPlayOpen(false)}
+      />
+
+      <BureauDeskModal
+        isOpen={isBureauDeskOpen}
+        onClose={closeBureauDesk}
+        identified={identified}
+        user={identified ? user : null}
+        night={isNightEdition(currentPuzzle)}
+        gameStats={gameStats}
+        authConfigured={bureauPreview ? true : configured}
+        authError={authError}
+        onIssueCredentials={signIn}
+        onSignOut={signOut}
+        deliverySupported={bureauPreview ? true : deliverySupported}
+        deliverySubscribed={deliverySubscribed}
+        deliveryBlocked={bureauPreview || !isAndroidAppShell() ? false : deliveryBlocked}
+        deliveryError={deliveryError}
+        deliveryCopy={
+          isAndroidAppShell()
+            ? 'A tap on the shoulder around 8:00 a.m. Eastern when the morning edition hits the stands. That is the only alert we send. You can leave the list any time; the paper still prints if you decline.'
+            : 'A local notice the next time you open the paper that day — not a scheduled morning push. You can leave the list any time; the puzzles still run if you decline.'
+        }
+        onToggleDelivery={toggleDelivery}
+        onOpenSettings={openDeliverySettings}
+        darkPaper={darkPaper}
+        onTogglePaper={togglePaper}
+        onDeleteRecords={
+          identified && user
+            ? async () => {
+                await deleteCloudUserData(
+                  user.uid,
+                  INITIAL_PUZZLES.map((puzzle) => puzzle.id)
+                );
+                await signOut();
+              }
+            : undefined
+        }
+      />
+
+      <ResetLettersModal
+        isOpen={isResetLettersOpen}
+        onClose={() => setIsResetLettersOpen(false)}
+        onConfirm={confirmResetMappings}
       />
     </div>
   );

@@ -192,6 +192,8 @@ export const Check = ink(GiCheckMark);
 export const ArrowRight = ink(GiFastArrow);
 export const ChevronDown = ink(GiPlainArrow, 'rotate-180');
 export const ChevronUp = ink(GiPlainArrow);
+export const ChevronLeft = ink(GiPlainArrow, 'rotate-90');
+export const ChevronRight = ink(GiPlainArrow, '-rotate-90');
 
 function WoodcutHatch({
   id,

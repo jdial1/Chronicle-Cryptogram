@@ -545,6 +545,10 @@ export function unlockedFragmentsForCharacter(
     .filter((fragment): fragment is AssembledFragment => Boolean(fragment));
 }
 
+export function hasDecodedFragments(puzzles: PuzzleData[], solvedPuzzleIds: string[]) {
+  return CASE_FRAGMENTS.some((fragment) => assembleFragment(fragment, puzzles, solvedPuzzleIds));
+}
+
 export function fragmentKey(fragment: { characterId: string; editionNumber: number }) {
   return `${fragment.characterId}-${fragment.editionNumber}`;
 }

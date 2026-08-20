@@ -8,12 +8,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:647414230767:android:67c6e31d73627d3cd1351a",
+        "android_client_info": {
+          "package_name": "com.chroniclecryptogram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "647414230767-0u827k3360avaro3ab9r2mft5tke55c8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chroniclecryptogram",
+            "certificate_hash": "505ec34b5ee6a7057609c8038ab3da8ca567210b"
+          }
+        },
+        {
+          "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGwyhr-OmxCwf3rfc1Cuhyp8j6Ci94YtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:647414230767:android:02938f0be341903cd1351a",
         "android_client_info": {
           "package_name": "com.chroniclecryptogram.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "647414230767-681sdqe5j7pj58hit94b2p13avnjjs8i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chroniclecryptogram.app",
+            "certificate_hash": "505ec34b5ee6a7057609c8038ab3da8ca567210b"
+          }
+        },
         {
           "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
           "client_type": 3

@@ -123,7 +123,7 @@ function UpcomingIssueCard({ date }: { date: string }) {
 
   return (
     <article className="border-2 border-stone-700 bg-[#f8f3e8]">
-      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-11 sm:min-h-0 sm:py-2 bg-[#ebe4d4] text-stone-950">
+      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[#ebe4d4] text-stone-950">
         <div className="flex items-center gap-2 min-w-0">
           <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
             {formatEditionDateShort(date)}
@@ -190,12 +190,13 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop z-50 select-none">
+    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="archive-title"
         className="modal-sheet max-w-3xl"
+        onClick={(event) => event.stopPropagation()}
       >
         <div className="modal-masthead">
           <div className="flex items-center gap-2 min-w-0">
@@ -207,7 +208,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
+            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -229,7 +230,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                   onClick={() => toggleDate(issue.date)}
                   aria-expanded={isOpenIssue}
                   aria-controls={`issue-${issue.date}`}
-                  className="w-full flex items-center justify-between gap-2 px-3 min-h-11 sm:min-h-0 sm:py-2 bg-[#ebe4d4] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
+                  className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[#ebe4d4] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <PuzzleSilhouette

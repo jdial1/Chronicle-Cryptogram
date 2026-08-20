@@ -2,15 +2,15 @@
   "defaultLanguage": "en-US",
   "title": "Chronicle Cryptogram",
   "shortDescription": "Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, climb the bureau board.",
-  "fullDescription": "The morning edition is on the stands. Chronicle Cryptogram is a vintage newspaper cryptogram: a substitution cipher printed like a 1920s broadsheet, with a serialized case file for solvers who stay on the beat.\n\nDecode the daily Morning Edition and Night Extra. Map symbols to letters, pull the handbook when you stall, and race the clock without giving the game away. Sign in with Google to sync progress and post times on the global codebreaker leaderboard.\n\nFeatures\n• Fresh morning and evening ciphers\n• Archive of past editions\n• Frequency analysis and primer coaching\n• Serialized case files as you solve\n• Optional Google sign-in and cloud progress\n• Optional daily paper-delivery reminder\n\nThe game is free. No ads. No in-app purchases.\n\nPrivacy policy: https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
+  "fullDescription": "The morning edition is on the stands. Chronicle Cryptogram is a vintage newspaper cryptogram: a substitution cipher printed like a 1920s broadsheet, with a serialized case file for solvers who stay on the beat.\n\nDecode the daily Morning Edition and Night Extra. Map symbols to letters, pull the handbook when you stall, and race the clock without giving the game away. Sign in with Google to sync progress and post times on the global codebreaker leaderboard.\n\nFeatures\n• Fresh morning and evening ciphers\n• Archive of past editions\n• In-board glyph tally and primer coaching\n• Serialized case files as you solve\n• Optional Google sign-in and cloud progress\n• Optional Morning Dispatch at 8:00 a.m. Eastern\n\nThe game is free. No ads. No in-app purchases.\n\nPrivacy policy: https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
   "privacyPolicyUrl": "https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
   "applicationCategory": "GAME",
   "category": "Puzzle",
   "tags": ["cryptogram", "cipher", "puzzle", "word", "daily"],
   "contentRating": {
     "questionnaire": "IARC",
-    "expected": "Everyone",
-    "notes": "Crossword / puzzle. No violence, no user-generated chat, no purchases."
+    "expected": "Retake IARC in Play Console with these answers; do not file Everyone until the questionnaire returns a rating",
+    "notes": "Serialized 1920s mystery. Implied crime in newspaper text. No graphic violence, no UGC, no purchases."
   },
   "dataSafety": {
     "dataCollected": [
@@ -31,16 +31,23 @@
       {
         "type": "User IDs",
         "purpose": "App functionality",
-        "optional": true,
+        "optional": false,
         "ephemeral": false,
-        "note": "Firebase Auth UID"
+        "note": "Firebase Auth UID from anonymous session or Google sign-in"
       },
       {
         "type": "App interactions",
         "purpose": "App functionality",
         "optional": false,
         "ephemeral": false,
-        "note": "Puzzle starts, solves, times, hints, leaderboard stats stored in Firestore when signed in; local storage when signed out"
+        "note": "Puzzle starts, solves, times, hints, leaderboard stats in Firestore under the auth UID; also stored locally"
+      },
+      {
+        "type": "Device or other IDs",
+        "purpose": "App functionality",
+        "optional": true,
+        "ephemeral": false,
+        "note": "FCM token in Firestore dispatchTokens when subscribed to Morning Dispatch"
       }
     ],
     "dataShared": false,
@@ -48,21 +55,24 @@
     "usersCanRequestDeletion": true,
     "securityPractices": [
       "Data is encrypted in transit",
-      "You can request that data be deleted"
+      "Signed-in players can delete cloud records from Bureau File; leftover requests: justinalandial@gmail.com"
     ]
   },
   "graphics": {
-    "icon": "mobile/store/icon.png (512x512, full-bleed square). Android launcher uses mobile/assets/android-icon-foreground.png (tile inset so the frame survives circular masks).",
-    "featureGraphic": "mobile/store/feature-graphic.png (1024x500, cream masthead, no device frames)",
-    "phoneScreenshots": "At least two from the running APK: puzzle grid and solved bulletin."
+    "icon": "mobile/store/icon.png (512x512, framed tile inset so Play's rounded mask does not clip the border). Android launcher uses mobile/assets/android-icon-foreground.png (tile inset so the frame survives circular masks).",
+    "featureGraphic": "mobile/store/feature-graphic.png (1024x500, large letter tiles, no device frames)",
+    "phoneScreenshots": [
+      "mobile/store/phone-grid.jpg (1080x1920)",
+      "mobile/store/phone-bulletin.jpg (1080x1920)"
+    ]
   },
   "release": {
-    "packageName": "com.chroniclecryptogram.app",
+    "packageName": "com.chroniclecryptogram",
     "track": "internal then production",
     "artifact": "AAB from eas build --platform android --profile production",
     "apkSideload": "eas build --platform android --profile preview",
     "adi": "If Play Console asks for package ownership, set ADI_REGISTRATION_TOKEN and run eas build --platform android --profile adi",
-    "firebaseAndroidAppId": "1:647414230767:android:02938f0be341903cd1351a",
+    "firebaseAndroidAppId": "1:647414230767:android:67c6e31d73627d3cd1351a",
     "afterFirstEasBuild": "Run eas credentials -p android, copy the upload keystore SHA-1 and SHA-256 into Firebase Android app Chronicle Cryptogram, then also add Play App Signing SHA-1/256 from Play Console after the first AAB upload."
   }
 }
