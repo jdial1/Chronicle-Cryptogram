@@ -480,16 +480,19 @@ function Desk() {
           accessibilityElementsHidden
           importantForAccessibility="no"
           autoCorrect={false}
-          autoCapitalize="none"
+          autoCapitalize="characters"
           spellCheck={false}
           autoComplete="off"
           textContentType="none"
-          importantForAutofill="no"
+          importantForAutofill="noExcludeDescendants"
           caretHidden
           contextMenuHidden
           showSoftInputOnFocus
           blurOnSubmit={false}
-          keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'}
+          disableFullscreenUI
+          inputMode="search"
+          keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'default'}
+          returnKeyType="done"
           style={styles.cipherInput}
           onChangeText={(text) => {
             const letter = text.replace(/[^a-zA-Z]/g, '').slice(-1);

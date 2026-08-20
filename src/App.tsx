@@ -1320,10 +1320,13 @@ export default function App() {
         lang="en"
         autoComplete="off"
         autoCorrect="off"
-        autoCapitalize="off"
+        autoCapitalize="characters"
         spellCheck={false}
-        inputMode={isSolved ? 'none' : 'text'}
+        inputMode={isSolved ? 'none' : 'search'}
         enterKeyHint="done"
+        data-1p-ignore="true"
+        data-lpignore="true"
+        data-form-type="other"
         maxLength={1}
         value=""
         readOnly={isSolved}
