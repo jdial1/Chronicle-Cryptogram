@@ -160,6 +160,7 @@ function Desk() {
   const persistKeysUntil = useRef(0);
   const [failed, setFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [cacheBust, setCacheBust] = useState(false);
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
@@ -380,6 +381,10 @@ function Desk() {
       if (payload.type === 'CIPHER_BLUR') {
         cipherRef.current?.blur();
       }
+      if (payload.type === 'RELOAD') {
+        setCacheBust(true);
+        setReloadKey((n) => n + 1);
+      }
     },
     [keepCipherKeys, nativeSignIn, nativeSignOut, refreshDispatchToken, subscribeDelivery, unsubscribeDelivery, setWebDark]
   );
@@ -446,7 +451,7 @@ function Desk() {
           injectedJavaScript={INJECTED}
           javaScriptEnabled
           cacheEnabled
-          cacheMode="LOAD_CACHE_ELSE_NETWORK"
+          cacheMode={cacheBust ? 'LOAD_NO_CACHE' : 'LOAD_CACHE_ELSE_NETWORK'}
           domStorageEnabled
           sharedCookiesEnabled={false}
           thirdPartyCookiesEnabled={false}
@@ -458,6 +463,7 @@ function Desk() {
           onLoadEnd={() => {
             hideSplash();
             paintInsets();
+            if (cacheBust) setCacheBust(false);
           }}
           onError={() => {
             hideSplash();

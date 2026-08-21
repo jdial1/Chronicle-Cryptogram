@@ -27,11 +27,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Stamp app version
+        run: |
+          printf "export const APP_VERSION = '1.0.%s';\n" "${{ github.run_number }}" > src/data/appVersion.ts
       - name: Install dependencies
         run: npm install
       - name: Build
         run: npm run build
         env:
+          VITE_APP_VERSION: "1.0.${{ github.run_number }}"
           VITE_FIREBASE_ENABLED: "true"
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}

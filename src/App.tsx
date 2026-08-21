@@ -10,7 +10,7 @@ import { BureauDeskModal, bureauDeskSeen, markBureauDeskSeen, usesGameKeyboard, 
 import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { EditionPlate } from './components/EditionPlate';
-import { PrimerCoach } from './components/PrimerCoach';
+import { EditionUpdateBanner } from './components/EditionUpdateBanner';
 import { TodayStatsBulletin, LiveStatsRow } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
 import {
@@ -63,6 +63,7 @@ import {
   formatTime,
 } from './utils/cipherEngine';
 import { deskThemeIsDark, toggleDeskTheme } from './utils/deskTheme';
+import { useEditionUpdate } from './utils/useEditionUpdate';
 import { Search, WoodcutPressFilter } from './icons';
 import { isFirebaseEnabled } from './utils/firebase';
 import { isAndroidAppShell, postToAndroidApp } from './utils/androidApp';
@@ -1292,6 +1293,7 @@ export default function App() {
     !hasSolvedStoryPuzzle(allPuzzles, solvedPuzzleIds);
   const showCaseFiles = hasDecodedFragments(INITIAL_PUZZLES, solvedPuzzleIds);
   const deskCompact = !isSolved && (deskArmed || viewportKeyboard);
+  const editionUpdate = useEditionUpdate();
 
   const handleSelectSymbol = useCallback(
     (symId: string, cellId?: string) => {
@@ -1346,6 +1348,12 @@ export default function App() {
       }`}
     >
       <WoodcutPressFilter />
+      {editionUpdate.updateReady && editionUpdate.serverVersion ? (
+        <EditionUpdateBanner
+          localVersion={editionUpdate.localVersion}
+          serverVersion={editionUpdate.serverVersion}
+        />
+      ) : null}
       <label htmlFor="cipher-letter-input" className="sr-only">
         Type a letter to map the selected cipher glyph
       </label>

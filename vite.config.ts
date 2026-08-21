@@ -1,8 +1,36 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { APP_VERSION } from './src/data/appVersion';
+
+function editionVersionPlugin(): Plugin {
+  const payload = JSON.stringify({ version: APP_VERSION });
+  return {
+    name: 'edition-version',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split('?')[0];
+        if (url !== '/version.json') {
+          next();
+          return;
+        }
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(payload);
+      });
+    },
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'version.json',
+        source: payload,
+      });
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
@@ -10,6 +38,7 @@ export default defineConfig(() => {
     plugins: [
       react(),
       tailwindcss(),
+      editionVersionPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: false,
@@ -24,6 +53,10 @@ export default defineConfig(() => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
           runtimeCaching: [
+            {
+              urlPattern: /\/version\.json/i,
+              handler: 'NetworkOnly',
+            },
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'StaleWhileRevalidate',
