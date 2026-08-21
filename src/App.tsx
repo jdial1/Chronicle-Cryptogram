@@ -11,6 +11,7 @@ import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReader
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { EditionPlate } from './components/EditionPlate';
 import { EditionUpdateBanner } from './components/EditionUpdateBanner';
+import { PrimerCoach } from './components/PrimerCoach';
 import { TodayStatsBulletin, LiveStatsRow } from './components/TodayStatsBulletin';
 import { INITIAL_PUZZLES } from './data/puzzles';
 import {
