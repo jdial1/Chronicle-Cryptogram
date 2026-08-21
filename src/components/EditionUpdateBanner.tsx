@@ -13,11 +13,13 @@ export const EditionUpdateBanner: React.FC<EditionUpdateBannerProps> = ({
 }) => {
   return (
     <aside className="late-edition-banner" role="status" aria-live="polite">
-      <div className="late-edition-kicker">
-        <Newspaper className="w-4 h-4 shrink-0" />
-        <span>Late Edition</span>
+      <div className="late-edition-lead">
+        <div className="late-edition-kicker">
+          <Newspaper className="w-3.5 h-3.5 shrink-0" />
+          <span>Late Edition</span>
+        </div>
+        <p className="late-edition-dek">A newer plate is on the wire. Reload to take the fresh sheets.</p>
       </div>
-      <p className="late-edition-dek">A newer plate is on the wire. Reload to take the fresh sheets.</p>
       <p className="late-edition-versions">
         <span>
           This desk <strong>{localVersion}</strong>

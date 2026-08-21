@@ -34,6 +34,7 @@ export async function reloadEdition() {
 
 export function useEditionUpdate() {
   const [pressVersion, setPressVersion] = useState<string | null>(null);
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
     let timer = 0;
@@ -65,10 +66,22 @@ export function useEditionUpdate() {
     };
   }, []);
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || !event.shiftKey) return;
+      if (event.key !== 'U' && event.key !== 'u') return;
+      event.preventDefault();
+      setPreview((open) => !open);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const ready = Boolean(pressVersion && pressVersion !== APP_VERSION);
+  const previewPress = pressVersion && pressVersion !== APP_VERSION ? pressVersion : '1.0.999';
   return {
     localVersion: APP_VERSION,
-    serverVersion: pressVersion,
-    updateReady: ready,
+    serverVersion: preview ? previewPress : pressVersion,
+    updateReady: ready || preview,
   };
 }
