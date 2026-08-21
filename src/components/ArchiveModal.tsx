@@ -7,10 +7,12 @@ import {
   formatIssueCountdown,
   groupPuzzlesByDate,
   isNightUnlockedForDate,
+  isPracticePuzzle,
   issueReleaseAt,
   nextIssueDate,
   publishedThroughDate,
 } from '../utils/edition';
+import { PRACTICE_ARCHIVE_CARD } from '../data/primerPractice';
 
 interface ArchiveModalProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ interface ArchiveModalProps {
   puzzles: PuzzleData[];
   currentPuzzleId: string;
   onSelectPuzzle: (puzzle: PuzzleData) => void;
+  onStartPractice?: () => void;
   solvedPuzzleIds: string[];
 }
 
@@ -44,6 +47,8 @@ function IssueSlot({
   locked,
   isCurrent,
   isSolved,
+  lockHint = 'Decode Morning Edition to unlock.',
+  extra = false,
   onOpen,
 }: {
   label: string;
@@ -51,6 +56,8 @@ function IssueSlot({
   locked: boolean;
   isCurrent: boolean;
   isSolved: boolean;
+  lockHint?: string;
+  extra?: boolean;
   onOpen: () => void;
 }) {
   if (!puzzle) return null;
@@ -61,7 +68,7 @@ function IssueSlot({
       <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
         <span
           className={`px-1.5 py-0.5 text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950 ${
-            label === 'Night Extra' ? 'bg-[#d6c9b0]' : 'bg-[#e8e0d0]'
+            extra || label === 'Night Extra' ? 'bg-[#d6c9b0]' : 'bg-[#e8e0d0]'
           }`}
         >
           {label}
@@ -80,7 +87,7 @@ function IssueSlot({
       </div>
       {locked ? (
         <p className="relative z-10 font-treatise text-xs text-stone-700 italic">
-          Decode Morning Edition to unlock.
+          {lockHint}
         </p>
       ) : (
         <h4 className="relative z-10 font-newspaper font-bold text-sm text-stone-950 uppercase leading-snug">
@@ -166,6 +173,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   puzzles,
   currentPuzzleId,
   onSelectPuzzle,
+  onStartPractice,
   solvedPuzzleIds,
 }) => {
   const issues = groupPuzzlesByDate(puzzles);
@@ -217,9 +225,16 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
 
         <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 bg-newsprint space-y-3">
           {issues.map((issue) => {
+            const primerIssue = issue.editionNumber === 0;
             const nightUnlocked = isNightUnlockedForDate(puzzles, solvedPuzzleIds, issue.date);
             const morningSolved = Boolean(issue.morning && solvedPuzzleIds.includes(issue.morning.id));
             const nightSolved = Boolean(issue.night && solvedPuzzleIds.includes(issue.night.id));
+            const practiceUnlocked = Boolean(morningSolved && onStartPractice);
+            const extraPuzzle = primerIssue ? PRACTICE_ARCHIVE_CARD : issue.night;
+            const extraUnlocked = primerIssue ? practiceUnlocked : nightUnlocked;
+            const extraCurrent = primerIssue
+              ? isPracticePuzzle({ id: currentPuzzleId, category: '' })
+              : issue.night?.id === currentPuzzleId;
             const isOpenIssue = openDates.has(issue.date);
             const isToday = issue.date === currentDate;
 
@@ -251,7 +266,9 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="flex items-center gap-1.5">
-                      {issue.morning && <DecodeStamp label="Morning" done={morningSolved} />}
+                      {issue.morning && (
+                        <DecodeStamp label={primerIssue ? 'Primer' : 'Morning'} done={morningSolved} />
+                      )}
                       {issue.night && <DecodeStamp label="Night" done={nightSolved} />}
                     </span>
                     {isOpenIssue ? (
@@ -264,7 +281,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                 {isOpenIssue && (
                   <div id={`issue-${issue.date}`} className="p-2.5 flex flex-row gap-2.5">
                     <IssueSlot
-                      label={issue.editionNumber === 0 ? 'Training Primer' : 'Morning Edition'}
+                      label={primerIssue ? 'Training Primer' : 'Morning Edition'}
                       puzzle={issue.morning}
                       locked={false}
                       isCurrent={issue.morning?.id === currentPuzzleId}
@@ -276,12 +293,22 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       }}
                     />
                     <IssueSlot
-                      label="Night Extra"
-                      puzzle={issue.night}
-                      locked={!nightUnlocked}
-                      isCurrent={issue.night?.id === currentPuzzleId}
-                      isSolved={nightSolved}
+                      label={primerIssue ? 'Practice Drill' : 'Night Extra'}
+                      extra={primerIssue}
+                      puzzle={extraPuzzle}
+                      locked={!extraUnlocked}
+                      isCurrent={extraCurrent}
+                      isSolved={primerIssue ? false : nightSolved}
+                      lockHint={
+                        primerIssue ? 'Decode the Primer to unlock.' : 'Decode Morning Edition to unlock.'
+                      }
                       onOpen={() => {
+                        if (primerIssue) {
+                          if (!extraUnlocked) return;
+                          onStartPractice?.();
+                          onClose();
+                          return;
+                        }
                         if (!issue.night || !nightUnlocked) return;
                         onSelectPuzzle(issue.night);
                         onClose();

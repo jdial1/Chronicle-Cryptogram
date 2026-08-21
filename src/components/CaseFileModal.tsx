@@ -122,7 +122,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
         {dossiers.length > 0 ? (
           <div className="flex flex-col flex-1 min-h-0 bg-[#d9d0bc]">
             <div
-              className="shrink-0 flex items-end overflow-x-auto snap-x snap-mandatory gap-1 px-3 pt-2"
+              className="shrink-0 flex items-end overflow-x-auto overflow-y-hidden snap-x snap-mandatory gap-1 px-3 pt-2"
               role="tablist"
               aria-label="Dossiers"
             >

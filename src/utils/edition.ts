@@ -13,8 +13,12 @@ export function isMorningEdition(puzzle: PuzzleData) {
   return !isNightEdition(puzzle);
 }
 
+export function isPracticePuzzle(puzzle: Pick<PuzzleData, 'id' | 'category'>) {
+  return puzzle.category === 'Primer Practice' || puzzle.id.startsWith('practice_');
+}
+
 export function isPrimerPuzzle(puzzle: PuzzleData) {
-  return puzzle.editionNumber === 0;
+  return puzzle.editionNumber === 0 && !isPracticePuzzle(puzzle);
 }
 
 export function morningPuzzleOnDate(puzzles: PuzzleData[], editionDate: string) {
@@ -158,7 +162,12 @@ export function storyHasBegun(puzzles: PuzzleData[]) {
 }
 
 export function hasSolvedStoryPuzzle(puzzles: PuzzleData[], solvedPuzzleIds: string[]) {
-  return puzzles.some((puzzle) => !isPrimerPuzzle(puzzle) && solvedPuzzleIds.includes(puzzle.id));
+  return puzzles.some(
+    (puzzle) =>
+      !isPrimerPuzzle(puzzle) &&
+      !isPracticePuzzle(puzzle) &&
+      solvedPuzzleIds.includes(puzzle.id)
+  );
 }
 
 export function nextIssueDate(puzzles: PuzzleData[]) {

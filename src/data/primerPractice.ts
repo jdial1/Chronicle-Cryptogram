@@ -1,0 +1,118 @@
+import { PuzzleData } from '../types';
+import { INITIAL_PUZZLES } from './puzzles';
+import { isPrimerPuzzle } from '../utils/edition';
+
+export const PRACTICE_PUZZLES = [
+  "DON'T TAKE ANY WOODEN NICKELS KID.",
+  "SEE YOU IN THE FUNNY PAPERS.",
+  "IT'S THE BEE'S KNEES ALL RIGHT.",
+  "THE CAT'S PAJAMAS IF YOU ASK ME.",
+  "A WISE GUY NEVER TALKS TOO MUCH.",
+  "PUT THAT IN YOUR PIPE AND SMOKE.",
+  "THE JOINT IS JUMPING TONIGHT PAL.",
+  "I'LL TELL THE WORLD IT'S TRUE.",
+  "A DAME LIKE THAT SPELLS TROUBLE.",
+  "THE SPEAKEASY NEVER CLOSES ON SUNDAY.",
+  "A GENTLEMAN ALWAYS TIPS HIS HAT.",
+  "THE NIGHTCLUB SMOKE HIDES EVERY LIE.",
+  "A CITY SLEEPS BENEATH THE WAVES.",
+  "THE SEA KEEPS EVERY SECRET SAFE.",
+  "THE LIGHTHOUSE HIDES A SUNK CITY.",
+  "NO TICKET NO RIDE TO THE DEEP.",
+  "STEEL DREAMS SINK IN SALT WATER.",
+  "LOOK AT THE CITY IN THE DEEP.",
+  "I CAN'T HEAR THE OCEAN FROM HERE.",
+  "ALL THAT GLITTERS SINKS TOO FAST.",
+  "THE BOMBS FELL AND WE LIVED ON.",
+  "A BOTTLE CAP BUYS A COLD DRINK.",
+  "PLEASE STAND BY FOR A BROADCAST.",
+  "THE RADIO SAID THE WORLD ENDED.",
+  "VAULT DOORS DON'T KEEP OUT REGRET.",
+  "THE WASTELAND NEVER FORGIVES A FOOL.",
+  "KEEP YOUR HEAD DOWN IN THE DUST.",
+  "I SAW A ROBOT TEND THE BAR.",
+  "ATOMIC DREAMS DON'T PAY THE RENT.",
+  "THE DESERT HIDES A LITTLE TOWN.",
+  "THE SKY CITY NEVER TOUCHES GROUND.",
+  "A STEEL BIRD GUARDS THE GATES ABOVE.",
+  "TICKETS PLEASE FOR THE FLOATING FAIR.",
+  "WHALE OIL LIGHTS THE WHOLE WIDE CITY.",
+  "KEEP YOUR MASK ON IN THE PLAGUE.",
+  "THE ROOFTOPS NEVER TELL ON ANYBODY.",
+  "THE STATION HUMS AND NOBODY SLEEPS.",
+  "DON'T TRUST A BOX IN THIS HALL.",
+  "THE COLONY OWNS EVERY BREATH YOU TAKE.",
+  "SMILE WIDE AND TAKE YOUR MEDICINE.",
+  "THE RADIO SAID FREEDOM STILL LIVES.",
+  "A HARVEST ROBOT BOWED IN THE FIELD.",
+  "YOUR TICKET TO THE AFTERLIFE EXPIRED.",
+  "THE OFFICE NEVER CLOSES FOR DEATH.",
+  "A BAD TIP NEVER SOLVES A CASE.",
+  "THE LOOP ALWAYS STARTS AT SUNRISE.",
+  "I SAW A SAUCER OVER THE SUBURB.",
+  "THE HARBOR TOWN IS SINKING SLOWLY.",
+  "AIR PIRATES DON'T ASK THEY TAKE.",
+  "THE BOARDWALK NEVER SLEEPS ON SATURDAY.",
+  "THE PARADE NEVER COMES DOWN FROM ABOVE.",
+  "BUY A TICKET AND LOOK UP KID.",
+  "THE FAIR FLOATS ABOVE THE RIVER.",
+  "THE LAMPS BURN WHALE OIL TONIGHT.",
+  "MEET ME ON THE HIGH ROOFTOPS.",
+  "A MASK HIDES A GUILTY FACE.",
+  "THE BATHYSPHERE LEAVES AT HIGH TIDE.",
+  "THE MILL TOWN DON'T PAY IN CASH.",
+  "KEEP SMILING FOR THE SOCIETY PAGE.",
+  "TAKE YOUR TONIC AND LOOK HAPPY.",
+  "THE WIRELESS SAID HOLD THE LINE.",
+  "TUNE IN AT MIDNIGHT FOR NEWS.",
+  "THE LOBBY CLOCK NEVER TELLS TRUTH.",
+  "YOUR TRAIN LEAVES AT DUSK SHARP.",
+  "FOLLOW THE MONEY NOT THE DAME.",
+  "THE BLOTTER NEVER LIES ON SUNDAY.",
+  "THE RESORT WAKES WITH THE TIDE.",
+  "FOG SWALLOWS THE DOCKS BY NOON.",
+  "THE AIR CIRCUS ROBBED THE MAIL.",
+  "MEET ME UNDER THE BOARDWALK LIGHTS.",
+  "THE RIVER RUNS WARM ON SATURDAY NIGHT.",
+  "WE RAISED A LITTLE DUST AND NOBODY TOLD.",
+];
+
+function primerTemplate(): PuzzleData {
+  return (
+    INITIAL_PUZZLES.find((puzzle) => isPrimerPuzzle(puzzle)) || INITIAL_PUZZLES[0]
+  );
+}
+
+function pickPracticeText(excludeText?: string) {
+  const pool = excludeText
+    ? PRACTICE_PUZZLES.filter((text) => text !== excludeText)
+    : PRACTICE_PUZZLES;
+  const source = pool.length ? pool : PRACTICE_PUZZLES;
+  return source[Math.floor(Math.random() * source.length)];
+}
+
+export function createPracticePuzzle(excludeText?: string): PuzzleData {
+  const primer = primerTemplate();
+  const stamp = Date.now().toString(36);
+  const salt = Math.floor(Math.random() * 46656).toString(36);
+  return {
+    ...primer,
+    id: `practice_${stamp}${salt}`,
+    title: 'Day 0 - Practice',
+    headline: "CODEBREAKER'S DRILL",
+    subheadline:
+      'A second training cipher from the desk. The five tells still hold: single-letter words, frequent letters, short words, apostrophes, then double letters.',
+    originalText: pickPracticeText(excludeText),
+    solvedInsert: '',
+    solvedSwap: false,
+    category: 'Primer Practice',
+  };
+}
+
+export const PRACTICE_ARCHIVE_CARD: PuzzleData = {
+  ...primerTemplate(),
+  id: 'practice_slot',
+  title: 'Day 0 - Practice',
+  headline: "CODEBREAKER'S DRILL",
+  category: 'Primer Practice',
+};

@@ -6,7 +6,7 @@ export type CipherTactic = {
 };
 
 export const CIPHER_INTRO =
-  'Cryptograms are substitution ciphers: each letter in a quote is replaced by a different letter. Breaking them does not take a math background. It is pattern recognition in English.';
+  'Cryptograms are substitution ciphers: each glyph stands for one letter. Breaking them does not take a math background. It is pattern recognition in English.';
 
 export const CIPHER_TOOLS: { lead: string; body: string }[] = [
   { lead: 'Smaller Type', body: 'Shrink the cipher tiles when the quote is crowding the page.' },
@@ -26,6 +26,7 @@ export const CIPHER_TACTICS: CipherTactic[] = [
       { lead: 'The Odds', body: 'A standalone glyph is a 50/50 between A and I.' },
       { lead: 'Single Letters', body: 'A and I cover nearly every puzzle. O appears as a word in poetry, but rarely here.' },
       { lead: 'Sentence Openers', body: 'If that single letter opens the sentence, it is frequently I.' },
+      { lead: 'By Edition', body: 'Morning keeps A as one glyph. Night Extra splits A across two, so a second one-letter word with a different mark can still be A.' },
     ],
   },
   {
@@ -35,7 +36,7 @@ export const CIPHER_TACTICS: CipherTactic[] = [
     points: [
       { lead: 'Count Glyphs', body: 'The leader is very likely E or T.' },
       { lead: 'Rare Marks', body: 'A glyph that shows up once or twice is probably Z, Q, X, J, or K.' },
-      { lead: 'By Edition', body: 'Morning Edition uses one glyph per letter, so counting works. Night Extra splits common letters across several glyphs.' },
+      { lead: 'By Edition', body: 'Morning Edition uses one glyph per letter, so counting works. Night Extra gives E, T, and A two glyphs each; every other letter stays one-to-one. The busiest marks are still E or T, just split across a pair.' },
     ],
   },
   {
@@ -46,6 +47,7 @@ export const CIPHER_TACTICS: CipherTactic[] = [
       { lead: 'Two Letters', body: 'OF, TO, IN, IT, IS, BE, AS, AT, SO, WE, HE, BY, OR, ON, DO, IF, ME, MY, UP.' },
       { lead: 'Three Letters', body: 'THE is the most common, then AND, FOR, WAS, HIS, NOT.' },
       { lead: 'Cross-Check', body: 'If a frequent three-letter word starts with a letter you already think is I or A, you may be looking at THE or AND.' },
+      { lead: 'By Edition', body: 'Night Extra splits T and E, so THE can show up as two glyph patterns that share the same middle mark for H.' },
     ],
   },
   {
@@ -56,6 +58,7 @@ export const CIPHER_TACTICS: CipherTactic[] = [
       { lead: 'One After', body: "Almost always S, T, D, or M (IT'S, CAN'T, YOU'D, I'M)." },
       { lead: 'Two After', body: "Usually RE, VE, or LL (THEY'RE, WE'VE, YOU'LL)." },
       { lead: "The N'T Tell", body: "If the word ends in N'T, you have just solved N and T." },
+      { lead: 'By Edition', body: "N'T still solves N on both editions. Night Extra splits T, so the mark after the apostrophe is only one of the two T glyphs." },
     ],
   },
   {
@@ -66,6 +69,7 @@ export const CIPHER_TACTICS: CipherTactic[] = [
       { lead: 'Consonants', body: 'LL, SS, TT, FF, RR, NN, PP, CC.' },
       { lead: 'Vowels', body: 'EE and OO.' },
       { lead: 'Position', body: 'At the end of a word, often LL or SS. In the middle of a short word, often EE or OO (SEEN, GOOD).' },
+      { lead: 'By Edition', body: 'Morning doubles always match. Night Extra splits E and T, so EE and TT may look like two marks. OO, LL, and SS still pair.' },
     ],
   },
 ];

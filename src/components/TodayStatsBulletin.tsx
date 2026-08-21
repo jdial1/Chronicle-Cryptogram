@@ -2,7 +2,7 @@ import React from 'react';
 import { Zap, Users, TrendingUp, Award, X } from '../icons';
 import { formatTime } from '../utils/cipherEngine';
 import { PuzzleData } from '../types';
-import { isPrimerPuzzle } from '../utils/edition';
+import { isPracticePuzzle, isPrimerPuzzle } from '../utils/edition';
 import { usePuzzleStats } from '../utils/usePuzzleStats';
 import { derivePublicStats } from '../utils/firebaseStore';
 
@@ -12,6 +12,7 @@ interface SolvedStatsProps {
   onUnlockHardMode?: () => void;
   onOpenTodayEdition?: () => void;
   onOpenDayOne?: () => void;
+  onStartPractice?: () => void;
   offerStoryCatchUp?: boolean;
   currentEditionNumber?: number;
 }
@@ -36,21 +37,45 @@ export function PrimerPathButtons({
   currentEditionNumber,
   onOpenDayOne,
   onOpenTodayEdition,
+  onStartPractice,
+  practiceLabel = 'Practice Drill',
 }: {
   offerCatchUp: boolean;
   currentEditionNumber?: number;
   onOpenDayOne?: () => void;
   onOpenTodayEdition: () => void;
+  onStartPractice?: () => void;
+  practiceLabel?: string;
 }) {
+  const practiceButton = onStartPractice ? (
+    <button type="button" onClick={onStartPractice} className={inkSecondary}>
+      {practiceLabel}
+    </button>
+  ) : null;
+
   if (offerCatchUp && onOpenDayOne) {
     return (
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button type="button" onClick={onOpenDayOne} className={inkAction}>
+            Start on Day 1
+          </button>
+          <button type="button" onClick={onOpenTodayEdition} className={inkSecondary}>
+            {currentEditionNumber != null ? `Go to Day ${currentEditionNumber}` : 'Go to Today'}
+          </button>
+        </div>
+        {practiceButton}
+      </div>
+    );
+  }
+
+  if (practiceButton) {
+    return (
       <div className="flex flex-col sm:flex-row gap-2">
-        <button type="button" onClick={onOpenDayOne} className={inkAction}>
-          Start on Day 1
+        <button type="button" onClick={onOpenTodayEdition} className={inkAction}>
+          Decode Today's Edition
         </button>
-        <button type="button" onClick={onOpenTodayEdition} className={inkSecondary}>
-          {currentEditionNumber != null ? `Go to Day ${currentEditionNumber}` : 'Go to Today'}
-        </button>
+        {practiceButton}
       </div>
     );
   }
@@ -119,16 +144,24 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   onClose,
   onOpenTodayEdition,
   onOpenDayOne,
+  onStartPractice,
   offerStoryCatchUp = false,
   currentEditionNumber,
 }) => {
   const isHard = isHardPuzzle(currentPuzzle);
   const isPrimer = isPrimerPuzzle(currentPuzzle);
+  const isPractice = isPracticePuzzle(currentPuzzle);
   if (!isOpen) return null;
 
-  const title = isPrimer ? 'Primer decoded' : isHard ? 'Night Extra decoded' : 'Morning Edition decoded';
-  const showPrimerPath = isPrimer && onOpenTodayEdition;
-  const showNightPost = !isPrimer && !isHard && onUnlockHardMode;
+  const title = isPractice
+    ? 'Drill decoded'
+    : isPrimer
+      ? 'Primer decoded'
+      : isHard
+        ? 'Night Extra decoded'
+        : 'Morning Edition decoded';
+  const showPrimerPath = (isPrimer || isPractice) && onOpenTodayEdition;
+  const showNightPost = !isPrimer && !isPractice && !isHard && onUnlockHardMode;
 
   return (
     <div className="modal-backdrop is-slip z-50 select-none" onClick={onClose}>
@@ -185,6 +218,15 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
                 onClose();
                 onOpenTodayEdition();
               }}
+              onStartPractice={
+                onStartPractice
+                  ? () => {
+                      onClose();
+                      onStartPractice();
+                    }
+                  : undefined
+              }
+              practiceLabel={isPractice ? 'Another Drill' : 'Practice Drill'}
             />
           </div>
         )}

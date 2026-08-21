@@ -98,38 +98,10 @@ export const ENGLISH_LETTER_FREQUENCIES: Record<string, number> = {
   Z: 0.07,
 };
 
-/**
- * Number of homophone cipher symbols allocated to each letter to suppress frequencies.
- * High-frequency letters (E, T, A, O, I, N, etc.) receive multiple distinct symbols
- * so their individual appearances are flattened to ~2-3%, neutralizing single-letter frequency attacks.
- */
 export const HOMOPHONE_ALLOCATIONS: Record<string, number> = {
-  E: 5,
-  T: 4,
-  A: 4,
-  O: 4,
-  I: 3,
-  N: 3,
-  S: 3,
-  R: 3,
-  H: 3,
-  D: 2,
-  L: 2,
-  C: 2,
-  U: 2,
-  M: 2,
-  W: 1,
-  F: 1,
-  G: 1,
-  Y: 1,
-  P: 1,
-  B: 1,
-  V: 1,
-  K: 1,
-  J: 1,
-  X: 1,
-  Q: 1,
-  Z: 1,
+  E: 2,
+  T: 2,
+  A: 2,
 };
 
 export interface HomophonicCipherMap {

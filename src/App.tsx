@@ -21,7 +21,8 @@ import {
   hasDecodedFragments,
 } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
-import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
+import { isMorningEdition, isNightEdition, isNightUnlockedForDate, isPracticePuzzle, isPrimerPuzzle, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
+import { createPracticePuzzle } from './data/primerPractice';
 import { articlePlateId } from './data/plates';
 import { useDailyNotification } from './utils/useDailyNotification';
 import { useAuth } from './utils/useAuth';
@@ -443,6 +444,7 @@ export default function App() {
     if (isSolved) {
       setSelectedSymbolId(null);
       setSelectedCellId(null);
+      if (isPracticePuzzle(currentPuzzle)) return;
       setSolvedPuzzleIds((prev) => {
         if (prev.includes(currentPuzzle.id)) return prev;
         const next = [...prev, currentPuzzle.id];
@@ -530,6 +532,7 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return;
+    if (isPracticePuzzle(currentPuzzle)) return;
     let cancelled = false;
     (async () => {
       try {
@@ -637,6 +640,7 @@ export default function App() {
 
   useEffect(() => {
     if (!user || uniqueSymbols.length === 0 || progressReadyId !== currentPuzzle.id) return;
+    if (isPracticePuzzle(currentPuzzle)) return;
     const handle = window.setTimeout(() => {
       saveCloudProgress(user.uid, currentPuzzle.id, {
         mappings,
@@ -658,6 +662,7 @@ export default function App() {
   useEffect(() => {
     if (!user || isSolved || Object.keys(mappings).length === 0) return;
     if (progressReadyId !== currentPuzzle.id) return;
+    if (isPracticePuzzle(currentPuzzle)) return;
     if (startedPuzzlesRef.current.has(currentPuzzle.id)) return;
     startedPuzzlesRef.current.add(currentPuzzle.id);
     recordPuzzleStart(user.uid, currentPuzzle.id).catch(() => {
@@ -707,6 +712,8 @@ export default function App() {
           });
         });
       }
+
+      if (isPracticePuzzle(currentPuzzle)) return;
 
       const nextSolved = Array.from(new Set([...solvedPuzzleIds, currentPuzzle.id]));
       setSolvedPuzzleIds(nextSolved);
@@ -1244,6 +1251,12 @@ export default function App() {
     setCurrentPuzzle(puzzle);
   };
 
+  const handleStartPractice = () => {
+    const exclude = isPracticePuzzle(currentPuzzle) ? currentPuzzle.originalText : undefined;
+    setCurrentPuzzle(createPracticePuzzle(exclude));
+    setIsSolveBulletinOpen(false);
+  };
+
   const handleOpenTodayEdition = () => {
     const todayMorning = currentMorningPuzzle(INITIAL_PUZZLES);
     if (todayMorning) setCurrentPuzzle(todayMorning);
@@ -1289,7 +1302,7 @@ export default function App() {
   }, [nightEdition]);
   const todayEdition = currentMorningPuzzle(INITIAL_PUZZLES);
   const offerStoryCatchUp =
-    isPrimerPuzzle(currentPuzzle) &&
+    (isPrimerPuzzle(currentPuzzle) || isPracticePuzzle(currentPuzzle)) &&
     storyHasBegun(INITIAL_PUZZLES) &&
     !hasSolvedStoryPuzzle(allPuzzles, solvedPuzzleIds);
   const showCaseFiles = hasDecodedFragments(INITIAL_PUZZLES, solvedPuzzleIds);
@@ -1481,7 +1494,7 @@ export default function App() {
         className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3"
         inert={sheetLocked}
       >
-        {isFirebaseEnabled && boardSolved && (
+        {isFirebaseEnabled && boardSolved && !isPracticePuzzle(currentPuzzle) && (
           <LiveStatsRow puzzleId={currentPuzzle.id} />
         )}
 
@@ -1534,7 +1547,7 @@ export default function App() {
         user={identified ? user : null}
         onSignIn={signIn}
         currentSolveStats={
-          isSolved
+          isSolved && !isPracticePuzzle(currentPuzzle)
             ? {
                 timeSeconds: timerSeconds,
                 timeFormatted: formatTime(timerSeconds),
@@ -1553,6 +1566,7 @@ export default function App() {
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
         onOpenTodayEdition={handleOpenTodayEdition}
         onOpenDayOne={handleOpenDayOne}
+        onStartPractice={handleStartPractice}
         offerStoryCatchUp={offerStoryCatchUp}
         currentEditionNumber={todayEdition?.editionNumber}
       />
@@ -1574,6 +1588,7 @@ export default function App() {
         puzzles={INITIAL_PUZZLES}
         currentPuzzleId={currentPuzzle.id}
         onSelectPuzzle={handleSelectPuzzle}
+        onStartPractice={handleStartPractice}
         solvedPuzzleIds={solvedPuzzleIds}
       />
 
