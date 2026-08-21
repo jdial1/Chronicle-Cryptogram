@@ -335,6 +335,23 @@ body.is-night,
   #cryptogram-board .cipher-mapped {
     transform: none;
   }
+
+  .typewriter-key,
+  .cipher-desk .brass-loupe button {
+    transition: none;
+  }
+
+  .typewriter-key:active,
+  .typewriter-key.is-pressed,
+  .cipher-desk .brass-loupe button:active,
+  .cipher-desk .brass-loupe button.is-pressed {
+    transform: none;
+    background: radial-gradient(circle at 50% 78%, #1c1814, #070605 70%);
+    box-shadow:
+      0 0 0 #3d3220,
+      inset 0 8px 12px rgba(0, 0, 0, 0.82),
+      inset 0 -2px 3px rgba(247, 243, 232, 0.06);
+  }
 }
 
 .bg-scanned-doc {
@@ -701,6 +718,101 @@ body.is-night,
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.38);
 }
 
+.cipher-desk {
+  position: relative;
+  z-index: 20;
+}
+
+.typewriter-bank {
+  --type-key: min(2.75rem, 8vw);
+  --type-gap: min(0.4rem, 1vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--type-gap);
+  padding: 0.65rem 0.4rem 0.8rem;
+  background-color: #1a1816;
+  background-image:
+    radial-gradient(rgba(196, 180, 138, 0.14) 0.5px, transparent 0.65px),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='type-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23type-noise)' opacity='0.22'/%3E%3C/svg%3E");
+  background-size: 11px 11px, 180px 180px;
+  border-top: 2px solid #0a0908;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.72);
+}
+
+.typewriter-row {
+  display: flex;
+  gap: var(--type-gap);
+  justify-content: center;
+}
+
+.typewriter-row:nth-child(2) {
+  padding-left: calc(var(--type-key) * 0.48);
+}
+
+.typewriter-row:nth-child(3) {
+  padding-left: calc(var(--type-key) * 0.28);
+}
+
+.typewriter-key {
+  position: relative;
+  width: var(--type-key);
+  height: var(--type-key);
+  flex: 0 0 var(--type-key);
+  border-radius: 50%;
+  font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
+  font-size: calc(var(--type-key) * 0.36);
+  color: var(--ink-cream);
+  text-shadow: 0.35px 0.45px 0 rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at 50% 24%, #3a342c, #141210 68%);
+  border: 3px solid #8a7340;
+  box-shadow:
+    0 7px 0 #5c4a28,
+    0 10px 8px rgba(0, 0, 0, 0.65),
+    inset 0 1px 2px rgba(247, 243, 232, 0.12);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background 0.18s ease-out;
+}
+
+.typewriter-key::after {
+  content: "";
+  position: absolute;
+  inset: -0.18rem;
+}
+
+.typewriter-key:active,
+.typewriter-key.is-pressed {
+  transform: translateY(7px) scale(0.92);
+  background: radial-gradient(circle at 50% 78%, #1c1814, #070605 70%);
+  box-shadow:
+    0 0 0 #3d3220,
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    inset 0 8px 12px rgba(0, 0, 0, 0.82),
+    inset 0 -2px 3px rgba(247, 243, 232, 0.06);
+  transition: transform 0.14s ease-in, box-shadow 0.14s ease-in, background 0.14s ease-in;
+}
+
+.typewriter-key:focus {
+  outline: none;
+}
+
+.typewriter-key:focus-visible {
+  outline: 2px solid #c4b48a;
+  outline-offset: 2px;
+}
+
+.typewriter-key-bksp {
+  width: calc(var(--type-key) * 1.65);
+  flex-basis: calc(var(--type-key) * 1.65);
+  border-radius: calc(var(--type-key) / 2);
+  font-size: calc(var(--type-key) * 0.22);
+  letter-spacing: 0.08em;
+}
+
 .brass-loupe {
   position: relative;
   z-index: 20;
@@ -733,7 +845,16 @@ body.is-night,
 }
 
 @media (max-width: 767px) {
-  .brass-loupe {
+  #cryptogram-board:not(.is-desk-armed) .cipher-desk {
+    display: none;
+  }
+
+  .cipher-desk {
+    --type-key: min(3.9rem, 11.5vw);
+    --type-gap: min(0.28rem, 0.7vw);
+    --type-pad-x: 0.7rem;
+    --type-key-h: calc((100cqw - 2 * var(--type-pad-x) - 9 * var(--type-gap)) / 10 / 0.88);
+    container-type: inline-size;
     position: fixed;
     left: 0;
     right: 0;
@@ -741,41 +862,137 @@ body.is-night,
     z-index: 40;
     width: auto;
     margin: 0;
-    border-left: 0;
-    border-right: 0;
-    border-bottom: 0;
-    box-shadow: 0 -6px 18px rgba(28, 25, 23, 0.14);
     padding-left: var(--safe-left);
     padding-right: var(--safe-right);
-    padding-bottom: 0;
+    padding-bottom: var(--safe-bottom);
+    background-color: #1a1816;
+    background-image:
+      radial-gradient(rgba(196, 180, 138, 0.14) 0.5px, transparent 0.65px),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='type-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23type-noise)' opacity='0.22'/%3E%3C/svg%3E");
+    background-size: 11px 11px, 180px 180px;
+    box-shadow:
+      0 -6px 18px rgba(28, 25, 23, 0.14),
+      inset 0 0 18px rgba(0, 0, 0, 0.72);
   }
 
-  .brass-loupe button {
+  .typewriter-bank {
+    --type-key: inherit;
+    --type-gap: inherit;
+    width: 100%;
+    padding: 0.55rem var(--type-pad-x) 0.35rem;
+    background: none;
+    background-image: none;
+    border-top: 0;
+    box-shadow: none;
+  }
+
+  .typewriter-row {
+    width: 100%;
+    justify-content: stretch;
+    align-items: stretch;
+  }
+
+  .typewriter-row:nth-child(2) {
+    padding-left: 3.5%;
+    padding-right: 1.5%;
+  }
+
+  .typewriter-row:nth-child(3) {
+    padding-left: 6%;
+    padding-right: 0;
+  }
+
+  .typewriter-key {
+    width: auto;
+    height: auto;
+    flex: 1 1 0;
+    min-width: 0;
+    aspect-ratio: 0.88;
+    border-radius: 0.5rem;
+    font-size: calc(var(--type-key) * 0.42);
+    border-width: 3px;
+  }
+
+  .typewriter-key-bksp {
+    width: auto;
+    flex: 1.85 1 0;
+    flex-basis: 0;
+    aspect-ratio: auto;
+    border-radius: 0.5rem;
+    font-size: calc(var(--type-key) * 0.24);
+  }
+
+  .cipher-desk .brass-loupe {
+    background: transparent;
+    border: 0;
+    padding: 0.15rem var(--type-pad-x) 0.55rem;
+    gap: var(--type-gap);
+    justify-content: stretch;
+    align-items: center;
+  }
+
+  .cipher-desk .brass-loupe button {
     flex: 1 1 0;
     width: auto;
+    height: var(--type-key-h);
+    aspect-ratio: auto;
+    border-radius: 0.5rem;
+    color: var(--ink-cream);
+    background: radial-gradient(circle at 50% 24%, #3a342c, #141210 68%);
+    border: 3px solid #8a7340;
+    box-shadow:
+      0 7px 0 #5c4a28,
+      0 10px 8px rgba(0, 0, 0, 0.65),
+      inset 0 1px 2px rgba(247, 243, 232, 0.12);
+    transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background 0.18s ease-out;
   }
 
-  .glyph-tally-dock {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 3rem;
-    z-index: 40;
-    padding-left: var(--safe-left);
-    padding-right: var(--safe-right);
-    box-shadow: 0 -6px 18px rgba(28, 25, 23, 0.14);
+  .cipher-desk .brass-loupe button:hover:not(:disabled) {
+    background: radial-gradient(circle at 50% 24%, #3a342c, #141210 68%);
+    filter: brightness(1.08);
   }
 
-  .glyph-tally-dock .glyph-tally-row {
+  .cipher-desk .brass-loupe button:disabled {
+    color: color-mix(in srgb, var(--ink-cream) 42%, #1a1816);
+    border-color: #6a5a38;
+    box-shadow:
+      0 5px 0 #3d3220,
+      0 6px 6px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(247, 243, 232, 0.08);
+  }
+
+  .cipher-desk .brass-loupe button:active,
+  .cipher-desk .brass-loupe button.is-pressed {
+    transform: translateY(7px) scale(0.92);
+    background: radial-gradient(circle at 50% 78%, #1c1814, #070605 70%);
+    box-shadow:
+      0 0 0 #3d3220,
+      0 1px 2px rgba(0, 0, 0, 0.85),
+      inset 0 8px 12px rgba(0, 0, 0, 0.82),
+      inset 0 -2px 3px rgba(247, 243, 232, 0.06);
+    transition: transform 0.14s ease-in, box-shadow 0.14s ease-in, background 0.14s ease-in;
+  }
+
+  .cipher-desk .brass-loupe button[aria-pressed='true'] {
+    background: radial-gradient(circle at 50% 24%, #4a4030, #1c1812 68%);
+    box-shadow:
+      0 4px 0 #5c4a28,
+      0 6px 6px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 1px rgba(196, 180, 138, 0.35);
+  }
+
+  .cipher-desk .brass-loupe .hint-count {
+    color: var(--ink-cream);
+    top: 0.18rem;
+    right: 0.28rem;
+  }
+
+  .cipher-desk .glyph-tally-dock .glyph-tally-row {
     flex-wrap: nowrap;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-  }
-
-  .glyph-tally-dock + .brass-loupe {
-    box-shadow: none;
   }
 
   .brass-loupe-diagram {
@@ -796,8 +1013,26 @@ body.is-night,
     width: auto;
   }
 
-  #cryptogram-board:not(.is-solved) .cipher-folio {
-    padding-bottom: 4.5rem;
+  #cryptogram-board.is-desk-armed:not(.has-typewriter):not(.is-solved) .cipher-folio {
+    padding-bottom: 5.5rem;
+  }
+
+  #cryptogram-board.is-desk-armed.has-tally:not(.has-typewriter):not(.is-solved) .cipher-folio {
+    padding-bottom: 9rem;
+  }
+
+  #cryptogram-board.has-typewriter:not(.is-solved) .cipher-folio {
+    padding-bottom: 19rem;
+  }
+
+  #cryptogram-board.has-typewriter.has-tally:not(.is-solved) .cipher-folio {
+    padding-bottom: 22.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .typewriter-bank {
+    display: none;
   }
 }
 

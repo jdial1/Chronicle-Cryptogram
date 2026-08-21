@@ -6,7 +6,7 @@ import { NewspaperClippingModal } from './components/NewspaperClippingModal';
 import { ArchiveModal } from './components/ArchiveModal';
 import { HowToPlayModal } from './components/HowToPlayModal';
 import { ResetLettersModal } from './components/ResetLettersModal';
-import { BureauDeskModal, bureauDeskSeen, markBureauDeskSeen } from './components/BureauDeskModal';
+import { BureauDeskModal, bureauDeskSeen, markBureauDeskSeen, usesGameKeyboard, toggleGameKeyboard } from './components/BureauDeskModal';
 import { ArticleReaderModal, DropCapParagraph } from './components/ArticleReaderModal';
 import { CaseFileModal, CaseFileToast } from './components/CaseFileModal';
 import { EditionPlate } from './components/EditionPlate';
@@ -234,34 +234,51 @@ function placeCipherInput(symbolId: string, input: HTMLInputElement, cellId?: st
   return tile;
 }
 
-function letterCells(words: { symbols: { symbolId: string; isPunctuation?: boolean }[] }[]) {
-  const cells: string[] = [];
+function letterCells(words: { id: string; symbols: { symbolId: string; isPunctuation?: boolean }[] }[]) {
+  const cells: { cellId: string; symbolId: string }[] = [];
   words.forEach((word) => {
-    word.symbols.forEach((item) => {
-      if (!item.isPunctuation) cells.push(item.symbolId);
+    word.symbols.forEach((item, charIdx) => {
+      if (!item.isPunctuation) cells.push({ cellId: `${word.id}_${charIdx}`, symbolId: item.symbolId });
     });
   });
   return cells;
 }
 
-function cellCursor(cells: string[], selectedSymbolId: string | null) {
+function cellCursor(
+  cells: { cellId: string; symbolId: string }[],
+  selectedSymbolId: string | null,
+  selectedCellId?: string | null
+) {
+  if (selectedCellId) {
+    const byCell = cells.findIndex((cell) => cell.cellId === selectedCellId);
+    if (byCell >= 0) return byCell;
+  }
   if (!selectedSymbolId) return 0;
-  const index = cells.indexOf(selectedSymbolId);
-  return index < 0 ? 0 : index;
+  const bySymbol = cells.findIndex((cell) => cell.symbolId === selectedSymbolId);
+  return bySymbol < 0 ? 0 : bySymbol;
 }
 
-function nextOpenCell(cells: string[], selectedSymbolId: string | null, mappings: SymbolMapping) {
+function nextOpenCell(
+  cells: { cellId: string; symbolId: string }[],
+  selectedSymbolId: string | null,
+  selectedCellId: string | null,
+  mappings: SymbolMapping
+) {
   if (!cells.length) return null;
-  const start = cellCursor(cells, selectedSymbolId);
+  const start = cellCursor(cells, selectedSymbolId, selectedCellId);
   for (let step = 1; step <= cells.length; step += 1) {
-    const id = cells[(start + step) % cells.length];
-    if (!mappings[id]) return id;
+    const cell = cells[(start + step) % cells.length];
+    if (!mappings[cell.symbolId]) return cell;
   }
   return null;
 }
 
-function previousCell(cells: string[], selectedSymbolId: string | null) {
-  const start = cellCursor(cells, selectedSymbolId);
+function previousCell(
+  cells: { cellId: string; symbolId: string }[],
+  selectedSymbolId: string | null,
+  selectedCellId?: string | null
+) {
+  const start = cellCursor(cells, selectedSymbolId, selectedCellId);
   if (start <= 0) return null;
   return cells[start - 1];
 }
@@ -310,6 +327,7 @@ export default function App() {
   });
 
   const [darkPaper, setDarkPaper] = useState(deskThemeIsDark);
+  const [gameKeyboard, setGameKeyboard] = useState(usesGameKeyboard);
 
   const [mappings, setMappings] = useState<SymbolMapping>(BOOT_STATE.mappings);
   const [selectedSymbolId, setSelectedSymbolId] = useState<string | null>(null);
@@ -754,13 +772,13 @@ export default function App() {
         dismissMobileKeyboard(hiddenInputRef.current);
       }
 
-      const nextCell = nextOpenCell(letterCells(words), selectedSymbolId, nextMappings);
+      const nextCell = nextOpenCell(letterCells(words), selectedSymbolId, selectedCellId, nextMappings);
       if (nextCell) {
-        setSelectedSymbolId(nextCell);
-        setSelectedCellId(null);
+        setSelectedSymbolId(nextCell.symbolId);
+        setSelectedCellId(nextCell.cellId);
       }
     },
-    [selectedSymbolId, isSolved, boardReady, uniqueSymbols, mappings, words, hintedSymbolIds, verifiedSymbolIds]
+    [selectedSymbolId, selectedCellId, isSolved, boardReady, uniqueSymbols, mappings, words, hintedSymbolIds, verifiedSymbolIds]
   );
 
   const handleBackspace = useCallback(() => {
@@ -775,17 +793,17 @@ export default function App() {
       setFlaggedSymbolIds((prev) => prev.filter((id) => id !== selectedSymbolId));
       return;
     }
-    const prior = previousCell(letterCells(words), selectedSymbolId);
-    if (!prior || hintedSymbolIds.includes(prior) || verifiedSymbolIds.includes(prior)) return;
-    setSelectedSymbolId(prior);
-    setSelectedCellId(null);
+    const prior = previousCell(letterCells(words), selectedSymbolId, selectedCellId);
+    if (!prior || hintedSymbolIds.includes(prior.symbolId) || verifiedSymbolIds.includes(prior.symbolId)) return;
+    setSelectedSymbolId(prior.symbolId);
+    setSelectedCellId(prior.cellId);
     setMappings((prev) => {
       const next = { ...prev };
-      delete next[prior];
+      delete next[prior.symbolId];
       return next;
     });
-    setFlaggedSymbolIds((prev) => prev.filter((id) => id !== prior));
-  }, [selectedSymbolId, isSolved, boardReady, mappings, words, hintedSymbolIds, verifiedSymbolIds]);
+    setFlaggedSymbolIds((prev) => prev.filter((id) => id !== prior.symbolId));
+  }, [selectedSymbolId, selectedCellId, isSolved, boardReady, mappings, words, hintedSymbolIds, verifiedSymbolIds]);
 
   useEffect(() => {
     if (!isAndroidAppShell()) return;
@@ -976,6 +994,24 @@ export default function App() {
 
   const togglePaper = () => {
     setDarkPaper(toggleDeskTheme());
+  };
+
+  const toggleKeyboard = () => {
+    const next = toggleGameKeyboard();
+    setGameKeyboard(next);
+    if (!boardReady || isSolved) return;
+    if (next) {
+      dismissMobileKeyboard(hiddenInputRef.current);
+      if (selectedSymbolId) setDeskArmed(true);
+      return;
+    }
+    if (!selectedSymbolId) return;
+    setDeskArmed(true);
+    if (isAndroidAppShell()) {
+      postToAndroidApp({ type: 'CIPHER_FOCUS' });
+      return;
+    }
+    hiddenInputRef.current?.focus();
   };
 
   const handleSelectDifficulty = (mode: 'Easy' | 'Hard') => {
@@ -1263,14 +1299,15 @@ export default function App() {
       setSelectedSymbolId(symId);
       setSelectedCellId(cellId ?? null);
       webTypeFeel('tap');
+      setDeskArmed(true);
+      if (gameKeyboard) return;
       if (isAndroidAppShell()) {
-        setDeskArmed(true);
         postToAndroidApp({ type: 'CIPHER_FOCUS' });
         return;
       }
       hiddenInputRef.current?.focus();
     },
-    [boardReady, isSolved]
+    [boardReady, isSolved, gameKeyboard]
   );
 
   useEffect(() => {
@@ -1278,7 +1315,7 @@ export default function App() {
     const nativeDesk = isAndroidAppShell();
     const input = hiddenInputRef.current;
     const anchor = (scroll: boolean) => {
-      if (!nativeDesk && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
+      if (!gameKeyboard && !nativeDesk && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
       if (scroll) {
         selectedGlyphTile(selectedSymbolId, selectedCellId)?.scrollIntoView({
           behavior: 'smooth',
@@ -1300,7 +1337,7 @@ export default function App() {
       viewport?.removeEventListener('resize', onMove);
       viewport?.removeEventListener('scroll', onMove);
     };
-  }, [selectedSymbolId, selectedCellId, isSolved, boardReady, deskCompact]);
+  }, [selectedSymbolId, selectedCellId, isSolved, boardReady, deskCompact, gameKeyboard]);
 
   return (
     <div
@@ -1322,7 +1359,7 @@ export default function App() {
         autoCorrect="off"
         autoCapitalize="characters"
         spellCheck={false}
-        inputMode={isSolved ? 'none' : 'search'}
+        inputMode={isSolved || gameKeyboard ? 'none' : 'search'}
         enterKeyHint="done"
         data-1p-ignore="true"
         data-lpignore="true"
@@ -1330,7 +1367,7 @@ export default function App() {
         maxLength={1}
         value=""
         readOnly={isSolved}
-        tabIndex={isSolved ? -1 : 0}
+        tabIndex={isSolved || gameKeyboard ? -1 : 0}
         inert={sheetLocked}
         onFocus={() => {
           if (!isSolved) setDeskArmed(true);
@@ -1339,7 +1376,7 @@ export default function App() {
           window.setTimeout(() => {
             if (document.activeElement === hiddenInputRef.current) return;
             if (document.getElementById('cryptogram-board')?.contains(document.activeElement)) {
-              hiddenInputRef.current?.focus();
+              if (!gameKeyboard) hiddenInputRef.current?.focus();
               return;
             }
             setDeskArmed(false);
@@ -1470,6 +1507,10 @@ export default function App() {
             silhouette={currentPuzzle.silhouette}
             night={nightEdition}
             frequencies={symbolFrequencies}
+            deskArmed={deskArmed}
+            gameKeyboard={gameKeyboard}
+            onLetter={handleKeyPress}
+            onBackspace={handleBackspace}
           />
         </section>
       </main>
@@ -1590,6 +1631,8 @@ export default function App() {
         onOpenSettings={openDeliverySettings}
         darkPaper={darkPaper}
         onTogglePaper={togglePaper}
+        gameKeyboard={gameKeyboard}
+        onToggleKeyboard={toggleKeyboard}
         onDeleteRecords={
           identified && user
             ? async () => {

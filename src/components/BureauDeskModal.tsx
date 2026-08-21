@@ -24,6 +24,26 @@ export function markBureauDeskSeen() {
   }
 }
 
+export const CIPHER_KEYBOARD_KEY = 'cryptogram_cipher_keyboard';
+
+export function usesGameKeyboard() {
+  try {
+    return localStorage.getItem(CIPHER_KEYBOARD_KEY) !== 'native';
+  } catch {
+    return true;
+  }
+}
+
+export function toggleGameKeyboard() {
+  const next = !usesGameKeyboard();
+  try {
+    localStorage.setItem(CIPHER_KEYBOARD_KEY, next ? 'game' : 'native');
+  } catch {
+    return next;
+  }
+  return next;
+}
+
 interface BureauDeskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -44,6 +64,8 @@ interface BureauDeskModalProps {
   onOpenSettings: () => void;
   darkPaper: boolean;
   onTogglePaper: () => void;
+  gameKeyboard: boolean;
+  onToggleKeyboard: () => void;
   onDeleteRecords?: () => Promise<void>;
 }
 
@@ -72,6 +94,8 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
   onOpenSettings,
   darkPaper,
   onTogglePaper,
+  gameKeyboard,
+  onToggleKeyboard,
   onDeleteRecords,
 }) => {
   const [wipeBusy, setWipeBusy] = useState(false);
@@ -139,6 +163,15 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
             className={`${slipPress} ${slipFill}`}
           >
             {darkPaper ? 'Morning paper' : 'Lampblack stock'}
+          </button>
+          <button
+            type="button"
+            onClick={onToggleKeyboard}
+            aria-pressed={gameKeyboard}
+            aria-label={gameKeyboard ? 'Switch to native keyboard' : 'Switch to typewriter keys'}
+            className={`${slipPress} ${slipFill}`}
+          >
+            {gameKeyboard ? 'Native keyboard' : 'Typewriter keys'}
           </button>
 
           {showFile && user && (
