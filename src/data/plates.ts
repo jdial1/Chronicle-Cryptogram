@@ -37,6 +37,7 @@ const CHARACTER_FIRST_EDITION: Record<CaseCharacterId, number> = {
 const LOCATION_BY_EDITION: Record<number, string> = {
   1: 'l2',
   4: 'l3',
+  5: 'l1',
   6: 'l4',
   7: 'l5',
   9: 'l7',
@@ -55,6 +56,15 @@ export function plateSrc(id?: string | null) {
   return PLATE_FILES[id];
 }
 
+export function plateSrcs() {
+  const people: string[] = [];
+  const places: string[] = [];
+  for (const [id, src] of Object.entries(PLATE_FILES)) {
+    (id.startsWith('l') ? places : people).push(src);
+  }
+  return { people, places };
+}
+
 export function articlePlateId(puzzle: PuzzleData) {
   if (isPrimerPuzzle(puzzle)) return undefined;
   const location = LOCATION_BY_EDITION[puzzle.editionNumber];
@@ -62,5 +72,6 @@ export function articlePlateId(puzzle: PuzzleData) {
   const intros = CASE_CHARACTERS.filter((entry) => CHARACTER_FIRST_EDITION[entry.id] === puzzle.editionNumber);
   if (intros.length === 1) return intros[0].plate;
   if (puzzle.editionNumber === 3) return CASE_CHARACTERS.find((entry) => entry.id === 'clara')?.plate;
-  return undefined;
+  const ids = Object.keys(PLATE_FILES);
+  return ids[(puzzle.editionNumber - 1) % ids.length];
 }

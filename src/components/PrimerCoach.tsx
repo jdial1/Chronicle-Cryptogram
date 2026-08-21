@@ -43,7 +43,7 @@ export function GlyphTally({
           Glyph tally
         </span>
         <span className="font-treatise text-[11px] text-stone-800">
-          Busiest first. English favors E, T, A, O, I, N
+          Busiest first. English leans on E, T, A, O, I, N
         </span>
       </div>
       <div className="glyph-tally-row flex flex-nowrap sm:flex-wrap gap-1 overflow-x-auto sm:overflow-visible">
@@ -95,15 +95,15 @@ function letterMapped(words: CryptogramWord[], mappings: SymbolMapping, letter: 
 
 const PRIMER_HINTS: Record<string, string> = {
   singles:
-    'This dispatch opens with a one-letter word, so try I. Later you will also meet a standalone A.',
+    'This dispatch opens on a lone mark. Nine times out of ten that is I. You will meet a lonely A later.',
   frequency:
-    'Count the glyphs. The busiest marks in this cipher are likely E or T — the same letters that dominate English.',
+    'Tally the marks. The loudest ones are usually E or T. That is how the language breathes.',
   'short-words':
-    'THE appears twice. AND is close behind. AT is a common two-letter word once T is in ink.',
+    'THE shows twice. AND is right behind it. Once T is in ink, AT is a cheap two-letter word.',
   apostrophes:
-    'CAN\'T hides an apostrophe. One letter after it is usually S, T, D, or M — and N\'T solves both N and T.',
+    "CAN'T hides an apostrophe. The letter after it is usually S, T, D, or M — and N'T hands you both N and T.",
   doubles:
-    'SEE hides EE in the middle of a short word. LOOK and TOO hide OO. LETTER hides TT.',
+    'SEE hides EE in a short word. LOOK and TOO hide OO. LETTER hides TT. Doubles do not lie on the morning edition.',
 };
 
 export const PrimerCoach: React.FC<PrimerCoachProps> = ({

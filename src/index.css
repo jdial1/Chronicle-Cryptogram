@@ -68,6 +68,13 @@ html.theme-dark {
     --color-stone-950: #f7f3e8;
     scrollbar-color: #8a6430 #241c14;
 
+  .edition-plate {
+    --coin-high: #d4c49a;
+    --coin-mid: #8a7048;
+    --coin-low: #3a2e20;
+    --coin-ink: #12100c;
+  }
+
   .edition-plate img {
     --plate-blend: normal;
     --plate-filter: var(--plate-night);
@@ -110,11 +117,6 @@ html.theme-dark {
 
   #cryptogram-board .cipher-tile.hover\:bg-\[\#faeed6\]:hover {
     background-color: var(--paper-reading);
-  }
-
-  #cryptogram-board .solved-insert {
-    mix-blend-mode: normal;
-    color: var(--ink);
   }
 
   .glyph-tally-row button {
@@ -215,6 +217,11 @@ html.theme-dark {
     min-width: 3rem;
     min-height: 3rem;
   }
+  .desk-hit svg {
+    display: block;
+    flex-shrink: 0;
+    fill: currentColor;
+  }
   .google-identity-btn {
     display: inline-flex;
     min-height: 3rem;
@@ -275,6 +282,12 @@ body.is-night,
 .edition-sheet {
   background-color: var(--paper);
   padding-top: var(--safe-top);
+}
+
+.edition-measure {
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
 }
 
 .edition-sheet.is-night {
@@ -419,7 +432,6 @@ body.is-night,
 .article-collapse > * {
   min-height: 0;
   overflow: hidden;
-  max-width: 65ch;
 }
 
 @media (max-width: 767px) {
@@ -468,6 +480,10 @@ body.is-night,
       0 0 0 #3d3220,
       inset 0 8px 12px rgba(0, 0, 0, 0.82),
       inset 0 -2px 3px rgba(247, 243, 232, 0.06);
+  }
+
+  .splash-overlay::before {
+    animation: none;
   }
 }
 
@@ -613,6 +629,14 @@ body.is-night,
     --tile-w: 2.4rem;
   }
 
+  #cryptogram-board.is-solved .decoded-stamp {
+    opacity: 1;
+  }
+
+  #cryptogram-board.is-solved .decoded-stamp svg {
+    width: 11.5625rem;
+  }
+
   #cryptogram-board.is-solved .cipher-folio {
     padding: 0.5rem;
   }
@@ -630,22 +654,6 @@ body.is-night,
   #cryptogram-board.is-solved .cipher-tile {
     padding: 0.1rem;
   }
-}
-
-#cryptogram-board .solved-insert {
-  align-self: flex-end;
-  padding: 0 0.3em 0;
-  font-family: 'Beth Ellen', 'Segoe Script', cursive;
-  font-style: italic;
-  font-weight: 400;
-  font-synthesis: none;
-  font-size: calc(var(--tile-letter-size) * var(--cipher-zoom) * 1.12);
-  line-height: 2;
-  color: var(--ink-lampblack);
-  transform: rotate(-5deg);
-  mix-blend-mode: multiply;
-  opacity: 1;
-  filter: url(#solved-insert-ink);
 }
 
 .bg-newsprint {
@@ -1019,7 +1027,7 @@ body.is-night,
     padding-right: 0;
   }
 
-  .typewriter-key {
+  .typewriter-bank .typewriter-key {
     width: auto;
     height: auto;
     flex: 1 1 0;
@@ -1030,7 +1038,7 @@ body.is-night,
     border-width: 3px;
   }
 
-  .typewriter-key-bksp {
+  .typewriter-bank .typewriter-key-bksp {
     width: auto;
     flex: 1.85 1 0;
     flex-basis: 0;
@@ -1201,10 +1209,6 @@ body.is-night,
   --plate-size: clamp(7.5rem, 28vw, 11.5rem);
 }
 
-.article-dek-board {
-  max-width: 65ch;
-}
-
 @media (max-width: 639px) {
   .article-deck .article-dropcap-letter {
     font-size: 2.1em;
@@ -1225,6 +1229,12 @@ body.is-night,
 }
 
 .edition-plate {
+  --coin-high: #efe4c4;
+  --coin-mid: #b89458;
+  --coin-low: #5a432c;
+  --coin-ink: #2c2218;
+  --coin-rim: 0.12rem;
+  position: relative;
   float: right;
   width: var(--plate-size, clamp(7.5rem, 28vw, 11.5rem));
   aspect-ratio: 1;
@@ -1239,9 +1249,45 @@ body.is-night,
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.08);
   mix-blend-mode: var(--plate-blend, multiply);
   filter: var(--plate-filter, none);
+}
+
+.article-deck .edition-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    farthest-side,
+    transparent 48%,
+    color-mix(in srgb, var(--coin-ink) 28%, transparent) 72%,
+    color-mix(in srgb, var(--coin-ink) 72%, transparent) calc(100% - var(--coin-rim))
+  );
+}
+
+.article-deck .edition-plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    repeating-conic-gradient(
+      from -0.35deg,
+      var(--coin-high) 0deg 2deg,
+      var(--coin-low) 2deg 2.85deg,
+      var(--coin-mid) 2.85deg 4.7deg,
+      var(--coin-ink) 4.7deg 5.5deg
+    );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--coin-rim)), #000 calc(100% - var(--coin-rim)));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--coin-rim)), #000 calc(100% - var(--coin-rim)));
 }
 
 .edition-plate.is-night img {
@@ -1258,6 +1304,388 @@ body.is-night,
   float: none;
   width: 5.5rem;
   margin: 0;
+}
+
+#splash.splash-overlay,
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 5.5vh, 2.6rem);
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  isolation: isolate;
+}
+
+.splash-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 90% 62% at 46% -6%,
+      rgba(255, 214, 142, 0.42) 0%,
+      rgba(232, 176, 86, 0.14) 32%,
+      transparent 58%
+    ),
+    radial-gradient(
+      circle at 50% 42%,
+      transparent 38%,
+      rgba(28, 22, 14, 0.28) 100%
+    );
+  mix-blend-mode: soft-light;
+  animation: splash-lamp 8.6s ease-in-out infinite;
+}
+
+@keyframes splash-lamp {
+  0%, 12%, 16%, 48%, 54%, 86%, 100% {
+    opacity: 1;
+  }
+  13% {
+    opacity: 0.86;
+  }
+  14.5% {
+    opacity: 1;
+  }
+  49% {
+    opacity: 0.62;
+  }
+  50.5% {
+    opacity: 0.94;
+  }
+  51.5% {
+    opacity: 0.7;
+  }
+  53% {
+    opacity: 1;
+  }
+  87% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.78;
+  }
+  89.5% {
+    opacity: 1;
+  }
+}
+
+.splash-overlay.is-leaving {
+  overflow: hidden;
+}
+
+.splash-overlay.is-leaving::before {
+  animation: none;
+}
+
+.splash-overlay.is-leaving .splash-enter {
+  opacity: 0;
+  visibility: hidden;
+  transform: none;
+  transition: none;
+}
+
+.splash-overlay.is-leaving .splash-coin {
+  perspective: none;
+}
+
+.splash-overlay.is-leaving .splash-coin-inner {
+  transform: none;
+  transition: none;
+  transform-style: flat;
+}
+
+.splash-overlay.is-leaving .splash-coin-face {
+  transform: none;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+.splash-overlay.is-leaving .splash-coin.is-flipped .splash-coin-face.is-front,
+.splash-overlay.is-leaving .splash-coin:not(.is-flipped) .splash-coin-face.is-back {
+  visibility: hidden;
+}
+
+.splash-overlay.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.splash-overlay.is-gone,
+#splash.splash-overlay.is-gone {
+  display: none;
+}
+
+.splash-coin-page {
+  margin: 0;
+  min-height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.splash-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.35rem;
+}
+
+.splash-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0 0.75rem;
+  color: var(--ink);
+  font-size: clamp(1.45rem, 7vw, 2.6rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.splash-title::before,
+.splash-title::after {
+  content: "";
+  display: none;
+  height: 0.55rem;
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  opacity: 0.38;
+}
+
+.splash-title-stack {
+  display: block;
+}
+
+.splash-title-row {
+  display: block;
+  min-height: 1.28em;
+  white-space: nowrap;
+}
+
+.splash-coin-side {
+  display: none;
+}
+
+.splash-title-letter {
+  display: inline-block;
+  color: color-mix(in srgb, var(--ink) calc(var(--ink-weight, 1) * 100%), transparent);
+  transform: rotate(var(--tilt, 0deg)) translateY(var(--shift, 0px));
+  filter: blur(var(--bleed, 0.4px));
+}
+
+.splash-enter,
+#splash-enter.splash-enter {
+  --type-key: min(3.5rem, 14vw);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  z-index: 1;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: min(14rem, 78vw);
+  height: var(--type-key);
+  flex: none;
+  margin-inline: auto;
+  padding: 0;
+  border-radius: 0.4rem;
+  font-size: calc(var(--type-key) * 0.32);
+  letter-spacing: 0.18em;
+}
+
+@media (min-width: 56rem) {
+  #splash.splash-overlay,
+  .splash-overlay {
+    display: grid;
+    place-items: center;
+    gap: 0;
+  }
+
+  .splash-title {
+    position: absolute;
+    top: calc(1.35rem + var(--safe-top));
+    left: 1.25rem;
+    right: 1.25rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1.15rem;
+    font-size: clamp(2.2rem, 5vw, 4.15rem);
+  }
+
+  .splash-title::before,
+  .splash-title::after {
+    display: block;
+  }
+
+  .splash-title-stack {
+    display: flex;
+    flex-direction: row;
+    gap: 0.38em;
+    justify-content: center;
+  }
+
+  .splash-stage {
+    width: min(78rem, 94vw);
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  .splash-coin {
+    width: min(28vw, 17.5rem);
+  }
+
+  .splash-coin-side {
+    display: block;
+    width: min(18vw, 11.25rem);
+  }
+
+  .splash-enter,
+  #splash-enter.splash-enter {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(1.35rem + var(--safe-bottom));
+    width: min(18rem, 36vw);
+  }
+}
+
+.splash-coin {
+  --coin-high: #efe4c4;
+  --coin-mid: #b89458;
+  --coin-low: #5a432c;
+  --coin-ink: #2c2218;
+  --coin-rim: 0.24rem;
+  position: relative;
+  width: min(52.5vw, 16.25rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  perspective: 720px;
+  box-shadow: 0 0.65rem 1rem rgba(28, 26, 23, 0.38);
+}
+
+.splash-coin-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15, 1);
+}
+
+.splash-coin.is-flipped .splash-coin-inner {
+  transform: rotateY(180deg);
+}
+
+.splash-coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(1px);
+  background: var(--coin-ink);
+  box-shadow:
+    inset 0 0 0 1px var(--coin-high),
+    inset 0 0 0 0.22rem var(--coin-ink),
+    inset 0 0.12rem 0.28rem color-mix(in srgb, var(--coin-high) 55%, transparent),
+    inset 0 -0.16rem 0.32rem color-mix(in srgb, var(--coin-ink) 70%, transparent);
+}
+
+.splash-coin-face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    farthest-side,
+    transparent 48%,
+    color-mix(in srgb, var(--coin-ink) 28%, transparent) 72%,
+    color-mix(in srgb, var(--coin-ink) 72%, transparent) calc(100% - var(--coin-rim))
+  );
+}
+
+.splash-coin-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    repeating-conic-gradient(
+      from -0.35deg,
+      var(--coin-high) 0deg 2deg,
+      var(--coin-low) 2deg 2.85deg,
+      var(--coin-mid) 2.85deg 4.7deg,
+      var(--coin-ink) 4.7deg 5.5deg
+    );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--coin-rim)), #000 calc(100% - var(--coin-rim)));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--coin-rim)), #000 calc(100% - var(--coin-rim)));
+}
+
+.splash-coin-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.splash-coin-face img.is-ready {
+  opacity: 1;
+}
+
+.splash-coin-face.is-back {
+  transform: rotateY(180deg) translateZ(1px);
+}
+
+html.theme-dark .splash-overlay::before {
+  background:
+    radial-gradient(
+      ellipse 88% 58% at 46% -8%,
+      rgba(255, 196, 110, 0.28) 0%,
+      rgba(180, 120, 48, 0.1) 34%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 50% 40%,
+      transparent 28%,
+      rgba(8, 6, 4, 0.55) 100%
+    );
+  mix-blend-mode: overlay;
+}
+
+html.theme-dark .splash-coin {
+  --coin-high: #d4c49a;
+  --coin-mid: #8a7048;
+  --coin-low: #3a2e20;
+  --coin-ink: #12100c;
+  box-shadow: 0 0.65rem 1.1rem rgba(0, 0, 0, 0.55);
 }
 
 .cipher-silhouette {

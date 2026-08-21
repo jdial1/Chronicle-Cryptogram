@@ -40,7 +40,13 @@ type InkProps = SVGProps<SVGSVGElement>;
 function ink(Icon: IconType, extraClass = ''): ComponentType<InkProps> {
   const Svg = Icon as ComponentType<InkProps>;
   return ({ className = '', ...props }) => (
-    <Svg className={`${extraClass} ${className}`.trim()} {...props} />
+    <Svg
+      className={`block shrink-0 ${extraClass} ${className}`.trim()}
+      aria-hidden
+      focusable="false"
+      {...props}
+      fill="currentColor"
+    />
   );
 }
 

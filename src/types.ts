@@ -26,8 +26,6 @@ export interface PuzzleData {
   subheadline: string;
   authorOrSource: string;
   originalText: string;
-  solvedInsert?: string;
-  solvedSwap?: boolean;
   difficulty: Difficulty;
   difficultyMode?: 'Easy' | 'Hard';
   editionSlot?: 'Morning' | 'Evening';

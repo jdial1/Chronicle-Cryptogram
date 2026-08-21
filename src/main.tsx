@@ -3,6 +3,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './splash';
 import { registerSW } from 'virtual:pwa-register';
 
 document.title = 'Chronicle Cryptogram';

@@ -12,7 +12,7 @@ const HANDBOOK_PAGES = [
     id: 'cipher',
     tab: ['The', 'Cipher'],
     title: 'The Substitution Cipher',
-    dek: 'The bottom rail is your field kit. Tap a glyph, then use the tools.',
+    dek: 'The bottom rail is the field kit. Tap a mark, then use the tools.',
     summary: CIPHER_INTRO,
     points: CIPHER_TOOLS,
   },

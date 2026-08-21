@@ -12,8 +12,6 @@ interface CryptogramGridProps {
   flaggedSymbolIds: string[];
   lockedSymbolIds: string[];
   isSolved: boolean;
-  solvedInsert?: string;
-  solvedSwap?: boolean;
   onClearLetters?: () => void;
   onUseHint?: () => void;
   onCheckLetter?: () => void;
@@ -52,56 +50,6 @@ function typewriterJitter() {
   };
 }
 
-function wordEndsWith(word: CryptogramWord, char: string) {
-  const last = word.symbols[word.symbols.length - 1];
-  return Boolean(last?.isPunctuation && last.char === char);
-}
-
-function stripTrailing(word: CryptogramWord, char: string): CryptogramWord {
-  if (!wordEndsWith(word, char)) return word;
-  return { ...word, symbols: word.symbols.slice(0, -1) };
-}
-
-function withTrailingPeriod(word: CryptogramWord): CryptogramWord {
-  if (wordEndsWith(word, '.')) return word;
-  return {
-    ...word,
-    symbols: [
-      ...word.symbols,
-      { symbolId: 'punct_.', targetLetter: '.', isPunctuation: true, char: '.' },
-    ],
-  };
-}
-
-function splitSolvedClauses(words: CryptogramWord[]) {
-  const cuts: number[] = [];
-  words.forEach((word, index) => {
-    if (wordEndsWith(word, '.')) cuts.push(index);
-  });
-  const lastCut = cuts[cuts.length - 1];
-  const splitAt = lastCut === words.length - 1 ? cuts[cuts.length - 2] : lastCut;
-  if (splitAt == null) return null;
-  const head = words.slice(0, splitAt + 1);
-  const tail = words.slice(splitAt + 1);
-  if (!head.length || !tail.length) return null;
-  return {
-    head: [...head.slice(0, -1), stripTrailing(head[head.length - 1], '.')],
-    tail: [...tail.slice(0, -1), stripTrailing(tail[tail.length - 1], '.')],
-  };
-}
-
-function solvedLayout(words: CryptogramWord[], insert?: string, swap?: boolean) {
-  if (!insert && !swap) return null;
-  const split = splitSolvedClauses(words);
-  if (!split) return null;
-  const first = swap ? split.tail : split.head;
-  const second = swap ? split.head : split.tail;
-  return {
-    first,
-    second: [...second.slice(0, -1), withTrailingPeriod(second[second.length - 1])],
-  };
-}
-
 export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   words,
   mappings,
@@ -110,8 +58,6 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   flaggedSymbolIds,
   lockedSymbolIds,
   isSolved,
-  solvedInsert,
-  solvedSwap,
   onClearLetters,
   onUseHint,
   onCheckLetter,
@@ -131,8 +77,6 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   const skipJitter =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const layout = isSolved ? solvedLayout(words, solvedInsert, solvedSwap) : null;
-  const rows = layout ? [layout.first, layout.second] : [words];
   const hintReady = Boolean(selectedSymbolId) && !isSymbolSolved(words, mappings, selectedSymbolId);
   const mappedSelected = Boolean(selectedSymbolId && mappings[selectedSymbolId]);
   const checkReady =
@@ -263,25 +207,13 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
       } ${deskArmed ? 'is-desk-armed' : ''} ${deskArmed && gameKeyboard ? 'has-typewriter' : ''} ${showTally ? 'has-tally' : ''}`}
     >
       {isSolved && <DecodedStamp size="board" />}
-      <svg aria-hidden className="absolute w-0 h-0 overflow-hidden pointer-events-none">
-        <filter id="solved-insert-ink" x="-20%" y="-60%" width="140%" height="220%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="4" seed="8" result="grit" />
-          <feDisplacementMap in="SourceGraphic" in2="grit" scale="0.35" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
       <div className="cipher-folio">
       <PuzzleSilhouette
         name={silhouette}
         className={`newspaper-silhouette cipher-silhouette${night ? ' is-night' : ''}`}
       />
-      <div className="cipher-lines relative z-10 flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 max-w-5xl mx-auto justify-start">
-        {renderWords(rows[0])}
-        {layout ? (
-          <>
-            {solvedInsert ? <span className="solved-insert">{solvedInsert}</span> : null}
-            {renderWords(rows[1])}
-          </>
-        ) : null}
+      <div className="cipher-lines relative z-10 flex flex-wrap items-end gap-x-5 sm:gap-x-7 gap-y-7 sm:gap-y-9 w-full min-w-0 justify-start">
+        {renderWords(words)}
       </div>
       </div>
       {!isSolved && (
@@ -327,7 +259,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               type="button"
               className="hint-tool"
               aria-label={`Check the highlighted letter, ${checksRemaining} remaining today`}
-              title="Check the highlighted letter. Three checks per day."
+              title="Test the highlighted letter. Three checks per day."
               disabled={checksRemaining <= 0 || !checkReady}
               onPointerDown={armKey}
               onPointerUp={releaseKey}
@@ -343,7 +275,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               type="button"
               className="hint-tool"
               aria-label={`Reveal the highlighted letter, ${hintsRemaining} remaining today`}
-              title="Reveal the highlighted letter. Three hints per day."
+              title="Lift the highlighted letter. Three hints per day."
               disabled={hintsRemaining <= 0 || !hintReady}
               onPointerDown={armKey}
               onPointerUp={releaseKey}

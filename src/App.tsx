@@ -67,6 +67,7 @@ import {
 import { deskThemeIsDark, toggleDeskTheme } from './utils/deskTheme';
 import { useEditionUpdate } from './utils/useEditionUpdate';
 import { Search, WoodcutPressFilter } from './icons';
+import { splashBlocksDesk } from './splash';
 import { isFirebaseEnabled } from './utils/firebase';
 import { isAndroidAppShell, postToAndroidApp } from './utils/androidApp';
 import { useDialogFocus } from './utils/useDialogFocus';
@@ -345,7 +346,7 @@ export default function App() {
   const [isSolved, setIsSolved] = useState(BOOT_STATE.isSolved);
 
   const [timerSeconds, setTimerSeconds] = useState(BOOT_STATE.timerSeconds);
-  const [isTimerRunning, setIsTimerRunning] = useState(!BOOT_STATE.isSolved);
+  const [isTimerRunning, setIsTimerRunning] = useState(!BOOT_STATE.isSolved && !splashBlocksDesk());
 
   // Modals
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
@@ -378,7 +379,7 @@ export default function App() {
     setVerifiedSymbolIds(loaded.verifiedSymbolIds);
     setFlaggedSymbolIds(loaded.flaggedSymbolIds);
     setIsSolved(loaded.isSolved);
-    setIsTimerRunning(!loaded.isSolved);
+    setIsTimerRunning(!loaded.isSolved && !splashBlocksDesk());
     setSelectedSymbolId(loaded.isSolved ? null : loaded.selectedSymbolId);
     setSelectedCellId(null);
     setIsSolveBulletinOpen(false);
@@ -438,6 +439,20 @@ export default function App() {
     document.body.scrollTop = 0;
     setDeskArmed(false);
   }, [currentPuzzle.id]);
+
+  useEffect(() => {
+    const enterEdition = () => {
+      const next = getInitialPuzzle();
+      const loaded = loadPuzzleState(next, allPuzzles);
+      setCurrentPuzzle(next);
+      setIsTimerRunning(!loaded.isSolved);
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    window.addEventListener('chronicle-splash-enter', enterEdition);
+    return () => window.removeEventListener('chronicle-splash-enter', enterEdition);
+  }, []);
 
   // Auto-load or reset state on puzzle change
   useEffect(() => {
@@ -1330,9 +1345,10 @@ export default function App() {
     if (!selectedSymbolId || isSolved || !boardReady) return;
     const nativeDesk = isAndroidAppShell();
     const input = hiddenInputRef.current;
+    const pinBoard = deskArmed;
     const anchor = (scroll: boolean) => {
       if (!gameKeyboard && !nativeDesk && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
-      if (scroll) {
+      if (scroll && pinBoard) {
         selectedGlyphTile(selectedSymbolId, selectedCellId)?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -1369,7 +1385,7 @@ export default function App() {
         />
       ) : null}
       <label htmlFor="cipher-letter-input" className="sr-only">
-        Type a letter to map the selected cipher glyph
+        Ink a letter for the selected cipher mark
       </label>
       <input
         id="cipher-letter-input"
@@ -1456,7 +1472,7 @@ export default function App() {
           showCaseFiles={showCaseFiles}
         />
 
-        <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-3 sm:pb-5">
+        <div className="w-full edition-measure px-3 sm:px-6 pt-3 sm:pt-4 pb-3 sm:pb-5">
           <section className="article-deck relative">
             <button
               type="button"
@@ -1491,7 +1507,7 @@ export default function App() {
       </div>
 
       <main
-        className="flex-1 w-full min-w-0 max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3"
+        className="flex-1 w-full min-w-0 edition-measure px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3"
         inert={sheetLocked}
       >
         {isFirebaseEnabled && boardSolved && !isPracticePuzzle(currentPuzzle) && (
@@ -1519,8 +1535,6 @@ export default function App() {
             flaggedSymbolIds={flaggedSymbolIds}
             lockedSymbolIds={clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds])}
             isSolved={boardSolved}
-            solvedInsert={currentPuzzle.solvedInsert}
-            solvedSwap={currentPuzzle.solvedSwap}
             onClearLetters={handleResetMappings}
             onUseHint={handleUseHint}
             onCheckLetter={handleCheckLetter}

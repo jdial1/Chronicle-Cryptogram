@@ -103,8 +103,6 @@ export function createPracticePuzzle(excludeText?: string): PuzzleData {
     subheadline:
       'A second training cipher from the desk. The five tells still hold: single-letter words, frequent letters, short words, apostrophes, then double letters.',
     originalText: pickPracticeText(excludeText),
-    solvedInsert: '',
-    solvedSwap: false,
     category: 'Primer Practice',
   };
 }

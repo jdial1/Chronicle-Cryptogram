@@ -25,11 +25,94 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Beth+Ellen&family=Cinzel:wght@700;900&family=IM+Fell+English&family=Newsreader:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=Special+Elite&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap&text=The%20Chronicle">
-    <script type="application/ld+json">
-      {"@context":"https://schema.org","@type":"WebApplication","name":"Chronicle Cryptogram","applicationCategory":"GameApplication","operatingSystem":"Any","description":"Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, climb the bureau board.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    <script>
+      try {
+        if (sessionStorage.getItem('chronicle_splash_entered') === '1') {
+          document.documentElement.classList.add('splash-skipped');
+        }
+      } catch (e) {}
     </script>
+    <style>
+      html.splash-skipped #splash { display: none !important; }
+      html:not(.splash-skipped) #root { visibility: hidden; }
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #splash-enter {
+        --type-key: min(3.5rem, 14vw);
+        appearance: none;
+        -webkit-appearance: none;
+        position: relative;
+        width: min(14rem, 78vw);
+        height: var(--type-key);
+        margin: 0 auto;
+        padding: 0;
+        border: 3px solid #8a7340;
+        border-radius: 0.4rem;
+        background: radial-gradient(circle at 50% 24%, #3a342c, #141210 68%);
+        box-shadow:
+          0 7px 0 #5c4a28,
+          0 10px 8px rgba(0, 0, 0, 0.65),
+          inset 0 1px 2px rgba(247, 243, 232, 0.12);
+        color: #f7f3e8;
+        font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
+        font-size: calc(var(--type-key) * 0.32);
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        line-height: 1;
+        text-transform: uppercase;
+        cursor: pointer;
+        user-select: none;
+      }
+      @media (min-width: 56rem) {
+        #splash-enter {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 1.35rem;
+          width: min(18rem, 36vw);
+        }
+      }
+    </style>
   </head>
   <body class="noir-newspaper-bg antialiased selection:bg-[#78350f] selection:text-amber-100 min-h-screen">
+    <div id="splash" class="splash-overlay noir-newspaper-bg">
+      <h1 class="splash-title font-headline" aria-label="Chronicle Cryptogram">
+        <span class="splash-title-stack">
+          <span class="splash-title-row" data-text="Chronicle"></span>
+          <span class="splash-title-row" data-text="Cryptogram"></span>
+        </span>
+      </h1>
+      <div class="splash-stage">
+        <div class="splash-coin splash-coin-side">
+          <div class="splash-coin-inner">
+            <div class="splash-coin-face is-front"><img alt="" /></div>
+            <div class="splash-coin-face is-back"><img alt="" /></div>
+          </div>
+        </div>
+        <div class="splash-coin" id="splash-coin">
+          <div class="splash-coin-inner">
+            <div class="splash-coin-face is-front"><img alt="" /></div>
+            <div class="splash-coin-face is-back"><img alt="" /></div>
+          </div>
+        </div>
+        <div class="splash-coin splash-coin-side">
+          <div class="splash-coin-inner">
+            <div class="splash-coin-face is-front"><img alt="" /></div>
+            <div class="splash-coin-face is-back"><img alt="" /></div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="typewriter-key splash-enter" id="splash-enter" aria-label="Enter the edition">
+        ENTER
+      </button>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

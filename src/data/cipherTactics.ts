@@ -6,14 +6,14 @@ export type CipherTactic = {
 };
 
 export const CIPHER_INTRO =
-  'Cryptograms are substitution ciphers: each glyph stands for one letter. Breaking them does not take a math background. It is pattern recognition in English.';
+  'Each mark stands for one letter. You break a cipher the way you break a case: wait for the tell, then press. No mathematics. Just English, black coffee, and a sharp eye.';
 
 export const CIPHER_TOOLS: { lead: string; body: string }[] = [
   { lead: 'Smaller Type', body: 'Shrink the cipher tiles when the quote is crowding the page.' },
   { lead: 'Larger Type', body: 'Magnify the tiles when a glyph is hard to read.' },
   { lead: 'Check Letter', body: 'Test the highlighted guess. A correct letter locks in; a wrong one takes the red circle. Three checks per day, shared by the morning and night extras; the count sits on the quill.' },
   { lead: 'Hint', body: 'Reveal the highlighted glyph. Select an unsolved letter first. Three hints per day, shared by the morning and night extras; the count sits on the bulb.' },
-  { lead: 'Glyph Tally', body: 'Open a count of repeating glyphs, busiest first. English favors E, T, A, O, I, N.' },
+  { lead: 'Glyph Tally', body: 'Open a count of repeating glyphs, busiest first. English leans on E, T, A, O, I, N.' },
   { lead: 'Clear Letters', body: 'Wipe every guess and start the quote over. The timer keeps running.' },
 ];
 

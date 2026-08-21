@@ -76,9 +76,11 @@ export function AgentPlate({
   );
 }
 
+const navLinkClass =
+  'desk-hit inline-flex items-center gap-1 font-semibold font-treatise uppercase tracking-widest underline decoration-dotted underline-offset-4 cursor-pointer hover:text-stone-950 whitespace-nowrap';
+
 export function GoogleDeskButton({
   onClick,
-  night = false,
   full = false,
   signedIn = false,
   identity = false,
@@ -108,31 +110,33 @@ export function GoogleDeskButton({
     );
   }
 
+  if (full) {
+    return (
+      <button
+        type="button"
+        onClick={signedIn ? undefined : onClick}
+        disabled={signedIn}
+        aria-pressed={signedIn}
+        className={`${navLinkClass} w-full min-h-12 justify-center px-4 py-2.5 text-xs ${
+          signedIn ? 'cursor-default' : ''
+        }`}
+      >
+        <Type className="w-3.5 h-3.5 shrink-0" />
+        {signedIn ? 'Signed in' : 'Sign in with Google'}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={signedIn ? undefined : onClick}
       disabled={signedIn}
       aria-pressed={signedIn}
-      className={`${full ? 'flex w-full min-h-12 justify-center px-4 py-2.5 text-xs tracking-wider' : 'desk-hit inline-flex px-2.5 py-1 text-xs tracking-[0.12em]'} items-center gap-1.5 border-2 font-typewriter font-black uppercase text-stone-950 ${
-        signedIn
-          ? 'border-stone-800 bg-amber-200 cursor-default'
-          : night
-            ? 'border-amber-900 bg-[#efe4cc] hover:bg-[#e4d6b8] cursor-pointer'
-            : 'border-stone-800 bg-[color:var(--paper)] hover:bg-[color:var(--paper-masthead)] cursor-pointer'
-      }`}
+      className={signedIn ? `${navLinkClass} cursor-default` : navLinkClass}
     >
-      <Type className="w-3.5 h-3.5" />
-      {signedIn ? (
-        'Signed in'
-      ) : full ? (
-        'Sign in with Google'
-      ) : (
-        <>
-          <span className="sm:hidden">Sign in</span>
-          <span className="hidden sm:inline">Sign in with Google</span>
-        </>
-      )}
+      <Type className="w-3.5 h-3.5 shrink-0" />
+      {signedIn ? 'Signed in' : 'Sign in'}
     </button>
   );
 }
@@ -150,8 +154,6 @@ export const Header: React.FC<HeaderProps> = ({
   const { isInstallable, promptInstall } = usePWAInstall();
   const androidApp = isAndroidAppShell();
   const night = isNightEdition(currentPuzzle);
-  const linkClass =
-    'desk-hit inline-flex items-center gap-1 uppercase tracking-widest underline decoration-dotted underline-offset-4 cursor-pointer hover:text-stone-950 whitespace-nowrap';
 
   return (
     <header className="w-full select-none text-stone-950">
@@ -159,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="masthead-banner">
         <div>
           <div className="px-3 sm:px-6 py-4 sm:py-6 text-center overflow-hidden">
-            <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
+            <div className="w-full edition-measure flex flex-col items-center">
               {night ? (
                 <h1 className="flex items-baseline justify-center gap-2 sm:gap-3 whitespace-nowrap">
                   <span className="font-gothic text-3xl sm:text-5xl md:text-6xl text-stone-950 leading-none">
@@ -180,7 +182,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className={night ? 'border-t border-amber-900/40' : 'border-t border-stone-800'}>
-        <div className="relative max-w-5xl mx-auto px-3 sm:px-6 py-1.5 flex items-center justify-between text-xs font-newspaper tracking-wider">
+        <div className="relative edition-measure px-3 sm:px-6 py-1.5 flex items-center justify-between text-xs font-newspaper tracking-wider">
           <div className="relative z-10 flex items-center justify-start shrink-0">
             {authConfigured ? (
               user ? (
@@ -195,11 +197,11 @@ export const Header: React.FC<HeaderProps> = ({
               )
             ) : null}
           </div>
-          <nav className="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none font-semibold font-treatise">
+          <nav className="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none">
             <button
               type="button"
               onClick={onOpenHandbook}
-              className={`${linkClass} pointer-events-auto`}
+              className={`${navLinkClass} pointer-events-auto`}
               title="Open the codebreaker's guide"
             >
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
@@ -209,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCaseFiles}
-                className={`${linkClass} pointer-events-auto`}
+                className={`${navLinkClass} pointer-events-auto`}
                 title="Open detective case files"
               >
                 <FileText className="w-3.5 h-3.5 shrink-0" />
@@ -217,11 +219,11 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             ) : null}
           </nav>
-          <div className="relative z-10 flex items-center justify-end gap-3 shrink-0 font-semibold font-treatise">
+          <div className="relative z-10 flex items-center justify-end gap-3 shrink-0">
             <button
               type="button"
               onClick={onOpenArchive}
-              className={linkClass}
+              className={navLinkClass}
               title="Browse previous Morning Editions and Night Extras"
             >
               {formatEditionDateShort(currentPuzzle.editionDate)}

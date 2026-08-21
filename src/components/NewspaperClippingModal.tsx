@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, Trophy, Send, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
-import { formatSolvedQuote } from '../utils/cipherEngine';
 import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 
 interface NewspaperClippingModalProps {
@@ -110,7 +109,7 @@ Play Chronicle Cryptogram: ${window.location.href}`;
               <span>OFFICIAL DECRYPTED TRANSCRIPT:</span>
             </div>
             <p className="reading-measure relative font-typewriter text-sm sm:text-base font-bold text-stone-950 leading-relaxed">
-              "{formatSolvedQuote(puzzle.originalText, puzzle.solvedInsert, puzzle.solvedSwap)}"
+              "{puzzle.originalText}"
             </p>
 
             {/* Vintage Red Ink Stamp */}
