@@ -68,7 +68,7 @@ export function AgentPlate({
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Open bureau file for ${name || 'agent'}`}
+      aria-label={`Open Bureau File for ${name || 'agent'}: field copy, dispatch, and credentials`}
       className={className}
     >
       {mark}
@@ -202,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenHandbook}
               className={`${navLinkClass} pointer-events-auto`}
-              title="Open the codebreaker's guide"
+              title="Handbook: cipher tactics and packing a copy for the field"
             >
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
               Guide
@@ -233,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={promptInstall}
                 className={`${androidApp ? 'inline-flex' : 'hidden sm:inline-flex'} items-center hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-700 whitespace-nowrap`}
-                title="Install app to your device"
+                title="Install the paper, then pack a field copy from Bureau File for offline play"
               >
                 INSTALL APP
               </button>

@@ -49,32 +49,28 @@ export default defineConfig(() => {
           'pwa-192x192.png',
           'pwa-512x512.png',
           'pwa-512x512-maskable.png',
+          'fonts.css',
+          'fonts/*.woff2',
         ],
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
+          navigateFallbackDenylist: [/version\.json/i],
           runtimeCaching: [
             {
               urlPattern: /\/version\.json/i,
               handler: 'NetworkOnly',
             },
             {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              urlPattern: ({ url, sameOrigin }) =>
+                sameOrigin && !/version\.json$/i.test(url.pathname),
               handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'google-fonts-stylesheets',
-                expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 }
-              }
+                cacheName: 'chronicle-press-pack',
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
             },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-webfonts',
-                expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] }
-              }
-            }
-          ]
+          ],
         },
         manifest: {
           start_url: '.',

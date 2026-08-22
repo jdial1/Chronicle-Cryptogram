@@ -5,6 +5,11 @@ import { GameStats } from '../types';
 import { formatTime } from '../utils/cipherEngine';
 import { DEFAULT_GAME_STATS } from '../utils/firebaseStore';
 import { AgentPlate, GoogleDeskButton } from './Header';
+import {
+  formatPackBytes,
+  formatPackedAt,
+  useOfflinePack,
+} from '../utils/useOfflinePack';
 
 export const BUREAU_DESK_SEEN_KEY = 'cryptogram_bureau_desk_seen';
 
@@ -66,6 +71,8 @@ interface BureauDeskModalProps {
   onTogglePaper: () => void;
   gameKeyboard: boolean;
   onToggleKeyboard: () => void;
+  pressVersion?: string | null;
+  todayClue?: { letter: string; clue: string } | null;
   onDeleteRecords?: () => Promise<void>;
 }
 
@@ -96,23 +103,32 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
   onTogglePaper,
   gameKeyboard,
   onToggleKeyboard,
+  pressVersion = null,
+  todayClue,
   onDeleteRecords,
 }) => {
+  const pack = useOfflinePack(pressVersion);
   const [wipeBusy, setWipeBusy] = useState(false);
   const [wipeConfirm, setWipeConfirm] = useState(false);
   const [wipeError, setWipeError] = useState<string | null>(null);
+  const [showClue, setShowClue] = useState(false);
 
   useEffect(() => {
     if (isOpen) return;
     setWipeBusy(false);
     setWipeConfirm(false);
     setWipeError(null);
+    setShowClue(false);
   }, [isOpen]);
+
+  useEffect(() => {
+    setShowClue(false);
+  }, [todayClue?.letter, todayClue?.clue]);
 
   if (!isOpen) return null;
 
   const showFile = identified && user;
-  const showCredentials = authConfigured && !showFile;
+  const showCredentials = authConfigured && !showFile && pack.online;
   const showDispatch = deliverySupported;
   const rows = [
     { short: 'Decoded', label: 'Editions decoded', value: String(gameStats.puzzlesSolved) },
@@ -153,7 +169,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint space-y-3">
           <p className="font-treatise italic text-sm text-stone-700">
-            Press pass and morning wire. Keep the file intact across desks.
+            Press pass, morning wire, and a packed copy for the field. Keep the file intact across desks.
           </p>
           <button
             type="button"
@@ -173,6 +189,72 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
           >
             {gameKeyboard ? 'Native keyboard' : 'Typewriter keys'}
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              void pack.download();
+            }}
+            disabled={pack.status === 'packing' || pack.status === 'unsupported'}
+            aria-pressed={pack.status === 'packed'}
+            aria-label="Keep a full copy of the press"
+            className={`${slipPress} ${
+              pack.status === 'packed' ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
+            } disabled:opacity-50`}
+          >
+            {pack.status === 'packing'
+              ? 'Setting the type…'
+              : pack.status === 'packed'
+                ? 'Press packed'
+                : pack.status === 'stale'
+                  ? 'Refresh the packed press'
+                  : pack.status === 'unsupported'
+                    ? 'Press copy unavailable'
+                    : 'Keep a full copy of the press'}
+          </button>
+          <p className="font-newspaper text-xs text-stone-600 leading-relaxed">
+            {pack.status === 'packed' && pack.record
+              ? `Field copy ready. Packed ${formatPackedAt(pack.record.packedAt)}${
+                  pack.bytes != null ? ` · ${formatPackBytes(pack.bytes)} on this desk` : ''
+                }. Edition ${pack.record.version}. Offline play uses this copy; the bureau board still needs the wire.`
+              : pack.status === 'stale'
+                ? 'A newer press is on the stands. Pack again to take it into the field.'
+                : pack.status === 'unsupported'
+                  ? 'This desk cannot store a press copy.'
+                  : 'Offline field copy. Save type, plates, and the serial on this desk so Morning and Night Extra still open with the wire down. Sign-in and the bureau board stay on the network.'}
+          </p>
+          {pack.error && (
+            <p className="font-typewriter text-[10px] uppercase tracking-widest text-red-800">
+              {pack.error}
+            </p>
+          )}
+          {todayClue ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowClue((open) => !open)}
+                aria-pressed={showClue}
+                aria-label={showClue ? "Hide today's clue" : "Show today's clue"}
+                className={`${slipPress} ${
+                  showClue ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
+                }`}
+              >
+                {showClue ? "Hide today's clue" : "Today's clue"}
+              </button>
+              {showClue ? (
+                <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
+                  <p className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+                    Copy desk
+                  </p>
+                  <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
+                    {todayClue.clue}
+                  </p>
+                  <p className="mt-2 font-typewriter text-[10px] uppercase tracking-widest text-stone-600">
+                    A mark stands for {todayClue.letter}
+                  </p>
+                </article>
+              ) : null}
+            </>
+          ) : null}
 
           {showFile && user && (
             <article className="evidence-slip border border-stone-700 px-2.5 py-2 sm:px-3 sm:pt-2 sm:pb-3">

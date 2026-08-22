@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://jdial1.github.io https://accounts.google.com https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://apis.google.com https://*.gstatic.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: ws://localhost:* ws://127.0.0.1:* wss:; frame-src https://accounts.google.com https://*.firebaseapp.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://jdial1.github.io https://accounts.google.com https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app; script-src 'self' 'unsafe-inline' https://apis.google.com https://*.gstatic.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https: ws://localhost:* ws://127.0.0.1:* wss:; frame-src https://accounts.google.com https://*.firebaseapp.com;" />
     <meta http-equiv="Permissions-Policy" content="identity-credentials-get=*" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Chronicle Cryptogram</title>
@@ -15,16 +15,13 @@
     <link rel="mask-icon" href="./mask-icon.svg" color="#1C1A17" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#fbf7ee" />
-    <meta name="description" content="Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, climb the bureau board." />
+    <meta name="description" content="Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, pack a field copy for offline play." />
     <meta property="og:title" content="Chronicle Cryptogram" />
     <meta property="og:site_name" content="Chronicle Cryptogram" />
-    <meta property="og:description" content="Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, climb the bureau board." />
+    <meta property="og:description" content="Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, pack a field copy for offline play." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Beth+Ellen&family=Cinzel:wght@700;900&family=IM+Fell+English&family=Newsreader:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=Special+Elite&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap&text=The%20Chronicle">
+    <link rel="stylesheet" href="./fonts.css" />
     <script>
       try {
         if (sessionStorage.getItem('chronicle_splash_entered') === '1') {

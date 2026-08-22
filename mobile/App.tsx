@@ -100,6 +100,11 @@ const INJECTED = `
     if (origOpen) return origOpen.apply(window, arguments);
     return null;
   };
+  try {
+    if (localStorage.getItem('cryptogram_offline_pack') && window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({type:'PRESS_PACKED'}));
+    }
+  } catch (e) {}
   true;
 })();
 `;
@@ -111,6 +116,19 @@ function isAuthUrl(url: string) {
       host === 'accounts.google.com' ||
       host.endsWith('.firebaseapp.com') ||
       url.includes('/__/auth/')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isMainEdition(url: string) {
+  try {
+    const incoming = new URL(url);
+    const main = new URL(WEB_URL);
+    return (
+      incoming.origin === main.origin &&
+      incoming.pathname.replace(/\/+$/, '') === main.pathname.replace(/\/+$/, '')
     );
   } catch {
     return false;
@@ -161,6 +179,9 @@ function Desk() {
   const [failed, setFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [cacheBust, setCacheBust] = useState(false);
+  const cacheTried = useRef(false);
+  const loadFailed = useRef(false);
+  const pressPacked = useRef(false);
 
   useEffect(() => {
     GoogleOneTapSignIn.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
@@ -230,9 +251,27 @@ function Desk() {
   }, [paintInsets]);
 
   const retry = useCallback(() => {
+    cacheTried.current = false;
     setFailed(false);
+    setCacheBust(false);
     setReloadKey((n) => n + 1);
   }, []);
+
+  const onLoadFail = useCallback(() => {
+    loadFailed.current = true;
+    hideSplash();
+    if (cacheBust) {
+      setCacheBust(false);
+      setReloadKey((n) => n + 1);
+      return;
+    }
+    if (!cacheTried.current) {
+      cacheTried.current = true;
+      setReloadKey((n) => n + 1);
+      return;
+    }
+    setFailed(true);
+  }, [cacheBust, hideSplash]);
 
   const reportDispatch = useCallback((detail: object) => {
     injectEvent(webRef, 'chronicle-native-delivery', detail);
@@ -348,7 +387,7 @@ function Desk() {
 
   const onMessage = useCallback(
     (event: WebViewMessageEvent) => {
-      let payload: { type?: string; title?: string; text?: string; depth?: number; dark?: boolean };
+      let payload: { type?: string; title?: string; text?: string; depth?: number; dark?: boolean; version?: string };
       try {
         payload = JSON.parse(event.nativeEvent.data);
       } catch {
@@ -382,8 +421,12 @@ function Desk() {
         cipherRef.current?.blur();
       }
       if (payload.type === 'RELOAD') {
+        cacheTried.current = false;
         setCacheBust(true);
         setReloadKey((n) => n + 1);
+      }
+      if (payload.type === 'PRESS_PACKED') {
+        pressPacked.current = true;
       }
     },
     [keepCipherKeys, nativeSignIn, nativeSignOut, refreshDispatchToken, subscribeDelivery, unsubscribeDelivery, setWebDark]
@@ -406,8 +449,9 @@ function Desk() {
         <StatusBar style={night ? 'light' : 'dark'} />
         <Text style={[styles.failKicker, { color: ink }]}>The wire is down</Text>
         <Text style={[styles.failBody, { color: ink }]}>
-          Chronicle Cryptogram could not reach the morning edition. Check the connection and try
-          again.
+          {pressPacked.current
+            ? 'The packed edition did not open. Retry to read from this desk, or restore the wire.'
+            : 'Chronicle Cryptogram could not reach the morning edition. If you packed the press, retry to open the copy on this desk. Otherwise check the connection and try again.'}
         </Text>
         <Pressable
           onPress={retry}
@@ -460,19 +504,19 @@ function Desk() {
           onShouldStartLoadWithRequest={(request) => !isAuthUrl(request.url)}
           onMessage={onMessage}
           onNavigationStateChange={onNav}
+          onLoadStart={() => {
+            loadFailed.current = false;
+          }}
           onLoadEnd={() => {
             hideSplash();
             paintInsets();
             if (cacheBust) setCacheBust(false);
+            if (!loadFailed.current) cacheTried.current = false;
           }}
-          onError={() => {
-            hideSplash();
-            setFailed(true);
-          }}
+          onError={onLoadFail}
           onHttpError={(event) => {
-            if (event.nativeEvent.statusCode >= 400) {
-              hideSplash();
-              setFailed(true);
+            if (event.nativeEvent.statusCode >= 400 && isMainEdition(event.nativeEvent.url)) {
+              onLoadFail();
             }
           }}
           allowsBackForwardNavigationGestures={false}

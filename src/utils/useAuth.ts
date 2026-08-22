@@ -52,11 +52,23 @@ export function useAuth() {
       setReady(true);
       return;
     }
-    return onAuthStateChanged(auth, (next) => {
+    const deskAuth = auth;
+    const unsub = onAuthStateChanged(deskAuth, (next) => {
       setUser(next);
       setReady(true);
-      if (!next) signInAnonymously(auth).catch(() => undefined);
+      if (!next) {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+        signInAnonymously(deskAuth).catch(() => undefined);
+      }
     });
+    const onOnline = () => {
+      if (!deskAuth.currentUser) signInAnonymously(deskAuth).catch(() => undefined);
+    };
+    window.addEventListener('online', onOnline);
+    return () => {
+      unsub();
+      window.removeEventListener('online', onOnline);
+    };
   }, []);
 
   useEffect(() => {

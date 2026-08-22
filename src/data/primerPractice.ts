@@ -104,6 +104,7 @@ export function createPracticePuzzle(excludeText?: string): PuzzleData {
       'A second training cipher from the desk. The five tells still hold: single-letter words, frequent letters, short words, apostrophes, then double letters.',
     originalText: pickPracticeText(excludeText),
     category: 'Primer Practice',
+    hints: [],
   };
 }
 
@@ -113,4 +114,5 @@ export const PRACTICE_ARCHIVE_CARD: PuzzleData = {
   title: 'Day 0 - Practice',
   headline: "CODEBREAKER'S DRILL",
   category: 'Primer Practice',
+  hints: [],
 };

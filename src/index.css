@@ -202,10 +202,12 @@ html.theme-dark {
   }
   .font-typewriter,
   .font-mimeo,
-  .font-mono-code,
+  .font-mono-code {
+    font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
+  }
   .font-handwritten,
   .font-scribble {
-    font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
+    font-family: 'Beth Ellen', 'Special Elite', cursive;
   }
   .font-gothic {
     font-family: 'UnifrakturMaguntia', Palatino, serif;

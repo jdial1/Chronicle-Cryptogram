@@ -24,6 +24,32 @@ const HANDBOOK_PAGES = [
     summary: null as string | null,
     points: tactic.points,
   })),
+  {
+    id: 'press',
+    tab: ['The', 'Press'],
+    title: 'A Copy for the Field',
+    dek: 'Pack the paper before you leave the wire.',
+    summary:
+      'The cipher, archive, and case file already run from this desk. Packing is a confirmed copy for the commute, the sleeper, or a dead zone — not a gate on play.',
+    points: [
+      {
+        lead: 'Bureau File',
+        body: 'Open Bureau File from the agent plate or Sign in in the masthead. Keep a full copy of the press stores type, plates, and the serial on this desk.',
+      },
+      {
+        lead: 'Install',
+        body: 'On the web, Install App puts the paper on the home screen. On Android, the same Bureau File pack is the offline copy. Pack while you still have the wire.',
+      },
+      {
+        lead: 'Still on the wire',
+        body: 'Sign-in, the bureau board, and live solver counts need the network. Guesses and streak on this desk stay in local notes either way.',
+      },
+      {
+        lead: 'Fresh plates',
+        body: 'When a newer edition hits the stands, reload, then pack again from Bureau File so the field copy matches the press.',
+      },
+    ],
+  },
 ];
 
 function emphasizeDailyQuota(body: string) {

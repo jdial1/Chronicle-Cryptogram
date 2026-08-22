@@ -13,7 +13,12 @@
     "editionSlot": "Morning",
     "theme": "Training Primer",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "A drill that names the tells it wants you to hunt."
+      }
+    ],
     "silhouette": "GiSecretBook"
   },
   {
@@ -30,7 +35,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The coupe on the desk held more than bubbles."
+      }
+    ],
     "silhouette": "GiPoisonBottle"
   },
   {
@@ -47,7 +57,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The tuxedo paper was a warning, not a toast."
+      }
+    ],
     "silhouette": "GiPoisonBottle"
   },
   {
@@ -64,7 +79,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The grate did not finish a lawyer's page."
+      }
+    ],
     "silhouette": "GiSailboat"
   },
   {
@@ -81,7 +101,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The scrap on the hearth pointed at a painted hull."
+      }
+    ],
     "silhouette": "GiSailboat"
   },
   {
@@ -98,7 +123,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The unsigned card was not an obituary."
+      }
+    ],
     "silhouette": "GiWantedReward"
   },
   {
@@ -115,7 +145,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "A night clerk sold a stub that ran north."
+      }
+    ],
     "silhouette": "GiWantedReward"
   },
   {
@@ -132,7 +167,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "They left the safe and emptied the three-year cabinets."
+      }
+    ],
     "silhouette": "GiCargoCrate"
   },
   {
@@ -149,7 +189,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "S",
+        "clue": "Those Havana crates were never cut for a dressmaker."
+      }
+    ],
     "silhouette": "GiCargoCrate"
   },
   {
@@ -166,7 +211,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The widow dropped the veil and named a hotel desk."
+      }
+    ],
     "silhouette": "GiRadioTower"
   },
   {
@@ -183,7 +233,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The dead wire was a ransom, not a condolence."
+      }
+    ],
     "silhouette": "GiRadioTower"
   },
   {
@@ -200,7 +255,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The nurse's napkin used a barnyard word for an empty ward."
+      }
+    ],
     "silhouette": "GiHospital"
   },
   {
@@ -217,7 +277,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The hotel ledger was a pharmacy bill, not a murder kit."
+      }
+    ],
     "silhouette": "GiHospital"
   },
   {
@@ -234,7 +299,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The captain's book names which partner runs the dark fleet."
+      }
+    ],
     "silhouette": "GiWineBottle"
   },
   {
@@ -251,7 +321,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The extra page was bait the federal men were meant to find."
+      }
+    ],
     "silhouette": "GiWineBottle"
   },
   {
@@ -268,7 +343,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The matchbook scrawl names a gender, not a face."
+      }
+    ],
     "silhouette": "GiKey"
   },
   {
@@ -285,7 +365,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "His second story is about which side of the oak threw the bolt."
+      }
+    ],
     "silhouette": "GiKey"
   },
   {
@@ -302,7 +387,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "Pinned to the vault: a city record that rewrites the family tree."
+      }
+    ],
     "silhouette": "GiLockedChest"
   },
   {
@@ -319,7 +409,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The lavender page is a daughter's rage, not a lawyer's brief."
+      }
+    ],
     "silhouette": "GiLockedChest"
   },
   {
@@ -336,7 +431,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "From the wall she saw an accessory on the oak, not a face."
+      }
+    ],
     "silhouette": "GiSecretDoor"
   },
   {
@@ -353,7 +453,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "She heard the toast before she ever saw the glass."
+      }
+    ],
     "silhouette": "GiSecretDoor"
   },
   {
@@ -370,7 +475,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The napkin under the gin was a hiring order, not a round."
+      }
+    ],
     "silhouette": "GiTigerHead"
   },
   {
@@ -387,7 +497,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The booth slip names what leaned in the study, not who held it."
+      }
+    ],
     "silhouette": "GiTigerHead"
   },
   {
@@ -404,7 +519,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The pawned silver was heavy for a reason."
+      }
+    ],
     "silhouette": "GiVial"
   },
   {
@@ -421,7 +541,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The chemists named the smell clinging to the inner glass."
+      }
+    ],
     "silhouette": "GiVial"
   },
   {
@@ -438,7 +563,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The lipstick on the glass was not syndicate muscle."
+      }
+    ],
     "silhouette": "GiLipstick"
   },
   {
@@ -455,7 +585,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The longer warning names municipal ink, not a mob order."
+      }
+    ],
     "silhouette": "GiLipstick"
   },
   {
@@ -472,7 +607,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The river catch still clutched silk and a planted page."
+      }
+    ],
     "silhouette": "GiDrowning"
   },
   {
@@ -489,7 +629,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The missing study book was not about rum."
+      }
+    ],
     "silhouette": "GiDrowning"
   },
   {
@@ -506,7 +651,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The humidor file shows who owned City Hall."
+      }
+    ],
     "silhouette": "GiCigar"
   },
   {
@@ -523,7 +673,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The second scrap aims at headquarters, not the mayor's desk."
+      }
+    ],
     "silhouette": "GiCigar"
   },
   {
@@ -540,7 +695,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The carbon under the blotter is a payroll, not a warrant."
+      }
+    ],
     "silhouette": "GiPoliceBadge"
   },
   {
@@ -557,7 +717,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The rest of the blotter names a numbered dock and a witching hour."
+      }
+    ],
     "silhouette": "GiPoliceBadge"
   },
   {
@@ -574,7 +739,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The stolen note commemorates a badge that did not leave the planks."
+      }
+    ],
     "silhouette": "GiRevolver"
   },
   {
@@ -591,7 +761,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The warehouse paper clears the surviving partner of the gala room."
+      }
+    ],
     "silhouette": "GiRevolver"
   },
   {
@@ -608,7 +783,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "Two came in after the bolt, and two went out before the glass finished."
+      }
+    ],
     "silhouette": "GiSpy"
   },
   {
@@ -625,7 +805,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The toast was offered like a dose, not a celebration."
+      }
+    ],
     "silhouette": "GiSpy"
   },
   {
@@ -642,7 +827,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The stub in the kit used a name that was not the physician's."
+      }
+    ],
     "silhouette": "GiMedicalPack"
   },
   {
@@ -659,7 +849,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The second paper in the bag names what he carried to the mansion."
+      }
+    ],
     "silhouette": "GiMedicalPack"
   },
   {
@@ -676,7 +871,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The wastebasket draft names a warmer heading, not a courtroom."
+      }
+    ],
     "silhouette": "GiSuitcase"
   },
   {
@@ -693,7 +893,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The trunk in the hold is a dummy; watch the Packard, not the steamer."
+      }
+    ],
     "silhouette": "GiSuitcase"
   },
   {
@@ -710,7 +915,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The dockworker leak was bait about a fortune that would never sail."
+      }
+    ],
     "silhouette": "GiFishingHook"
   },
   {
@@ -727,7 +937,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The second slip is not about gold. It is about guns in the mist."
+      }
+    ],
     "silhouette": "GiFishingHook"
   },
   {
@@ -744,7 +959,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The mink on the planks did not come to negotiate."
+      }
+    ],
     "silhouette": "GiPearlNecklace"
   },
   {
@@ -761,7 +981,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The powder on the passenger’s lapel was close-range, and not panic."
+      }
+    ],
     "silhouette": "GiPearlNecklace"
   },
   {
@@ -778,7 +1003,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "From the rafters, the surviving partner found a coward’s cover."
+      }
+    ],
     "silhouette": "GiCrossedPistols"
   },
   {
@@ -795,7 +1025,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "He is waving a shop ticket, not a bottle."
+      }
+    ],
     "silhouette": "GiCrossedPistols"
   },
   {
@@ -812,7 +1047,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The sirens were timed. He let another badge mop the dock."
+      }
+    ],
     "silhouette": "GiHandcuffs"
   },
   {
@@ -829,7 +1069,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The paper from the coat is a ledger, not a surrender."
+      }
+    ],
     "silhouette": "GiHandcuffs"
   },
   {
@@ -846,7 +1091,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "Under neon he names who poured the last glass."
+      }
+    ],
     "silhouette": "GiPrisoner"
   },
   {
@@ -863,7 +1113,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The second signature is meant to corner her, not him."
+      }
+    ],
     "silhouette": "GiPrisoner"
   },
   {
@@ -880,7 +1135,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "She tried to buy the prosecutor with a fortune she did not own."
+      }
+    ],
     "silhouette": "GiGoldBar"
   },
   {
@@ -897,7 +1157,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The night inventory finds the fortune parked in another name."
+      }
+    ],
     "silhouette": "GiGoldBar"
   },
   {
@@ -914,7 +1179,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "Exhibit A is a waterfront book, not a witness's nerves."
+      }
+    ],
     "silhouette": "GiGavel"
   },
   {
@@ -931,7 +1201,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The jury was out less than an hour; the slip names the sentence."
+      }
+    ],
     "silhouette": "GiGavel"
   },
   {
@@ -948,7 +1223,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The brass box was a dead-man's trust, not a handover of keys."
+      }
+    ],
     "silhouette": "GiScrollUnfurled"
   },
   {
@@ -965,7 +1245,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "His last night letter is about the board, not the bolt that failed."
+      }
+    ],
     "silhouette": "GiScrollUnfurled"
   },
   {
@@ -982,7 +1267,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "Her first act as proprietor was a red pen on the shipping books."
+      }
+    ],
     "silhouette": "GiSunrise"
   },
   {
@@ -999,7 +1289,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "At the old grate she is not filing the last papers. She is feeding them."
+      }
+    ],
     "silhouette": "GiSunrise"
   },
   {
@@ -1016,7 +1311,12 @@
     "editionSlot": "Morning",
     "theme": "1920s Mystery",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "T",
+        "clue": "The heavy package ticks, and it is not a thank-you note."
+      }
+    ],
     "silhouette": "GiPocketWatch"
   },
   {
@@ -1033,7 +1333,12 @@
     "editionSlot": "Evening",
     "theme": "Night Extra",
     "category": "Daily Featured",
-    "hints": [],
+    "hints": [
+      {
+        "letter": "E",
+        "clue": "The last envelope is a sailing notice, booked in ink that is not hers."
+      }
+    ],
     "silhouette": "GiPocketWatch"
   }
 ]

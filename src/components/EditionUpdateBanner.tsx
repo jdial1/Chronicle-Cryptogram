@@ -18,7 +18,9 @@ export const EditionUpdateBanner: React.FC<EditionUpdateBannerProps> = ({
           <Newspaper className="w-3.5 h-3.5 shrink-0" />
           <span>Late Edition</span>
         </div>
-        <p className="late-edition-dek">A newer plate is on the wire. Reload to take the fresh sheets.</p>
+        <p className="late-edition-dek">
+          A newer plate is on the wire. Reload, then pack again from Bureau File if you keep a field copy.
+        </p>
       </div>
       <p className="late-edition-versions">
         <span>

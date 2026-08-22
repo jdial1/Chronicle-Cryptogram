@@ -70,6 +70,7 @@ import { Search, WoodcutPressFilter } from './icons';
 import { splashBlocksDesk } from './splash';
 import { isFirebaseEnabled } from './utils/firebase';
 import { isAndroidAppShell, postToAndroidApp } from './utils/androidApp';
+import { useDeskOnline } from './utils/useOfflinePack';
 import { useDialogFocus } from './utils/useDialogFocus';
 
 function isHardPuzzle(puzzle: PuzzleData) {
@@ -1323,6 +1324,7 @@ export default function App() {
   const showCaseFiles = hasDecodedFragments(INITIAL_PUZZLES, solvedPuzzleIds);
   const deskCompact = !isSolved && (deskArmed || viewportKeyboard);
   const editionUpdate = useEditionUpdate();
+  const deskOnline = useDeskOnline();
 
   const handleSelectSymbol = useCallback(
     (symId: string, cellId?: string) => {
@@ -1510,7 +1512,7 @@ export default function App() {
         className="flex-1 w-full min-w-0 edition-measure px-3 sm:px-6 py-3 sm:py-5 flex flex-col justify-between gap-3"
         inert={sheetLocked}
       >
-        {isFirebaseEnabled && boardSolved && !isPracticePuzzle(currentPuzzle) && (
+        {isFirebaseEnabled && deskOnline && boardSolved && !isPracticePuzzle(currentPuzzle) && (
           <LiveStatsRow puzzleId={currentPuzzle.id} />
         )}
 
@@ -1671,6 +1673,8 @@ export default function App() {
         onTogglePaper={togglePaper}
         gameKeyboard={gameKeyboard}
         onToggleKeyboard={toggleKeyboard}
+        pressVersion={editionUpdate.serverVersion}
+        todayClue={currentPuzzle.hints[0] || null}
         onDeleteRecords={
           identified && user
             ? async () => {
