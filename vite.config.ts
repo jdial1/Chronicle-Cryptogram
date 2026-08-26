@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { copyFileSync, existsSync } from 'fs';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -13,6 +14,16 @@ function editionVersionPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split('?')[0];
+        if (
+          url === '/splash' ||
+          url === '/splash.html' ||
+          url === '/splashdev' ||
+          url === '/splashdev.html'
+        ) {
+          req.url = '/index.html';
+          next();
+          return;
+        }
         if (url !== '/version.json') {
           next();
           return;
@@ -28,6 +39,13 @@ function editionVersionPlugin(): Plugin {
         fileName: 'version.json',
         source: payload,
       });
+    },
+    writeBundle(options) {
+      const dir = options.dir || path.resolve(__dirname, 'dist');
+      const index = path.join(dir, 'index.html');
+      if (!existsSync(index)) return;
+      copyFileSync(index, path.join(dir, 'splash.html'));
+      copyFileSync(index, path.join(dir, 'splashdev.html'));
     },
   };
 }
@@ -47,6 +65,9 @@ export default defineConfig(() => {
           'favicon-32x32.png',
           'mask-icon.svg',
           'pwa-192x192.png',
+          'orang-top-games.png',
+          'orang-top-games-plate.png',
+          'orang-top-games-plate-2.png',
           'splash.css',
           'fonts-desk.css',
           'fonts/cinzel-900.woff2',
@@ -133,7 +154,7 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, 'src'),
       },
     },
     server: {

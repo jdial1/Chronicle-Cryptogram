@@ -1,0 +1,21 @@
+﻿appId: com.chroniclecryptogram
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: smoke-launched
+- extendedWaitUntil:
+    visible:
+      text: ".*Chronicle.*|.*ENTER.*|.*Enter the edition.*"
+    timeout: 45000
+- tapOn:
+    text: "ENTER"
+    optional: true
+- tapOn:
+    text: "Enter the edition"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: smoke-after-enter
+- assertNotVisible: "Unfortunately"
+- assertNotVisible: "has stopped"

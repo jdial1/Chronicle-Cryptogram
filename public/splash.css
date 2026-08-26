@@ -136,6 +136,68 @@ body,
   display: none;
 }
 
+.dev-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.85rem, 3vh, 1.35rem);
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  background: #000;
+}
+
+.dev-splash-mark {
+  display: block;
+  width: min(72vw, 22rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: grayscale(1);
+  -webkit-filter: grayscale(1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.splash-coin-dev {
+  width: min(72vw, 22rem);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dev-splash-title {
+  margin: 0;
+  color: #ececec;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.2rem, 4.6vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.dev-splash.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+
+.dev-splash.is-leaving .splash-coin-inner {
+  transform: none;
+  transition: none;
+}
+
+.dev-splash.is-gone,
+#dev-splash.dev-splash.is-gone {
+  display: none;
+}
+
+html.splash-preview-dev .dev-splash {
+  cursor: pointer;
+}
+
 .splash-stage {
   position: relative;
   z-index: 1;
@@ -378,6 +440,10 @@ html.theme-dark .splash-coin {
     width: min(28vw, 17.5rem);
   }
 
+  .splash-coin-dev {
+    width: min(42vw, 22rem);
+  }
+
   .splash-coin-side {
     display: block;
     width: min(18vw, 11.25rem);
@@ -396,5 +462,9 @@ html.theme-dark .splash-coin {
 @media (prefers-reduced-motion: reduce) {
   .splash-overlay::before {
     animation: none;
+  }
+
+  .dev-splash.is-leaving {
+    transition: none;
   }
 }

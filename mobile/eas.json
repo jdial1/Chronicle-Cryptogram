@@ -22,12 +22,36 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "test": {
+      "extends": "preview",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {
     "production": {
       "android": {
         "track": "internal"
+      }
+    },
+    "internal": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
+    },
+    "alpha": {
+      "android": {
+        "track": "alpha",
+        "releaseStatus": "completed"
+      }
+    },
+    "ea": {
+      "android": {
+        "track": "EA",
+        "releaseStatus": "completed"
       }
     }
   }

@@ -203,11 +203,48 @@ export function formatIssueCountdown(ms: number) {
   return `${hours}hrs ${mins}mins`;
 }
 
+export type DatedIssue = {
+  date: string;
+  editionNumber: number;
+  morning?: PuzzleData;
+  night?: PuzzleData;
+};
+
+/** Player-facing archive chapters. Spans match WEEKLY_TENTPOLES; titles are two words. */
+export const ISSUE_CHAPTERS = [
+  { week: 0, kicker: 'Training', title: 'The Primer', from: 0, to: 0 },
+  { week: 1, kicker: 'Chapter I', title: 'The Panic', from: 1, to: 6 },
+  { week: 2, kicker: 'Chapter II', title: 'Sins Exposed', from: 7, to: 13 },
+  { week: 3, kicker: 'Chapter III', title: 'Systemic Rot', from: 14, to: 20 },
+  { week: 4, kicker: 'Chapter IV', title: 'Rat Trap', from: 21, to: 27 },
+  { week: 5, kicker: 'Chapter V', title: 'New Dawn', from: 28, to: 30 },
+] as const;
+
+export type IssueChapter = (typeof ISSUE_CHAPTERS)[number];
+
+export function chapterForEdition(editionNumber: number): IssueChapter {
+  return (
+    ISSUE_CHAPTERS.find((chapter) => editionNumber >= chapter.from && editionNumber <= chapter.to) ??
+    ISSUE_CHAPTERS[ISSUE_CHAPTERS.length - 1]
+  );
+}
+
+export function groupIssuesByChapter(issues: DatedIssue[]) {
+  const chapters: { week: number; kicker: string; title: string; issues: DatedIssue[] }[] = [];
+  for (const issue of issues) {
+    const meta = chapterForEdition(issue.editionNumber);
+    const last = chapters[chapters.length - 1];
+    if (!last || last.week !== meta.week) {
+      chapters.push({ week: meta.week, kicker: meta.kicker, title: meta.title, issues: [issue] });
+    } else {
+      last.issues.push(issue);
+    }
+  }
+  return chapters;
+}
+
 export function groupPuzzlesByDate(puzzles: PuzzleData[]) {
-  const grouped = new Map<
-    string,
-    { date: string; editionNumber: number; morning?: PuzzleData; night?: PuzzleData }
-  >();
+  const grouped = new Map<string, DatedIssue>();
   const cutoff = publishedThroughDate(puzzles);
 
   for (const puzzle of puzzles) {

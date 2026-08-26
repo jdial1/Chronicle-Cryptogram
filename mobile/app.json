@@ -4,7 +4,7 @@
     "slug": "chronicle-cryptogram",
     "owner": "orangetopgames",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "chroniclecryptogram",
@@ -73,14 +73,11 @@
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
       "./plugins/with-adi-registration.js",
-      "./plugins/with-cipher-ime.js"
+      "./plugins/with-cipher-ime.js",
+      "./plugins/with-android-edge-to-edge.js"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "androidStatusBar": {
-      "backgroundColor": "#00000000",
-      "translucent": true
     },
     "extra": {
       "eas": {

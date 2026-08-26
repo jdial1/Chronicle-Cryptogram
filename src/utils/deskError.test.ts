@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DeskError, STORAGE_JAMMED, forgetCloud, toUserMessage } from './deskError';
+import { DeskError, STORAGE_JAMMED, forgetCloud, logDesk, toUserMessage } from './deskError';
 
 describe('toUserMessage', () => {
   it('maps known firebase codes to paper copy', () => {
@@ -29,15 +29,29 @@ describe('DeskError', () => {
   });
 });
 
-describe('forgetCloud', () => {
+describe('logDesk', () => {
+  it('always writes console.error so production logcat can see it', () => {
+    const error = console.error;
+    const calls: unknown[][] = [];
+    console.error = (...args) => {
+      calls.push(args);
+    };
+    try {
+      logDesk('render', new Error('jam'));
+      expect(calls[0]?.[0]).toBe('[desk:render]');
+    } finally {
+      console.error = error;
+    }
+  });
+});
   it('does not throw when the promise rejects', async () => {
-    const warn = console.warn;
-    console.warn = () => undefined;
+    const error = console.error;
+    console.error = () => undefined;
     try {
       expect(() => forgetCloud(Promise.reject(new Error('offline')), 'test')).not.toThrow();
       await Promise.resolve();
     } finally {
-      console.warn = warn;
+      console.error = error;
     }
   });
 });

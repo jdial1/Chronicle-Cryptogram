@@ -1,5 +1,7 @@
-import { splashEnteredThisSession, SPLASH_ENTERED_KEY } from './splashGate';
+import { splashEnteredThisSession, splashPreviewMode, SPLASH_ENTERED_KEY } from './splashGate';
 import { sessionSet, storageSet } from './utils/safeStorage';
+const badge = new URL('./data/images/dev-badge.png', import.meta.url).href;
+const badge2 = new URL('./data/images/dev-badge-2.png', import.meta.url).href;
 const people = [
   new URL('./data/images/c1.png', import.meta.url).href,
   new URL('./data/images/c2.png', import.meta.url).href,
@@ -119,7 +121,7 @@ function startCoin(
 
 function startAllCoins() {
   const held = new Set<string>();
-  const coins = [...document.querySelectorAll<HTMLElement>('.splash-coin')];
+  const coins = [...document.querySelectorAll<HTMLElement>('#splash .splash-coin')];
   const center = document.getElementById('splash-coin') as HTMLElement | null;
   const startOne = (coin: HTMLElement, index: number) => {
     const front = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-front img');
@@ -139,6 +141,77 @@ function startAllCoins() {
     window.clearTimeout(later);
     for (const stop of stops) stop();
   };
+}
+
+function startTwoFaceCoin(coin: HTMLElement, frontSrc: string, backSrc: string, interval = 1600) {
+  const front = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-front img');
+  const back = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-back img');
+  if (!front || !back) return () => undefined;
+  paintFace(front, frontSrc);
+  paintFace(back, backSrc);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return () => undefined;
+  let flipped = false;
+  const tick = window.setInterval(() => {
+    flipped = !flipped;
+    coin.classList.toggle('is-flipped', flipped);
+  }, interval);
+  return () => {
+    window.clearInterval(tick);
+  };
+}
+
+const DEV_HOLD_MS = 3600;
+const DEV_FADE_MS = 450;
+
+function hideDeveloperSplash(panel: HTMLElement) {
+  panel.classList.add('is-gone');
+  panel.hidden = true;
+  panel.setAttribute('inert', '');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+async function playDeveloperSplash(holdForClick = false) {
+  const panel = document.getElementById('dev-splash');
+  if (!panel) return;
+  const coin = document.getElementById('dev-splash-coin');
+  const stopDevCoin = coin ? startTwoFaceCoin(coin, badge, badge2) : () => undefined;
+  if (holdForClick) {
+    panel.setAttribute('role', 'button');
+    panel.setAttribute('aria-label', 'Continue from OrangeTopGames');
+    panel.tabIndex = 0;
+    await new Promise<void>((resolve) => {
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        resolve();
+      };
+      panel.addEventListener('click', done, { once: true });
+      panel.addEventListener('pointerup', done, { once: true });
+      panel.addEventListener(
+        'keydown',
+        (event: KeyboardEvent) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            done();
+          }
+        },
+        { once: true }
+      );
+    });
+  } else {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    await wait(reduced ? 800 : DEV_HOLD_MS);
+  }
+  if (panel.classList.contains('is-gone')) {
+    stopDevCoin();
+    return;
+  }
+  panel.classList.add('is-leaving');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  await wait(reduced ? 0 : DEV_FADE_MS);
+  stopDevCoin();
+  hideDeveloperSplash(panel);
 }
 
 function markEntered() {
@@ -181,7 +254,13 @@ export function startSplash() {
   const overlay = document.getElementById('splash');
   const enter = document.getElementById('splash-enter');
   const root = document.getElementById('root');
+  const developer = document.getElementById('dev-splash');
+  const preview = splashPreviewMode();
   if (!overlay) return;
+
+  if (preview) {
+    document.documentElement.classList.add('splash-preview', `splash-preview-${preview}`);
+  }
 
   if (root && splashEnteredThisSession()) {
     document.documentElement.classList.add('splash-skipped');
@@ -189,12 +268,25 @@ export function startSplash() {
     overlay.hidden = true;
     overlay.setAttribute('inert', '');
     overlay.setAttribute('aria-hidden', 'true');
+    if (developer) hideDeveloperSplash(developer);
     return;
   }
 
   root?.setAttribute('inert', '');
-  void typeTitle();
-  const stopCoin = people.length && places.length ? startAllCoins() : () => undefined;
+  let stopCoin = () => undefined;
+  const bootGameSplash = () => {
+    overlay.removeAttribute('inert');
+    void typeTitle();
+    stopCoin = people.length && places.length ? startAllCoins() : () => undefined;
+  };
+
+  if (preview === 'game') {
+    if (developer) hideDeveloperSplash(developer);
+    bootGameSplash();
+  } else {
+    overlay.setAttribute('inert', '');
+    void playDeveloperSplash(preview === 'dev').then(bootGameSplash);
+  }
 
   if (!enter) return;
 
@@ -204,6 +296,10 @@ export function startSplash() {
     struck = true;
     enter.classList.add('is-pressed');
     window.setTimeout(() => {
+      if (preview) {
+        location.reload();
+        return;
+      }
       dismissSplash(overlay, stopCoin);
     }, 160);
   };

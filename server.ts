@@ -26,6 +26,14 @@ async function startServer() {
     res.json({ status: 'ok', puzzlesCount: INITIAL_PUZZLES.length });
   });
 
+  app.use((req, _res, next) => {
+    const url = req.path;
+    if (url === '/splash' || url === '/splash.html' || url === '/splashdev' || url === '/splashdev.html') {
+      req.url = '/index.html';
+    }
+    next();
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true, hmr: { server: httpServer } },

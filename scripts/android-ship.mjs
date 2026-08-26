@@ -1,0 +1,190 @@
+#!/usr/bin/env node
+/**
+ * Chronicle Cryptogram Android EAS + Play ship.
+ *
+ *   node scripts/android-ship.mjs
+ *   node scripts/android-ship.mjs --test-only
+ *   node scripts/android-ship.mjs --yes
+ *
+ * Always run against mobile/ (src/ is the web app).
+ *
+ * 1. npx eas-cli build --platform android --profile test
+ * 2. Wait for you to type yes (skip with --yes)
+ * 3. npx eas-cli build --platform android --profile production
+ * 4. eas submit that AAB with profiles internal, alpha, and ea
+ *
+ * One-time: cd mobile && npx eas-cli login  (Play creds already in Expo)
+ */
+import { spawnSync } from "node:child_process";
+import { createWriteStream, existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
+import readline from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
+import { pipeline } from "node:stream/promises";
+import { mobileDir, resolveMaestroBin, root } from "./project-paths.mjs";
+
+const mobile = mobileDir;
+const shipApk = path.join(mobile, ".ship", "test.apk");
+const flags = new Set(process.argv.slice(2));
+const testOnly = flags.has("--test-only") || flags.has("--skip-play");
+const assumeYes = flags.has("--yes") || flags.has("-y");
+const skipSmoke = flags.has("--skip-smoke");
+
+function fail(msg) {
+  console.error("FAIL:", msg);
+  process.exit(1);
+}
+
+function step(msg) {
+  console.log("\n==>", msg);
+}
+
+function runNpx(npxArgs, { inherit = false } = {}) {
+  const opts = {
+    cwd: mobile,
+    encoding: "utf8",
+    env: process.env,
+    shell: true,
+  };
+  if (inherit) opts.stdio = "inherit";
+  return spawnSync("npx", npxArgs, opts);
+}
+
+function eas(easArgs) {
+  if (!existsSync(path.join(mobile, "eas.json"))) {
+    fail("Expected EAS app in mobile/. src/ is the web app, not Android.");
+  }
+  console.log("npx eas-cli", easArgs.join(" "));
+  const r = runNpx(["--yes", "eas-cli", ...easArgs], { inherit: true });
+  if (r.error) fail(r.error.message);
+  if (r.status !== 0) fail("eas-cli exited " + r.status);
+}
+
+function easCapture(easArgs) {
+  if (!existsSync(path.join(mobile, "eas.json"))) {
+    fail("Expected EAS app in mobile/. src/ is the web app, not Android.");
+  }
+  console.log("npx eas-cli", easArgs.join(" "));
+  const r = runNpx(["--yes", "eas-cli", ...easArgs]);
+  const out = `${r.stdout || ""}${r.stderr || ""}`;
+  process.stdout.write(out);
+  if (r.error) fail(r.error.message);
+  if (r.status !== 0) fail("eas-cli exited " + r.status);
+  return out;
+}
+
+function parseBuildId(text) {
+  const ids = [...text.matchAll(/"id"\s*:\s*"([0-9a-f-]{8,})"/gi)].map((m) => m[1]);
+  if (ids.length) return ids[ids.length - 1];
+  const url = text.match(
+    /https:\/\/expo\.dev\/accounts\/[^/]+\/projects\/[^/]+\/builds\/([0-9a-f-]+)/i
+  );
+  return url ? url[1] : null;
+}
+
+function parseArtifactUrl(text) {
+  const m = text.match(
+    /"(?:buildUrl|applicationArchiveUrl)"\s*:\s*"(https:\/\/expo\.dev\/artifacts\/eas\/[^"]+\.apk)"/i
+  );
+  return m ? m[1] : null;
+}
+
+async function downloadApk(url, dest) {
+  mkdirSync(path.dirname(dest), { recursive: true });
+  const res = await fetch(url);
+  if (!res.ok) fail(`APK download failed: ${res.status} ${url}`);
+  await pipeline(res.body, createWriteStream(dest));
+  console.log("Saved", dest);
+}
+
+function hasMaestro() {
+  if (resolveMaestroBin()) return true;
+  const r = spawnSync("maestro", ["--version"], { shell: true, encoding: "utf8" });
+  return r.status === 0;
+}
+
+function runSmoke() {
+  const skipMaestro = !hasMaestro();
+  if (skipMaestro) {
+    console.log("Maestro not found — running crash-only smoke (--skip-maestro).");
+  }
+  const args = [path.join(root, "scripts", "android-smoke-test.mjs")];
+  if (skipMaestro) args.push("--skip-maestro");
+  const r = spawnSync(process.execPath, args, {
+    cwd: mobile,
+    stdio: "inherit",
+    env: process.env,
+  });
+  if (r.status !== 0) fail("Smoke test failed.");
+}
+
+console.log("Repo:   ", root);
+console.log("Mobile: ", mobile);
+
+step("EAS test build (APK)");
+const testOut = easCapture([
+  "build",
+  "--platform", "android",
+  "--profile", "test",
+  "--non-interactive",
+  "--wait",
+  "--json",
+]);
+const testId = parseBuildId(testOut);
+const apkUrl = parseArtifactUrl(testOut);
+if (!testId) fail("Could not find test build id in eas-cli output.");
+console.log("Test build", testId);
+
+if (apkUrl) {
+  step("Download test APK");
+  await downloadApk(apkUrl, shipApk);
+} else if (!existsSync(shipApk)) {
+  fail("No APK artifact URL and mobile/.ship/test.apk missing.");
+}
+
+if (!skipSmoke) {
+  step("Local emulator smoke test");
+  runSmoke();
+}
+
+if (testOnly) {
+  console.log("Stopping after test profile (--test-only).");
+  process.exit(0);
+}
+
+if (!assumeYes) {
+  step("Continue to production?");
+  console.log("Type yes to start production and Play submit.");
+  const rl = readline.createInterface({ input, output });
+  const answer = (await rl.question("> ")).trim().toLowerCase();
+  rl.close();
+  if (answer !== "yes" && answer !== "y") fail("Aborted.");
+}
+
+step("EAS production build (AAB)");
+const prodOut = easCapture([
+  "build",
+  "--platform", "android",
+  "--profile", "production",
+  "--non-interactive",
+  "--wait",
+  "--json",
+]);
+const prodId = parseBuildId(prodOut);
+if (!prodId) fail("Could not find production build id in eas-cli output.");
+console.log("Production build", prodId);
+
+step("Play Console: same AAB to internal, alpha, EA");
+for (const profile of ["internal", "alpha", "ea"]) {
+  console.log("---", profile, "---");
+  eas([
+    "submit",
+    "--platform", "android",
+    "--id", prodId,
+    "--profile", profile,
+    "--non-interactive",
+    "--wait",
+  ]);
+}
+
+console.log("\nDone.", prodId, "is on internal, Closed testing (alpha), and EA.");

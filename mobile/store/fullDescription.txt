@@ -1,0 +1,57 @@
+Every morning the same paper hits the stands. You and every other reader get today's Chronicle — a 1920s cryptogram set like a broadsheet — and the case picks up exactly where yesterday left off.
+
+Chronicle Cryptogram is a daily substitution cipher dressed as a vintage newspaper. Tap a mark, type a letter, watch the quote take shape. No math — just English and the same edition every codebreaker in the city is working.
+
+This is a thirty-day serial. A new Morning Edition lands for everyone at once. Break it and the Night Extra drops — a harder second cipher with split glyphs for E, T, and A. Map symbols to letters, pull the handbook when you stall, and race the clock. The whole city is working the same cipher, so don't give tomorrow's headlines away.
+
+THE CASE ON YOUR DESK
+
+A murder at the Vance Estate opens the run. Detective Elias Thorne leads the file. Beatrice Vance, the widow. Clara Vance, the missing heir. Arthur Sterling, the partner. Dr. Aris Blackwood, the physician. Reginald, the butler. Archibald Vance, the victim.
+
+Each solved edition unlocks a case-file fragment — witness notes, dossiers, and quotes pulled from the cipher you just broke. Morning and evening ciphers feed different threads. By day thirty, you should know who had motive, who lied, and who Thorne is still chasing.
+
+HOW A DAY WORKS
+
+• Morning Edition — one glyph per letter. Frequency counting works cleanly.
+• Night Extra — unlocks after you decode the morning paper. E, T, and A each get two glyphs. Same quote, tougher rules.
+• The timer runs from your first guess until the edition is solved. Post your time if you want bragging rights.
+• Three letter checks and three hints per day, shared across both editions. Use them when you are stuck, not when you are showing off.
+
+TOOLS ON THE DESK
+
+• Cipher Handbook — six briefings: single-letter words, frequency, short words, apostrophes, doubles, and how night rules differ.
+• Glyph Tally — repeating marks counted busiest-first, with coaching on E, T, A, O, I, and N.
+• Primer coaching — nudges tied to the same tactics the handbook teaches.
+• Zoom and Clear Letters — resize crowded tiles or wipe guesses and start over. The clock keeps running.
+
+ARCHIVE AND FIELD COPY
+
+Miss a day? The archive keeps past Morning Editions and Night Extras on the shelf. Pick up where you left off without losing the serial thread.
+
+Pack a field copy from Bureau File before you leave the wire. Cipher, archive, and case file run offline on the train or in a dead zone. Sign-in and the bureau board still need a connection. When a newer plate hits the stands, reload and pack again.
+
+SIGN IN AND THE BUREAU BOARD
+
+Sign in with Google to sync your beat book and post times on the bureau board beside every codebreaker who folded today's paper. Streak, solve times, and case progress follow you across devices. Anonymous play works; cloud save and leaderboard posting are optional.
+
+Optional Morning Dispatch — a daily paper-delivery reminder at 8:00 a.m. Eastern when you want a nudge that today's case file is ready.
+
+FEATURES
+
+• One shared morning cipher for every player, then a Night Extra
+• A murder-mystery case file that unfolds over 30 days
+• Archive of past editions if you miss a paper
+• Frequency analysis, glyph tally, and primer coaching
+• Built-in cipher handbook with six solving tactics
+• Optional offline field copy from Bureau File
+• Optional Google sign-in and cloud progress
+• Optional daily Morning Dispatch reminder
+• Timer and bureau board for competitive solvers
+
+THE FINE PRINT
+
+The game is free. No ads. No in-app purchases. No paywalls on hints, archives, or the serial.
+
+Privacy policy: https://jdial1.github.io/Chronicle-Cryptogram/privacy.html
+
+From OrangeTopGames — free, ad-free puzzle games for people who like a little atmosphere with their brain work. Break today's paper. Keep tomorrow's secrets.

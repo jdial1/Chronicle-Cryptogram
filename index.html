@@ -23,12 +23,21 @@
     <link rel="preload" href="./fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/newsreader-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/special-elite-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./orang-top-games-plate.png" as="image" />
+    <link rel="preload" href="./orang-top-games-plate-2.png" as="image" />
     <link rel="stylesheet" href="./fonts-desk.css" />
     <link rel="stylesheet" href="./splash.css" />
     <script>
       try {
-        // Must match STORAGE_KEYS.splashEntered in src/utils/storageKeys.ts
-        if (sessionStorage.getItem('chronicle_splash_entered') === '1') {
+        var leaf = (location.pathname.replace(/\/+$/, '') || '/').split('/').pop() || '';
+        var previewQ = '';
+        try { previewQ = new URLSearchParams(location.search).get('preview') || ''; } catch (e) {}
+        var previewDev = leaf === 'splashdev' || leaf === 'splashdev.html' || previewQ === 'splashdev' || previewQ === 'dev';
+        var previewGame = leaf === 'splash' || leaf === 'splash.html' || previewQ === 'splash' || previewQ === 'game';
+        if (previewDev || previewGame) {
+          document.documentElement.classList.add('splash-preview', previewDev ? 'splash-preview-dev' : 'splash-preview-game');
+        } else if (sessionStorage.getItem('chronicle_splash_entered') === '1') {
+          // Must match STORAGE_KEYS.splashEntered in src/utils/storageKeys.ts
           document.documentElement.classList.add('splash-skipped');
           var splash = document.getElementById('splash');
           if (splash) {
@@ -48,7 +57,10 @@
       } catch (e) {}
     </script>
     <style>
-      html.splash-skipped #splash { display: none !important; }
+      html.splash-skipped #splash,
+      html.splash-skipped #dev-splash { display: none !important; }
+      html.splash-preview #root { display: none !important; visibility: hidden !important; }
+      html.splash-preview-game #dev-splash { display: none !important; }
       .skip-to-puzzle {
         position: absolute;
         left: 0.75rem;
@@ -77,6 +89,20 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+      }
+      #dev-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 95;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.15rem;
+        background: #000;
+      }
+      #dev-splash-coin {
+        width: min(72vw, 22rem);
       }
       #splash-enter {
         --type-key: min(3.5rem, 14vw);
@@ -146,6 +172,15 @@
       <button type="button" class="typewriter-key splash-enter" id="splash-enter" aria-label="Enter the edition">
         ENTER
       </button>
+    </div>
+    <div id="dev-splash" class="dev-splash" aria-label="OrangeTopGames">
+      <div class="splash-coin splash-coin-dev" id="dev-splash-coin">
+        <div class="splash-coin-inner">
+          <div class="splash-coin-face is-front"><img class="is-ready" alt="" src="./orang-top-games-plate.png" width="512" height="512" /></div>
+          <div class="splash-coin-face is-back"><img alt="" src="./orang-top-games-plate-2.png" width="512" height="512" /></div>
+        </div>
+      </div>
+      <p class="dev-splash-title" aria-hidden="true">OrangeTopGames</p>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/splash.ts"></script>

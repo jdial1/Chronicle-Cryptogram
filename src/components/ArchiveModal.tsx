@@ -6,6 +6,7 @@ import {
   formatEditionDate,
   formatEditionDateShort,
   formatIssueCountdown,
+  groupIssuesByChapter,
   groupPuzzlesByDate,
   isNightUnlockedForDate,
   isPracticePuzzle,
@@ -178,6 +179,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   solvedPuzzleIds,
 }) => {
   const issues = groupPuzzlesByDate(puzzles);
+  const chapters = groupIssuesByChapter(issues);
   const currentDate = publishedThroughDate(puzzles);
   const upcomingDate = nextIssueDate(puzzles);
   const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([currentDate]));
@@ -207,8 +209,26 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
       icon={<Newspaper className="w-5 h-5 shrink-0" />}
       sheetClassName="max-w-3xl"
     >
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 bg-newsprint space-y-3">
-          {issues.map((issue) => {
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 bg-newsprint space-y-5">
+          {chapters.map((chapter) => (
+            <section
+              key={chapter.week}
+              aria-labelledby={`chapter-${chapter.week}-title`}
+              className="space-y-3"
+            >
+              <header className="sticky top-0 z-10 -mx-3 sm:-mx-5 px-3 sm:px-5 py-1.5 bg-newsprint">
+                <p className="font-typewriter text-[10px] font-bold uppercase tracking-[0.28em] text-stone-600 text-center">
+                  {chapter.kicker}
+                </p>
+                <h3
+                  id={`chapter-${chapter.week}-title`}
+                  className="font-masthead font-black text-lg sm:text-xl uppercase tracking-[0.14em] text-stone-950 text-center leading-tight"
+                >
+                  {chapter.title}
+                </h3>
+                <div className="mt-1.5 h-px bg-stone-700" />
+              </header>
+              {chapter.issues.map((issue) => {
             const primerIssue = issue.editionNumber === 0;
             const nightUnlocked = isNightUnlockedForDate(puzzles, solvedPuzzleIds, issue.date);
             const morningSolved = Boolean(issue.morning && solvedPuzzleIds.includes(issue.morning.id));
@@ -303,6 +323,8 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
               </article>
             );
           })}
+            </section>
+          ))}
           {upcomingDate && <UpcomingIssueCard date={upcomingDate} />}
         </div>
     </DeskModal>

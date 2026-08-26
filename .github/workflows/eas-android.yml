@@ -10,6 +10,7 @@ on:
           - preview
           - production
           - adi
+          - test
         default: preview
 
 jobs:

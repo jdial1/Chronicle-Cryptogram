@@ -117,6 +117,44 @@ const INJECTED = `
       window.ReactNativeWebView.postMessage(JSON.stringify({type:'PRESS_PACKED'}));
     }
   } catch (e) {}
+  function postErr(kind, msg){
+    try {
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type:'JS_ERROR',
+          kind:kind,
+          message:String(msg||'').slice(0,2000)
+        }));
+      }
+    } catch (e) {}
+  }
+  function msgOf(args){
+    var parts=[];
+    for (var i=0;i<args.length;i++){
+      var a=args[i];
+      if (a==null) { parts.push(String(a)); continue; }
+      if (typeof a==='string') { parts.push(a); continue; }
+      if (a && a.stack) { parts.push(String(a.stack)); continue; }
+      if (a && a.message) { parts.push(String(a.message)); continue; }
+      try { parts.push(JSON.stringify(a)); } catch (e) { parts.push(String(a)); }
+    }
+    return parts.join(' ');
+  }
+  window.addEventListener('error', function(e){
+    postErr('uncaught', (e && e.message ? e.message : 'error') + ' ' + (e && e.filename ? e.filename : '') + ':' + (e && e.lineno ? e.lineno : ''));
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var r = e && e.reason;
+    postErr('unhandledrejection', r && r.stack ? r.stack : r);
+  });
+  var origErr = console.error;
+  console.error = function(){
+    try { origErr.apply(console, arguments); } catch (e) {}
+    var first = arguments[0];
+    if (typeof first === 'string' && first.indexOf('[desk:') === 0) {
+      postErr('desk', msgOf(arguments));
+    }
+  };
   true;
 })();
 `;
@@ -277,7 +315,8 @@ function Desk() {
     setReloadKey((n) => n + 1);
   }, []);
 
-  const onLoadFail = useCallback(() => {
+  const onLoadFail = useCallback((why?: string) => {
+    if (why) console.error('[chronicle-webview]', why);
     loadFailed.current = true;
     hideSplash();
     if (cacheBust) {
@@ -290,6 +329,7 @@ function Desk() {
       setReloadKey((n) => n + 1);
       return;
     }
+    console.error('[chronicle-webview] giving up after retries');
     setFailed(true);
   }, [cacheBust, hideSplash]);
 
@@ -442,11 +482,23 @@ function Desk() {
 
   const onMessage = useCallback(
     (event: WebViewMessageEvent) => {
-      let payload: { type?: string; title?: string; text?: string; depth?: number; dark?: boolean; version?: string };
+      let payload: {
+        type?: string;
+        title?: string;
+        text?: string;
+        depth?: number;
+        dark?: boolean;
+        version?: string;
+        kind?: string;
+        message?: string;
+      };
       try {
         payload = JSON.parse(event.nativeEvent.data);
       } catch {
         return;
+      }
+      if (payload.type === 'JS_ERROR') {
+        console.error('[chronicle-js]', payload.kind || 'error', payload.message);
       }
       if (payload.type === 'GOOGLE_SIGN_IN') nativeSignIn();
       if (payload.type === 'NATIVE_AUTH_ACK') {
@@ -573,11 +625,18 @@ function Desk() {
             if (cacheBust) setCacheBust(false);
             if (!loadFailed.current) cacheTried.current = false;
           }}
-          onError={onLoadFail}
+          onError={(event) => {
+            const n = event.nativeEvent;
+            onLoadFail(`onError ${n.code} ${n.description} ${n.url}`);
+          }}
           onHttpError={(event) => {
-            if (event.nativeEvent.statusCode >= 400 && isMainEdition(event.nativeEvent.url)) {
-              onLoadFail();
+            const n = event.nativeEvent;
+            if (n.statusCode >= 400 && isMainEdition(n.url)) {
+              onLoadFail(`http ${n.statusCode} ${n.url} ${n.description}`);
             }
+          }}
+          onRenderProcessGone={(event) => {
+            onLoadFail(`render process gone didCrash=${event.nativeEvent.didCrash}`);
           }}
           allowsBackForwardNavigationGestures={false}
           overScrollMode="never"

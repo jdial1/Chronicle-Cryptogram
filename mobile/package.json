@@ -31,7 +31,12 @@
     "web": "expo start --web",
     "build:apk": "eas build --platform android --profile preview",
     "build:aab": "eas build --platform android --profile production",
-    "build:adi": "eas build --platform android --profile adi"
+    "build:adi": "eas build --platform android --profile adi",
+    "build:test": "eas build --platform android --profile test",
+    "ship:android": "node ../scripts/android-ship.mjs",
+    "ship:android:test": "node ../scripts/android-ship.mjs --test-only",
+    "smoke:android": "node ../scripts/android-smoke-test.mjs",
+    "smoke:maestro": "node ../scripts/android-maestro.mjs"
   },
   "private": true,
   "expo": {

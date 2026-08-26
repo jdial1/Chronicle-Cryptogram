@@ -48,11 +48,25 @@ export function toUserMessage(err: unknown, fallback: string): string {
 }
 
 export function logDesk(label: string, err: unknown): void {
-  if (import.meta.env.DEV) console.warn(`[desk:${label}]`, err);
+  console.error(`[desk:${label}]`, err);
 }
 
 export function reportDesk(err: unknown, label = 'desk'): void {
   logDesk(label, err);
+}
+
+let crashLogInstalled = false;
+
+/** Surface uncaught JS so Android logcat / the WebView bridge can see it. */
+export function installDeskCrashLog(): void {
+  if (crashLogInstalled || typeof window === 'undefined') return;
+  crashLogInstalled = true;
+  window.addEventListener('error', (event) => {
+    console.error('[desk:uncaught]', event.message, event.filename, event.lineno, event.error);
+  });
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('[desk:unhandledrejection]', event.reason);
+  });
 }
 
 export function forgetCloud(promise: Promise<unknown>, label: string): void {
