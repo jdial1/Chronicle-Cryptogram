@@ -66,6 +66,7 @@ import {
 } from './utils/cipherEngine';
 import { deskThemeIsDark, toggleDeskTheme } from './utils/deskTheme';
 import { useEditionUpdate } from './utils/useEditionUpdate';
+import { useDeskTimer } from './utils/useDeskTimer';
 import { Search, WoodcutPressFilter } from './icons';
 import { splashBlocksDesk } from './splash';
 import { isFirebaseEnabled } from './utils/firebase';
@@ -346,8 +347,11 @@ export default function App() {
   const [flaggedSymbolIds, setFlaggedSymbolIds] = useState<string[]>(BOOT_STATE.flaggedSymbolIds);
   const [isSolved, setIsSolved] = useState(BOOT_STATE.isSolved);
 
-  const [timerSeconds, setTimerSeconds] = useState(BOOT_STATE.timerSeconds);
   const [isTimerRunning, setIsTimerRunning] = useState(!BOOT_STATE.isSolved && !splashBlocksDesk());
+  const { timerSeconds, getTimerSeconds, commitTimer } = useDeskTimer(
+    BOOT_STATE.timerSeconds,
+    isTimerRunning && !isSolved
+  );
 
   // Modals
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
@@ -371,7 +375,7 @@ export default function App() {
     const loaded = loadPuzzleState(currentPuzzle, allPuzzles);
     setProgressReadyId(currentPuzzle.id);
     setMappings(loaded.mappings);
-    setTimerSeconds(loaded.timerSeconds);
+    commitTimer(loaded.timerSeconds);
     setHintsUsed(loaded.hintsUsed);
     setHintsRemaining(loaded.hintsRemaining);
     setHintedSymbolIds(loaded.hintedSymbolIds);
@@ -593,7 +597,7 @@ export default function App() {
       saveCloudDailyHints(user.uid, wallet).catch(() => undefined);
       saveCloudDailyChecks(user.uid, checkWallet).catch(() => undefined);
       setMappings(next.mappings || {});
-      setTimerSeconds(next.timerSeconds || 0);
+      commitTimer(next.timerSeconds || 0);
       setHintsUsed(next.hintsUsed || 0);
       setHintsRemaining(wallet.remaining);
       setHintedSymbolIds(hintedSymbolIds);
@@ -628,31 +632,35 @@ export default function App() {
     };
   }, [user, currentPuzzle.id, currentPuzzle.editionDate, uniqueSymbols, solvedPuzzleIds, allPuzzles]);
 
+  const deskProgress = (): PuzzleProgress => ({
+    mappings,
+    timerSeconds: getTimerSeconds(),
+    hintsUsed,
+    hintsRemaining,
+    hintedSymbolIds,
+    checksUsed,
+    checksRemaining,
+    verifiedSymbolIds,
+    flaggedSymbolIds,
+    selectedSymbolId,
+    isSolved,
+  });
+  const deskProgressRef = useRef(deskProgress);
+  deskProgressRef.current = deskProgress;
+
   useEffect(() => {
-    if (!isTimerRunning || isSolved) return;
-    const interval = setInterval(() => {
-      setTimerSeconds((prev) => +(prev + 0.1).toFixed(1));
-    }, 100);
-    return () => clearInterval(interval);
-  }, [isTimerRunning, isSolved]);
+    if (!isTimerRunning || isSolved || progressReadyId !== currentPuzzle.id) return;
+    const id = window.setInterval(() => {
+      writeLocalProgress(currentPuzzle.id, deskProgressRef.current());
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [isTimerRunning, isSolved, progressReadyId, currentPuzzle.id]);
 
   // Save progress automatically
   useEffect(() => {
     if (progressReadyId !== currentPuzzle.id || uniqueSymbols.length === 0) return;
-    writeLocalProgress(currentPuzzle.id, {
-      mappings,
-      timerSeconds,
-      hintsUsed,
-      hintsRemaining,
-      hintedSymbolIds,
-      checksUsed,
-      checksRemaining,
-      verifiedSymbolIds,
-      flaggedSymbolIds,
-      selectedSymbolId,
-      isSolved,
-    });
-  }, [progressReadyId, mappings, timerSeconds, hintsUsed, hintsRemaining, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, selectedSymbolId, isSolved, currentPuzzle.id, uniqueSymbols]);
+    writeLocalProgress(currentPuzzle.id, deskProgress());
+  }, [progressReadyId, mappings, hintsUsed, hintsRemaining, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, selectedSymbolId, isSolved, currentPuzzle.id, uniqueSymbols]);
 
   useEffect(() => {
     if (!user || uniqueSymbols.length === 0 || progressReadyId !== currentPuzzle.id) return;
@@ -660,7 +668,7 @@ export default function App() {
     const handle = window.setTimeout(() => {
       saveCloudProgress(user.uid, currentPuzzle.id, {
         mappings,
-        timerSeconds,
+        timerSeconds: getTimerSeconds(),
         hintsUsed,
         hintsRemaining,
         hintedSymbolIds,
@@ -709,6 +717,8 @@ export default function App() {
 
     const allCorrect = uniqueSymbols.every((s) => mappings[s.symbolId] === s.targetLetter);
     if (allCorrect) {
+      const elapsed = getTimerSeconds();
+      commitTimer(elapsed);
       setIsSolved(true);
       setIsTimerRunning(false);
       setIsSolveBulletinOpen(true);
@@ -742,9 +752,9 @@ export default function App() {
         maxStreak: Math.max(gameStats.maxStreak, gameStats.currentStreak + 1),
         fastestTime:
           gameStats.fastestTime === null
-            ? timerSeconds
-            : Math.min(gameStats.fastestTime, timerSeconds),
-        totalTimePlayed: gameStats.totalTimePlayed + timerSeconds,
+            ? elapsed
+            : Math.min(gameStats.fastestTime, elapsed),
+        totalTimePlayed: gameStats.totalTimePlayed + elapsed,
       };
       setGameStats(next);
       localStorage.setItem('cryptogram_stats', JSON.stringify(next));
@@ -755,7 +765,7 @@ export default function App() {
         recordPuzzleSolve(
           user.uid,
           currentPuzzle.id,
-          timerSeconds,
+          elapsed,
           hintsUsed,
           accuracy,
           solverName
@@ -763,7 +773,7 @@ export default function App() {
         saveUserProfile(user.uid, next, nextSolved).catch(() => undefined);
         saveCloudProgress(user.uid, currentPuzzle.id, {
           mappings,
-          timerSeconds,
+          timerSeconds: elapsed,
           hintsUsed,
           hintsRemaining,
           hintedSymbolIds,
@@ -776,7 +786,7 @@ export default function App() {
         }).catch(() => undefined);
       }
     }
-  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, timerSeconds, user, hintsUsed, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, accuracy, solvedPuzzleIds, hintsRemaining, gameStats, progressReadyId]);
+  }, [mappings, uniqueSymbols, isSolved, currentPuzzle, getTimerSeconds, commitTimer, user, hintsUsed, hintedSymbolIds, checksUsed, checksRemaining, verifiedSymbolIds, flaggedSymbolIds, accuracy, solvedPuzzleIds, hintsRemaining, gameStats, progressReadyId]);
 
   // Handle Letter Input (Applies to ALL instances of the selected symbol across the message)
   const handleKeyPress = useCallback(
@@ -875,7 +885,7 @@ export default function App() {
     const nextFlagged = flaggedSymbolIds.filter((id) => id !== targetSymbol.symbolId);
     const progress = {
       mappings: nextMappings,
-      timerSeconds,
+      timerSeconds: getTimerSeconds(),
       hintsUsed: nextUsed,
       hintsRemaining: nextRemaining,
       hintedSymbolIds: nextHinted,
@@ -911,7 +921,7 @@ export default function App() {
     hintsUsed,
     checksUsed,
     checksRemaining,
-    timerSeconds,
+    getTimerSeconds,
     currentPuzzle.editionDate,
     currentPuzzle.id,
     user,
@@ -938,7 +948,7 @@ export default function App() {
     const nextRemaining = Math.max(0, checksRemaining - 1);
     const progress = {
       mappings,
-      timerSeconds,
+      timerSeconds: getTimerSeconds(),
       hintsUsed,
       hintsRemaining,
       hintedSymbolIds,
@@ -973,7 +983,7 @@ export default function App() {
     checksUsed,
     hintsUsed,
     hintsRemaining,
-    timerSeconds,
+    getTimerSeconds,
     currentPuzzle.editionDate,
     currentPuzzle.id,
     user,
