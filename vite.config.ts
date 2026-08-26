@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import type { Plugin } from 'vite';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 import { APP_VERSION } from './src/data/appVersion';
 
@@ -47,18 +47,36 @@ export default defineConfig(() => {
           'favicon-32x32.png',
           'mask-icon.svg',
           'pwa-192x192.png',
-          'pwa-512x512.png',
-          'pwa-512x512-maskable.png',
-          'fonts.css',
-          'fonts/*.woff2',
+          'splash.css',
+          'fonts-desk.css',
+          'fonts/cinzel-900.woff2',
+          'fonts/playfair-display-700.woff2',
+          'fonts/newsreader-400.woff2',
+          'fonts/special-elite-400.woff2',
         ],
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,svg,webmanifest}'],
+          globIgnores: ['**/shot.html', '**/pwa-512*'],
           navigateFallbackDenylist: [/version\.json/i],
           runtimeCaching: [
             {
               urlPattern: /\/version\.json/i,
               handler: 'NetworkOnly',
+            },
+            {
+              urlPattern: ({ request, url, sameOrigin }) =>
+                sameOrigin &&
+                !/version\.json$/i.test(url.pathname) &&
+                (request.destination === 'script' ||
+                  request.destination === 'style' ||
+                  request.destination === 'font' ||
+                  /\.(?:js|css|woff2)$/i.test(url.pathname)),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'chronicle-shell',
+                expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
             },
             {
               urlPattern: ({ url, sameOrigin }) =>
@@ -104,6 +122,8 @@ export default defineConfig(() => {
       })
     ],
     build: {
+      target: 'es2022',
+      assetsInlineLimit: 0,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html'),
@@ -122,6 +142,10 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+    },
+    test: {
+      environment: 'node',
+      include: ['src/**/*.test.ts'],
     },
   };
 });

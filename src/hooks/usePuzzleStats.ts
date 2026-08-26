@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { PuzzleLiveStats } from '../types';
-import { emptyPuzzleStats, subscribePuzzleStats } from './firebaseStore';
+import { emptyPuzzleStats, subscribePuzzleStats } from '../utils/firebaseStore';
 
 export function usePuzzleStats(puzzleId: string) {
   const [stats, setStats] = useState<PuzzleLiveStats>(() => emptyPuzzleStats(puzzleId));

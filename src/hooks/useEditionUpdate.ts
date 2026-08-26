@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../data/appVersion';
-import { postToAndroidApp } from './androidApp';
+import { postToAndroidApp } from '../utils/androidApp';
+import { logDesk } from '../utils/deskError';
 
 const POLL_MS = 5 * 60 * 1000;
 
@@ -45,7 +46,7 @@ export function useEditionUpdate() {
         .then((version) => {
           if (!cancelled && version) setPressVersion(version);
         })
-        .catch(() => undefined);
+        .catch((err) => logDesk('edition-update', err));
     };
 
     const onVisible = () => {

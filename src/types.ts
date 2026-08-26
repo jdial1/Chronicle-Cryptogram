@@ -26,6 +26,7 @@ export interface PuzzleData {
   subheadline: string;
   authorOrSource: string;
   originalText: string;
+  /** Legacy display copy. Play mode is `difficultyMode` or `puzzleMode()`. */
   difficulty: Difficulty;
   difficultyMode?: 'Easy' | 'Hard';
   editionSlot?: 'Morning' | 'Evening';
@@ -106,6 +107,7 @@ export interface PuzzleProgress {
   flaggedSymbolIds: string[];
   selectedSymbolId: string | null;
   isSolved: boolean;
+  updatedAt?: number;
 }
 
 export interface PuzzleLiveStats {

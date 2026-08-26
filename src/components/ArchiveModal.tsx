@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { X, Newspaper, CheckCircle2, DecodedStamp, Lock, ChevronDown, ChevronUp, PuzzleSilhouette } from '../icons';
+import { Newspaper, CheckCircle2, DecodedStamp, Lock, ChevronDown, ChevronUp, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
+import { DeskModal } from './DeskModal';
 import {
   formatEditionDate,
   formatEditionDateShort,
@@ -67,7 +68,7 @@ function IssueSlot({
       {isSolved && !locked && <DecodedStamp />}
       <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
         <span
-          className={`px-1.5 py-0.5 text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950 ${
+          className={`px-1.5 py-0.5 text-xs font-newspaper font-bold uppercase tracking-wider text-stone-950 ${
             extra || label === 'Night Extra' ? 'bg-[#d6c9b0]' : 'bg-[#e8e0d0]'
           }`}
         >
@@ -75,7 +76,7 @@ function IssueSlot({
         </span>
         {isSolved && !locked && <span className="sr-only">Decoded</span>}
         {isCurrent && (
-          <span className="font-typewriter font-bold text-[9px] uppercase tracking-widest text-stone-600">
+          <span className="font-typewriter font-bold text-xs uppercase tracking-widest text-stone-600">
             Now Reading
           </span>
         )}
@@ -129,8 +130,8 @@ function UpcomingIssueCard({ date }: { date: string }) {
   }, []);
 
   return (
-    <article className="border-2 border-stone-700 bg-[#f8f3e8]">
-      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[#ebe4d4] text-stone-950">
+    <article className="border-2 border-stone-700 bg-[var(--paper)]">
+      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[var(--paper-masthead)] text-stone-950">
         <div className="flex items-center gap-2 min-w-0">
           <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
             {formatEditionDateShort(date)}
@@ -144,12 +145,12 @@ function UpcomingIssueCard({ date }: { date: string }) {
       <div className="relative">
         <div className="p-2.5 flex flex-row gap-2.5">
           <div className="relative flex flex-col p-3 border rounded-xs flex-1 min-w-0 bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
-            <span className="px-1.5 py-0.5 w-fit bg-[#e8e0d0] text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950">
+            <span className="px-1.5 py-0.5 w-fit bg-[#e8e0d0] text-xs font-newspaper font-bold uppercase tracking-wider text-stone-950">
               Morning Edition
             </span>
           </div>
           <div className="relative flex flex-col p-3 border rounded-xs w-1/4 flex-none bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
-            <span className="px-1.5 py-0.5 w-fit bg-[#d6c9b0] text-[10px] font-newspaper font-bold uppercase tracking-wider text-stone-950">
+            <span className="px-1.5 py-0.5 w-fit bg-[#d6c9b0] text-xs font-newspaper font-bold uppercase tracking-wider text-stone-950">
               Night Extra
             </span>
           </div>
@@ -158,7 +159,7 @@ function UpcomingIssueCard({ date }: { date: string }) {
           aria-live="polite"
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
         >
-          <span className="px-2.5 py-1 bg-[#f8f3e8] border border-stone-800 font-typewriter font-black text-sm sm:text-base text-stone-950 tabular-nums">
+          <span className="px-2.5 py-1 bg-[var(--paper)] border border-stone-800 font-typewriter font-black text-sm sm:text-base text-stone-950 tabular-nums">
             {formatIssueCountdown(releaseAt - now)}
           </span>
         </p>
@@ -198,31 +199,14 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="archive-title"
-        className="modal-sheet max-w-3xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <div className="flex items-center gap-2 min-w-0">
-            <Newspaper className="w-5 h-5 shrink-0" />
-            <h2 id="archive-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
-              Issues
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="archive-title"
+      title="Issues"
+      icon={<Newspaper className="w-5 h-5 shrink-0" />}
+      sheetClassName="max-w-3xl"
+    >
         <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 bg-newsprint space-y-3">
           {issues.map((issue) => {
             const primerIssue = issue.editionNumber === 0;
@@ -239,13 +223,13 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
             const isToday = issue.date === currentDate;
 
             return (
-              <article key={issue.date} className="border-2 border-stone-700 bg-[#f8f3e8]">
+              <article key={issue.date} className="border-2 border-stone-700 bg-[var(--paper)]">
                 <button
                   type="button"
                   onClick={() => toggleDate(issue.date)}
                   aria-expanded={isOpenIssue}
                   aria-controls={`issue-${issue.date}`}
-                  className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[#ebe4d4] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
+                  className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[var(--paper-masthead)] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <PuzzleSilhouette
@@ -259,7 +243,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       {formatEditionDate(issue.date)}
                     </span>
                     {isToday && (
-                      <span className="hidden sm:inline shrink-0 px-1.5 py-0.5 bg-amber-600 text-stone-950 font-typewriter font-black text-[9px] uppercase tracking-wider">
+                      <span className="hidden sm:inline shrink-0 px-1.5 py-0.5 bg-amber-600 text-stone-950 font-typewriter font-black text-xs uppercase tracking-wider">
                         Today
                       </span>
                     )}
@@ -321,7 +305,6 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
           })}
           {upcomingDate && <UpcomingIssueCard date={upcomingDate} />}
         </div>
-      </div>
-    </div>
+    </DeskModal>
   );
 };

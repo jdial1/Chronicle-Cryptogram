@@ -32,6 +32,7 @@ async function sendChunk(tokens: string[]) {
     if (entry.success) return;
     const code = entry.error?.code || '';
     if (INVALID.has(code)) stale.push(tokens[index]);
+    else console.error('[dispatch] send failed', code);
   });
   return stale;
 }
@@ -42,6 +43,7 @@ export const morningDispatch = onSchedule(
     timeZone: 'America/New_York',
   },
   async () => {
+    try {
     const db = getFirestore();
     const snap = await db.collection('dispatchTokens').where('subscribed', '==', true).get();
     const tokens: string[] = [];
@@ -62,5 +64,8 @@ export const morningDispatch = onSchedule(
         return id ? db.collection('dispatchTokens').doc(id).delete() : Promise.resolve();
       })
     );
+    } catch (err) {
+      console.error('[dispatch] morning run failed', err);
+    }
   }
 );

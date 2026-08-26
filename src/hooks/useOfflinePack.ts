@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../data/appVersion';
 import { plateSrcs } from '../data/plates';
-import { postToAndroidApp } from './androidApp';
+import { postToAndroidApp } from '../utils/androidApp';
+import { useDeskOnline } from './useDeskOnline';
 
-const PRESS_PACK_KEY = 'cryptogram_offline_pack';
+import { STORAGE_KEYS } from '../utils/storageKeys';
+import { storageGetJSON, storageSetJSON } from '../utils/safeStorage';
+
+const PRESS_PACK_KEY = STORAGE_KEYS.offlinePack;
 const PRESS_PACK_CACHE = 'chronicle-press-pack';
 
 type PressPackRecord = {
@@ -14,7 +18,8 @@ type PressPackRecord = {
 type PressPackStatus = 'unsupported' | 'empty' | 'packing' | 'packed' | 'stale';
 
 const FONT_FILES = [
-  'fonts.css',
+  'fonts-desk.css',
+  'fonts-extra.css',
   'fonts/cinzel-700.woff2',
   'fonts/cinzel-900.woff2',
   'fonts/playfair-display-700.woff2',
@@ -37,41 +42,14 @@ const ICON_FILES = [
   'pwa-512x512-maskable.png',
 ];
 
-export function useDeskOnline() {
-  const [online, setOnline] = useState(() =>
-    typeof navigator === 'undefined' ? true : navigator.onLine
-  );
-
-  useEffect(() => {
-    const up = () => setOnline(true);
-    const down = () => setOnline(false);
-    window.addEventListener('online', up);
-    window.addEventListener('offline', down);
-    return () => {
-      window.removeEventListener('online', up);
-      window.removeEventListener('offline', down);
-    };
-  }, []);
-
-  return online;
-}
+export { useDeskOnline } from './useDeskOnline';
 
 function readRecord(): PressPackRecord | null {
-  try {
-    const raw = localStorage.getItem(PRESS_PACK_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw) as PressPackRecord;
-    if (typeof data?.version !== 'string' || !data.version) return null;
-    const packedAt = Number(data.packedAt);
-    if (!Number.isFinite(packedAt) || packedAt <= 0) return null;
-    return { version: data.version, packedAt };
-  } catch {
-    return null;
-  }
+  return storageGetJSON<PressPackRecord>(PRESS_PACK_KEY);
 }
 
 function writeRecord(record: PressPackRecord) {
-  localStorage.setItem(PRESS_PACK_KEY, JSON.stringify(record));
+  storageSetJSON(PRESS_PACK_KEY, record);
 }
 
 function pressPackStatus(
@@ -184,6 +162,7 @@ async function collectPressPackUrls() {
   try {
     await import('canvas-confetti');
   } catch {
+    /* optional capability */
   }
   for (const src of await collectCacheUrls()) urls.add(src);
   return [...urls].filter((url) => !isVersionJson(url));
@@ -206,7 +185,8 @@ async function cachePack(urls: string[]) {
 async function persistStorage() {
   try {
     await navigator.storage?.persist?.();
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn('[desk:storage-persist]', err);
   }
 }
 

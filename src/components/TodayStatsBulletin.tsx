@@ -1,10 +1,11 @@
 import React from 'react';
-import { Zap, Users, TrendingUp, Award, X } from '../icons';
+import { Zap, Users, TrendingUp, Award } from '../icons';
 import { formatTime } from '../utils/cipherEngine';
 import { PuzzleData } from '../types';
-import { isPracticePuzzle, isPrimerPuzzle } from '../utils/edition';
-import { usePuzzleStats } from '../utils/usePuzzleStats';
+import { isHardPuzzle, isPracticePuzzle, isPrimerPuzzle } from '../utils/edition';
+import { usePuzzleStats } from '../hooks/usePuzzleStats';
 import { derivePublicStats } from '../utils/firebaseStore';
+import { DeskModal } from './DeskModal';
 
 interface SolvedStatsProps {
   currentPuzzle: PuzzleData;
@@ -22,15 +23,11 @@ interface TodayStatsBulletinProps extends SolvedStatsProps {
   onClose: () => void;
 }
 
-function isHardPuzzle(puzzle: PuzzleData) {
-  return puzzle.difficultyMode === 'Hard' || puzzle.difficulty === 'Hard';
-}
-
 const inkAction =
   'w-full min-h-12 sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
 
 const inkSecondary =
-  'w-full min-h-12 sm:w-auto px-4 py-2.5 border-2 border-stone-800 bg-[#f8f3e8] hover:bg-amber-100 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
+  'w-full min-h-12 sm:w-auto px-4 py-2.5 border-2 border-stone-800 bg-[var(--paper)] hover:bg-amber-100 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
 
 export function PrimerPathButtons({
   offerCatchUp,
@@ -119,7 +116,7 @@ export function LiveStatsRow({ puzzleId }: { puzzleId: string }) {
       {cells.map((cell) => (
         <div
           key={cell.label}
-          className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 p-1.5 sm:p-2 bg-[#f8f4ea] border border-stone-300 rounded-xs min-w-0"
+          className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 p-1.5 sm:p-2 bg-[var(--paper)] border border-stone-300 rounded-xs min-w-0"
         >
           {cell.icon}
           <div className="overflow-hidden text-center sm:text-left min-w-0">
@@ -164,31 +161,14 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   const showNightPost = !isPrimer && !isPractice && !isHard && onUnlockHardMode;
 
   return (
-    <div className="modal-backdrop is-slip z-50 select-none" onClick={onClose}>
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="stats-bulletin-title"
-        className="modal-sheet is-slip max-w-md"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <h2
-            id="stats-bulletin-title"
-            className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight"
-          >
-            {title}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="stats-bulletin-title"
+      title={title}
+      slip
+      sheetClassName="max-w-md"
+    >
         <div className="p-6 text-center">
           <p className="font-typewriter text-xs uppercase tracking-[0.2em] text-stone-600">Your time</p>
           <p className="mt-1 font-typewriter font-black text-4xl sm:text-5xl text-stone-950 tabular-nums leading-none">
@@ -245,7 +225,6 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
             </button>
           </div>
         )}
-      </section>
-    </div>
+    </DeskModal>
   );
 };

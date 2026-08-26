@@ -23,6 +23,31 @@ import {
   PuzzleProgress,
   DailyHintWallet,
 } from '../types';
+import {
+  DAILY_CHECKS,
+  DAILY_HINTS,
+  clipHintedSymbolIds,
+  clipSelectedSymbolId,
+  clipDailyWallet,
+  isEditionDate,
+  mergeDailyHints,
+  mergeProgress,
+  normalizeDailyHints,
+  normalizeProgress,
+  progressFields,
+  progressSnapshot,
+  readAllLocalDailyChecks,
+  readAllLocalDailyHints,
+  reconcileDailyChecks,
+  reconcileDailyHints,
+  writeLocalDailyChecks,
+  writeLocalDailyHints,
+  writeLocalProgress,
+} from './localStore';
+import { forgetCloud, logDesk } from './deskError';
+import { solverDisplayName } from './solverDisplayName';
+import { STORAGE_KEYS } from './storageKeys';
+import { storageGet } from './safeStorage';
 
 const EMPTY_STATS: Omit<PuzzleLiveStats, 'puzzleId'> = {
   startedCount: 0,
@@ -30,17 +55,6 @@ const EMPTY_STATS: Omit<PuzzleLiveStats, 'puzzleId'> = {
   totalTimeSeconds: 0,
   fastestTime: null,
   fastestSolverName: null,
-};
-
-const DEFAULT_GAME_STATS: GameStats = {
-  puzzlesPlayed: 0,
-  puzzlesSolved: 0,
-  currentStreak: 1,
-  maxStreak: 1,
-  fastestTime: null,
-  totalTimePlayed: 0,
-  averageAccuracy: 100,
-  leaderboardSubmissions: 0,
 };
 
 function startId(uid: string, puzzleId: string) {
@@ -67,351 +81,6 @@ export function derivePublicStats(stats: PuzzleLiveStats | null) {
   };
 }
 
-export const DAILY_HINTS = 3;
-export const DAILY_CHECKS = 3;
-const PROGRESS_KEY = 'cryptogram_progress_';
-const DAILY_HINTS_KEY = 'cryptogram_daily_hints_';
-const DAILY_CHECKS_KEY = 'cryptogram_daily_checks_';
-
-export function clipHintedSymbolIds(ids: unknown): string[] {
-  if (!Array.isArray(ids)) return [];
-  const out: string[] = [];
-  for (const id of ids) {
-    if (typeof id !== 'string' || !id || id.length > 80) continue;
-    if (!out.includes(id)) out.push(id);
-    if (out.length >= 26) break;
-  }
-  return out;
-}
-
-export function clipSelectedSymbolId(id: unknown): string | null {
-  return clipHintedSymbolIds([id])[0] || null;
-}
-
-export function mergeProgress(local: PuzzleProgress | null, cloud: PuzzleProgress | null): PuzzleProgress | null {
-  if (!cloud) return local;
-  if (!local) return cloud;
-  const hintedSymbolIds = clipHintedSymbolIds([
-    ...(cloud.hintedSymbolIds || []),
-    ...(local.hintedSymbolIds || []),
-  ]);
-  const verifiedSymbolIds = clipHintedSymbolIds([
-    ...(cloud.verifiedSymbolIds || []),
-    ...(local.verifiedSymbolIds || []),
-  ]);
-  const flaggedSymbolIds = clipHintedSymbolIds([
-    ...(cloud.flaggedSymbolIds || []),
-    ...(local.flaggedSymbolIds || []),
-  ]).filter((id) => !hintedSymbolIds.includes(id) && !verifiedSymbolIds.includes(id));
-  const hintsUsed = Math.max(local.hintsUsed || 0, cloud.hintsUsed || 0, hintedSymbolIds.length);
-  const checksUsed = Math.max(local.checksUsed || 0, cloud.checksUsed || 0, verifiedSymbolIds.length);
-  const hintsRemaining = Math.min(
-    local.hintsRemaining ?? DAILY_HINTS,
-    cloud.hintsRemaining ?? DAILY_HINTS,
-    Math.max(0, DAILY_HINTS - hintsUsed)
-  );
-  const checksRemaining = Math.min(
-    local.checksRemaining ?? DAILY_CHECKS,
-    cloud.checksRemaining ?? DAILY_CHECKS,
-    Math.max(0, DAILY_CHECKS - checksUsed)
-  );
-  if (local.isSolved && cloud.isSolved) {
-    const winner = local.timerSeconds <= cloud.timerSeconds ? local : cloud;
-    return {
-      ...winner,
-      hintedSymbolIds,
-      verifiedSymbolIds,
-      flaggedSymbolIds,
-      hintsUsed,
-      checksUsed,
-      hintsRemaining,
-      checksRemaining,
-    };
-  }
-  if (cloud.isSolved) {
-    return {
-      ...cloud,
-      hintedSymbolIds,
-      verifiedSymbolIds,
-      flaggedSymbolIds,
-      hintsUsed: Math.max(cloud.hintsUsed || 0, hintedSymbolIds.length),
-      checksUsed: Math.max(cloud.checksUsed || 0, verifiedSymbolIds.length),
-    };
-  }
-  if (local.isSolved) {
-    return {
-      ...local,
-      hintedSymbolIds,
-      verifiedSymbolIds,
-      flaggedSymbolIds,
-      hintsUsed: Math.max(local.hintsUsed || 0, hintedSymbolIds.length),
-      checksUsed: Math.max(local.checksUsed || 0, verifiedSymbolIds.length),
-    };
-  }
-  return {
-    mappings: { ...(cloud.mappings || {}), ...(local.mappings || {}) },
-    timerSeconds: Math.max(local.timerSeconds || 0, cloud.timerSeconds || 0),
-    hintsUsed,
-    hintsRemaining,
-    hintedSymbolIds,
-    checksUsed,
-    checksRemaining,
-    verifiedSymbolIds,
-    flaggedSymbolIds,
-    selectedSymbolId: clipSelectedSymbolId(local.selectedSymbolId || cloud.selectedSymbolId),
-    isSolved: false,
-  };
-}
-
-export function mergeGameStats(local: GameStats, cloud: GameStats | null): GameStats {
-  if (!cloud) return local;
-  if (local.puzzlesSolved > cloud.puzzlesSolved) return local;
-  return {
-    ...cloud,
-    maxStreak: Math.max(local.maxStreak, cloud.maxStreak),
-    fastestTime:
-      local.fastestTime == null
-        ? cloud.fastestTime
-        : cloud.fastestTime == null
-          ? local.fastestTime
-          : Math.min(local.fastestTime, cloud.fastestTime),
-    totalTimePlayed: Math.max(local.totalTimePlayed, cloud.totalTimePlayed),
-  };
-}
-
-export function mergeSolvedIds(local: string[], cloud: string[]) {
-  return Array.from(new Set([...local, ...cloud]));
-}
-
-function isEditionDate(value: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
-}
-
-export function clipDailyWallet(editionDate: string, used: number): DailyHintWallet {
-  const clipped = Math.min(DAILY_HINTS, Math.max(0, Math.floor(Number(used)) || 0));
-  return { editionDate, used: clipped, remaining: DAILY_HINTS - clipped };
-}
-
-export function mergeDailyHints(
-  local: DailyHintWallet | null,
-  cloud: DailyHintWallet | null,
-  editionDate: string
-): DailyHintWallet {
-  return clipDailyWallet(editionDate, Math.max(local?.used ?? 0, cloud?.used ?? 0));
-}
-
-function normalizeProgress(raw: unknown): PuzzleProgress | null {
-  try {
-    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    if (!data || typeof data !== 'object') return null;
-    const source = (data as PuzzleProgress).mappings;
-    const mappings: PuzzleProgress['mappings'] = {};
-    if (source && typeof source === 'object') {
-      for (const key of Object.keys(source).slice(0, 80)) {
-        const letter = source[key];
-        if (typeof letter === 'string' && letter) mappings[key] = letter;
-      }
-    }
-    const hintedSymbolIds = clipHintedSymbolIds((data as PuzzleProgress).hintedSymbolIds);
-    const verifiedSymbolIds = clipHintedSymbolIds((data as PuzzleProgress).verifiedSymbolIds);
-    const flaggedSymbolIds = clipHintedSymbolIds((data as PuzzleProgress).flaggedSymbolIds).filter(
-      (id) => !hintedSymbolIds.includes(id) && !verifiedSymbolIds.includes(id)
-    );
-    const timerSeconds = Number((data as PuzzleProgress).timerSeconds) || 0;
-    const hintsUsed = Math.max(Number((data as PuzzleProgress).hintsUsed) || 0, hintedSymbolIds.length);
-    const checksUsed = Math.max(Number((data as PuzzleProgress).checksUsed) || 0, verifiedSymbolIds.length);
-    const hintsRemaining =
-      (data as PuzzleProgress).hintsRemaining == null
-        ? Math.max(0, DAILY_HINTS - hintsUsed)
-        : Number((data as PuzzleProgress).hintsRemaining);
-    const checksRemaining =
-      (data as PuzzleProgress).checksRemaining == null
-        ? Math.max(0, DAILY_CHECKS - checksUsed)
-        : Number((data as PuzzleProgress).checksRemaining);
-    return {
-      mappings,
-      timerSeconds: Math.min(86400, Math.max(0, timerSeconds)),
-      hintsUsed: Math.min(20, Math.max(0, hintsUsed)),
-      hintsRemaining: Math.min(DAILY_HINTS, Math.max(0, hintsRemaining)),
-      hintedSymbolIds,
-      checksUsed: Math.min(20, Math.max(0, checksUsed)),
-      checksRemaining: Math.min(DAILY_CHECKS, Math.max(0, checksRemaining)),
-      verifiedSymbolIds,
-    flaggedSymbolIds,
-    selectedSymbolId: clipSelectedSymbolId((data as PuzzleProgress).selectedSymbolId),
-    isSolved: Boolean((data as PuzzleProgress).isSolved),
-  };
-  } catch {
-    return null;
-  }
-}
-
-function normalizeDailyHints(raw: unknown, editionDate: string): DailyHintWallet | null {
-  if (!isEditionDate(editionDate)) return null;
-  try {
-    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    if (!data || typeof data !== 'object') return null;
-    const used = Number((data as DailyHintWallet).used);
-    const remaining = Number((data as DailyHintWallet).remaining);
-    const fromParts =
-      Number.isFinite(used) ? used : Number.isFinite(remaining) ? DAILY_HINTS - remaining : 0;
-    return clipDailyWallet(editionDate, fromParts);
-  } catch {
-    return null;
-  }
-}
-
-export function readLocalProgress(puzzleId: string): PuzzleProgress | null {
-  try {
-    return normalizeProgress(localStorage.getItem(`${PROGRESS_KEY}${puzzleId}`));
-  } catch {
-    return null;
-  }
-}
-
-function clipMappings(mappings: PuzzleProgress['mappings']) {
-  const next: PuzzleProgress['mappings'] = {};
-  for (const key of Object.keys(mappings || {}).slice(0, 80)) {
-    const letter = mappings[key];
-    if (typeof letter === 'string' && letter) next[key] = letter;
-  }
-  return next;
-}
-
-function progressFields(progress: PuzzleProgress) {
-  return {
-    mappings: clipMappings(progress.mappings),
-    timerSeconds: Math.min(86400, Math.max(0, Number(progress.timerSeconds) || 0)),
-    hintsUsed: Math.min(20, Math.max(0, Number(progress.hintsUsed) || 0)),
-    hintsRemaining: Math.min(DAILY_HINTS, Math.max(0, Number(progress.hintsRemaining) || 0)),
-    hintedSymbolIds: clipHintedSymbolIds(progress.hintedSymbolIds),
-    checksUsed: Math.min(20, Math.max(0, Number(progress.checksUsed) || 0)),
-    checksRemaining: Math.min(DAILY_CHECKS, Math.max(0, Number(progress.checksRemaining) || 0)),
-    verifiedSymbolIds: clipHintedSymbolIds(progress.verifiedSymbolIds),
-    flaggedSymbolIds: clipHintedSymbolIds(progress.flaggedSymbolIds),
-    selectedSymbolId: clipSelectedSymbolId(progress.selectedSymbolId),
-    isSolved: Boolean(progress.isSolved),
-  };
-}
-
-export function writeLocalProgress(puzzleId: string, progress: PuzzleProgress) {
-  localStorage.setItem(
-    `${PROGRESS_KEY}${puzzleId}`,
-    JSON.stringify(progressFields(progress))
-  );
-}
-
-export function readLocalDailyHints(editionDate: string): DailyHintWallet | null {
-  try {
-    return normalizeDailyHints(localStorage.getItem(`${DAILY_HINTS_KEY}${editionDate}`), editionDate);
-  } catch {
-    return null;
-  }
-}
-
-export function writeLocalDailyHints(wallet: DailyHintWallet) {
-  if (!isEditionDate(wallet.editionDate)) return;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used);
-  localStorage.setItem(`${DAILY_HINTS_KEY}${next.editionDate}`, JSON.stringify(next));
-}
-
-export function readLocalDailyChecks(editionDate: string): DailyHintWallet | null {
-  try {
-    return normalizeDailyHints(localStorage.getItem(`${DAILY_CHECKS_KEY}${editionDate}`), editionDate);
-  } catch {
-    return null;
-  }
-}
-
-export function writeLocalDailyChecks(wallet: DailyHintWallet) {
-  if (!isEditionDate(wallet.editionDate)) return;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used);
-  localStorage.setItem(`${DAILY_CHECKS_KEY}${next.editionDate}`, JSON.stringify(next));
-}
-
-export function readAllLocalDailyHints(): Record<string, DailyHintWallet> {
-  return readAllLocalDailyWallets(DAILY_HINTS_KEY);
-}
-
-export function readAllLocalDailyChecks(): Record<string, DailyHintWallet> {
-  return readAllLocalDailyWallets(DAILY_CHECKS_KEY);
-}
-
-function readAllLocalDailyWallets(prefix: string): Record<string, DailyHintWallet> {
-  const out: Record<string, DailyHintWallet> = {};
-  for (let i = 0; i < localStorage.length; i += 1) {
-    const key = localStorage.key(i);
-    if (!key || !key.startsWith(prefix)) continue;
-    const editionDate = key.slice(prefix.length);
-    const parsed = normalizeDailyHints(localStorage.getItem(key), editionDate);
-    if (parsed) out[editionDate] = parsed;
-  }
-  return out;
-}
-
-export function usedHintsFromProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
-  progressById: Record<string, PuzzleProgress>
-) {
-  return puzzles.reduce((sum, puzzle) => {
-    if (puzzle.editionDate !== editionDate) return sum;
-    const progress = progressById[puzzle.id];
-    if (!progress) return sum;
-    return sum + Math.max(progress.hintsUsed || 0, (progress.hintedSymbolIds || []).length);
-  }, 0);
-}
-
-export function usedChecksFromProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
-  progressById: Record<string, PuzzleProgress>
-) {
-  return puzzles.reduce((sum, puzzle) => {
-    if (puzzle.editionDate !== editionDate) return sum;
-    const progress = progressById[puzzle.id];
-    if (!progress) return sum;
-    return sum + Math.max(progress.checksUsed || 0, (progress.verifiedSymbolIds || []).length);
-  }, 0);
-}
-
-export function reconcileDailyHints(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
-  progressById: Record<string, PuzzleProgress> = readAllLocalProgress()
-): DailyHintWallet {
-  const local = readLocalDailyHints(editionDate);
-  return clipDailyWallet(
-    editionDate,
-    Math.max(local?.used ?? 0, usedHintsFromProgress(editionDate, puzzles, progressById))
-  );
-}
-
-export function reconcileDailyChecks(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
-  progressById: Record<string, PuzzleProgress> = readAllLocalProgress()
-): DailyHintWallet {
-  const local = readLocalDailyChecks(editionDate);
-  return clipDailyWallet(
-    editionDate,
-    Math.max(local?.used ?? 0, usedChecksFromProgress(editionDate, puzzles, progressById))
-  );
-}
-
-export function readAllLocalProgress(): Record<string, PuzzleProgress> {
-  const out: Record<string, PuzzleProgress> = {};
-  for (let i = 0; i < localStorage.length; i += 1) {
-    const key = localStorage.key(i);
-    if (!key || !key.startsWith(PROGRESS_KEY)) continue;
-    const puzzleId = key.slice(PROGRESS_KEY.length);
-    if (!puzzleId) continue;
-    const parsed = normalizeProgress(localStorage.getItem(key));
-    if (parsed) out[puzzleId] = parsed;
-  }
-  return out;
-}
-
 export async function importLocalProgressToCloud(
   uid: string,
   localProgress: Record<string, PuzzleProgress>,
@@ -424,23 +93,29 @@ export async function importLocalProgressToCloud(
     Array.from(puzzleIds).map(async (puzzleId) => {
       if (!puzzleId || puzzleId.length > 80) return;
       const stored = localProgress[puzzleId];
-      const local: PuzzleProgress = {
-        mappings: stored?.mappings || {},
-        timerSeconds: stored?.timerSeconds || 0,
-        hintsUsed: stored?.hintsUsed || 0,
-        hintsRemaining: stored?.hintsRemaining ?? DAILY_HINTS,
-        hintedSymbolIds: clipHintedSymbolIds(stored?.hintedSymbolIds),
-        checksUsed: stored?.checksUsed || 0,
-        checksRemaining: stored?.checksRemaining ?? DAILY_CHECKS,
-        verifiedSymbolIds: clipHintedSymbolIds(stored?.verifiedSymbolIds),
-        flaggedSymbolIds: clipHintedSymbolIds(stored?.flaggedSymbolIds),
-        selectedSymbolId: clipSelectedSymbolId(stored?.selectedSymbolId),
+      const local = progressSnapshot({
+        ...(stored ? progressFields(stored) : progressFields({
+          mappings: {},
+          timerSeconds: 0,
+          hintsUsed: 0,
+          hintsRemaining: DAILY_HINTS,
+          hintedSymbolIds: [],
+          checksUsed: 0,
+          checksRemaining: DAILY_CHECKS,
+          verifiedSymbolIds: [],
+          flaggedSymbolIds: [],
+          selectedSymbolId: null,
+          isSolved: false,
+        })),
         isSolved: Boolean(stored?.isSolved || solvedPuzzleIds.includes(puzzleId)),
-      };
-      const cloud = await loadCloudProgress(uid, puzzleId).catch(() => null);
+      });
+      const cloud = await loadCloudProgress(uid, puzzleId).catch((err) => {
+        logDesk('load-progress-import', err);
+        return null;
+      });
       const merged = mergeProgress(local, cloud);
       if (!merged) return;
-      await saveCloudProgress(uid, puzzleId, merged).catch(() => undefined);
+      forgetCloud(saveCloudProgress(uid, puzzleId, merged), 'save-progress-import');
       writeLocalProgress(puzzleId, merged);
     })
   );
@@ -459,20 +134,26 @@ export async function importLocalProgressToCloud(
     Array.from(dates).map(async (editionDate) => {
       if (!isEditionDate(editionDate)) return;
       const local = reconcileDailyHints(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyHints(uid, editionDate).catch(() => null);
+      const cloud = await loadCloudDailyHints(uid, editionDate).catch((err) => {
+        logDesk('load-hints-import', err);
+        return null;
+      });
       const merged = mergeDailyHints(local, cloud, editionDate);
       writeLocalDailyHints(merged);
-      await saveCloudDailyHints(uid, merged).catch(() => undefined);
+      forgetCloud(saveCloudDailyHints(uid, merged), 'save-hints-import');
     })
   );
   await Promise.all(
     Array.from(checkDates).map(async (editionDate) => {
       if (!isEditionDate(editionDate)) return;
       const local = reconcileDailyChecks(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyChecks(uid, editionDate).catch(() => null);
-      const merged = mergeDailyHints(local, cloud, editionDate);
+      const cloud = await loadCloudDailyChecks(uid, editionDate).catch((err) => {
+        logDesk('load-checks-import', err);
+        return null;
+      });
+      const merged = mergeDailyHints(local, cloud, editionDate, DAILY_CHECKS);
       writeLocalDailyChecks(merged);
-      await saveCloudDailyChecks(uid, merged).catch(() => undefined);
+      forgetCloud(saveCloudDailyChecks(uid, merged), 'save-checks-import');
     })
   );
 }
@@ -506,13 +187,10 @@ export async function ensureUserProfile(
   if (!db) return;
   const ref = doc(db, 'users', user.uid);
   const snap = await getDoc(ref);
-  const codename = clip(
-    localStorage.getItem('cryptogram_codename') || user.displayName || 'Codebreaker',
-    24
-  );
+  const codename = clip(storageGet(STORAGE_KEYS.codename) || solverDisplayName(user), 24);
   const payload = {
     uid: user.uid,
-    displayName: clip(user.displayName || 'Codebreaker', 80),
+    displayName: clip(solverDisplayName(user), 80),
     photoURL: user.photoURL || '',
     codename,
     titleBadge: 'Field Operative',
@@ -593,12 +271,12 @@ export async function loadCloudDailyChecks(uid: string, editionDate: string): Pr
   if (!db || !isEditionDate(editionDate)) return null;
   const snap = await getDoc(doc(db, 'users', uid, 'dailyChecks', editionDate));
   if (!snap.exists()) return null;
-  return normalizeDailyHints(snap.data(), editionDate);
+  return normalizeDailyHints(snap.data(), editionDate, DAILY_CHECKS);
 }
 
 export async function saveCloudDailyChecks(uid: string, wallet: DailyHintWallet) {
   if (!db || !isEditionDate(wallet.editionDate)) return;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used);
+  const next = clipDailyWallet(wallet.editionDate, wallet.used, DAILY_CHECKS);
   await setDoc(doc(db, 'users', uid, 'dailyChecks', next.editionDate), {
     editionDate: next.editionDate,
     used: next.used,
@@ -698,21 +376,31 @@ export function subscribePuzzleStats(
   onChange: (stats: PuzzleLiveStats) => void
 ): Unsubscribe | null {
   if (!db || !puzzleId) return null;
-  return onSnapshot(doc(db, 'puzzleStats', puzzleId), (snap) => {
-    if (!snap.exists()) {
-      onChange(emptyPuzzleStats(puzzleId));
-      return;
+  let last = emptyPuzzleStats(puzzleId);
+  return onSnapshot(
+    doc(db, 'puzzleStats', puzzleId),
+    (snap) => {
+      if (!snap.exists()) {
+        last = emptyPuzzleStats(puzzleId);
+        onChange(last);
+        return;
+      }
+      const data = snap.data();
+      last = {
+        puzzleId,
+        startedCount: data.startedCount || 0,
+        completeCount: data.completeCount || 0,
+        totalTimeSeconds: data.totalTimeSeconds || 0,
+        fastestTime: typeof data.fastestTime === 'number' ? data.fastestTime : null,
+        fastestSolverName: data.fastestSolverName ?? null,
+      };
+      onChange(last);
+    },
+    (err) => {
+      logDesk('puzzle-stats', err);
+      onChange(last);
     }
-    const data = snap.data();
-    onChange({
-      puzzleId,
-      startedCount: data.startedCount || 0,
-      completeCount: data.completeCount || 0,
-      totalTimeSeconds: data.totalTimeSeconds || 0,
-      fastestTime: typeof data.fastestTime === 'number' ? data.fastestTime : null,
-      fastestSolverName: data.fastestSolverName ?? null,
-    });
-  });
+  );
 }
 
 export async function fetchLeaderboard(puzzleId: string): Promise<LeaderboardEntry[]> {
@@ -794,14 +482,15 @@ export async function clearDispatchToken(uid: string, token: string) {
 
 export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
   if (!db || !uid) return;
-  const wipe = async (...path: string[]) => {
-    const snap = await getDocs(collection(db, ...path));
+  const store = db;
+  const wipe = async (segment: string) => {
+    const snap = await getDocs(collection(store, 'users', uid, segment));
     await Promise.all(snap.docs.map((item) => deleteDoc(item.ref)));
   };
-  await wipe('users', uid, 'progress');
-  await wipe('users', uid, 'dailyHints');
-  await wipe('users', uid, 'dailyChecks');
-  const tokens = await getDocs(query(collection(db, 'dispatchTokens'), where('uid', '==', uid)));
+  await wipe('progress');
+  await wipe('dailyHints');
+  await wipe('dailyChecks');
+  const tokens = await getDocs(query(collection(store, 'dispatchTokens'), where('uid', '==', uid)));
   await Promise.all(tokens.docs.map((item) => deleteDoc(item.ref)));
   await Promise.all(
     puzzleIds.map((puzzleId) =>
@@ -814,5 +503,3 @@ export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
   );
   await deleteDoc(doc(db, 'users', uid));
 }
-
-export { DEFAULT_GAME_STATS };

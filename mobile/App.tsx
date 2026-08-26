@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import {
   ActivityIndicator,
+  AppState,
   BackHandler,
   Keyboard,
   KeyboardAvoidingView,
@@ -49,7 +50,7 @@ const WEB_URL = extra?.webUrl ?? 'https://jdial1.github.io/Chronicle-Cryptogram/
 const GOOGLE_WEB_CLIENT_ID =
   extra?.googleWebClientId ??
   '647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com';
-const PAPER_LIGHT = '#fbf7ee';
+const PAPER_LIGHT = '#fbf7ee'; // keep in lockstep with src/themeTokens.ts
 const PAPER_DARK = '#1C1A17';
 const INK_LIGHT = '#1c1917';
 const INK_DARK = '#f7f3e8';
@@ -67,9 +68,20 @@ const INJECTED = `
 (function(){
   window.__CHRONICLE_ANDROID_APP__ = true;
   window.__CHRONICLE_NATIVE_AUTH_QUEUE__ = window.__CHRONICLE_NATIVE_AUTH_QUEUE__ || [];
+  window.__CHRONICLE_LAST_NATIVE_AUTH__ = window.__CHRONICLE_LAST_NATIVE_AUTH__ || '';
   window.__CHRONICLE_NATIVE_AUTH__ = window.__CHRONICLE_NATIVE_AUTH__ || function(detail){
     window.__CHRONICLE_NATIVE_AUTH_QUEUE__.push(detail);
     window.dispatchEvent(new CustomEvent('chronicle-native-auth',{detail:detail}));
+  };
+  window.__CHRONICLE_DELIVER_NATIVE_AUTH__ = function(d){
+    var key = (d && d.type ? d.type : '') + ':' + (d && d.idToken ? d.idToken : (d && d.message ? d.message : ''));
+    if (window.__CHRONICLE_LAST_NATIVE_AUTH__ === key) return;
+    window.__CHRONICLE_LAST_NATIVE_AUTH__ = key;
+    if (window.__CHRONICLE_NATIVE_AUTH__) {
+      window.__CHRONICLE_NATIVE_AUTH__(d);
+    } else {
+      window.__CHRONICLE_NATIVE_AUTH_QUEUE__.push(d);
+    }
   };
   function requestNativeSignIn(){
     if (window.ReactNativeWebView) {
@@ -137,8 +149,14 @@ function isMainEdition(url: string) {
 
 function injectEvent(webRef: RefObject<WebView | null>, name: string, detail: object) {
   const payload = JSON.stringify(detail);
+  if (name === 'chronicle-native-auth') {
+    webRef.current?.injectJavaScript(
+      `(function(){var d=${payload};if(window.__CHRONICLE_DELIVER_NATIVE_AUTH__){window.__CHRONICLE_DELIVER_NATIVE_AUTH__(d);}else if(window.__CHRONICLE_NATIVE_AUTH__){window.__CHRONICLE_NATIVE_AUTH__(d);}else{window.__CHRONICLE_NATIVE_AUTH_QUEUE__=window.__CHRONICLE_NATIVE_AUTH_QUEUE__||[];window.__CHRONICLE_NATIVE_AUTH_QUEUE__.push(d);}true;})();`
+    );
+    return;
+  }
   webRef.current?.injectJavaScript(
-    `(function(){var d=${payload};if(window.__CHRONICLE_NATIVE_AUTH__){window.__CHRONICLE_NATIVE_AUTH__(d);}window.dispatchEvent(new CustomEvent('${name}',{detail:d}));true;})();`
+    `(function(){var d=${payload};window.dispatchEvent(new CustomEvent('${name}',{detail:d}));true;})();`
   );
 }
 
@@ -174,6 +192,8 @@ function Desk() {
   const canGoBack = useRef(false);
   const sheetDepth = useRef(0);
   const signingIn = useRef(false);
+  const pendingAuth = useRef<object | null>(null);
+  const authFlush = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dispatchOn = useRef(false);
   const persistKeysUntil = useRef(0);
   const [failed, setFailed] = useState(false);
@@ -345,6 +365,36 @@ function Desk() {
     };
   }, [refreshDispatchToken, reportDispatch]);
 
+  const stopAuthFlush = useCallback(() => {
+    authFlush.current.forEach(clearTimeout);
+    authFlush.current = [];
+  }, []);
+
+  const flushNativeAuth = useCallback(() => {
+    if (!pendingAuth.current) return;
+    injectEvent(webRef, 'chronicle-native-auth', pendingAuth.current);
+  }, []);
+
+  const deliverNativeAuth = useCallback(
+    (detail: object) => {
+      pendingAuth.current = detail;
+      flushNativeAuth();
+      stopAuthFlush();
+      authFlush.current = [400, 1200, 3000].map((ms) => setTimeout(flushNativeAuth, ms));
+    },
+    [flushNativeAuth, stopAuthFlush]
+  );
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') flushNativeAuth();
+    });
+    return () => {
+      sub.remove();
+      stopAuthFlush();
+    };
+  }, [flushNativeAuth, stopAuthFlush]);
+
   const nativeSignIn = useCallback(async () => {
     if (signingIn.current) return;
     signingIn.current = true;
@@ -354,28 +404,33 @@ function Desk() {
       if (isNoSavedCredentialFoundResponse(response)) {
         response = await GoogleOneTapSignIn.createAccount();
       }
-      if (isCancelledResponse(response) || isNoSavedCredentialFoundResponse(response)) {
-        return;
-      }
-      const idToken = isSuccessResponse(response) ? response.data.idToken : null;
+      if (isCancelledResponse(response)) return;
+      let idToken = isSuccessResponse(response) ? response.data?.idToken : null;
       if (!idToken) {
-        injectEvent(webRef, 'chronicle-native-auth', {
+        try {
+          idToken = (await GoogleOneTapSignIn.getTokens()).idToken;
+        } catch {
+          idToken = null;
+        }
+      }
+      if (!idToken) {
+        deliverNativeAuth({
           type: 'ERROR',
-          message: 'Sign-in cancelled',
+          message: 'Google did not return an ID token.',
         });
         return;
       }
-      injectEvent(webRef, 'chronicle-native-auth', {
+      deliverNativeAuth({
         type: 'ID_TOKEN',
         idToken,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign-in failed';
-      injectEvent(webRef, 'chronicle-native-auth', { type: 'ERROR', message });
+      deliverNativeAuth({ type: 'ERROR', message });
     } finally {
       signingIn.current = false;
     }
-  }, []);
+  }, [deliverNativeAuth]);
 
   const nativeSignOut = useCallback(async () => {
     try {
@@ -394,6 +449,10 @@ function Desk() {
         return;
       }
       if (payload.type === 'GOOGLE_SIGN_IN') nativeSignIn();
+      if (payload.type === 'NATIVE_AUTH_ACK') {
+        pendingAuth.current = null;
+        stopAuthFlush();
+      }
       if (payload.type === 'GOOGLE_SIGN_OUT') nativeSignOut();
       if (payload.type === 'DELIVERY_SUBSCRIBE') subscribeDelivery();
       if (payload.type === 'DELIVERY_UNSUBSCRIBE') unsubscribeDelivery();
@@ -429,7 +488,7 @@ function Desk() {
         pressPacked.current = true;
       }
     },
-    [keepCipherKeys, nativeSignIn, nativeSignOut, refreshDispatchToken, subscribeDelivery, unsubscribeDelivery, setWebDark]
+    [keepCipherKeys, nativeSignIn, nativeSignOut, refreshDispatchToken, stopAuthFlush, subscribeDelivery, unsubscribeDelivery, setWebDark]
   );
 
   const onNav = useCallback((nav: WebViewNavigation) => {
@@ -510,6 +569,7 @@ function Desk() {
           onLoadEnd={() => {
             hideSplash();
             paintInsets();
+            flushNativeAuth();
             if (cacheBust) setCacheBust(false);
             if (!loadFailed.current) cacheTried.current = false;
           }}

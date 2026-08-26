@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://jdial1.github.io https://accounts.google.com https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app; script-src 'self' 'unsafe-inline' https://apis.google.com https://*.gstatic.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https: ws://localhost:* ws://127.0.0.1:* wss:; frame-src https://accounts.google.com https://*.firebaseapp.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://jdial1.github.io https://accounts.google.com https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app; script-src 'self' 'unsafe-inline' https://apis.google.com https://*.gstatic.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https: ws://localhost:* ws://127.0.0.1:* wss:; frame-src https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';" />
     <meta http-equiv="Permissions-Policy" content="identity-credentials-get=*" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Chronicle Cryptogram</title>
     <meta name="application-name" content="Chronicle Cryptogram" />
     <meta name="apple-mobile-web-app-title" content="Chronicle Cryptogram" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./pwa-192x192.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="mask-icon" href="./mask-icon.svg" color="#1C1A17" />
     <meta name="color-scheme" content="light" />
@@ -21,16 +20,54 @@
     <meta property="og:description" content="Daily 1920s newspaper cryptograms. Break the cipher, keep your streak, pack a field copy for offline play." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href="./fonts.css" />
+    <link rel="preload" href="./fonts/playfair-display-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/newsreader-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/special-elite-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="./fonts-desk.css" />
+    <link rel="stylesheet" href="./splash.css" />
     <script>
       try {
+        // Must match STORAGE_KEYS.splashEntered in src/utils/storageKeys.ts
         if (sessionStorage.getItem('chronicle_splash_entered') === '1') {
           document.documentElement.classList.add('splash-skipped');
+          var splash = document.getElementById('splash');
+          if (splash) {
+            splash.hidden = true;
+            splash.setAttribute('inert', '');
+            splash.setAttribute('aria-hidden', 'true');
+          }
+        }
+      } catch (e) {}
+      try {
+        if (localStorage.getItem('cryptogram_desk_theme') === 'dark') {
+          document.documentElement.classList.add('theme-dark');
+          document.documentElement.style.colorScheme = 'dark';
+          var themeMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeMeta) themeMeta.setAttribute('content', '#1C1A17');
         }
       } catch (e) {}
     </script>
     <style>
       html.splash-skipped #splash { display: none !important; }
+      .skip-to-puzzle {
+        position: absolute;
+        left: 0.75rem;
+        top: 0.75rem;
+        z-index: 100;
+        padding: 0.5rem 0.75rem;
+        background: #1c1917;
+        color: #f7f3e8;
+        font: 700 0.875rem/1.2 'Special Elite', ui-monospace, monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        transform: translateY(-8rem);
+      }
+      .skip-to-puzzle:focus {
+        transform: none;
+        outline: 2px solid #f7f3e8;
+        outline-offset: 2px;
+      }
       html:not(.splash-skipped) #root { visibility: hidden; }
       #splash {
         position: fixed;
@@ -111,6 +148,7 @@
       </button>
     </div>
     <div id="root"></div>
+    <script type="module" src="/src/splash.ts"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

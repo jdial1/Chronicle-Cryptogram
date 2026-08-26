@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Trophy, Send, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
 import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
+import { DeskModal } from './DeskModal';
 
 interface NewspaperClippingModalProps {
   isOpen: boolean;
@@ -55,21 +56,19 @@ Play Chronicle Cryptogram: ${window.location.href}`;
   };
 
   return (
-    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="clipping-headline"
-        className="modal-sheet max-w-2xl sm:border-4 sm:border-double sm:border-stone-900 relative"
-        onClick={(event) => event.stopPropagation()}
-      >
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="clipping-headline"
+      sheetClassName="max-w-2xl sm:border-4 sm:border-double sm:border-stone-900 relative"
+    >
         {/* Newspaper Top Extra Banner */}
         <div className="bg-[color:var(--paper-masthead)] text-stone-950 p-2 text-center border-b-2 border-stone-800">
           <div className="flex items-center justify-between px-3">
-            <span className="text-[10px] font-mono-code font-bold uppercase tracking-widest text-stone-700">
+            <span className="text-xs font-mono-code font-bold uppercase tracking-widest text-stone-700">
               SPECIAL BULLETIN EDITION
             </span>
-            <span className="text-[10px] font-mono-code font-bold uppercase text-stone-700">
+            <span className="text-xs font-mono-code font-bold uppercase text-stone-700">
               VOL. LVIII — CERTIFIED
             </span>
             <button
@@ -175,7 +174,6 @@ Play Chronicle Cryptogram: ${window.location.href}`;
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </DeskModal>
   );
 };

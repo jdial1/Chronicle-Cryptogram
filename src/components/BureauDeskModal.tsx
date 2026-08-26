@@ -1,53 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { FileText, Send, X } from '../icons';
+import { FileText, Send } from '../icons';
 import { GameStats } from '../types';
 import { formatTime } from '../utils/cipherEngine';
-import { DEFAULT_GAME_STATS } from '../utils/firebaseStore';
+import { DEFAULT_GAME_STATS } from '../utils/localStore';
 import { AgentPlate, GoogleDeskButton } from './Header';
+import { DeskModal } from './DeskModal';
 import {
   formatPackBytes,
   formatPackedAt,
   useOfflinePack,
-} from '../utils/useOfflinePack';
-
-export const BUREAU_DESK_SEEN_KEY = 'cryptogram_bureau_desk_seen';
-
-export function bureauDeskSeen() {
-  try {
-    return localStorage.getItem(BUREAU_DESK_SEEN_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-export function markBureauDeskSeen() {
-  try {
-    localStorage.setItem(BUREAU_DESK_SEEN_KEY, '1');
-  } catch {
-    return;
-  }
-}
-
-export const CIPHER_KEYBOARD_KEY = 'cryptogram_cipher_keyboard';
-
-export function usesGameKeyboard() {
-  try {
-    return localStorage.getItem(CIPHER_KEYBOARD_KEY) !== 'native';
-  } catch {
-    return true;
-  }
-}
-
-export function toggleGameKeyboard() {
-  const next = !usesGameKeyboard();
-  try {
-    localStorage.setItem(CIPHER_KEYBOARD_KEY, next ? 'game' : 'native');
-  } catch {
-    return next;
-  }
-  return next;
-}
+} from '../hooks/useOfflinePack';
 
 interface BureauDeskModalProps {
   isOpen: boolean;
@@ -139,34 +102,15 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
   ];
 
   return (
-    <div className="modal-backdrop z-[55] select-none" onClick={onClose}>
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bureau-desk-title"
-        className="modal-sheet max-w-md"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText className="w-5 h-5 shrink-0" />
-            <h2
-              id="bureau-desk-title"
-              className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight"
-            >
-              Bureau File
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="bureau-desk-title"
+      title="Bureau File"
+      icon={<FileText className="w-5 h-5 shrink-0" />}
+      zClass="z-[55]"
+      sheetClassName="max-w-md"
+    >
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint space-y-3">
           <p className="font-treatise italic text-sm text-stone-700">
             Press pass, morning wire, and a packed copy for the field. Keep the file intact across desks.
@@ -223,7 +167,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                   : 'Offline field copy. Save type, plates, and the serial on this desk so Morning and Night Extra still open with the wire down. Sign-in and the bureau board stay on the network.'}
           </p>
           {pack.error && (
-            <p className="font-typewriter text-[10px] uppercase tracking-widest text-red-800">
+            <p className="font-typewriter text-[13px] uppercase tracking-widest text-red-800">
               {pack.error}
             </p>
           )}
@@ -242,13 +186,13 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
               </button>
               {showClue ? (
                 <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
-                  <p className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+                  <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
                     Copy desk
                   </p>
                   <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
                     {todayClue.clue}
                   </p>
-                  <p className="mt-2 font-typewriter text-[10px] uppercase tracking-widest text-stone-600">
+                  <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-stone-600">
                     A mark stands for {todayClue.letter}
                   </p>
                 </article>
@@ -264,7 +208,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                   <p className="font-typewriter font-black text-xs sm:text-sm uppercase tracking-widest text-stone-950 truncate">
                     {user.displayName || 'Agent'}
                   </p>
-                  <p className="font-typewriter text-[11px] uppercase tracking-widest text-stone-700">
+                  <p className="font-typewriter text-xs uppercase tracking-widest text-stone-700">
                     Field operative
                   </p>
                 </div>
@@ -342,7 +286,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                     Removes cloud progress, dispatch tokens, and your leaderboard entries. Notes on this desk stay until you clear the site.
                   </p>
                   {wipeError && (
-                    <p className="mt-2 font-typewriter text-[10px] uppercase tracking-widest text-red-800">
+                    <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                       {wipeError}
                     </p>
                   )}
@@ -353,7 +297,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
 
           {showCredentials && (
             <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
-              <p className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+              <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
                 Issue Detective Credentials
               </p>
               <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
@@ -363,7 +307,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                 <GoogleDeskButton onClick={onIssueCredentials} full identity />
               </div>
               {authError && (
-                <p className="mt-2 font-typewriter text-[10px] uppercase tracking-widest text-red-800">
+                <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                   {authError}
                 </p>
               )}
@@ -374,7 +318,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
             <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
               <div className="flex items-center gap-2">
                 <Send className="w-3.5 h-3.5 shrink-0" />
-                <p className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+                <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
                   The Morning Dispatch
                 </p>
               </div>
@@ -408,7 +352,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                 </button>
               )}
               {deliveryError && (
-                <p className="mt-2 font-typewriter text-[10px] uppercase tracking-widest text-red-800">
+                <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                   {deliveryError}
                 </p>
               )}
@@ -425,7 +369,6 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
             Report to the field
           </button>
         </div>
-      </section>
-    </div>
+    </DeskModal>
   );
 };

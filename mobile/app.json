@@ -8,14 +8,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "chroniclecryptogram",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#fbf7ee",
-      "dark": {
-        "backgroundColor": "#1C1A17"
-      }
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.chroniclecryptogram.app"
@@ -70,6 +62,7 @@
           "backgroundColor": "#fbf7ee",
           "image": "./assets/splash-icon.png",
           "imageWidth": 200,
+          "resizeMode": "contain",
           "dark": {
             "backgroundColor": "#1C1A17"
           }
@@ -88,9 +81,6 @@
     "androidStatusBar": {
       "backgroundColor": "#00000000",
       "translucent": true
-    },
-    "androidNavigationBar": {
-      "backgroundColor": "#00000000"
     },
     "extra": {
       "eas": {

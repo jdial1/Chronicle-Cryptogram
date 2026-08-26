@@ -2,7 +2,7 @@ import { StrictMode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CryptogramGrid } from './components/CryptogramGrid';
 import { GlyphTally } from './components/PrimerCoach';
-import { WoodcutPressFilter } from './icons';
+import { WoodcutPressFilter } from './deskIcons';
 import { SymbolMapping } from './types';
 import { buildCipherAlphabet, calculateSymbolFrequencies, parseCryptogramText } from './utils/cipherEngine';
 import './index.css';
@@ -166,55 +166,55 @@ function ShotPage() {
       </div>
       {dock ? (
         <form
-          className="fixed bottom-3 left-1/2 z-30 w-[min(42rem,calc(100%-1.5rem))] -translate-x-1/2 border-2 border-stone-800 bg-[#f4eee1] p-3 shadow-md"
+          className="fixed bottom-3 left-1/2 z-30 w-[min(42rem,calc(100%-1.5rem))] -translate-x-1/2 border-2 border-stone-800 bg-[var(--paper-masthead)] p-3 shadow-md"
           onSubmit={(e) => {
             e.preventDefault();
             applyReveal(reveal, false);
           }}
         >
-          <label className="block font-mono-code text-[10px] font-bold uppercase tracking-widest text-stone-600">
+          <label className="block font-mono-code text-xs font-bold uppercase tracking-widest text-stone-600">
             Puzzle text
             <input
               value={text}
               onChange={(e) => setText(e.target.value.toUpperCase())}
-              className="mt-1 w-full border border-stone-500 bg-[#fbf8f0] px-2 py-1.5 font-typewriter text-sm uppercase text-stone-950"
+              className="mt-1 w-full border border-stone-500 bg-[var(--paper-card)] px-2 py-1.5 font-typewriter text-sm uppercase text-stone-950"
             />
           </label>
-          <label className="mt-2 block font-mono-code text-[10px] font-bold uppercase tracking-widest text-stone-600">
+          <label className="mt-2 block font-mono-code text-xs font-bold uppercase tracking-widest text-stone-600">
             Reveal letters
             <input
               value={reveal}
               onChange={(e) => setReveal(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
               placeholder="CROEA"
-              className="mt-1 w-full border border-stone-500 bg-[#fbf8f0] px-2 py-1.5 font-typewriter text-sm uppercase text-stone-950"
+              className="mt-1 w-full border border-stone-500 bg-[var(--paper-card)] px-2 py-1.5 font-typewriter text-sm uppercase text-stone-950"
             />
           </label>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <button
               type="button"
-              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-[10px] font-bold uppercase"
+              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-xs font-bold uppercase"
               onClick={() => applyReveal('', false)}
             >
               Empty
             </button>
             <button
               type="button"
-              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-[10px] font-bold uppercase"
+              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-xs font-bold uppercase"
               onClick={() => applyReveal(MID_SOLVE, false)}
             >
               Mid-solve
             </button>
             <button
               type="button"
-              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-[10px] font-bold uppercase"
+              className="cursor-pointer border border-stone-700 bg-[#faf6ed] px-2 py-1 font-mono-code text-xs font-bold uppercase"
               onClick={() => applyReveal('ABCDEFGHIJKLMNOPQRSTUVWXYZ', true)}
             >
               Solved
             </button>
             <button
               type="button"
-              className={`cursor-pointer border px-2 py-1 font-mono-code text-[10px] font-bold uppercase ${
-                phone ? 'border-stone-950 bg-[#ffe8a3]' : 'border-stone-700 bg-[#faf6ed]'
+              className={`cursor-pointer border px-2 py-1 font-mono-code text-xs font-bold uppercase ${
+                phone ? 'border-stone-950 bg-[var(--selected)]' : 'border-stone-700 bg-[#faf6ed]'
               }`}
               onClick={() => setPhone((v) => !v)}
             >
@@ -222,8 +222,8 @@ function ShotPage() {
             </button>
             <button
               type="button"
-              className={`cursor-pointer border px-2 py-1 font-mono-code text-[10px] font-bold uppercase ${
-                showTally ? 'border-stone-950 bg-[#ffe8a3]' : 'border-stone-700 bg-[#faf6ed]'
+              className={`cursor-pointer border px-2 py-1 font-mono-code text-xs font-bold uppercase ${
+                showTally ? 'border-stone-950 bg-[var(--selected)]' : 'border-stone-700 bg-[#faf6ed]'
               }`}
               onClick={() => setShowTally((v) => !v)}
             >
@@ -231,8 +231,8 @@ function ShotPage() {
             </button>
             <button
               type="button"
-              className={`cursor-pointer border px-2 py-1 font-mono-code text-[10px] font-bold uppercase ${
-                night ? 'border-stone-950 bg-[#ffe8a3]' : 'border-stone-700 bg-[#faf6ed]'
+              className={`cursor-pointer border px-2 py-1 font-mono-code text-xs font-bold uppercase ${
+                night ? 'border-stone-950 bg-[var(--selected)]' : 'border-stone-700 bg-[#faf6ed]'
               }`}
               onClick={() => setNight((v) => !v)}
             >
@@ -240,8 +240,8 @@ function ShotPage() {
             </button>
             <button
               type="button"
-              className={`cursor-pointer border px-2 py-1 font-mono-code text-[10px] font-bold uppercase ${
-                homophonic ? 'border-stone-950 bg-[#ffe8a3]' : 'border-stone-700 bg-[#faf6ed]'
+              className={`cursor-pointer border px-2 py-1 font-mono-code text-xs font-bold uppercase ${
+                homophonic ? 'border-stone-950 bg-[var(--selected)]' : 'border-stone-700 bg-[#faf6ed]'
               }`}
               onClick={() => setHomophonic((v) => !v)}
             >
@@ -249,7 +249,7 @@ function ShotPage() {
             </button>
             <button
               type="button"
-              className="ml-auto cursor-pointer border border-stone-950 bg-stone-900 px-2 py-1 font-mono-code text-[10px] font-bold uppercase text-[#f7f3e8]"
+              className="ml-auto cursor-pointer border border-stone-950 bg-stone-900 px-2 py-1 font-mono-code text-xs font-bold uppercase text-[#f7f3e8]"
               onClick={() => setDock(false)}
             >
               Hide · Esc

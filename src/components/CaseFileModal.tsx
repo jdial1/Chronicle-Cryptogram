@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FileText, X } from '../icons';
 import { PuzzleData } from '../types';
 import { EditionPlate } from './EditionPlate';
+import { DeskModal } from './DeskModal';
 import {
   AssembledFragment,
   CASE_CHARACTERS,
@@ -88,37 +89,16 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
     node?.scrollIntoView({ block: 'nearest' });
   }, [isOpen, focusFragmentKey, notes]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="modal-backdrop z-[55] select-none"
-      onClick={onClose}
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="casefile-title"
+      title="Bureau Case Files"
+      icon={<FileText className="w-5 h-5 shrink-0" />}
+      zClass="z-[55]"
+      sheetClassName="max-w-3xl"
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="casefile-title"
-        className="modal-sheet max-w-3xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText className="w-5 h-5 shrink-0" />
-            <h2 id="casefile-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
-              Bureau Case Files
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
         {dossiers.length > 0 ? (
           <div className="flex flex-col flex-1 min-h-0 bg-[#d9d0bc]">
             <div
@@ -143,7 +123,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
                         : 'bg-[#c4baa4] text-stone-700 border-stone-500/80 hover:bg-[#d0c6b0]'
                     }`}
                   >
-                    <span className="flex flex-col font-typewriter font-bold text-[10px] uppercase tracking-wider leading-tight">
+                    <span className="flex flex-col font-typewriter font-bold text-xs uppercase tracking-wider leading-tight">
                       <span>{firstName}</span>
                       {lastName && <span>{lastName}</span>}
                     </span>
@@ -181,11 +161,11 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2 pl-4 sm:pl-8">
-                        <span className="font-typewriter font-black text-[10px] uppercase tracking-widest text-stone-800">
+                        <span className="font-typewriter font-black text-xs uppercase tracking-widest text-stone-800">
                           Day {fragment.editionNumber} · {fragment.title}
                         </span>
                         {highlighted && (
-                          <span className="shrink-0 font-typewriter font-bold text-[9px] uppercase tracking-widest text-[color:var(--ink-cinnabar)] -rotate-2">
+                          <span className="shrink-0 font-typewriter font-bold text-xs uppercase tracking-widest text-[color:var(--ink-cinnabar)] -rotate-2">
                             Just filed
                           </span>
                         )}
@@ -206,8 +186,7 @@ export const CaseFileModal: React.FC<CaseFileModalProps> = ({
             </p>
           </div>
         )}
-      </div>
-    </div>
+    </DeskModal>
   );
 };
 

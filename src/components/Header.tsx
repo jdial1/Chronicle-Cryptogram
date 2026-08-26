@@ -1,15 +1,14 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import type { User } from 'firebase/auth';
 import { PuzzleData } from '../types';
-import { FileText, BookOpen, Type } from '../icons';
+import { FileText, BookOpen, Type } from '../deskIcons';
 import { isAndroidAppShell } from '../utils/androidApp';
-import { renderGoogleButton } from '../utils/googleIdentity';
-import { usePWAInstall } from '../utils/usePWAInstall';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 import { formatEditionDateShort, isNightEdition } from '../utils/edition';
+import { forgetCloud } from '../utils/deskError';
 
 interface HeaderProps {
   currentPuzzle: PuzzleData;
-  user?: User | null;
+  user?: { photoURL?: string | null; displayName?: string | null } | null;
   authConfigured?: boolean;
   onOpenBureau?: () => void;
   onOpenArchive?: () => void;
@@ -39,7 +38,7 @@ export function AgentPlate({
   onClick?: () => void;
 }) {
   const initials = agentInitials(name);
-  const box = size === 'lg' ? 'desk-hit w-10 h-10 text-[11px] sm:w-16 sm:h-16 sm:text-lg' : 'desk-hit w-8 h-8 text-[10px]';
+  const box = size === 'lg' ? 'desk-hit w-10 h-10 text-xs sm:w-16 sm:h-16 sm:text-lg' : 'desk-hit w-8 h-8 text-xs';
   const className = `relative ${box} border-2 overflow-hidden shrink-0 ${
     night ? 'border-amber-900' : 'border-stone-800'
   } ${onClick ? 'cursor-pointer' : ''}`;
@@ -98,7 +97,9 @@ export function GoogleDeskButton({
   useLayoutEffect(() => {
     const host = hostRef.current;
     if (!fedcm || !host) return;
-    void renderGoogleButton(host, full);
+    void import('../utils/googleIdentity').then(({ renderGoogleButton }) => {
+      forgetCloud(renderGoogleButton(host, full), 'gis-button');
+    });
   }, [fedcm, full]);
 
   if (fedcm) {
@@ -202,7 +203,8 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenHandbook}
               className={`${navLinkClass} pointer-events-auto`}
-              title="Handbook: cipher tactics and packing a copy for the field"
+              title="Guide: how to break today's cipher"
+              aria-label="Guide: how to break today's cipher"
             >
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
               Guide
@@ -224,9 +226,11 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenArchive}
               className={navLinkClass}
-              title="Browse previous Morning Editions and Night Extras"
+              title="Archive: back issues"
+              aria-label={`Archive, ${formatEditionDateShort(currentPuzzle.editionDate)}`}
             >
-              {formatEditionDateShort(currentPuzzle.editionDate)}
+              <span className="sm:hidden">Archive</span>
+              <span className="hidden sm:inline">{formatEditionDateShort(currentPuzzle.editionDate)}</span>
             </button>
             {isInstallable ? (
               <button

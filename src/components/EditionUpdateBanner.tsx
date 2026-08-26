@@ -1,6 +1,6 @@
 import React from 'react';
 import { Newspaper } from '../icons';
-import { reloadEdition } from '../utils/useEditionUpdate';
+import { reloadEdition } from '../hooks/useEditionUpdate';
 
 interface EditionUpdateBannerProps {
   localVersion: string;

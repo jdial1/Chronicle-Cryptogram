@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { isAndroidAppShell, postToAndroidApp } from './androidApp';
-import { todayIsoDate } from './edition';
-import { clearDispatchToken, saveDispatchToken } from './firebaseStore';
+import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
+import { todayIsoDate } from '../utils/edition';
+import { STORAGE_KEYS } from '../utils/storageKeys';
+import { storageGet, storageRemove, storageSet } from '../utils/safeStorage';
+import { forgetCloud, logDesk } from '../utils/deskError';
 
-const SUB_KEY = 'cryptogram_delivery_subscribed';
-const LAST_KEY = 'cryptogram_delivery_last';
+const SUB_KEY = STORAGE_KEYS.deliverySubscribed;
+const LAST_KEY = STORAGE_KEYS.deliveryLast;
 const DISPATCH_BODY =
   "New Dispatch: Solved ciphers won't catch the culprit. Today's case file is ready.";
 let openingNoticeSent = false;
@@ -36,11 +38,7 @@ async function showPaperNotice(title: string, body: string) {
 }
 
 function readSubscribed() {
-  try {
-    return localStorage.getItem(SUB_KEY) === '1';
-  } catch {
-    return false;
-  }
+  return storageGet(SUB_KEY) === '1';
 }
 
 type DeliveryDetail = {
@@ -68,6 +66,7 @@ export function useDailyNotification(uid?: string | null) {
 
   const persistToken = useCallback(async (nextUid: string | null | undefined, token: string, nextSubscribed: boolean) => {
     if (!nextUid || !token) return;
+    const { saveDispatchToken, clearDispatchToken } = await import('../utils/firebaseStore');
     if (nextSubscribed) {
       await saveDispatchToken(nextUid, token, true);
       return;
@@ -82,8 +81,8 @@ export function useDailyNotification(uid?: string | null) {
       if (detail?.blocked) {
         setPermission('denied');
         setSubscribed(false);
-        localStorage.removeItem(SUB_KEY);
-        persistToken(uidRef.current, tokenRef.current, false).catch(() => undefined);
+        storageRemove(SUB_KEY);
+        forgetCloud(persistToken(uidRef.current, tokenRef.current, false), 'delivery');
         return;
       }
       if (typeof detail?.token === 'string' && detail.token) {
@@ -91,16 +90,16 @@ export function useDailyNotification(uid?: string | null) {
       }
       if (detail?.subscribed) {
         setPermission('granted');
-        localStorage.setItem(SUB_KEY, '1');
+        storageSet(SUB_KEY, '1');
         setSubscribed(true);
-        persistToken(uidRef.current, tokenRef.current, true).catch(() => undefined);
+        forgetCloud(persistToken(uidRef.current, tokenRef.current, true), 'delivery');
         return;
       }
       if (detail?.subscribed === false) {
         if (detail?.blocked === false) setPermission('granted');
-        localStorage.removeItem(SUB_KEY);
+        storageRemove(SUB_KEY);
         setSubscribed(false);
-        persistToken(uidRef.current, tokenRef.current, false).catch(() => undefined);
+        forgetCloud(persistToken(uidRef.current, tokenRef.current, false), 'delivery');
         return;
       }
       if (detail?.blocked === false) setPermission('granted');
@@ -111,7 +110,7 @@ export function useDailyNotification(uid?: string | null) {
 
   useEffect(() => {
     if (!uid || !tokenRef.current || !subscribed) return;
-    persistToken(uid, tokenRef.current, true).catch(() => undefined);
+    forgetCloud(persistToken(uid, tokenRef.current, true), 'delivery');
   }, [persistToken, subscribed, uid]);
 
   const supported = androidApp || notificationApi;
@@ -134,7 +133,7 @@ export function useDailyNotification(uid?: string | null) {
       setPermission(next);
       if (next === 'granted') return;
       if (!readSubscribed()) return;
-      localStorage.removeItem(SUB_KEY);
+      storageRemove(SUB_KEY);
       setSubscribed(false);
     };
     sync();
@@ -150,7 +149,7 @@ export function useDailyNotification(uid?: string | null) {
         status = next;
         next.onchange = sync;
       })
-      .catch(() => undefined);
+      .catch((err) => logDesk('delivery', err));
     return () => {
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('focus', sync);
@@ -163,17 +162,13 @@ export function useDailyNotification(uid?: string | null) {
     setPermission(Notification.permission);
     if (Notification.permission !== 'granted' || !readSubscribed()) return;
     const today = todayIsoDate();
-    try {
-      if (openingNoticeSent || localStorage.getItem(LAST_KEY) === today) return;
-      openingNoticeSent = true;
-    } catch {
-      return;
-    }
+    if (openingNoticeSent || storageGet(LAST_KEY) === today) return;
+    openingNoticeSent = true;
     showPaperNotice('Chronicle Cryptogram', DISPATCH_BODY)
       .then(() => {
-        localStorage.setItem(LAST_KEY, today);
+        storageSet(LAST_KEY, today);
       })
-      .catch(() => {});
+      .catch((err) => logDesk('opening-notice', err));
   }, [androidApp, supported]);
 
   const subscribe = useCallback(async () => {
@@ -192,14 +187,14 @@ export function useDailyNotification(uid?: string | null) {
       setSubscribeError('Allow notifications to join the morning dispatch.');
       return;
     }
-    localStorage.setItem(SUB_KEY, '1');
+    storageSet(SUB_KEY, '1');
     setSubscribed(true);
     const today = todayIsoDate();
-    localStorage.setItem(LAST_KEY, today);
+    storageSet(LAST_KEY, today);
     await showPaperNotice(
       'Chronicle Cryptogram',
       'You are on the delivery list. We will ring when a new edition is on the stands.'
-    ).catch(() => undefined);
+    ).catch((err) => logDesk('delivery', err));
   }, [androidApp, supported]);
 
   const toggleDelivery = useCallback(async () => {
@@ -209,7 +204,7 @@ export function useDailyNotification(uid?: string | null) {
         postToAndroidApp({ type: 'DELIVERY_UNSUBSCRIBE' });
         return;
       }
-      localStorage.removeItem(SUB_KEY);
+      storageRemove(SUB_KEY);
       setSubscribed(false);
       return;
     }

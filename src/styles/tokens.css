@@ -1,0 +1,252 @@
+/* tokens: :root + html.theme-dark | paper grain | board | modal-backdrop/sheet */
+
+:root {
+  color-scheme: light;
+  --ink-lampblack: #1C1A17;
+  --ink-cinnabar: #9E2B1E;
+  --ink-prussian: #1E2E3D;
+  --ink-sepia: #523B2A;
+  --ink: #1c1917;
+  --ink-cream: #f7f3e8;
+  --brass: #8a7340;
+  --ring: var(--brass);
+  --cinnabar: #9e2b1e;
+  --selected: #ffe8a3;
+  --selected-ink: #1c1917;
+  --paper: #fbf7ee;
+  --paper-desk: #cac3b4;
+  --paper-night: #d6c9b0;
+  --paper-desk-night: #7c7058;
+  --paper-masthead: #ebe4d4;
+  --paper-sheet: #fcf9f2;
+  --paper-card: #fdfbf6;
+  --paper-reading: #fef3c7;
+  --paper-grain: rgba(216, 204, 182, 0.72);
+  --paper-grain-fill: #f6f1e7;
+  --paper-scan-dot: #d3c7b2;
+  --paper-scan-dot-2: #c7baa2;
+  --paper-scan-fill: #f4eee2;
+  --paper-rule: #c4b79a;
+  --scroll-track: #e4d6b8;
+  --scroll-track-edge: #c4b48a;
+  --plate-night: grayscale(1) sepia(0.4) hue-rotate(188deg) saturate(1.45) contrast(1.08);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  scrollbar-width: thin;
+  scrollbar-color: #9a7340 #e4d6b8;
+}
+
+html.theme-dark {
+    color-scheme: dark;
+    --ink-lampblack: #f7f3e8;
+    --ink-prussian: #a8c0d0;
+    --ink-sepia: #c4a07a;
+    --ink: #f7f3e8;
+    --brass: #c4b48a;
+    --ring: var(--brass);
+    --cinnabar: #e07060;
+    --selected: #ffe8a3;
+    --selected-ink: #1c1917;
+    --paper: #1C1A17;
+    --paper-desk: #141210;
+    --paper-night: #241c14;
+    --paper-desk-night: #1a1610;
+    --paper-masthead: #32281f;
+    --paper-sheet: #1a1712;
+    --paper-card: #2a241c;
+    --paper-reading: #3f3420;
+    --paper-grain: rgba(90, 74, 52, 0.45);
+    --paper-grain-fill: #1C1A17;
+    --paper-scan-dot: #3a3228;
+    --paper-scan-dot-2: #2e2820;
+    --paper-scan-fill: #1C1A17;
+    --paper-rule: #5a4c3a;
+    --scroll-track: #241c14;
+    --scroll-track-edge: #3a3228;
+    --color-stone-50: #241e18;
+    --color-stone-100: #322c24;
+    --color-stone-200: #4a4034;
+    --color-stone-300: #6b5d4a;
+    --color-stone-400: #8a7a60;
+    --color-stone-500: #a89470;
+    --color-stone-600: #c4b48a;
+    --color-stone-700: #d4c4a8;
+    --color-stone-800: #e4d6b8;
+    --color-stone-900: #efe8d8;
+    --color-stone-950: #f7f3e8;
+    scrollbar-color: #8a6430 #241c14;
+
+  .edition-plate {
+    --coin-high: #d4c49a;
+    --coin-mid: #8a7048;
+    --coin-low: #3a2e20;
+    --coin-ink: #12100c;
+  }
+
+  .edition-plate img {
+    --plate-blend: normal;
+    --plate-filter: var(--plate-night);
+  }
+
+  .newspaper-silhouette {
+    --silhouette-blend: screen;
+  }
+
+  .decoded-stamp,
+  .woodblock-stamp {
+    mix-blend-mode: normal;
+  }
+
+  .bg-scanned-doc {
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(var(--paper-scan-dot) 0.8px, transparent 0.8px),
+      radial-gradient(var(--paper-scan-dot-2) 0.5px, var(--paper-scan-fill) 0.5px);
+  }
+
+  #cryptogram-board .cipher-tile {
+    background-color: var(--paper-card);
+  }
+
+  #cryptogram-board .cipher-tile.is-selected {
+    background-color: var(--selected);
+    color: var(--selected-ink);
+  }
+
+  #cryptogram-board .cipher-tile.is-selected .cipher-mapped,
+  #cryptogram-board .cipher-tile.is-selected .cipher-glyph,
+  #cryptogram-board .cipher-tile.is-selected .scanned-ink {
+    color: var(--selected-ink);
+  }
+
+  #cryptogram-board .cipher-tile.is-selected .bg-stone-700 {
+    background-color: var(--selected-ink);
+  }
+
+  #cryptogram-board .cipher-tile.hover\:bg-\[\#faeed6\]:hover {
+    background-color: var(--paper-reading);
+  }
+
+  .glyph-tally-row button {
+    background-color: var(--paper-card);
+    color: var(--ink);
+    border-color: var(--paper-rule);
+  }
+
+  .glyph-tally-row button span {
+    color: var(--ink);
+  }
+
+  .glyph-tally-row button.bg-amber-100\/80 {
+    background-color: var(--paper-reading);
+    border-color: #b45309;
+  }
+
+  .glyph-tally-row button.bg-amber-200 {
+    background-color: var(--selected);
+    color: var(--selected-ink);
+  }
+
+  .glyph-tally-row button.bg-amber-200 span {
+    color: var(--selected-ink);
+  }
+
+  .bg-\[\#fbf7ee\],
+  .bg-\[\#faf6ed\],
+  .bg-\[\#faf6ee\],
+  .bg-\[\#f8f3e8\],
+  .bg-\[\#f8f4ea\],
+  .bg-\[\#f7f3e8\],
+  .bg-\[\#fcfaf4\],
+  .bg-\[\#fdfbf7\],
+  .bg-\[\#fdfbf6\],
+  .bg-\[\#fbf8f1\],
+  .bg-\[\#f6f1e7\],
+  .bg-\[\#f6f1e6\],
+  .bg-\[\#f4eee1\],
+  .bg-\[\#f4ede0\],
+  .bg-\[\#f4efe4\],
+  .bg-\[\#f0eae1\],
+  .bg-\[\#fdfaf3\],
+  .bg-\[\#eae3d2\],
+  .bg-\[\#efe8d8\],
+  .bg-\[\#efe4cc\],
+  .hover\:bg-\[\#faf6ed\]:hover {
+    background-color: var(--paper);
+  }
+
+  .bg-\[\#ebe4d4\],
+  .bg-\[\#e0d5c0\],
+  .bg-\[\#e8e0d0\],
+  .bg-\[\#e4d6b8\],
+  .bg-\[\#c4baa4\],
+  .bg-\[\#d0c6b0\],
+  .bg-\[\#d6c9b0\],
+  .hover\:bg-\[\#ebe4d4\]:hover,
+  .hover\:bg-\[\#e0d5c0\]:hover,
+  .hover\:bg-\[\#e4d6b8\]:hover,
+  .hover\:bg-\[\#d0c6b0\]:hover {
+    background-color: var(--paper-masthead);
+  }
+
+  .bg-\[\#d9d0bc\] {
+    background-color: var(--paper-desk);
+  }
+}
+
+@layer utilities {
+  .font-masthead {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .font-newspaper,
+  .font-treatise {
+    font-family: 'Newsreader', Georgia, serif;
+  }
+  .font-letterpress {
+    font-family: 'IM Fell English', 'Newsreader', Georgia, serif;
+  }
+  .font-headline {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .font-typewriter,
+  .font-mimeo,
+  .font-mono-code {
+    font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, ui-monospace, monospace;
+  }
+  .font-handwritten,
+  .font-scribble {
+    font-family: 'Beth Ellen', 'Special Elite', cursive;
+  }
+  .font-gothic {
+    font-family: 'UnifrakturMaguntia', Palatino, serif;
+  }
+  .text-newsprint {
+    color: var(--ink-cream);
+  }
+  .desk-hit {
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+  .desk-hit svg {
+    display: block;
+    flex-shrink: 0;
+    fill: currentColor;
+  }
+  .google-identity-btn {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+  }
+  .google-identity-btn-full {
+    display: flex;
+    width: 100%;
+  }
+  .google-identity-btn iframe {
+    display: block;
+  }
+  .reading-measure {
+    max-width: 65ch;
+  }
+}

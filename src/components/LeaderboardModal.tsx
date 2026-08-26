@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { User } from 'firebase/auth';
-import { X, Trophy, Search, Shield, RefreshCw, Send, CheckCircle } from '../icons';
+import { Trophy, Search, Shield, RefreshCw, Send, CheckCircle } from '../icons';
 import { GoogleDeskButton } from './Header';
+import { DeskActionDock } from './DeskActionDock';
+import { DeskModal } from './DeskModal';
 import { LeaderboardEntry, PuzzleData } from '../types';
+import { readStoredCodename, writeStoredCodename } from '../utils/solverDisplayName';
 import { fetchLeaderboard, submitLeaderboardEntry } from '../utils/firebaseStore';
+import { logDesk, toUserMessage } from '../utils/deskError';
+import { matchesMode } from '../utils/edition';
 
 interface LeaderboardModalProps {
   isOpen: boolean;
@@ -48,10 +53,7 @@ function shiftDate(iso: string, days: number) {
 }
 
 function findPuzzleId(puzzles: PuzzleData[], editionDate: string, mode: 'Easy' | 'Hard') {
-  return puzzles.find((puzzle) => {
-    const puzzleMode = puzzle.difficultyMode || (puzzle.difficulty === 'Hard' || puzzle.difficulty === 'Master' ? 'Hard' : 'Easy');
-    return puzzle.editionDate === editionDate && puzzleMode === mode;
-  })?.id;
+  return puzzles.find((puzzle) => puzzle.editionDate === editionDate && matchesMode(puzzle, mode))?.id;
 }
 
 export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
@@ -85,17 +87,18 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [codename, setCodename] = useState(
-    () => localStorage.getItem('cryptogram_codename') || ''
-  );
+  const [codename, setCodename] = useState(() => readStoredCodename());
   const [selectedBadge, setSelectedBadge] = useState(TITLE_BADGES[0]);
   const [countryCode, setCountryCode] = useState('US');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [submissionRank, setSubmissionRank] = useState<number | null>(null);
+  const [boardError, setBoardError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const loadBoard = async () => {
     setIsLoading(true);
+    setBoardError(null);
     try {
       const targetId = tabIds[activeTab as keyof typeof tabIds] || currentPuzzleId;
       if (!targetId) {
@@ -104,7 +107,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
       }
       setLeaderboard(await fetchLeaderboard(targetId));
     } catch (e) {
-      console.error('Failed to fetch leaderboard:', e);
+      logDesk('leaderboard-fetch', e);
+      setBoardError(toUserMessage(e, 'The standings could not be fetched.'));
     } finally {
       setIsLoading(false);
     }
@@ -127,8 +131,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
     if (!codename.trim() || !currentSolveStats || isSubmitting || !user) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
-      localStorage.setItem('cryptogram_codename', codename.trim());
+      writeStoredCodename(codename.trim());
       const { rank } = await submitLeaderboardEntry(user.uid, {
         puzzleId: currentPuzzleId,
         codename: codename.trim(),
@@ -144,13 +149,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
       loadBoard();
       if (onScoreSubmitted) onScoreSubmitted();
     } catch (err) {
-      console.error('Failed to submit score:', err);
+      logDesk('leaderboard-submit', err);
+      setSubmitError(toUserMessage(err, 'The bureau would not take that posting.'));
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (!isOpen) return null;
 
   const filteredEntries = leaderboard.filter(
     (entry) =>
@@ -160,38 +164,21 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   );
 
   return (
-    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="leaderboard-title"
-        className="modal-sheet max-w-3xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <Trophy className="w-5 h-5 fill-current shrink-0" />
-            <div className="min-w-0">
-              <h2 id="leaderboard-title" className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight">
-                Global Codebreaker Leaderboard
-              </h2>
-              <p className="modal-tagline text-[11px] font-mono-code text-stone-600 truncate">
-                {currentPuzzleTitle}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit p-1 text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="leaderboard-title"
+      title="Global Codebreaker Leaderboard"
+      subtitle={
+        <p className="modal-tagline text-xs font-mono-code text-stone-600 truncate">
+          {currentPuzzleTitle}
+        </p>
+      }
+      icon={<Trophy className="w-5 h-5 fill-current shrink-0" />}
+      sheetClassName="max-w-3xl"
+    >
         {/* Tab Selection */}
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-[#f4eee1] border-b border-stone-400 gap-2 flex-wrap text-xs font-mono-code">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-[var(--paper-masthead)] border-b border-stone-400 gap-2 flex-wrap text-xs font-mono-code">
           <div className="flex items-center gap-1 flex-wrap">
             <button
               onClick={() => setActiveTab('today_easy')}
@@ -253,7 +240,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
         {/* Live Score Submission Box (if solved) */}
         {currentSolveStats && !hasSubmitted && !user && (
-          <div className="p-3 sm:p-4 bg-[#f8f3e8] border-b-2 border-stone-800 flex items-center justify-between gap-3 flex-wrap">
+          <div className="p-3 sm:p-4 bg-[var(--paper)] border-b-2 border-stone-800 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-stone-800" />
               <span className="font-headline font-bold text-xs sm:text-sm text-stone-900 uppercase">
@@ -336,6 +323,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 </button>
               </div>
             </form>
+            {submitError ? (
+              <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">{submitError}</p>
+            ) : null}
           </div>
         )}
 
@@ -368,10 +358,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
         {/* Leaderboard Table */}
         <div className="flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 bg-newsprint">
+          {boardError ? (
+            <p className="mb-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">{boardError}</p>
+          ) : null}
           <div className="border border-stone-400 rounded-xs bg-[#fdfbf7] overflow-hidden shadow-xs">
             <table className="w-full text-left border-collapse text-xs font-mono-code">
               <thead>
-                <tr className="bg-[#ebe4d4] text-stone-950 border-b border-stone-400">
+                <tr className="bg-[var(--paper-masthead)] text-stone-950 border-b border-stone-400">
                   <th className="p-2 sm:p-2.5 text-center w-12">Rank</th>
                   <th className="p-2 sm:p-2.5">Agent Codename & Badge</th>
                   <th className="p-2 sm:p-2.5 text-right">Time</th>
@@ -426,7 +419,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                             <span className="font-bold text-stone-950 text-xs sm:text-sm">
                               {entry.codename}
                             </span>
-                            <span className="text-[10px] text-stone-600 font-newspaper italic">
+                            <span className="text-xs text-stone-600 font-newspaper italic">
                               {entry.titleBadge}
                             </span>
                           </div>
@@ -459,7 +452,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
                         {/* Country */}
                         <td className="p-2 sm:p-2.5 text-center">
-                          <span className="inline-block px-1.5 py-0.5 bg-stone-200 text-stone-800 rounded font-bold text-[10px]">
+                          <span className="inline-block px-1.5 py-0.5 bg-stone-200 text-stone-800 rounded font-bold text-xs">
                             {entry.countryCode}
                           </span>
                         </td>
@@ -473,7 +466,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-[#f4eee1] border-t border-stone-400 flex items-center justify-between text-xs font-mono-code text-stone-700">
+        <DeskActionDock>
           <span>Official Timings Certified by Bureau of Cryptanalysis</span>
           <button
             type="button"
@@ -482,8 +475,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           >
             Close Records
           </button>
-        </div>
-      </div>
-    </div>
+        </DeskActionDock>
+    </DeskModal>
   );
 };

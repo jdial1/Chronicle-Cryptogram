@@ -1,7 +1,15 @@
-import { plateSrcs } from './data/plates';
-
-const SPLASH_ENTERED = 'chronicle_splash_entered';
-const { people, places } = plateSrcs();
+import { splashEnteredThisSession, SPLASH_ENTERED_KEY } from './splashGate';
+import { sessionSet, storageSet } from './utils/safeStorage';
+const people = [
+  new URL('./data/images/c1.png', import.meta.url).href,
+  new URL('./data/images/c2.png', import.meta.url).href,
+  new URL('./data/images/c3.png', import.meta.url).href,
+];
+const places = [
+  new URL('./data/images/l1.png', import.meta.url).href,
+  new URL('./data/images/l2.png', import.meta.url).href,
+  new URL('./data/images/l3.png', import.meta.url).href,
+];
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -90,7 +98,7 @@ function startCoin(
 
   let live = true;
   inner?.addEventListener('transitionend', (event) => {
-    if (!live || event.target !== inner || event.propertyName !== 'transform') return;
+    if (!live || event.target !== inner || (event as TransitionEvent).propertyName !== 'transform') return;
     if (flipped) {
       held.delete(frontSrc);
       frontSrc = showingPerson ? nextPlace() : nextPerson();
@@ -111,38 +119,31 @@ function startCoin(
 
 function startAllCoins() {
   const held = new Set<string>();
-  const coins = document.querySelectorAll<HTMLElement>('.splash-coin');
-  const stops = [...coins].map((coin, index) => {
+  const coins = [...document.querySelectorAll<HTMLElement>('.splash-coin')];
+  const center = document.getElementById('splash-coin') as HTMLElement | null;
+  const startOne = (coin: HTMLElement, index: number) => {
     const front = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-front img');
     const back = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-back img');
     if (!front || !back) return () => undefined;
-    return startCoin(coin, front, back, held, 2000 + index * 650, index * 380);
-  });
+    return startCoin(coin, front, back, held, 2000 + index * 650, 0);
+  };
+  const stops: Array<() => void> = [];
+  if (center) stops.push(startOne(center, 1));
+  const later = window.setTimeout(() => {
+    coins.forEach((coin, index) => {
+      if (coin === center) return;
+      stops.push(startOne(coin, index));
+    });
+  }, 420);
   return () => {
+    window.clearTimeout(later);
     for (const stop of stops) stop();
   };
 }
 
-function enteredThisSession() {
-  try {
-    return sessionStorage.getItem(SPLASH_ENTERED) === '1';
-  } catch {
-    return false;
-  }
-}
-
-export function splashBlocksDesk() {
-  const overlay = document.getElementById('splash');
-  if (!overlay || overlay.hidden || overlay.classList.contains('is-gone')) return false;
-  return !enteredThisSession();
-}
-
 function markEntered() {
-  try {
-    sessionStorage.setItem(SPLASH_ENTERED, '1');
-  } catch {
-    /* continue */
-  }
+  sessionSet(SPLASH_ENTERED_KEY, '1');
+  storageSet(SPLASH_ENTERED_KEY, '1');
   document.documentElement.classList.add('splash-skipped');
 }
 
@@ -158,6 +159,8 @@ function dismissSplash(overlay: HTMLElement, stopCoin: () => void) {
     finished = true;
     overlay.classList.add('is-gone');
     overlay.hidden = true;
+    overlay.setAttribute('inert', '');
+    overlay.setAttribute('aria-hidden', 'true');
     document.getElementById('root')?.removeAttribute('inert');
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
@@ -180,10 +183,12 @@ export function startSplash() {
   const root = document.getElementById('root');
   if (!overlay) return;
 
-  if (root && enteredThisSession()) {
+  if (root && splashEnteredThisSession()) {
     document.documentElement.classList.add('splash-skipped');
     overlay.classList.add('is-gone');
     overlay.hidden = true;
+    overlay.setAttribute('inert', '');
+    overlay.setAttribute('aria-hidden', 'true');
     return;
   }
 

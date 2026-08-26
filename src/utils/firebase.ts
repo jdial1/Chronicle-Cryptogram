@@ -1,10 +1,11 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { isFirebaseConfigured, isFirebaseEnabled } from './firebaseFlags';
 
-export const isFirebaseEnabled = import.meta.env.VITE_FIREBASE_ENABLED === 'true';
+export { isFirebaseConfigured, isFirebaseEnabled };
 
-const firebaseConfig = isFirebaseEnabled
+const firebaseConfig = isFirebaseConfigured
   ? {
       apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
       authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -16,19 +17,14 @@ const firebaseConfig = isFirebaseEnabled
     }
   : null;
 
-export const isFirebaseConfigured = Boolean(
-  firebaseConfig?.apiKey && firebaseConfig.projectId && firebaseConfig.appId
-);
-
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
 
-if (isFirebaseConfigured && firebaseConfig) {
+if (firebaseConfig) {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
 }
 
 export { app, auth, db };
-

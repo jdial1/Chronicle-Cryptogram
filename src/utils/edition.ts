@@ -1,12 +1,23 @@
 import { PuzzleData } from '../types';
 
+/** Night extra: evening slot, or a hard/master plate (legacy records without a slot). */
+export function isHardPuzzle(puzzle: PuzzleData) {
+  return puzzleMode(puzzle) === 'Hard';
+}
+
+export type PuzzleMode = 'Easy' | 'Hard';
+
+export function puzzleMode(puzzle: PuzzleData): PuzzleMode {
+  if (puzzle.difficultyMode === 'Hard' || puzzle.difficultyMode === 'Easy') return puzzle.difficultyMode;
+  return puzzle.difficulty === 'Hard' || puzzle.difficulty === 'Master' ? 'Hard' : 'Easy';
+}
+
+export function matchesMode(puzzle: PuzzleData, mode: PuzzleMode) {
+  return puzzleMode(puzzle) === mode;
+}
+
 export function isNightEdition(puzzle: PuzzleData) {
-  return (
-    puzzle.editionSlot === 'Evening' ||
-    puzzle.difficultyMode === 'Hard' ||
-    puzzle.difficulty === 'Hard' ||
-    puzzle.difficulty === 'Master'
-  );
+  return puzzle.editionSlot === 'Evening' || isHardPuzzle(puzzle);
 }
 
 export function isMorningEdition(puzzle: PuzzleData) {

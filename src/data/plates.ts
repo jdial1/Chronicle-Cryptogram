@@ -1,4 +1,3 @@
-import { CASE_CHARACTERS, CaseCharacterId } from './caseFiles';
 import { PuzzleData } from '../types';
 import { isPrimerPuzzle } from '../utils/edition';
 
@@ -24,7 +23,17 @@ const PLATE_FILES: Record<string, string> = {
   l12: new URL('./images/l12.png', import.meta.url).href,
 };
 
-const CHARACTER_FIRST_EDITION: Record<CaseCharacterId, number> = {
+const CHARACTER_PLATE: Record<string, string> = {
+  thorne: 'c1',
+  beatrice: 'c2',
+  clara: 'c3',
+  sterling: 'c4',
+  archibald: 'c5',
+  blackwood: 'c6',
+  reginald: 'c7',
+};
+
+const CHARACTER_FIRST_EDITION: Record<string, number> = {
   thorne: 1,
   beatrice: 2,
   clara: 3,
@@ -69,9 +78,11 @@ export function articlePlateId(puzzle: PuzzleData) {
   if (isPrimerPuzzle(puzzle)) return undefined;
   const location = LOCATION_BY_EDITION[puzzle.editionNumber];
   if (location) return location;
-  const intros = CASE_CHARACTERS.filter((entry) => CHARACTER_FIRST_EDITION[entry.id] === puzzle.editionNumber);
-  if (intros.length === 1) return intros[0].plate;
-  if (puzzle.editionNumber === 3) return CASE_CHARACTERS.find((entry) => entry.id === 'clara')?.plate;
+  const intros = Object.keys(CHARACTER_FIRST_EDITION).filter(
+    (id) => CHARACTER_FIRST_EDITION[id] === puzzle.editionNumber
+  );
+  if (intros.length === 1) return CHARACTER_PLATE[intros[0]];
+  if (puzzle.editionNumber === 3) return CHARACTER_PLATE.clara;
   const ids = Object.keys(PLATE_FILES);
   return ids[(puzzle.editionNumber - 1) % ids.length];
 }

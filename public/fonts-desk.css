@@ -1,0 +1,21 @@
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('./fonts/playfair-display-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('./fonts/newsreader-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Special Elite';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('./fonts/special-elite-400.woff2') format('woff2');
+}

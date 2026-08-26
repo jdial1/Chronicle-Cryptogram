@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { X, BookOpen, Search, Type, RotateCcw, Lightbulb, BarChart3 } from '../icons';
+import { BookOpen, Type, RotateCcw, Lightbulb } from '../icons';
 import { CIPHER_INTRO, CIPHER_TACTICS, CIPHER_TOOLS } from '../data/cipherTactics';
+import { DeskModal } from './DeskModal';
 
 interface HowToPlayModalProps {
   isOpen: boolean;
@@ -12,7 +13,7 @@ const HANDBOOK_PAGES = [
     id: 'cipher',
     tab: ['The', 'Cipher'],
     title: 'The Substitution Cipher',
-    dek: 'The bottom rail is the field kit. Tap a mark, then use the tools.',
+    dek: 'Tap a mark, then type a letter. That is the whole game.',
     summary: CIPHER_INTRO,
     points: CIPHER_TOOLS,
   },
@@ -71,25 +72,19 @@ function emphasizeDailyQuota(body: string) {
 function CipherDeskRail() {
   return (
     <div className="brass-loupe brass-loupe-diagram mb-3" aria-hidden>
-      <button type="button" tabIndex={-1}>
-        <Search className="w-3 h-3" />
-      </button>
-      <button type="button" tabIndex={-1}>
-        <Search className="w-5 h-5" />
-      </button>
-      <button type="button" tabIndex={-1} className="hint-tool">
+      <button type="button" tabIndex={-1} className="hint-tool" data-caption="Check">
         <Type className="w-4 h-4" />
         <sup className="hint-count">3</sup>
       </button>
-      <button type="button" tabIndex={-1} className="hint-tool">
+      <button type="button" tabIndex={-1} className="hint-tool" data-caption="Hint">
         <Lightbulb className="w-4 h-4" />
         <sup className="hint-count">3</sup>
       </button>
-      <button type="button" tabIndex={-1}>
-        <BarChart3 className="w-4 h-4" />
-      </button>
-      <button type="button" tabIndex={-1}>
+      <button type="button" tabIndex={-1} data-caption="Undo">
         <RotateCcw className="w-4 h-4" />
+      </button>
+      <button type="button" tabIndex={-1} data-caption="Wipe">
+        <RotateCcw className="w-4 h-4 rotate-180" />
       </button>
     </div>
   );
@@ -102,39 +97,17 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
     if (isOpen) setActiveId(HANDBOOK_PAGES[0].id);
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const page = HANDBOOK_PAGES.find((entry) => entry.id === activeId) || HANDBOOK_PAGES[0];
 
   return (
-    <div className="modal-backdrop z-50 select-none" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="handbook-title"
-        className="modal-sheet max-w-3xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="modal-masthead">
-          <div className="flex items-center gap-2 min-w-0">
-            <BookOpen className="w-5 h-5 shrink-0" />
-            <h2
-              id="handbook-title"
-              className="text-base sm:text-lg font-masthead font-bold tracking-wide uppercase leading-tight"
-            >
-              Codebreaker's Handbook
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="desk-hit shrink-0 flex items-center justify-center text-stone-700 hover:text-stone-950 rounded hover:bg-stone-200 transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
+    <DeskModal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="handbook-title"
+      title="Guide"
+      icon={<BookOpen className="w-5 h-5 shrink-0" />}
+      sheetClassName="max-w-3xl"
+    >
         <div className="flex flex-col flex-1 min-h-0 bg-[#d9d0bc]">
           <div
             className="shrink-0 flex items-end overflow-x-auto snap-x snap-mandatory gap-1 px-3 pt-2"
@@ -157,7 +130,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
                       : 'bg-[#c4baa4] text-stone-700 border-stone-500/80 hover:bg-[#d0c6b0]'
                   }`}
                 >
-                  <span className="flex flex-col font-typewriter font-bold text-[10px] uppercase tracking-wider leading-tight">
+                  <span className="flex flex-col font-typewriter font-bold text-xs uppercase tracking-wider leading-tight">
                     {entry.tab.map((line) => (
                       <span key={line}>{line}</span>
                     ))}
@@ -208,7 +181,6 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
             I'm Ready to Decode
           </button>
         </div>
-      </div>
-    </div>
+    </DeskModal>
   );
 };

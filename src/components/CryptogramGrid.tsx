@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useZoom } from '../hooks/useZoom';
 import { CryptogramWord, SymbolMapping } from '../types';
-import { DecodedStamp, PuzzleSilhouette, RotateCcw, Search, BarChart3, Type, Lightbulb } from '../icons';
+import { DecodedStamp, PuzzleSilhouette, RotateCcw, RefreshCw, BarChart3, Type, Lightbulb } from '../deskIcons';
 import { GlyphTally, type GlyphCount } from './PrimerCoach';
 import { TypewriterKeyboard, armKey, releaseKey } from './TypewriterKeyboard';
+import { ZoomControls } from './ZoomControls';
 
 interface CryptogramGridProps {
   words: CryptogramWord[];
@@ -13,6 +15,8 @@ interface CryptogramGridProps {
   lockedSymbolIds: string[];
   isSolved: boolean;
   onClearLetters?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   onUseHint?: () => void;
   onCheckLetter?: () => void;
   hintsRemaining?: number;
@@ -59,6 +63,8 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   lockedSymbolIds,
   isSolved,
   onClearLetters,
+  onUndo,
+  canUndo = false,
   onUseHint,
   onCheckLetter,
   hintsRemaining = 0,
@@ -71,7 +77,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   onLetter,
   onBackspace,
 }) => {
-  const [zoom, setZoom] = useState(ZOOM_DEFAULT);
+  const { zoom, zoomOut, zoomIn, canZoomOut, canZoomIn } = useZoom(ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, ZOOM_DEFAULT);
   const [showTally, setShowTally] = useState(false);
   const jitterRef = useRef<Record<string, { letter: string; rotate: string; y: string }>>({});
   const skipJitter =
@@ -79,10 +85,18 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hintReady = Boolean(selectedSymbolId) && !isSymbolSolved(words, mappings, selectedSymbolId);
   const mappedSelected = Boolean(selectedSymbolId && mappings[selectedSymbolId]);
-  const checkReady =
-    mappedSelected &&
-    !lockedSymbolIds.includes(selectedSymbolId!) &&
-    !flaggedSymbolIds.includes(selectedSymbolId!);
+  const selectedLocked = Boolean(selectedSymbolId && lockedSymbolIds.includes(selectedSymbolId));
+  const selectedWrong = Boolean(selectedSymbolId && flaggedSymbolIds.includes(selectedSymbolId));
+  const checkReady = mappedSelected && !selectedLocked && !selectedWrong;
+  const deskNote = selectedLocked
+    ? 'That mark is locked.'
+    : selectedWrong
+      ? 'That letter is wrong. Type a different one.'
+      : checksRemaining <= 0
+        ? 'No checks left today.'
+        : !checkReady
+          ? 'Select a mark and type a letter, then Check.'
+          : `Check ${checksRemaining} · Hint ${hintsRemaining}`;
 
   useEffect(() => {
     jitterRef.current = {};
@@ -134,16 +148,21 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               }}
               className={`cipher-tile group relative flex flex-col items-center justify-between p-1 rounded-xs ${
                 isSolved
-                  ? 'bg-[#fbf8f0] border border-stone-600/70 cursor-default'
+                  ? 'bg-[var(--paper-card)] border border-stone-600/70 cursor-default'
                   : isSelected
-                  ? 'bg-[#ffe8a3] ring-2 ring-stone-950 shadow-md scale-105 z-10 cursor-pointer transition-transform duration-100'
-                  : 'hover:bg-[#faeed6] bg-[#fbf8f0] border border-stone-600/70 shadow-2xs cursor-pointer transition-colors duration-100'
+                  ? 'is-selected bg-[var(--selected)] text-[var(--selected-ink)] ring-2 ring-stone-950 shadow-md scale-105 z-10 cursor-pointer transition-transform duration-100'
+                  : 'hover:bg-[var(--paper-reading)] bg-[var(--paper-card)] border border-stone-600/70 shadow-2xs cursor-pointer transition-colors duration-100'
               } ${isError ? 'bg-red-100 border-red-700 ring-1 ring-red-700' : ''}`}
               aria-pressed={isSelected}
+              aria-invalid={isError || undefined}
               aria-label={
-                mappedLetter
-                  ? `Cipher glyph ${item.char}, mapped to ${mappedLetter}`
-                  : `Cipher glyph ${item.char}, unmapped`
+                isError
+                  ? `Cipher glyph ${item.char}, mapped to ${mappedLetter}, marked wrong`
+                  : lockedSymbolIds.includes(item.symbolId) && mappedLetter
+                    ? `Cipher glyph ${item.char}, locked as ${mappedLetter}`
+                    : mappedLetter
+                      ? `Cipher glyph ${item.char}, mapped to ${mappedLetter}`
+                      : `Cipher glyph ${item.char}, unmapped`
               }
             >
               <div className="cipher-letter w-full flex items-center justify-center border-b border-stone-400/80 relative">
@@ -196,15 +215,16 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   return (
     <div
       id="cryptogram-board"
+      tabIndex={-1}
       role="group"
       aria-label="Cryptogram puzzle"
       style={{ '--cipher-zoom': isSolved ? ZOOM_DEFAULT : zoom } as React.CSSProperties}
       onPointerDown={(event) => {
         if (!isSolved) event.preventDefault();
       }}
-      className={`w-full min-w-0 bg-[#f4eee2] border-2 border-stone-900 rounded-xs bg-scanned-doc relative select-none ${
+      className={`w-full min-w-0 bg-[var(--paper-scan-fill)] border-2 border-stone-900 rounded-xs bg-scanned-doc relative select-none ${
         isSolved ? 'is-solved' : ''
-      } ${deskArmed ? 'is-desk-armed' : ''} ${deskArmed && gameKeyboard ? 'has-typewriter' : ''} ${showTally ? 'has-tally' : ''}`}
+      } ${!isSolved ? 'is-desk-armed' : ''} ${!isSolved && gameKeyboard ? 'has-typewriter' : ''} ${showTally ? 'has-tally' : ''}`}
     >
       {isSolved && <DecodedStamp size="board" />}
       <div className="cipher-folio">
@@ -228,38 +248,43 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               />
             </div>
           ) : null}
-          {deskArmed && gameKeyboard && onLetter && onBackspace ? (
+          {!isSolved && gameKeyboard && onLetter && onBackspace ? (
             <TypewriterKeyboard onLetter={onLetter} onBackspace={onBackspace} />
           ) : null}
-          <div className="brass-loupe">
-          <button
-            type="button"
-            aria-label="Decrease puzzle text size"
-            disabled={zoom <= ZOOM_MIN}
-            onPointerDown={armKey}
-            onPointerUp={releaseKey}
-            onPointerCancel={releaseKey}
-            onClick={() => setZoom((value) => Math.max(ZOOM_MIN, Math.round((value - ZOOM_STEP) * 100) / 100))}
-          >
-            <Search className="w-3 h-3" />
-          </button>
-          <button
-            type="button"
-            aria-label="Increase puzzle text size"
-            disabled={zoom >= ZOOM_MAX}
-            onPointerDown={armKey}
-            onPointerUp={releaseKey}
-            onPointerCancel={releaseKey}
-            onClick={() => setZoom((value) => Math.min(ZOOM_MAX, Math.round((value + ZOOM_STEP) * 100) / 100))}
-          >
-            <Search className="w-5 h-5" />
-          </button>
+          <div className="cipher-zoom" role="group" aria-label="Puzzle type size">
+            <ZoomControls
+              canZoomOut={canZoomOut}
+              canZoomIn={canZoomIn}
+              onZoomOut={zoomOut}
+              onZoomIn={zoomIn}
+              outLabel="Decrease puzzle text size"
+              inLabel="Increase puzzle text size"
+              outCaption="A−"
+              inCaption="A+"
+              onPointerDown={armKey}
+              onPointerUp={releaseKey}
+              onPointerCancel={releaseKey}
+            />
+          </div>
+          <p className="desk-status" role="status">
+            {deskNote}
+          </p>
+          <div className="brass-loupe brass-loupe-actions">
           {onCheckLetter ? (
             <button
               type="button"
               className="hint-tool"
-              aria-label={`Check the highlighted letter, ${checksRemaining} remaining today`}
-              title="Test the highlighted letter. Three checks per day."
+              data-caption="Check"
+              aria-label={
+                !checkReady || checksRemaining <= 0
+                  ? deskNote
+                  : `Check the highlighted letter, ${checksRemaining} remaining today`
+              }
+              title={
+                !checkReady || checksRemaining <= 0
+                  ? deskNote
+                  : 'Check the highlighted letter. Three per day.'
+              }
               disabled={checksRemaining <= 0 || !checkReady}
               onPointerDown={armKey}
               onPointerUp={releaseKey}
@@ -274,8 +299,29 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
             <button
               type="button"
               className="hint-tool"
-              aria-label={`Reveal the highlighted letter, ${hintsRemaining} remaining today`}
-              title="Lift the highlighted letter. Three hints per day."
+              data-caption="Hint"
+              aria-label={
+                hintsRemaining <= 0
+                  ? 'No hints left today'
+                  : selectedLocked
+                    ? 'Hint unavailable, that mark is locked'
+                    : !hintReady
+                      ? selectedSymbolId
+                        ? 'Hint unavailable, that letter is already solved'
+                        : 'Hint unavailable, select a mark first'
+                      : `Reveal the highlighted letter, ${hintsRemaining} remaining today`
+              }
+              title={
+                hintsRemaining <= 0
+                  ? 'No hints left today'
+                  : selectedLocked
+                    ? 'That mark is locked.'
+                    : !hintReady
+                      ? selectedSymbolId
+                        ? 'That letter is already solved.'
+                        : 'Select a mark first'
+                      : 'Reveal the highlighted letter. Three per day.'
+              }
               disabled={hintsRemaining <= 0 || !hintReady}
               onPointerDown={armKey}
               onPointerUp={releaseKey}
@@ -286,11 +332,28 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               {hintsRemaining > 0 ? <sup className="hint-count">{hintsRemaining}</sup> : null}
             </button>
           ) : null}
+          {onUndo ? (
+            <button
+              type="button"
+              data-caption="Undo"
+              aria-label="Undo last letter"
+              title={canUndo ? 'Undo the last letter' : 'Nothing to undo'}
+              disabled={!canUndo}
+              onPointerDown={armKey}
+              onPointerUp={releaseKey}
+              onPointerCancel={releaseKey}
+              onClick={onUndo}
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          ) : null}
           {frequencies ? (
             <button
               type="button"
+              data-caption="Tally"
+              className="loupe-secondary"
               aria-label="Toggle glyph tally"
-              title="Glyph tally"
+              title="Count repeating marks"
               aria-pressed={showTally}
               onPointerDown={armKey}
               onPointerUp={releaseKey}
@@ -303,14 +366,16 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
           {onClearLetters ? (
             <button
               type="button"
-              aria-label="Clear all letters"
-              title="Clear all letters"
+              data-caption="Wipe"
+              className="loupe-secondary"
+              aria-label="Wipe all guesses"
+              title="Wipe all guesses. The cipher stays."
               onPointerDown={armKey}
               onPointerUp={releaseKey}
               onPointerCancel={releaseKey}
               onClick={onClearLetters}
             >
-              <RotateCcw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" />
             </button>
           ) : null}
         </div>
