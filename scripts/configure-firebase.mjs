@@ -2,13 +2,25 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import dotenv from 'dotenv';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getSecurityRules } from 'firebase-admin/security-rules';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-dotenv.config({ path: join(root, '.env') });
+
+/** Load .env into process.env without a dependency. Existing vars win, so CI secrets are never clobbered. */
+function loadEnvFile(path) {
+  if (!existsSync(path)) return;
+  for (const line of readFileSync(path, 'utf8').split('\n')) {
+    const match = /^\s*([\w.-]+)\s*=\s*(.*)$/.exec(line);
+    if (!match || line.trimStart().startsWith('#')) continue;
+    const [, key, rawValue] = match;
+    if (process.env[key] !== undefined) continue;
+    process.env[key] = rawValue.trim().replace(/^(['"])([\s\S]*)\1$/, '$2');
+  }
+}
+
+loadEnvFile(join(root, '.env'));
 
 const PAGES_DOMAIN = 'jdial1.github.io';
 const DEFAULT_LOCATION = process.env.FIRESTORE_LOCATION || 'nam5';

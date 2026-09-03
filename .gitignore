@@ -12,3 +12,4 @@ coverage/
 *-firebase-adminsdk-*.json
 google-services.json
 !mobile/google-services.json
+mobile/.ship/

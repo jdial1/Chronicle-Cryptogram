@@ -1,3 +1,5 @@
+import { APP_VERSION } from '../data/appVersion';
+
 export type DeskLayer = 'storage' | 'cloud' | 'auth' | 'render';
 
 export const STORAGE_JAMMED =
@@ -51,8 +53,37 @@ export function logDesk(label: string, err: unknown): void {
   console.error(`[desk:${label}]`, err);
 }
 
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+
+type Reporter = { captureException: (err: unknown, hint?: { tags?: Record<string, string> }) => void };
+
+let reporter: Reporter | null = null;
+/** Handled errors raised before the SDK finishes loading, replayed on arrival. */
+let pending: { err: unknown; label: string }[] = [];
+
+/**
+ * Load the reporter once, if a DSN was built in. Sentry installs its own global
+ * error/rejection handlers, so uncaught failures are captured by init alone --
+ * the listeners in installDeskCrashLog stay console-only and never double-send.
+ */
+function startReporter(): void {
+  if (!SENTRY_DSN || reporter) return;
+  void import('@sentry/browser')
+    .then((Sentry) => {
+      Sentry.init({ dsn: SENTRY_DSN, release: APP_VERSION, tracesSampleRate: 0 });
+      reporter = Sentry;
+      const queued = pending;
+      pending = [];
+      for (const item of queued) reporter.captureException(item.err, { tags: { desk: item.label } });
+    })
+    .catch((err) => logDesk('reporter', err));
+}
+
 export function reportDesk(err: unknown, label = 'desk'): void {
   logDesk(label, err);
+  if (!SENTRY_DSN) return;
+  if (reporter) reporter.captureException(err, { tags: { desk: label } });
+  else if (pending.length < 20) pending.push({ err, label });
 }
 
 let crashLogInstalled = false;
@@ -61,6 +92,7 @@ let crashLogInstalled = false;
 export function installDeskCrashLog(): void {
   if (crashLogInstalled || typeof window === 'undefined') return;
   crashLogInstalled = true;
+  startReporter();
   window.addEventListener('error', (event) => {
     console.error('[desk:uncaught]', event.message, event.filename, event.lineno, event.error);
   });

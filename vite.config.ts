@@ -77,7 +77,9 @@ export default defineConfig(() => {
         ],
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,svg,webmanifest}'],
-          globIgnores: ['**/shot.html', '**/pwa-512*'],
+          // crash-reporter is fetched on demand: reporting needs the network anyway,
+          // so precaching it would only pad the offline press pack.
+          globIgnores: ['**/shot.html', '**/pwa-512*', '**/crash-reporter-*.js'],
           navigateFallbackDenylist: [/version\.json/i],
           runtimeCaching: [
             {
@@ -149,6 +151,9 @@ export default defineConfig(() => {
         input: {
           main: path.resolve(__dirname, 'index.html'),
           shot: path.resolve(__dirname, 'shot.html'),
+        },
+        output: {
+          manualChunks: (id) => (id.includes('@sentry') ? 'crash-reporter' : undefined),
         },
       },
     },
