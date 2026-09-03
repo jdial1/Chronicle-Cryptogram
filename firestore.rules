@@ -163,6 +163,18 @@ service cloud.firestore {
       return /databases/$(database)/documents/solves/$(request.auth.uid + '_' + puzzleId);
     }
 
+    /**
+     * Start/solve receipts are the ledger that stops puzzleStats being incremented
+     * twice: isValidStartIncrement / isValidSolveIncrement require the receipt to be
+     * absent before and present after. If a client could delete its own receipt it
+     * could re-run the increment forever, so deletion is allowed only once the
+     * account itself is gone -- which is what deleteCloudUserData does, user doc
+     * first. Inflating a public counter then costs you your own account.
+     */
+    function accountIsGone() {
+      return !exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function isValidUser(data) {
       return hasOnlyAllowedFields([
           'uid', 'displayName', 'photoURL', 'codename', 'titleBadge', 'countryCode',
@@ -367,14 +379,14 @@ service cloud.firestore {
       allow read: if canGetKeyedDoc(startId);
       allow create: if isAuthenticated() && isValidStart(request.resource.data, startId);
       allow update: if false;
-      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid && accountIsGone();
     }
 
     match /solves/{solveId} {
       allow read: if canGetKeyedDoc(solveId);
       allow create: if isAuthenticated() && isValidSolve(request.resource.data, solveId);
       allow update: if false;
-      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid && accountIsGone();
     }
 
     match /puzzleStats/{puzzleId} {

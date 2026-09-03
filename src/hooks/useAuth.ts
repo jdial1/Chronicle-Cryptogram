@@ -165,6 +165,29 @@ export function useAuth() {
     if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_OUT' });
   };
 
+  /**
+   * Closes the Firebase Auth account itself. Play's deletion requirement is the
+   * account, not just its documents -- signing out leaves the account alive.
+   * Callers must wipe Firestore first: once the account is gone, request.auth is
+   * null and every rule denies.
+   */
+  const deleteAccount = async () => {
+    const [{ auth }, { deleteUser }] = await Promise.all([
+      import('../utils/firebase'),
+      import('firebase/auth'),
+    ]);
+    const current = auth?.currentUser;
+    if (!auth || !current) return;
+    setError(null);
+    try {
+      await deleteUser(current);
+    } catch (err) {
+      setError(toUserMessage(err, 'The bureau could not close the file.'));
+      throw err;
+    }
+    if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_OUT' });
+  };
+
   return {
     user,
     identified: Boolean(user && !user.isAnonymous),
@@ -172,6 +195,7 @@ export function useAuth() {
     error,
     signIn,
     signOut: signOutUser,
+    deleteAccount,
     configured: isFirebaseConfigured,
   };
 }

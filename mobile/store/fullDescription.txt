@@ -1,21 +1,21 @@
-Every morning the same paper hits the stands. You and every other reader get today's Chronicle — a 1920s cryptogram set like a broadsheet — and the case picks up exactly where yesterday left off.
+A murder at the Vance Estate. Thirty editions of a 1920s newspaper, every one of them written in cipher. Break the code and the story moves.
 
-Chronicle Cryptogram is a daily substitution cipher dressed as a vintage newspaper. Tap a mark, type a letter, watch the quote take shape. No math — just English and the same edition every codebreaker in the city is working.
+Chronicle Cryptogram is a substitution-cipher puzzle dressed as a vintage broadsheet. Tap a mark, type a letter, watch the quote take shape. No math — just English and a sharp eye for pattern.
 
-This is a thirty-day serial. A new Morning Edition lands for everyone at once. Break it and the Night Extra drops — a harder second cipher with split glyphs for E, T, and A. Map symbols to letters, pull the handbook when you stall, and race the clock. The whole city is working the same cipher, so don't give tomorrow's headlines away.
+This is a thirty-edition serial, and you read it at your own pace. Break the Morning Edition and the Night Extra drops — a harder second cipher with split glyphs for E, T, and A. Solve an edition and the next one lands on your desk. No clock on the wall telling you to come back tomorrow.
 
 THE CASE ON YOUR DESK
 
 A murder at the Vance Estate opens the run. Detective Elias Thorne leads the file. Beatrice Vance, the widow. Clara Vance, the missing heir. Arthur Sterling, the partner. Dr. Aris Blackwood, the physician. Reginald, the butler. Archibald Vance, the victim.
 
-Each solved edition unlocks a case-file fragment — witness notes, dossiers, and quotes pulled from the cipher you just broke. Morning and evening ciphers feed different threads. By day thirty, you should know who had motive, who lied, and who Thorne is still chasing.
+Each solved edition unlocks a case-file fragment — witness notes, dossiers, and quotes pulled from the cipher you just broke. Morning and evening ciphers feed different threads. By the thirtieth edition you should know who had motive, who lied, and who Thorne is still chasing.
 
-HOW A DAY WORKS
+HOW AN EDITION WORKS
 
 • Morning Edition — one glyph per letter. Frequency counting works cleanly.
 • Night Extra — unlocks after you decode the morning paper. E, T, and A each get two glyphs. Same quote, tougher rules.
 • The timer runs from your first guess until the edition is solved. Post your time if you want bragging rights.
-• Three letter checks and three hints per day, shared across both editions. Use them when you are stuck, not when you are showing off.
+• Three letter checks and three hints per edition, shared across both papers. Use them when you are stuck, not when you are showing off.
 
 TOOLS ON THE DESK
 
@@ -24,34 +24,36 @@ TOOLS ON THE DESK
 • Primer coaching — nudges tied to the same tactics the handbook teaches.
 • Zoom and Clear Letters — resize crowded tiles or wipe guesses and start over. The clock keeps running.
 
+Start on the Codebreaker's Primer, a training cipher with the rules spelled out, before the case opens.
+
 ARCHIVE AND FIELD COPY
 
-Miss a day? The archive keeps past Morning Editions and Night Extras on the shelf. Pick up where you left off without losing the serial thread.
+Every edition you have reached stays on the shelf. Reopen a solved paper, re-read a case-file fragment, or pick the serial back up months later exactly where you left it.
 
-Pack a field copy from Bureau File before you leave the wire. Cipher, archive, and case file run offline on the train or in a dead zone. Sign-in and the bureau board still need a connection. When a newer plate hits the stands, reload and pack again.
+Pack a field copy from Bureau File before you leave the wire. Cipher, archive, and case file run offline on the train or in a dead zone. Sign-in and the bureau board still need a connection.
 
 SIGN IN AND THE BUREAU BOARD
 
-Sign in with Google to sync your beat book and post times on the bureau board beside every codebreaker who folded today's paper. Streak, solve times, and case progress follow you across devices. Anonymous play works; cloud save and leaderboard posting are optional.
-
-Optional Morning Dispatch — a daily paper-delivery reminder at 8:00 a.m. Eastern when you want a nudge that today's case file is ready.
+Sign in with Google to sync your beat book and post times on the bureau board beside other codebreakers working the same edition. Solve times and case progress follow you across devices. Anonymous play works; cloud save and leaderboard posting are optional.
 
 FEATURES
 
-• One shared morning cipher for every player, then a Night Extra
-• A murder-mystery case file that unfolds over 30 days
-• Archive of past editions if you miss a paper
+• A thirty-edition murder mystery told through ciphers
+• A Night Extra behind every Morning Edition — sixty puzzles in all
+• Progress at your own pace; nothing expires and nothing is missed
+• Archive of every edition you have reached
 • Frequency analysis, glyph tally, and primer coaching
 • Built-in cipher handbook with six solving tactics
 • Optional offline field copy from Bureau File
 • Optional Google sign-in and cloud progress
-• Optional daily Morning Dispatch reminder
 • Timer and bureau board for competitive solvers
 
 THE FINE PRINT
 
-The game is free. No ads. No in-app purchases. No paywalls on hints, archives, or the serial.
+Pay once. No ads. No coins. No subscription. No paywalls on hints, archives, or the serial — you bought the paper, you get all of it.
+
+Season 2 of the Chronicle is in the works: a new case, thirty more editions, arriving [SEASON 2 DATE — set before submission].
 
 Privacy policy: https://jdial1.github.io/Chronicle-Cryptogram/privacy.html
 
-From OrangeTopGames — free, ad-free puzzle games for people who like a little atmosphere with their brain work. Break today's paper. Keep tomorrow's secrets.
+From OrangeTopGames — ad-free puzzle games for people who like a little atmosphere with their brain work. Break the paper. Keep the secrets.

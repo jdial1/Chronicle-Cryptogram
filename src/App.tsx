@@ -100,7 +100,7 @@ const BOOT_PUZZLE = getInitialPuzzle();
 const BOOT_STATE = loadPuzzleState(BOOT_PUZZLE);
 
 export default function App() {
-  const { user, identified, configured, error: authError, signIn, signOut } = useAuth();
+  const { user, identified, configured, error: authError, signIn, signOut, deleteAccount } = useAuth();
   const startedPuzzlesRef = useRef<Set<string>>(new Set());
   const boardDirtyRef = useRef(false);
   const [deskNotice, setDeskNotice] = useState<string | null>(null);
@@ -1147,14 +1147,16 @@ export default function App() {
         pressVersion={editionUpdate.serverVersion}
         todayClue={currentPuzzle.hints[0] || null}
         onDeleteRecords={
-          identified && user
+          user
             ? async () => {
+                // Firestore first, while the account still authenticates; deleting the
+                // account first would make every rule deny and strand the documents.
                 const store = await cloudStore();
                 await store.deleteCloudUserData(
                   user.uid,
                   INITIAL_PUZZLES.map((puzzle) => puzzle.id)
                 );
-                await signOut();
+                await deleteAccount();
               }
             : undefined
         }

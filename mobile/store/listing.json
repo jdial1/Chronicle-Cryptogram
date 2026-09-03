@@ -1,7 +1,7 @@
 {
   "defaultLanguage": "en-US",
   "title": "Chronicle Cryptogram",
-  "shortDescription": "Daily 1920s newspaper cryptograms. Break the cipher, keep your streak.",
+  "shortDescription": "A 1920s newspaper murder mystery told in ciphers. Pay once, no ads.",
   "developerPromotionalText": "OrangeTopGames makes ad-free puzzle games. Chronicle Cryptogram: 1920s newspaper cryptograms and a serialized mystery.",
   "privacyPolicyUrl": "https://jdial1.github.io/Chronicle-Cryptogram/privacy.html",
   "applicationCategory": "GAME",
@@ -11,7 +11,7 @@
     "cipher",
     "puzzle",
     "word",
-    "daily"
+    "mystery"
   ],
   "contentRating": {
     "questionnaire": "IARC",
@@ -47,13 +47,6 @@
         "optional": false,
         "ephemeral": false,
         "note": "Puzzle starts, solves, times, hints, leaderboard stats in Firestore under the auth UID; also stored locally"
-      },
-      {
-        "type": "Device or other IDs",
-        "purpose": "App functionality",
-        "optional": true,
-        "ephemeral": false,
-        "note": "FCM token in Firestore dispatchTokens when subscribed to Morning Dispatch"
       }
     ],
     "dataShared": false,
@@ -61,7 +54,7 @@
     "usersCanRequestDeletion": true,
     "securityPractices": [
       "Data is encrypted in transit",
-      "Signed-in players can delete cloud records from Bureau File; leftover requests: justinalandial@gmail.com"
+      "Players can close their bureau file from Bureau File, which deletes cloud records and the account itself; leftover requests: justinalandial@gmail.com"
     ]
   },
   "graphics": {
@@ -81,5 +74,6 @@
     "firebaseAndroidAppId": "1:647414230767:android:67c6e31d73627d3cd1351a",
     "afterFirstEasBuild": "Run eas credentials -p android, copy the upload keystore SHA-1 and SHA-256 into Firebase Android app Chronicle Cryptogram, then also add Play App Signing SHA-1/256 from Play Console after the first AAB upload."
   },
-  "fullDescriptionFile": "fullDescription.txt"
+  "fullDescriptionFile": "fullDescription.txt",
+  "accountDeletionUrl": "https://jdial1.github.io/Chronicle-Cryptogram/privacy.html#deletion"
 }

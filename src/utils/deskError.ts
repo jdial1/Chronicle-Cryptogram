@@ -36,6 +36,8 @@ const USER_COPY: Record<string, string> = {
   'auth/invalid-id-token': 'Those credentials did not take.',
   'auth/unauthorized-domain': 'This desk is not cleared for sign-in.',
   'auth/operation-not-allowed': 'Sign-in is not open on this desk.',
+  'auth/requires-recent-login':
+    'For your safety the bureau needs fresh credentials. Sign in again, then close the file.',
   'permission-denied': 'The bureau would not take that request.',
   unavailable: 'The wire is down. Try again when the desk is online.',
 };

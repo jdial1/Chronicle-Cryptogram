@@ -90,6 +90,57 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
     { short: 'On desk', label: 'Time on desk', value: formatTime(gameStats.totalTimePlayed), wide: true },
   ];
 
+  /** Extracted so anonymous players -- which is everyone by default -- can reach it too. */
+  const deleteRecordsControls = onDeleteRecords ? (
+    <>
+                {wipeConfirm ? (
+                  <div className="mt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                    <button
+                      type="button"
+                      disabled={wipeBusy}
+                      onClick={() => setWipeConfirm(false)}
+                      className={`${slipPress} ${slipFill}`}
+                    >
+                      Keep records
+                    </button>
+                    <button
+                      type="button"
+                      disabled={wipeBusy}
+                      onClick={() => {
+                        setWipeBusy(true);
+                        setWipeError(null);
+                        onDeleteRecords()
+                          .then(() => onClose())
+                          .catch(() => {
+                            setWipeError('Could not close the bureau file.');
+                            setWipeBusy(false);
+                          });
+                      }}
+                      className="woodblock-stamp w-full min-h-12 px-3 py-1.5 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                    >
+                      {wipeBusy ? 'Wiping file…' : 'Wipe records'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setWipeConfirm(true)}
+                    className={`mt-2 ${slipPress} border-[color:var(--ink-cinnabar)] bg-[color:var(--paper)] hover:bg-red-50 text-stone-950`}
+                  >
+                    Close bureau file
+                  </button>
+                )}
+                <p className="mt-1.5 font-newspaper text-xs text-stone-600 leading-relaxed">
+                  Closes your bureau account and removes cloud progress and leaderboard entries. Notes on this desk stay until you clear the site.
+                </p>
+                {wipeError && (
+                  <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+                    {wipeError}
+                  </p>
+                )}
+    </>
+  ) : null;
+
   return (
     <DeskModal
       isOpen={isOpen}
@@ -189,6 +240,15 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
             </>
           ) : null}
 
+          {!showFile && deleteRecordsControls && (
+            <article className="evidence-slip border border-stone-700 px-2.5 py-2 sm:px-3 sm:pt-2 sm:pb-3">
+              <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
+                Close the file
+              </p>
+              {deleteRecordsControls}
+            </article>
+          )}
+
           {showFile && user && (
             <article className="evidence-slip border border-stone-700 px-2.5 py-2 sm:px-3 sm:pt-2 sm:pb-3">
               <div className="flex items-center gap-2 sm:gap-3">
@@ -232,55 +292,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                   Sign Out
                 </button>
               )}
-              {onDeleteRecords && (
-                <>
-                  {wipeConfirm ? (
-                    <div className="mt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-                      <button
-                        type="button"
-                        disabled={wipeBusy}
-                        onClick={() => setWipeConfirm(false)}
-                        className={`${slipPress} ${slipFill}`}
-                      >
-                        Keep records
-                      </button>
-                      <button
-                        type="button"
-                        disabled={wipeBusy}
-                        onClick={() => {
-                          setWipeBusy(true);
-                          setWipeError(null);
-                          onDeleteRecords()
-                            .then(() => onClose())
-                            .catch(() => {
-                              setWipeError('Could not wipe the bureau file.');
-                              setWipeBusy(false);
-                            });
-                        }}
-                        className="woodblock-stamp w-full min-h-12 px-3 py-1.5 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer disabled:opacity-50"
-                      >
-                        {wipeBusy ? 'Wiping file…' : 'Wipe records'}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setWipeConfirm(true)}
-                      className={`mt-2 ${slipPress} border-[color:var(--ink-cinnabar)] bg-[color:var(--paper)] hover:bg-red-50 text-stone-950`}
-                    >
-                      Delete cloud records
-                    </button>
-                  )}
-                  <p className="mt-1.5 font-newspaper text-xs text-stone-600 leading-relaxed">
-                    Removes cloud progress, dispatch tokens, and your leaderboard entries. Notes on this desk stay until you clear the site.
-                  </p>
-                  {wipeError && (
-                    <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
-                      {wipeError}
-                    </p>
-                  )}
-                </>
-              )}
+              {deleteRecordsControls}
             </article>
           )}
 
@@ -302,6 +314,18 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
               )}
             </article>
           )}
+
+          {/* Play expects a reachable privacy policy inside any app that collects data. */}
+          <p className="pt-1 text-center font-typewriter text-[13px] uppercase tracking-widest text-stone-600">
+            <a
+              href="./privacy.html"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-stone-900"
+            >
+              Privacy notice
+            </a>
+          </p>
         </div>
 
         <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">

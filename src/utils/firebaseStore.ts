@@ -463,6 +463,11 @@ export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
     const snap = await getDocs(collection(store, 'users', uid, segment));
     await Promise.all(snap.docs.map((item) => deleteDoc(item.ref)));
   };
+  // The user document goes FIRST: start/solve receipts are only deletable once the
+  // account is gone (see accountIsGone() in firestore.rules). Subcollections outlive
+  // their parent in Firestore and their rules key off the uid, not the parent doc,
+  // so wiping them afterwards still works.
+  await deleteDoc(doc(db, 'users', uid));
   await wipe('progress');
   await wipe('dailyHints');
   await wipe('dailyChecks');
@@ -475,5 +480,4 @@ export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
       ])
     )
   );
-  await deleteDoc(doc(db, 'users', uid));
 }
