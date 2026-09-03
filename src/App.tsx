@@ -759,7 +759,7 @@ export default function App() {
     });
   }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionNumber]);
 
-  const { frontPage, seasonLength, isSeasonComplete } = useCampaignProgress(
+  const { frontPage, seasonLength, isSeasonComplete, isDemo } = useCampaignProgress(
     INITIAL_PUZZLES,
     solvedPuzzleIds
   );
@@ -1041,6 +1041,7 @@ export default function App() {
         onStartPractice={handleStartPractice}
         isSeasonComplete={isSeasonComplete}
         seasonLength={seasonLength}
+        isDemo={isDemo}
         onOpenCaseFiles={() => {
           setCaseFileFocusId(null);
           setCaseFileFocusKey(null);

@@ -9,6 +9,7 @@ import {
   isNightUnlocked,
   isPracticePuzzle,
   isPrimerPuzzle,
+  isSeasonComplete,
   ISSUE_CHAPTERS,
   maxEdition,
 } from './edition';
@@ -99,6 +100,29 @@ describe('isNightUnlocked', () => {
 
   it('is unaffected by the previous edition', () => {
     expect(isNightUnlocked(SEASON, ['day_1_easy'], 2)).toBe(false);
+  });
+});
+
+describe('isSeasonComplete', () => {
+  const allMornings = ['day_1_easy', 'day_2_easy', 'day_3_easy'];
+
+  it('is false before the last edition is reached', () => {
+    expect(isSeasonComplete(SEASON, [])).toBe(false);
+    expect(isSeasonComplete(SEASON, ['day_1_easy'])).toBe(false);
+  });
+
+  it('is false on the last edition until its Night Extra is broken', () => {
+    expect(isSeasonComplete(SEASON, allMornings)).toBe(false);
+  });
+
+  it('is true once the last Night Extra is solved', () => {
+    expect(isSeasonComplete(SEASON, [...allMornings, 'day_3_hard'])).toBe(true);
+  });
+
+  it('tracks the shipped puzzle set, so a truncated demo completes at its own ceiling', () => {
+    const demo = SEASON.filter((p) => p.editionNumber <= 2);
+    expect(isSeasonComplete(demo, ['day_1_easy', 'day_2_easy', 'day_2_hard'])).toBe(true);
+    expect(isSeasonComplete(SEASON, ['day_1_easy', 'day_2_easy', 'day_2_hard'])).toBe(false);
   });
 });
 

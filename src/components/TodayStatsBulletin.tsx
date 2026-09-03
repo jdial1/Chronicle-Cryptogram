@@ -15,6 +15,7 @@ interface SolvedStatsProps {
   onStartPractice?: () => void;
   isSeasonComplete?: boolean;
   seasonLength?: number;
+  isDemo?: boolean;
   onOpenCaseFiles?: () => void;
 }
 
@@ -22,6 +23,9 @@ interface TodayStatsBulletinProps extends SolvedStatsProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+export const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=com.chroniclecryptogram';
 
 const inkAction =
   'w-full min-h-12 sm:w-auto px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
@@ -121,6 +125,7 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   onStartPractice,
   isSeasonComplete = false,
   seasonLength,
+  isDemo = false,
   onOpenCaseFiles,
 }) => {
   const isHard = isHardPuzzle(currentPuzzle);
@@ -155,9 +160,11 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
           </p>
           {showSeasonFinale && (
             <p className="mt-4 font-newspaper text-sm text-stone-700 leading-relaxed">
-              {seasonLength
-                ? `That is all ${seasonLength} editions. The Vance file is closed — for now.`
-                : 'That is the last edition. The Vance file is closed — for now.'}
+              {isDemo
+                ? `That is the last of the ${seasonLength ?? 3} sample editions. The remaining editions of the Vance case are in the full paper.`
+                : seasonLength
+                  ? `That is all ${seasonLength} editions. The Vance file is closed — for now.`
+                  : 'That is the last edition. The Vance file is closed — for now.'}
             </p>
           )}
         </div>
@@ -182,18 +189,25 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
           </div>
         )}
 
-        {showSeasonFinale && onOpenCaseFiles && (
-          <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onOpenCaseFiles();
-              }}
-              className={inkAction}
-            >
-              Read the Case File
-            </button>
+        {showSeasonFinale && (
+          <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:gap-2 sm:px-4 sm:py-2.5">
+            {isDemo && (
+              <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className={`${inkAction} inline-block text-center`}>
+                Get the full paper
+              </a>
+            )}
+            {onOpenCaseFiles && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenCaseFiles();
+                }}
+                className={isDemo ? inkSecondary : inkAction}
+              >
+                Read the Case File
+              </button>
+            )}
           </div>
         )}
 

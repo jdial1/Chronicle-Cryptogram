@@ -1,22 +1,24 @@
 import { useMemo } from 'react';
 import { PuzzleData } from '../types';
-import { frontPageEdition, maxEdition, nightPuzzleForEdition } from '../utils/edition';
+import { frontPageEdition, isSeasonComplete, maxEdition } from '../utils/edition';
 
 /**
- * Where the player stands in the season. One place so the ceiling has one owner:
- * the demo build clamps seasonLength here rather than at every call site.
+ * Demo builds ship a truncated season (see demoContentPlugin in vite.config.ts).
+ * The gate needs no ceiling check -- maxEdition() over the shipped puzzles already
+ * clamps it -- so this flag exists purely to tell "the demo ends here" apart from
+ * "the story ends here" in copy.
  */
+export const IS_DEMO = Boolean(import.meta.env.VITE_MAX_EDITION);
+
+/** Where the player stands in the season. One owner for every ceiling question. */
 export function useCampaignProgress(puzzles: PuzzleData[], solvedPuzzleIds: string[]) {
-  return useMemo(() => {
-    const seasonLength = maxEdition(puzzles);
-    const frontPage = frontPageEdition(puzzles, solvedPuzzleIds);
-    const finale = nightPuzzleForEdition(puzzles, seasonLength);
-    return {
-      frontPage,
-      seasonLength,
-      /** Last edition reached and its Night Extra broken -- the season is over. */
-      isSeasonComplete:
-        frontPage === seasonLength && Boolean(finale && solvedPuzzleIds.includes(finale.id)),
-    };
-  }, [puzzles, solvedPuzzleIds]);
+  return useMemo(
+    () => ({
+      frontPage: frontPageEdition(puzzles, solvedPuzzleIds),
+      seasonLength: maxEdition(puzzles),
+      isSeasonComplete: isSeasonComplete(puzzles, solvedPuzzleIds),
+      isDemo: IS_DEMO,
+    }),
+    [puzzles, solvedPuzzleIds]
+  );
 }

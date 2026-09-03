@@ -98,6 +98,14 @@ export function currentMorningPuzzle(puzzles: PuzzleData[], solvedPuzzleIds: str
   return morningPuzzleForEdition(puzzles, frontPageEdition(puzzles, solvedPuzzleIds));
 }
 
+/** The last edition is reached and its Night Extra broken -- the season is over. */
+export function isSeasonComplete(puzzles: PuzzleData[], solvedPuzzleIds: string[]) {
+  const last = maxEdition(puzzles);
+  if (frontPageEdition(puzzles, solvedPuzzleIds) !== last) return false;
+  const finale = nightPuzzleForEdition(puzzles, last);
+  return Boolean(finale && solvedPuzzleIds.includes(finale.id));
+}
+
 export type Issue = {
   editionNumber: number;
   morning?: PuzzleData;
