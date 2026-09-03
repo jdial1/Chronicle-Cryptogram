@@ -136,6 +136,18 @@ Ranked, biggest first:
 
 ---
 
+## Hotfix — build-breaking regression from Phase 1
+
+**Must land before any Android build is attempted.** Phase 1 removed `@react-native-firebase/messaging` from `mobile/package.json` dependencies but left `"@react-native-firebase/messaging"` in the `plugins` array of `mobile/app.json`. `expo prebuild` resolves plugin entries from `node_modules`, so the Android build now fails with an unresolvable-plugin error.
+
+Nothing caught this: `eas-android.yml` is `workflow_dispatch` only, so no Android build has run since Phase 1, and the web CI gate does not touch `mobile/`.
+
+- Remove the `@react-native-firebase/messaging` entry from `mobile/app.json` `plugins`.
+- While there: 14 of the 25 `blockedPermissions` entries (badge permissions, `RECEIVE_BOOT_COMPLETED`, `SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`, `WAKE_LOCK`, `CHECK_LICENSE`) existed only to suppress what Notifee and FCM pulled in transitively. They are now inert. `ponytail delete:` — harmless to keep, but they misrepresent the app's permission surface to anyone reading the manifest.
+- **Add an Android build to CI**, or at minimum run `npx expo prebuild --platform android --no-install` in the existing `check` job. A dependency change that breaks the native build should not be able to reach `main` silently again.
+
+---
+
 ## Phase 2a — Web becomes the demo
 
 Resolves the paid-app conflict: the public web build stops being a free substitute for the paid app and becomes its funnel.
@@ -151,17 +163,129 @@ Roughly a day, and it reuses Phase 1's work rather than adding a parallel mechan
 
 **Honest limitation:** this gate is client-side and therefore soft. `src/utils/androidApp.ts` detects the shell via `ReactNativeWebView` / `?source=android`, all of which a curious player can spoof, and the full `puzzles.json` would still be in the Pages bundle unless the demo build strips it. **Strip the content at build time, not just the gate** — filter `puzzles.json` to editions 0–3 in the demo build so the withheld editions are genuinely absent rather than merely hidden. That turns a soft gate into a real one for the same effort, and it also shrinks the demo bundle.
 
-**Recommended hardening, worth costing before you commit to paid:** have the Android app **bundle the built web app as local assets** instead of loading the remote URL. It is the largest single change in this plan, but it is the only thing that fully resolves all three of: the paid-wrapper policy concern, the offline cold-start failure ("The wire is down" on a first launch with no network — which Play's pre-launch report devices can trigger), and content leakage. Under the demo split above, the web and Android builds already diverge, so most of the build plumbing is shared. If the paid decision is firm, this is where the remaining risk lives.
+### Status: shipped, but the deploy flip is held
+
+The gate and content strip are **done and verified** (commit `bcc6214`). What is *not* done is pointing `deploy.yml` at the demo build — because `mobile/App.tsx` loads `https://jdial1.github.io/Chronicle-Cryptogram/`, the same Pages deployment. Publishing a demo there turns the paid app into the demo. The web/Android split has to become real first, which is Phase 2b below.
 
 ---
 
-## Phase 2b — Season 2 commitment
+## Phase 2b — Android ships its own copy
 
-The listing promises a dated Season 2, so the date has to be real before submission.
+### Established constraints (from exploration; these kill the obvious approach)
 
-- **Pick the cadence and write it into the listing.** This is the answer to the retention gap a finite campaign creates (see Market context) — it converts "the game ends" into "the serial continues".
-- **The Phase 1 season-contract test** (every edition 1–30 has exactly one Morning and one Night) is what makes Season 2 authoring safe. Extend it to whatever the Season 2 range is.
-- **Content authoring is the long pole, not the code.** 30 editions × 2 ciphers plus case-file fragments is the same volume as the entire existing game. Scope the authoring calendar before naming a date publicly; a missed dated promise on a paid app is worse than no promise.
+**Raw `file:///android_asset/` does not work for this app.** Four independent blockers:
+
+1. **The CSP blocks the app's own assets.** `index.html` uses `'self'` for `script-src`/`style-src`/`font-src`/`img-src`. `'self'` serializes to `"null"` on an opaque `file://` origin and matches nothing — every bundled script, stylesheet and font is refused. `font-src 'self'` has no scheme fallback at all.
+2. **ES modules are blocked from `file://`.** Vite emits `<script type="module">` at `build.target: 'es2022'`; Chromium refuses module scripts over `file://` regardless of `allowFileAccessFromFileURLs`.
+3. **Firebase needs `allowUniversalAccessFromFileURLs`, which trips a Google Play security alert.** Google's own guidance is that WebViews setting it "must not load any untrusted web content", and apps with unfixed alerts "may be removed from Google Play". Not acceptable for a paid launch. Without it, Firestore and `signInAnonymously` cannot reach the network at all.
+4. **Service worker, Cache API and `fetch('version.json')` all die**, so `main.tsx`'s `registerSW()`, `useOfflinePack.ts` and `useEditionUpdate.ts` need build-time gating regardless.
+
+**The window for changing origin is now.** localStorage is partitioned per origin, and it holds *everything*: `cryptogram_solved_ids`, all `cryptogram_progress_*`, stats, codename, wallets. Worse, the anonymous Firebase UID lives there too — so an origin change would strand every anonymous player's Firestore document permanently, with no recovery path. The app has never shipped (no tags, no releases, `appVersionSource: remote` with nothing published), so **this costs zero users today and becomes permanently expensive after launch.** That asymmetry is the strongest argument for doing this before 1.0 rather than after.
+
+### Build-pipeline blockers (independent of which path is taken)
+
+- **`mobile/.easignore` contains `dist`.** A naive `mobile/dist/` staging directory is silently stripped from the EAS upload — the plugin would run on the build server against files that were never sent. Stage into a differently-named directory (`mobile/web-assets/`) that is in neither `.easignore` nor `mobile/.gitignore`.
+- **`eas-android.yml` has none of the `VITE_FIREBASE_*` secrets** that `deploy.yml` has. A bundled build would ship with Firebase silently disabled — no sign-in, no leaderboard, no cloud sync — and would still pass the Maestro smoke test, because the flow only asserts that the masthead renders. This is the most dangerous silent failure in the whole phase.
+- **Filter the staged payload.** `dist/` currently carries `server.cjs` + `.map`, `shot.html`, `splashdev.html`, `sw.js` and `workbox-*.js`. Shipping the Express server bundle inside an APK is bloat and a small information leak. Filtered, the payload is **4.68 MB across 75 files** — negligible against the existing 78 MB APK.
+- **`scripts/android-ship.mjs`**: the "build web, stage assets" step goes in as a new step before `step("EAS test build (APK)")` at line 124. It must run once and **not** re-run before the production build at line 164 — there is an interactive approval gate between the two, and re-staging there would ship different assets than the ones that passed the smoke test. Add an `existsSync(staged/index.html)` guard next to the existing `eas.json` guard, since a missing payload yields a black WebView that the process-alive check would not catch.
+- `mobile/plugins/with-adi-registration.js` is the template for the copy step: it already resolves `modRequest.platformProjectRoot + 'app/src/main/assets'` and `mkdirSync`s it.
+
+### Gate this phase on a two-hour test first
+
+**Offline cold start may already work, which removes one of this phase's three justifications.** The emitted `dist/sw.js` contains `createHandlerBoundToURL("index.html")` — vite-plugin-pwa's `navigateFallback` is active (verified). Combined with `cacheMode="LOAD_CACHE_ELSE_NETWORK"` in `mobile/App.tsx:519` serving the main document from the WebView's own HTTP cache, and the service worker serving subresources from Cache Storage, a *warm* install probably already boots with no network. The "wire is down" ladder and the `PRESS_PACKED` message are scar tissue from this ground having been walked before.
+
+Before writing any code: install the current test APK, launch once online, force-stop, enable airplane mode, cold start. If it reaches the board, then bundling's remaining justifications are content exclusivity (which the cheaper alternative also delivers) and Play's minimum-functionality policy (which is a guess until a reviewer says so). That is worth knowing before spending 4–7 days.
+
+### The approach
+
+Serve the bundled build from `https://appassets.androidplatform.net/assets/web/index.html` via `androidx.webkit.WebViewAssetLoader`. That is a real secure origin: `'self'` resolves, ES modules load, Firebase behaves normally, and none of the `allowFileAccess*` relaxations — or the Play security alert they trigger — are needed.
+
+*Correction to the constraint list above: the CSP blocker is soft, not hard. We emit that `<meta>` ourselves and a bundled build could emit a different one. The genuinely disqualifying blocker for `file://` is Firebase — from an opaque origin the paid app silently loses leaderboards, cloud save and sign-in, all three of which the store listing advertises.*
+
+**The native seam.** `WebViewAssetLoader` needs `shouldInterceptRequest` on the `WebViewClient`, which RNW 13.16.1 does not expose. The patch is ~12 lines appended inside `RNCWebViewClient` (declared `open`), anchored on a **single line** — the class declaration. That is materially less fragile than `with-android-edge-to-edge.js`, which makes seven exact multi-line matches against RN's `WindowUtil.kt`.
+
+Use **`patch-package`** with a committed `.patch` file and a `postinstall` hook, not a third bespoke `withDangerousMod` plugin: it applies with context-based fuzz, and the diff is reviewable in git. `ponytail stdlib:`. A custom Expo native module is not viable — RN 0.86/Expo 57 is New Architecture and RNW ships a Fabric codegen spec named `RNCWebView`; a second component name means owning your own spec and losing RNW's entire JS props layer.
+
+**The landmine:** `WebViewAssetLoader` intercepts the *WebView's* requests. Service-worker fetches go through `ServiceWorkerController.setServiceWorkerClient(...)`, a separate interception point — so a registered SW would try real DNS for `appassets.androidplatform.net` and fail. Don't solve it; remove it. **The bundled build turns the service worker off entirely.** Assets are already local, so the SW buys nothing, and that one decision also makes `useOfflinePack` dead UI and drops the Cache-API dependency.
+
+### Files to change
+
+| File | Change |
+|---|---|
+| `patches/react-native-webview+13.16.1.patch` (new) | The `shouldInterceptRequest` override; `"postinstall": "patch-package"` in `mobile/package.json`. |
+| `mobile/plugins/with-bundled-web.js` (new) | `withDangerousMod('android')` copying the staged build into `platformProjectRoot + 'app/src/main/assets/web'` (template: `with-adi-registration.js`); `withAppBuildGradle` adding `androidx.webkit:webkit`. Register in `mobile/app.json`. |
+| `mobile/App.tsx` | `WEB_URL` → the asset-loader URL behind a build flag; `GAME_ORIGIN`, `originWhitelist`, `isMainEdition` and the `onNav` origin guard all follow. |
+| `vite.config.ts` | A `VITE_BUNDLED=1` mode: CSP without the Pages origin, skip `VitePWA` entirely, skip the `server.cjs` and splash-copy steps. |
+| `src/main.tsx`, `src/hooks/useEditionUpdate.ts`, `src/components/BureauDeskModal.tsx` | Gate `registerSW()`, the `version.json` poll, and the press-pack control on `VITE_BUNDLED`. |
+| `mobile/.easignore` | Stage into `mobile/web-assets/` — a name that dodges all three ignore rules (`mobile/.easignore`, `mobile/.gitignore`, and `dist/` in the root `.gitignore`, which matches at any depth). |
+
+### The ten highest-value lines in this phase
+
+`stageWeb()` in `scripts/android-ship.mjs` must **hard-fail** unless `VITE_FIREBASE_ENABLED === 'true'`, `VITE_FIREBASE_API_KEY`/`PROJECT_ID`/`APP_ID` are non-empty, and `VITE_MAX_EDITION` is unset. Without this, a fresh machine (or CI without the secrets) ships a Firebase-disabled *paid* app — no sign-in, no leaderboard, no cloud sync — and the Maestro flow passes anyway, because it only asserts that text appears and nothing crashed.
+
+Stage with `vite build`, not `npm run build`: the latter also emits `dist/server.cjs` + `.map` (289 KB of Express server), which has no business in an APK. Filtered, the payload is 4.68 MB across 75 files.
+
+### Side effects to handle
+
+- `originWhitelist={[GAME_ORIGIN]}` and the `onNav` guard comparing `location.origin !== GAME_ORIGIN` both hard-code the Pages origin and must move to the new one.
+- The retry ladder (`cacheTried` → `cacheBust` → "The wire is down") becomes dead code: `cacheMode` is meaningless without HTTP, `onHttpError` never fires, and a missing asset is a packaging bug that retrying cannot fix. `ponytail delete:`.
+- `useOfflinePack` is fully redundant once assets are local — gate the Bureau File pack UI off for the bundled build, but keep the hook for the web build.
+- `useEditionUpdate` polls `version.json` every 5 minutes and on every focus/visibility change. In a bundled app the version is fixed and updates arrive via Play. Short-circuit it, and don't mount `EditionUpdateBanner` — its copy ("A newer plate is on the wire… pack again from Bureau File") is actively wrong.
+- **`NewspaperClippingModal.tsx:37` shares `window.location.href`.** On a local origin the share text would read `file:///android_asset/index.html`. Must become a hard-coded store/web URL. User-visible bug.
+- **Synergy with Phase 2:** `privacy.html` is already emitted into `dist/` (5.4 KB), so bundling gives the app a local privacy page and satisfies Phase 2's in-app-privacy-link requirement even offline. Note it currently pulls fonts from `fonts.googleapis.com` — inconsistent with the self-hosted fonts everywhere else, and a third-party request from the privacy policy itself is a poor look. Self-host those two faces.
+
+### Verification
+
+`scripts/android-smoke.yaml` already asserts on rendered text (`.*Chronicle.*|.*ENTER.*`), which catches a mis-packaged bundle. Three additions, in order of value:
+
+1. **Airplane mode**: `adb shell svc wifi disable && adb shell svc data disable`, then cold-start and confirm the app reaches the board. This is the check the whole phase exists for.
+2. **A Firebase-live assertion**, since the silent-disable failure is the dangerous one: open the leaderboard and assert it renders without an error state.
+3. **A past-the-demo-ceiling assertion**: confirm an edition above 3 is reachable in the archive, which proves the app got the full build rather than the demo.
+
+Then, on a real Play-signed build, verify Google Sign-In still works from the synthetic origin.
+
+### Effort and the risks that blow it
+
+**4–7 days.** The specific risks: RNW's Kotlin doesn't match the assumed shape (+0.5d — `mobile/node_modules` isn't installed in this checkout, so the class layout is unverified); skipping the service-worker-off decision and hitting `ServiceWorkerController` (+1d); a Gradle conflict on `androidx.webkit` (+0.5d); and a permanent ~0.5d tax on every future RNW upgrade.
+
+**The one that could be fatal: Firebase on the synthetic origin is untested.** `signInWithCredential` should be fine — it is a direct token exchange with no redirect — and `firestore.googleapis.com` sets permissive CORS. But if Firestore's WebChannel misbehaves against `appassets.androidplatform.net`, that is +1–3 days or a dead end. **Spike this first**, right after the airplane-mode test and before any of the plumbing: patch RNW locally, load a trivial page from the asset loader, and confirm an anonymous sign-in plus one Firestore read/write succeed. Half a day that de-risks the whole phase.
+
+### The cheaper alternative, on record
+
+If the airplane-mode test passes, or if the Firebase spike fails, the fallback is **ship the content, not the build**: Pages serves the demo, and the app carries only editions 4–30 (~60 KB of JSON, verified) injected over the existing `injectedJavaScriptBeforeContentLoaded` bridge, merged at module scope inside `src/data/puzzles.ts` and `src/data/caseFiles.ts`. Because the merge happens before React runs, `allPuzzles`, `BOOT_PUZZLE`, `getInitialPuzzle()` and `useCampaignProgress` are all untouched, and `maxEdition()` derives the new ceiling by itself. Roughly **+80 lines and 1.5–3 days**, with no native code, no staging, no `.easignore` change, and no new CI secrets — every build-pipeline blocker above belongs to bundling alone. It closes the content leak and makes the paid app deliver 30 editions against the free site's 3; it does not make the app "native enough" for the minimum-functionality policy, which is the honest argument for bundling.
+
+---
+
+## Phase 2c — Season 2 commitment
+
+**Status: done for 1.0.** The contract tests are in (`src/data/season.test.ts`) and the listing no longer carries a date it could miss.
+
+### Decisions taken
+
+- **Season 2 is a separate season with its own editions 1–30**, not a continuation to 31–60.
+- **The listing promises Season 2 without a date** — "a new case, thirty more editions". Keeps the retention signal with nothing to miss on a paid app.
+- **`day_4_hard` stays a tracked exception** rather than being rewritten now.
+
+### What shipped
+
+`src/data/season.test.ts` derives every assertion from the shipped data rather than hard-coding thirty editions, so authoring Season 2 means adding puzzles and running `npm test`. It covers no gaps in the run, one Morning and one Night per edition, unique ids, case fragments pointing only at editions that ship, and — because `cipherEngine.ts` had no tests at all — that every puzzle round-trips its authored text, never maps one symbol to two letters, and contains at least one solvable letter.
+
+Two guards exist specifically for Season 2, both verified against a simulated Season 2:
+
+- **Chapter coverage.** `chapterForEdition` falls back to the last chapter outside the declared spans, so new editions added without extending `ISSUE_CHAPTERS` would silently render as "New Dawn". The test fails instead.
+- **Edition collision.** With separate seasons, Season 2's edition 1 makes edition 1 have two Mornings — the contract test fails loudly, so the season axis cannot be forgotten when the content lands.
+
+### The content defect this found
+
+`day_4_hard` is 24 letters with E, T and A each appearing exactly once. Homophones cycle per *occurrence*, so a letter appearing once never splits — that Night Extra renders as a plain 1:1 substitution, frequency counting works cleanly on it, and the mode's advertised promise does not land. `day_6_hard` and `day_28_hard` manage only a single split.
+
+It is pinned as a named exception in the test so it stays visible and new content cannot join it. Fixing it means rewriting a story quote that also feeds a case-file fragment.
+
+### For whoever builds Season 2
+
+- **Content is the long pole.** 30 editions × 2 ciphers plus case-file fragments is the same volume as the entire existing game.
+- **The season axis is genuinely deferred, not forgotten.** Building it now would be an abstraction with one implementation; the contract test forces it exactly when the second season arrives.
+- **The wallet key needs a namespace, but does not need migrating.** Hint and check wallets are keyed by bare edition number — `cryptogram_daily_hints_1` locally, `dailyHints/1` in Firestore — so Season 2's edition 1 would share Season 1's wallet. Season 2 can adopt a namespaced key (`2-1`) while Season 1 keeps bare numbers, so existing players need no migration; the `firestore.rules` validator regex is the one place that must widen.
 - Season 2 is also where the Morning Dispatch push earns its way back (Phase 1 cuts it) — "Season 2 is on the stands" is an honest notification in a way "today's case file is ready" is not.
 
 ---
