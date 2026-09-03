@@ -44,6 +44,8 @@ describe('logDesk', () => {
     }
   });
 });
+
+describe('forgetCloud', () => {
   it('does not throw when the promise rejects', async () => {
     const error = console.error;
     console.error = () => undefined;
