@@ -11,6 +11,7 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit && eslint src server.ts",
     "test": "vitest run",
+    "check:mobile": "node scripts/check-mobile-config.mjs",
     "firebase:configure": "node scripts/configure-firebase.mjs"
   },
   "dependencies": {

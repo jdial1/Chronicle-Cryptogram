@@ -70,7 +70,6 @@
       "expo-web-browser",
       "react-native-nitro-google-signin",
       "@react-native-firebase/app",
-      "@react-native-firebase/messaging",
       "./plugins/with-adi-registration.js",
       "./plugins/with-cipher-ime.js",
       "./plugins/with-android-edge-to-edge.js"
