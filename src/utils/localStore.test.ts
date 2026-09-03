@@ -22,7 +22,7 @@ function blankProgress(overrides: Partial<PuzzleProgress> = {}): PuzzleProgress 
 
 describe('clipDailyWallet', () => {
   it('caps checks independently of the hint default', () => {
-    const wallet = clipDailyWallet('1926-09-04', 9, DAILY_CHECKS);
+    const wallet = clipDailyWallet(4, 9, DAILY_CHECKS);
     expect(wallet.used).toBe(DAILY_CHECKS);
     expect(wallet.remaining).toBe(0);
   });
@@ -31,9 +31,9 @@ describe('clipDailyWallet', () => {
 describe('mergeDailyHints', () => {
   it('clips checks to an explicit cap instead of the hint default', () => {
     const merged = mergeDailyHints(
-      { editionDate: '1926-09-04', used: 1, remaining: 1 },
-      { editionDate: '1926-09-04', used: 9, remaining: 0 },
-      '1926-09-04',
+      { edition: 4, used: 1, remaining: 1 },
+      { edition: 4, used: 9, remaining: 0 },
+      4,
       2
     );
     expect(merged.used).toBe(2);

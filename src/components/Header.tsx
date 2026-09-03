@@ -3,7 +3,7 @@ import { PuzzleData } from '../types';
 import { FileText, BookOpen, Type } from '../deskIcons';
 import { isAndroidAppShell } from '../utils/androidApp';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { formatEditionDateShort, isNightEdition } from '../utils/edition';
+import { editionLabel, isNightEdition } from '../utils/edition';
 import { forgetCloud } from '../utils/deskError';
 
 interface HeaderProps {
@@ -227,10 +227,10 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenArchive}
               className={navLinkClass}
               title="Archive: back issues"
-              aria-label={`Archive, ${formatEditionDateShort(currentPuzzle.editionDate)}`}
+              aria-label={`Archive, ${editionLabel(currentPuzzle.editionNumber)}`}
             >
               <span className="sm:hidden">Archive</span>
-              <span className="hidden sm:inline">{formatEditionDateShort(currentPuzzle.editionDate)}</span>
+              <span className="hidden sm:inline">{editionLabel(currentPuzzle.editionNumber)}</span>
             </button>
             {isInstallable ? (
               <button

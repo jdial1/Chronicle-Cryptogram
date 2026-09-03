@@ -97,7 +97,7 @@ export function useDailyWalletActions({
       hintedSymbolIds: nextHinted,
       flaggedSymbolIds: nextFlagged,
     });
-    const wallet = clipDailyWallet(currentPuzzle.editionDate, DAILY_HINTS - nextRemaining);
+    const wallet = clipDailyWallet(currentPuzzle.editionNumber, DAILY_HINTS - nextRemaining);
     setHintedSymbolIds(nextHinted);
     setHintsUsed(nextUsed);
     setHintsRemaining(nextRemaining);
@@ -155,7 +155,7 @@ export function useDailyWalletActions({
       verifiedSymbolIds: nextVerified,
       flaggedSymbolIds: nextFlagged,
     });
-    const wallet = clipDailyWallet(currentPuzzle.editionDate, DAILY_CHECKS - nextRemaining);
+    const wallet = clipDailyWallet(currentPuzzle.editionNumber, DAILY_CHECKS - nextRemaining);
     setVerifiedSymbolIds(nextVerified);
     setFlaggedSymbolIds(nextFlagged);
     setChecksUsed(nextUsed);

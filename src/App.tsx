@@ -5,7 +5,8 @@ import { PrimerCoach } from './components/PrimerCoach';
 import { INITIAL_PUZZLES } from './data/puzzles';
 import type { CaseCharacterId } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
-import { isHardPuzzle, isMorningEdition, isNightEdition, isNightUnlockedForDate, isPracticePuzzle, isPrimerPuzzle, matchesMode, publishedThroughDate, articleDek, articleByline, currentMorningPuzzle, firstCasePuzzle, storyHasBegun, hasSolvedStoryPuzzle } from './utils/edition';
+import { isHardPuzzle, isMorningEdition, isNightEdition, isNightUnlocked, isPracticePuzzle, isPrimerPuzzle, matchesMode, articleDek, articleByline, currentMorningPuzzle, morningPuzzleForEdition, nightPuzzleForEdition } from './utils/edition';
+import { useCampaignProgress } from './hooks/useCampaignProgress';
 import { getInitialPuzzle, loadPuzzleState, withHintedMappings, decodedMappings } from './game/puzzleState';
 import { usePuzzleSession } from './hooks/usePuzzleSession';
 import { useDailyWalletActions } from './hooks/useDailyWalletActions';
@@ -18,7 +19,6 @@ import { useSheetStack } from './hooks/useSheetStack';
 import { useCloudDesk } from './hooks/useCloudDesk';
 import { createPracticePuzzle } from './data/primerPractice';
 import { articlePlateId } from './data/plates';
-import { useDailyNotification } from './hooks/useDailyNotification';
 import { useAuth } from './hooks/useAuth';
 import {
   clipHintedSymbolIds,
@@ -101,14 +101,6 @@ const BOOT_STATE = loadPuzzleState(BOOT_PUZZLE);
 
 export default function App() {
   const { user, identified, configured, error: authError, signIn, signOut } = useAuth();
-  const {
-    supported: deliverySupported,
-    subscribed: deliverySubscribed,
-    blocked: deliveryBlocked,
-    toggleDelivery,
-    openSettings: openDeliverySettings,
-    subscribeError: deliveryError,
-  } = useDailyNotification(user?.uid);
   const startedPuzzlesRef = useRef<Set<string>>(new Set());
   const boardDirtyRef = useRef(false);
   const [deskNotice, setDeskNotice] = useState<string | null>(null);
@@ -595,9 +587,9 @@ export default function App() {
   const handleSelectDifficulty = (mode: 'Easy' | 'Hard') => {
     if (mode === 'Hard' && !isHardUnlocked) return;
 
-    // Look for puzzle on the same edition date with matching mode
+    // Look for a puzzle in the same edition with matching mode
     const sameDayPuzzle = allPuzzles.find(
-      (p) => p.editionDate === currentPuzzle.editionDate && matchesMode(p, mode)
+      (p) => p.editionNumber === currentPuzzle.editionNumber && matchesMode(p, mode)
     );
     if (sameDayPuzzle) {
       setCurrentPuzzle(sameDayPuzzle);
@@ -609,9 +601,7 @@ export default function App() {
 
   const shouldOfferBureauDesk = () => {
     if (bureauDeskSeen()) return false;
-    const needCreds = configured && !identified;
-    const needDispatch = deliverySupported && !deliverySubscribed && !deliveryBlocked;
-    return needCreds || needDispatch;
+    return configured && !identified;
   };
 
   const showBureauDesk = (after?: () => void) => {
@@ -722,10 +712,10 @@ export default function App() {
   }, []);
 
   const handleSelectPuzzle = (puzzle: PuzzleData) => {
-    if (puzzle.editionDate > publishedThroughDate(INITIAL_PUZZLES)) return;
+    if (puzzle.editionNumber > frontPage) return;
     if (
       isNightEdition(puzzle) &&
-      !isNightUnlockedForDate(allPuzzles, solvedPuzzleIds, puzzle.editionDate)
+      !isNightUnlocked(allPuzzles, solvedPuzzleIds, puzzle.editionNumber)
     ) {
       return;
     }
@@ -739,38 +729,40 @@ export default function App() {
   };
 
   const handleOpenTodayEdition = () => {
-    const todayMorning = currentMorningPuzzle(INITIAL_PUZZLES);
-    if (todayMorning) setCurrentPuzzle(todayMorning);
+    const frontPageMorning = currentMorningPuzzle(INITIAL_PUZZLES, solvedPuzzleIds);
+    if (frontPageMorning) setCurrentPuzzle(frontPageMorning);
     setIsSolveBulletinOpen(false);
   };
 
-  const handleOpenDayOne = () => {
-    const dayOne = firstCasePuzzle(INITIAL_PUZZLES);
-    if (dayOne) setCurrentPuzzle(dayOne);
-    setIsSolveBulletinOpen(false);
-  };
-
+  /** Morning -> that edition's Night once unlocked, Night -> the next edition's Morning. */
   const handleNextPuzzle = () => {
-    const cutoff = publishedThroughDate(INITIAL_PUZZLES);
-    const published = INITIAL_PUZZLES.filter((puzzle) => puzzle.editionDate <= cutoff);
-    const currentIdx = published.findIndex((p) => p.id === currentPuzzle.id);
-    if (currentIdx === -1) return;
-    const nextIdx = (currentIdx + 1) % published.length;
-    setCurrentPuzzle(published[nextIdx]);
+    const edition = currentPuzzle.editionNumber;
+    const next =
+      isMorningEdition(currentPuzzle) && isNightUnlocked(allPuzzles, solvedPuzzleIds, edition)
+        ? nightPuzzleForEdition(allPuzzles, edition)
+        : edition + 1 <= frontPage
+          ? morningPuzzleForEdition(INITIAL_PUZZLES, edition + 1)
+          : undefined;
+    if (next) setCurrentPuzzle(next);
     setIsNewspaperClippingOpen(false);
   };
 
-  // Determine if Hard mode is unlocked for the current date
+  // Determine if Hard mode is unlocked for the current edition
   const isHardUnlocked = useMemo(() => {
     return solvedPuzzleIds.some((id) => {
       const p = allPuzzles.find((puzzle) => puzzle.id === id);
       return (
         p &&
-        p.editionDate === currentPuzzle.editionDate &&
+        p.editionNumber === currentPuzzle.editionNumber &&
         matchesMode(p, 'Easy')
       );
     });
-  }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionDate]);
+  }, [solvedPuzzleIds, allPuzzles, currentPuzzle.editionNumber]);
+
+  const { frontPage, seasonLength, isSeasonComplete } = useCampaignProgress(
+    INITIAL_PUZZLES,
+    solvedPuzzleIds
+  );
 
   const nightEdition = isNightEdition(currentPuzzle);
   useEffect(() => {
@@ -788,11 +780,6 @@ export default function App() {
       document.body.classList.remove('is-night');
     };
   }, [nightEdition]);
-  const todayEdition = currentMorningPuzzle(INITIAL_PUZZLES);
-  const offerStoryCatchUp =
-    (isPrimerPuzzle(currentPuzzle) || isPracticePuzzle(currentPuzzle)) &&
-    storyHasBegun(INITIAL_PUZZLES) &&
-    !hasSolvedStoryPuzzle(allPuzzles, solvedPuzzleIds);
   const deskCompact = !isSolved && (deskArmed || viewportKeyboard);
   const editionUpdate = useEditionUpdate();
   const deskOnline = useDeskOnline();
@@ -1051,10 +1038,15 @@ export default function App() {
         timerSeconds={timerSeconds}
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
         onOpenTodayEdition={handleOpenTodayEdition}
-        onOpenDayOne={handleOpenDayOne}
         onStartPractice={handleStartPractice}
-        offerStoryCatchUp={offerStoryCatchUp}
-        currentEditionNumber={todayEdition?.editionNumber}
+        isSeasonComplete={isSeasonComplete}
+        seasonLength={seasonLength}
+        onOpenCaseFiles={() => {
+          setCaseFileFocusId(null);
+          setCaseFileFocusKey(null);
+          setCaseFileToastPuzzle(null);
+          setIsCaseFileOpen(true);
+        }}
       />
       ) : null}
 
@@ -1080,6 +1072,7 @@ export default function App() {
         onSelectPuzzle={handleSelectPuzzle}
         onStartPractice={handleStartPractice}
         solvedPuzzleIds={solvedPuzzleIds}
+        frontPage={frontPage}
       />
       ) : null}
 
@@ -1141,21 +1134,11 @@ export default function App() {
         user={identified ? user : null}
         night={isNightEdition(currentPuzzle)}
         gameStats={gameStats}
+        seasonLength={seasonLength}
         authConfigured={bureauPreview ? true : configured}
         authError={authError}
         onIssueCredentials={signIn}
         onSignOut={signOut}
-        deliverySupported={bureauPreview ? true : deliverySupported}
-        deliverySubscribed={deliverySubscribed}
-        deliveryBlocked={bureauPreview || !isAndroidAppShell() ? false : deliveryBlocked}
-        deliveryError={deliveryError}
-        deliveryCopy={
-          isAndroidAppShell()
-            ? 'A tap on the shoulder around 8:00 a.m. Eastern when the morning edition hits the stands. That is the only alert we send. You can leave the list any time; the paper still prints if you decline.'
-            : 'A local notice the next time you open the paper that day — not a scheduled morning push. You can leave the list any time; the puzzles still run if you decline.'
-        }
-        onToggleDelivery={toggleDelivery}
-        onOpenSettings={openDeliverySettings}
         darkPaper={darkPaper}
         onTogglePaper={togglePaper}
         gameKeyboard={gameKeyboard}

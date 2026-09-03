@@ -11,8 +11,8 @@ export const CIPHER_INTRO =
 export const CIPHER_TOOLS: { lead: string; body: string }[] = [
   { lead: 'Smaller Type', body: 'Shrink the cipher tiles when the quote is crowding the page.' },
   { lead: 'Larger Type', body: 'Magnify the tiles when a glyph is hard to read.' },
-  { lead: 'Check Letter', body: 'Test the highlighted guess. A correct letter locks in; a wrong one takes the red circle. Three checks per day, shared by the morning and night extras; the count sits on the quill.' },
-  { lead: 'Hint', body: 'Reveal the highlighted glyph. Select an unsolved letter first. Three hints per day, shared by the morning and night extras; the count sits on the bulb.' },
+  { lead: 'Check Letter', body: 'Test the highlighted guess. A correct letter locks in; a wrong one takes the red circle. Three checks per edition, shared by the morning and night extras; the count sits on the quill.' },
+  { lead: 'Hint', body: 'Reveal the highlighted glyph. Select an unsolved letter first. Three hints per edition, shared by the morning and night extras; the count sits on the bulb.' },
   { lead: 'Glyph Tally', body: 'Open a count of repeating glyphs, busiest first. English leans on E, T, A, O, I, N.' },
   { lead: 'Clear Letters', body: 'Wipe every guess and start the quote over. The timer keeps running.' },
 ];

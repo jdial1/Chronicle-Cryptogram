@@ -5,8 +5,6 @@ import { storageGet, storageGetJSON, storageKeysWithPrefix, storageSetJSON } fro
 export const DEFAULT_GAME_STATS: GameStats = {
   puzzlesPlayed: 0,
   puzzlesSolved: 0,
-  currentStreak: 1,
-  maxStreak: 1,
   fastestTime: null,
   totalTimePlayed: 0,
   averageAccuracy: 100,
@@ -127,7 +125,6 @@ export function mergeGameStats(local: GameStats, cloud: GameStats | null): GameS
   if (local.puzzlesSolved > cloud.puzzlesSolved) return local;
   return {
     ...cloud,
-    maxStreak: Math.max(local.maxStreak, cloud.maxStreak),
     fastestTime:
       local.fastestTime == null
         ? cloud.fastestTime
@@ -142,22 +139,23 @@ export function mergeSolvedIds(local: string[], cloud: string[]) {
   return Array.from(new Set([...local, ...cloud]));
 }
 
-export function isEditionDate(value: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+/** Wallet keys are edition numbers now. Old date-keyed entries fail this and are skipped. */
+export function isEditionKey(value: number) {
+  return Number.isInteger(value) && value >= 0 && value <= 999;
 }
 
-export function clipDailyWallet(editionDate: string, used: number, cap = DAILY_HINTS): DailyHintWallet {
+export function clipDailyWallet(edition: number, used: number, cap = DAILY_HINTS): DailyHintWallet {
   const clipped = Math.min(cap, Math.max(0, Math.floor(Number(used)) || 0));
-  return { editionDate, used: clipped, remaining: cap - clipped };
+  return { edition, used: clipped, remaining: cap - clipped };
 }
 
 export function mergeDailyHints(
   local: DailyHintWallet | null,
   cloud: DailyHintWallet | null,
-  editionDate: string,
+  edition: number,
   cap = DAILY_HINTS
 ): DailyHintWallet {
-  return clipDailyWallet(editionDate, Math.max(local?.used ?? 0, cloud?.used ?? 0), cap);
+  return clipDailyWallet(edition, Math.max(local?.used ?? 0, cloud?.used ?? 0), cap);
 }
 
 export function normalizeProgress(raw: unknown): PuzzleProgress | null {
@@ -209,10 +207,10 @@ export function normalizeProgress(raw: unknown): PuzzleProgress | null {
 
 export function normalizeDailyHints(
   raw: unknown,
-  editionDate: string,
+  edition: number,
   cap = DAILY_HINTS
 ): DailyHintWallet | null {
-  if (!isEditionDate(editionDate)) return null;
+  if (!isEditionKey(edition)) return null;
   try {
     const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
     if (!data || typeof data !== 'object') return null;
@@ -220,7 +218,7 @@ export function normalizeDailyHints(
     const remaining = Number((data as DailyHintWallet).remaining);
     const fromParts =
       Number.isFinite(used) ? used : Number.isFinite(remaining) ? cap - remaining : 0;
-    return clipDailyWallet(editionDate, fromParts, cap);
+    return clipDailyWallet(edition, fromParts, cap);
   } catch {
     return null;
   }
@@ -282,26 +280,26 @@ function walletPrefix(kind: DailyWalletKind) {
   return kind === 'hints' ? STORAGE_KEYS.dailyHints : STORAGE_KEYS.dailyChecks;
 }
 
-export function readLocalDailyWallet(kind: DailyWalletKind, editionDate: string): DailyHintWallet | null {
-  return normalizeDailyHints(storageGet(`${walletPrefix(kind)}${editionDate}`), editionDate, walletCap(kind));
+export function readLocalDailyWallet(kind: DailyWalletKind, edition: number): DailyHintWallet | null {
+  return normalizeDailyHints(storageGet(`${walletPrefix(kind)}${edition}`), edition, walletCap(kind));
 }
 
 export function writeLocalDailyWallet(kind: DailyWalletKind, wallet: DailyHintWallet): boolean {
-  if (!isEditionDate(wallet.editionDate)) return false;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used, walletCap(kind));
-  return storageSetJSON(`${walletPrefix(kind)}${next.editionDate}`, next);
+  if (!isEditionKey(wallet.edition)) return false;
+  const next = clipDailyWallet(wallet.edition, wallet.used, walletCap(kind));
+  return storageSetJSON(`${walletPrefix(kind)}${next.edition}`, next);
 }
 
-export function readLocalDailyHints(editionDate: string): DailyHintWallet | null {
-  return readLocalDailyWallet('hints', editionDate);
+export function readLocalDailyHints(edition: number): DailyHintWallet | null {
+  return readLocalDailyWallet('hints', edition);
 }
 
 export function writeLocalDailyHints(wallet: DailyHintWallet): boolean {
   return writeLocalDailyWallet('hints', wallet);
 }
 
-export function readLocalDailyChecks(editionDate: string): DailyHintWallet | null {
-  return readLocalDailyWallet('checks', editionDate);
+export function readLocalDailyChecks(edition: number): DailyHintWallet | null {
+  return readLocalDailyWallet('checks', edition);
 }
 
 export function writeLocalDailyChecks(wallet: DailyHintWallet): boolean {
@@ -311,9 +309,9 @@ export function writeLocalDailyChecks(wallet: DailyHintWallet): boolean {
 function readAllLocalDailyWallets(prefix: string, cap: number): Record<string, DailyHintWallet> {
   const out: Record<string, DailyHintWallet> = {};
   for (const key of storageKeysWithPrefix(prefix)) {
-    const editionDate = key.slice(prefix.length);
-    const parsed = normalizeDailyHints(storageGet(key), editionDate, cap);
-    if (parsed) out[editionDate] = parsed;
+    const edition = Number(key.slice(prefix.length));
+    const parsed = normalizeDailyHints(storageGet(key), edition, cap);
+    if (parsed) out[edition] = parsed;
   }
   return out;
 }
@@ -327,13 +325,13 @@ export function readAllLocalDailyChecks(): Record<string, DailyHintWallet> {
 }
 
 function usedFromProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[],
   progressById: Record<string, PuzzleProgress>,
   used: (progress: PuzzleProgress) => number
 ) {
   return puzzles.reduce((sum, puzzle) => {
-    if (puzzle.editionDate !== editionDate) return sum;
+    if (puzzle.editionNumber !== edition) return sum;
     const progress = progressById[puzzle.id];
     if (!progress) return sum;
     return sum + used(progress);
@@ -341,47 +339,47 @@ function usedFromProgress(
 }
 
 export function usedHintsFromProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[],
   progressById: Record<string, PuzzleProgress>
 ) {
-  return usedFromProgress(editionDate, puzzles, progressById, (progress) =>
+  return usedFromProgress(edition, puzzles, progressById, (progress) =>
     Math.max(progress.hintsUsed || 0, (progress.hintedSymbolIds || []).length)
   );
 }
 
 export function usedChecksFromProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[],
   progressById: Record<string, PuzzleProgress>
 ) {
-  return usedFromProgress(editionDate, puzzles, progressById, (progress) =>
+  return usedFromProgress(edition, puzzles, progressById, (progress) =>
     Math.max(progress.checksUsed || 0, (progress.verifiedSymbolIds || []).length)
   );
 }
 
 export function reconcileDailyHints(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[],
   progressById: Record<string, PuzzleProgress>
 ): DailyHintWallet {
-  const local = readLocalDailyHints(editionDate);
+  const local = readLocalDailyHints(edition);
   return clipDailyWallet(
-    editionDate,
-    Math.max(local?.used ?? 0, usedHintsFromProgress(editionDate, puzzles, progressById)),
+    edition,
+    Math.max(local?.used ?? 0, usedHintsFromProgress(edition, puzzles, progressById)),
     DAILY_HINTS
   );
 }
 
 export function reconcileDailyChecks(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[],
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[],
   progressById: Record<string, PuzzleProgress>
 ): DailyHintWallet {
-  const local = readLocalDailyChecks(editionDate);
+  const local = readLocalDailyChecks(edition);
   return clipDailyWallet(
-    editionDate,
-    Math.max(local?.used ?? 0, usedChecksFromProgress(editionDate, puzzles, progressById)),
+    edition,
+    Math.max(local?.used ?? 0, usedChecksFromProgress(edition, puzzles, progressById)),
     DAILY_CHECKS
   );
 }

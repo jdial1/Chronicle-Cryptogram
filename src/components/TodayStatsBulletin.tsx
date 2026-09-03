@@ -12,10 +12,10 @@ interface SolvedStatsProps {
   timerSeconds: number;
   onUnlockHardMode?: () => void;
   onOpenTodayEdition?: () => void;
-  onOpenDayOne?: () => void;
   onStartPractice?: () => void;
-  offerStoryCatchUp?: boolean;
-  currentEditionNumber?: number;
+  isSeasonComplete?: boolean;
+  seasonLength?: number;
+  onOpenCaseFiles?: () => void;
 }
 
 interface TodayStatsBulletinProps extends SolvedStatsProps {
@@ -30,16 +30,10 @@ const inkSecondary =
   'w-full min-h-12 sm:w-auto px-4 py-2.5 border-2 border-stone-800 bg-[var(--paper)] hover:bg-amber-100 text-stone-950 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
 
 export function PrimerPathButtons({
-  offerCatchUp,
-  currentEditionNumber,
-  onOpenDayOne,
   onOpenTodayEdition,
   onStartPractice,
   practiceLabel = 'Practice Drill',
 }: {
-  offerCatchUp: boolean;
-  currentEditionNumber?: number;
-  onOpenDayOne?: () => void;
   onOpenTodayEdition: () => void;
   onStartPractice?: () => void;
   practiceLabel?: string;
@@ -50,27 +44,11 @@ export function PrimerPathButtons({
     </button>
   ) : null;
 
-  if (offerCatchUp && onOpenDayOne) {
-    return (
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <button type="button" onClick={onOpenDayOne} className={inkAction}>
-            Start on Day 1
-          </button>
-          <button type="button" onClick={onOpenTodayEdition} className={inkSecondary}>
-            {currentEditionNumber != null ? `Go to Day ${currentEditionNumber}` : 'Go to Today'}
-          </button>
-        </div>
-        {practiceButton}
-      </div>
-    );
-  }
-
   if (practiceButton) {
     return (
       <div className="flex flex-col sm:flex-row gap-2">
         <button type="button" onClick={onOpenTodayEdition} className={inkAction}>
-          Decode Today's Edition
+          Decode the Front Page
         </button>
         {practiceButton}
       </div>
@@ -79,7 +57,7 @@ export function PrimerPathButtons({
 
   return (
     <button type="button" onClick={onOpenTodayEdition} className={inkAction}>
-      Decode Today's Edition
+      Decode the Front Page
     </button>
   );
 }
@@ -140,10 +118,10 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
   isOpen,
   onClose,
   onOpenTodayEdition,
-  onOpenDayOne,
   onStartPractice,
-  offerStoryCatchUp = false,
-  currentEditionNumber,
+  isSeasonComplete = false,
+  seasonLength,
+  onOpenCaseFiles,
 }) => {
   const isHard = isHardPuzzle(currentPuzzle);
   const isPrimer = isPrimerPuzzle(currentPuzzle);
@@ -157,7 +135,8 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
       : isHard
         ? 'Night Extra decoded'
         : 'Morning Edition decoded';
-  const showPrimerPath = (isPrimer || isPractice) && onOpenTodayEdition;
+  const showPrimerPath = (isPrimer || isPractice) && onOpenTodayEdition && !isSeasonComplete;
+  const showSeasonFinale = isSeasonComplete && !isPractice;
   const showNightPost = !isPrimer && !isPractice && !isHard && onUnlockHardMode;
 
   return (
@@ -174,9 +153,11 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
           <p className="mt-1 font-typewriter font-black text-4xl sm:text-5xl text-stone-950 tabular-nums leading-none">
             {formatTime(timerSeconds)}
           </p>
-          {showPrimerPath && offerStoryCatchUp && (
+          {showSeasonFinale && (
             <p className="mt-4 font-newspaper text-sm text-stone-700 leading-relaxed">
-              The story has already begun. Start on Day 1, or go to the current day.
+              {seasonLength
+                ? `That is all ${seasonLength} editions. The Vance file is closed — for now.`
+                : 'That is the last edition. The Vance file is closed — for now.'}
             </p>
           )}
         </div>
@@ -184,16 +165,6 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
         {showPrimerPath && (
           <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">
             <PrimerPathButtons
-              offerCatchUp={offerStoryCatchUp}
-              currentEditionNumber={currentEditionNumber}
-              onOpenDayOne={
-                onOpenDayOne
-                  ? () => {
-                      onClose();
-                      onOpenDayOne();
-                    }
-                  : undefined
-              }
               onOpenTodayEdition={() => {
                 onClose();
                 onOpenTodayEdition();
@@ -208,6 +179,21 @@ export const TodayStatsBulletin: React.FC<TodayStatsBulletinProps> = ({
               }
               practiceLabel={isPractice ? 'Another Drill' : 'Practice Drill'}
             />
+          </div>
+        )}
+
+        {showSeasonFinale && onOpenCaseFiles && (
+          <div className="modal-action-dock p-3 sm:flex sm:justify-end sm:px-4 sm:py-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenCaseFiles();
+              }}
+              className={inkAction}
+            >
+              Read the Case File
+            </button>
           </div>
         )}
 

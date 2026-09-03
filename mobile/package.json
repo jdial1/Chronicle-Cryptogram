@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@notifee/react-native": "^9.1.8",
     "@react-native-firebase/app": "^26.3.0",
-    "@react-native-firebase/messaging": "^26.3.0",
     "expo": "~57.0.15",
     "expo-constants": "~57.0.13",
     "expo-haptics": "~57.0.1",

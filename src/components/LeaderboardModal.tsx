@@ -46,14 +46,8 @@ const COUNTRIES = Array.from({ length: 676 }, (_, n) =>
   })
   .sort((a, b) => a.name.localeCompare(b.name, 'en'));
 
-function shiftDate(iso: string, days: number) {
-  const date = new Date(`${iso}T00:00:00`);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
-function findPuzzleId(puzzles: PuzzleData[], editionDate: string, mode: 'Easy' | 'Hard') {
-  return puzzles.find((puzzle) => puzzle.editionDate === editionDate && matchesMode(puzzle, mode))?.id;
+function findPuzzleId(puzzles: PuzzleData[], edition: number, mode: 'Easy' | 'Hard') {
+  return puzzles.find((puzzle) => puzzle.editionNumber === edition && matchesMode(puzzle, mode))?.id;
 }
 
 export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
@@ -68,16 +62,16 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   onScoreSubmitted,
 }) => {
   const currentPuzzle = puzzles.find((puzzle) => puzzle.id === currentPuzzleId);
-  const editionDate = currentPuzzle?.editionDate || puzzles[0]?.editionDate || '';
-  const yesterdayDate = editionDate ? shiftDate(editionDate, -1) : '';
+  const edition = currentPuzzle?.editionNumber ?? puzzles[0]?.editionNumber ?? 0;
+  const previousEdition = edition - 1;
   const tabIds = useMemo(
     () => ({
-      today_easy: findPuzzleId(puzzles, editionDate, 'Easy') || currentPuzzleId,
-      today_hard: findPuzzleId(puzzles, editionDate, 'Hard') || currentPuzzleId,
-      yesterday_easy: findPuzzleId(puzzles, yesterdayDate, 'Easy'),
-      yesterday_hard: findPuzzleId(puzzles, yesterdayDate, 'Hard'),
+      today_easy: findPuzzleId(puzzles, edition, 'Easy') || currentPuzzleId,
+      today_hard: findPuzzleId(puzzles, edition, 'Hard') || currentPuzzleId,
+      today_easy_prev: previousEdition >= 1 ? findPuzzleId(puzzles, previousEdition, 'Easy') : undefined,
+      today_hard_prev: previousEdition >= 1 ? findPuzzleId(puzzles, previousEdition, 'Hard') : undefined,
     }),
-    [puzzles, editionDate, yesterdayDate, currentPuzzleId]
+    [puzzles, edition, previousEdition, currentPuzzleId]
   );
 
   const [activeTab, setActiveTab] = useState<string>(() =>
@@ -188,7 +182,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   : 'bg-[#fdfbf6] text-stone-800 hover:bg-stone-200 border border-stone-400'
               }`}
             >
-              ☀️ Today Easy (#428-A)
+              ☀️ This Edition Easy (#428-A)
             </button>
             <button
               onClick={() => setActiveTab('today_hard')}
@@ -198,30 +192,30 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   : 'bg-[#fdfbf6] text-stone-800 hover:bg-stone-200 border border-stone-400'
               }`}
             >
-              🌙 Today Hard (#428-B)
+              🌙 This Edition Hard (#428-B)
             </button>
-            {tabIds.yesterday_easy && (
+            {tabIds.today_easy_prev && (
               <button
-                onClick={() => setActiveTab('yesterday_easy')}
+                onClick={() => setActiveTab('today_easy_prev')}
                 className={`desk-hit inline-flex items-center px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
-                  activeTab === 'yesterday_easy'
+                  activeTab === 'today_easy_prev'
                     ? 'bg-amber-600 text-stone-950 shadow-xs'
                     : 'bg-[#fdfbf6] text-stone-800 hover:bg-stone-200 border border-stone-400'
                 }`}
               >
-                ☀️ Yesterday Easy
+                ☀️ Previous Easy
               </button>
             )}
-            {tabIds.yesterday_hard && (
+            {tabIds.today_hard_prev && (
               <button
-                onClick={() => setActiveTab('yesterday_hard')}
+                onClick={() => setActiveTab('today_hard_prev')}
                 className={`desk-hit inline-flex items-center px-2.5 py-1 font-bold rounded-xs transition-colors cursor-pointer ${
-                  activeTab === 'yesterday_hard'
+                  activeTab === 'today_hard_prev'
                     ? 'bg-amber-600 text-stone-950 shadow-xs'
                     : 'bg-[#fdfbf6] text-stone-800 hover:bg-stone-200 border border-stone-400'
                 }`}
               >
-                🌙 Yesterday Hard
+                🌙 Previous Hard
               </button>
             )}
           </div>

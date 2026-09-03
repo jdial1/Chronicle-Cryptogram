@@ -43,7 +43,7 @@ const HANDBOOK_PAGES = [
       },
       {
         lead: 'Still on the wire',
-        body: 'Sign-in, the bureau board, and live solver counts need the network. Guesses and streak on this desk stay in local notes either way.',
+        body: 'Sign-in, the bureau board, and live solver counts need the network. Guesses and progress on this desk stay in local notes either way.',
       },
       {
         lead: 'Fresh plates',
@@ -53,8 +53,8 @@ const HANDBOOK_PAGES = [
   },
 ];
 
-function emphasizeDailyQuota(body: string) {
-  const marks = ['Three hints per day', 'Three checks per day'];
+function emphasizeWalletQuota(body: string) {
+  const marks = ['Three hints per edition', 'Three checks per edition'];
   for (const mark of marks) {
     const at = body.indexOf(mark);
     if (at < 0) continue;
@@ -162,7 +162,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
                         <span className="font-typewriter font-bold uppercase tracking-wide text-stone-900">
                           {point.lead}:
                         </span>{' '}
-                        {emphasizeDailyQuota(point.body)}
+                        {emphasizeWalletQuota(point.body)}
                       </p>
                     ))}
                   </div>

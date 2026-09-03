@@ -28,17 +28,6 @@ import {
 } from 'react-native-nitro-google-signin';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
-import {
-  cancelLocalDispatch,
-  listenAppActive,
-  listenForegroundDispatch,
-  listenTokenRefresh,
-  registerDispatchToken,
-  requestDispatchPermission,
-  hasDispatchPermission,
-  showSubscribeNotice,
-  stopDispatchToken,
-} from './dispatch';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -232,7 +221,6 @@ function Desk() {
   const signingIn = useRef(false);
   const pendingAuth = useRef<object | null>(null);
   const authFlush = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const dispatchOn = useRef(false);
   const persistKeysUntil = useRef(0);
   const [failed, setFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -332,78 +320,6 @@ function Desk() {
     console.error('[chronicle-webview] giving up after retries');
     setFailed(true);
   }, [cacheBust, hideSplash]);
-
-  const reportDispatch = useCallback((detail: object) => {
-    injectEvent(webRef, 'chronicle-native-delivery', detail);
-  }, []);
-
-  const refreshDispatchToken = useCallback(async () => {
-    if (!dispatchOn.current) return;
-    if (!(await hasDispatchPermission())) return;
-    try {
-      const token = await registerDispatchToken();
-      reportDispatch({ subscribed: true, blocked: false, token });
-    } catch {
-      reportDispatch({ subscribed: true, blocked: false });
-    }
-  }, [reportDispatch]);
-
-  const subscribeDelivery = useCallback(async () => {
-    const allowed = await requestDispatchPermission();
-    if (!allowed) {
-      dispatchOn.current = false;
-      reportDispatch({ subscribed: false, blocked: true });
-      return;
-    }
-    dispatchOn.current = true;
-    await cancelLocalDispatch();
-    await showSubscribeNotice();
-    try {
-      const token = await registerDispatchToken();
-      reportDispatch({ subscribed: true, blocked: false, token });
-    } catch {
-      reportDispatch({ subscribed: true, blocked: false });
-    }
-  }, [reportDispatch]);
-
-  const unsubscribeDelivery = useCallback(async () => {
-    dispatchOn.current = false;
-    await cancelLocalDispatch();
-    await stopDispatchToken();
-    reportDispatch({ subscribed: false, blocked: false });
-  }, [reportDispatch]);
-
-  useEffect(() => {
-    void cancelLocalDispatch();
-    const foreground = listenForegroundDispatch();
-    const tokens = listenTokenRefresh((token) => {
-      if (!dispatchOn.current) return;
-      reportDispatch({ subscribed: true, blocked: false, token });
-    });
-    const appState = listenAppActive(() => {
-      void (async () => {
-        const allowed = await hasDispatchPermission();
-        if (!allowed) {
-          if (!dispatchOn.current) return;
-          dispatchOn.current = false;
-          await cancelLocalDispatch();
-          await stopDispatchToken();
-          reportDispatch({ subscribed: false, blocked: true });
-          return;
-        }
-        if (dispatchOn.current) {
-          await refreshDispatchToken();
-          return;
-        }
-        reportDispatch({ blocked: false });
-      })();
-    });
-    return () => {
-      foreground();
-      tokens();
-      appState.remove();
-    };
-  }, [refreshDispatchToken, reportDispatch]);
 
   const stopAuthFlush = useCallback(() => {
     authFlush.current.forEach(clearTimeout);
@@ -506,12 +422,6 @@ function Desk() {
         stopAuthFlush();
       }
       if (payload.type === 'GOOGLE_SIGN_OUT') nativeSignOut();
-      if (payload.type === 'DELIVERY_SUBSCRIBE') subscribeDelivery();
-      if (payload.type === 'DELIVERY_UNSUBSCRIBE') unsubscribeDelivery();
-      if (payload.type === 'DELIVERY_RESCHEDULE') {
-        dispatchOn.current = true;
-        refreshDispatchToken();
-      }
       if (payload.type === 'OPEN_SETTINGS') {
         Linking.openSettings().catch(() => undefined);
       }
@@ -540,7 +450,7 @@ function Desk() {
         pressPacked.current = true;
       }
     },
-    [keepCipherKeys, nativeSignIn, nativeSignOut, refreshDispatchToken, stopAuthFlush, subscribeDelivery, unsubscribeDelivery, setWebDark]
+    [keepCipherKeys, nativeSignIn, nativeSignOut, stopAuthFlush, setWebDark]
   );
 
   const onNav = useCallback((nav: WebViewNavigation) => {

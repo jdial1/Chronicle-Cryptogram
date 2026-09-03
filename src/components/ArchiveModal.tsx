@@ -3,16 +3,11 @@ import { Newspaper, CheckCircle2, DecodedStamp, Lock, ChevronDown, ChevronUp, Pu
 import { PuzzleData } from '../types';
 import { DeskModal } from './DeskModal';
 import {
-  formatEditionDate,
-  formatEditionDateShort,
-  formatIssueCountdown,
+  editionLabel,
+  groupIssues,
   groupIssuesByChapter,
-  groupPuzzlesByDate,
-  isNightUnlockedForDate,
+  isNightUnlocked,
   isPracticePuzzle,
-  issueReleaseAt,
-  nextIssueDate,
-  publishedThroughDate,
 } from '../utils/edition';
 import { PRACTICE_ARCHIVE_CARD } from '../data/primerPractice';
 
@@ -24,6 +19,7 @@ interface ArchiveModalProps {
   onSelectPuzzle: (puzzle: PuzzleData) => void;
   onStartPractice?: () => void;
   solvedPuzzleIds: string[];
+  frontPage: number;
 }
 
 function DecodeStamp({ label, done }: { label: string; done: boolean }) {
@@ -121,54 +117,6 @@ function IssueSlot({
   );
 }
 
-function UpcomingIssueCard({ date }: { date: string }) {
-  const releaseAt = issueReleaseAt(date);
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  return (
-    <article className="border-2 border-stone-700 bg-[var(--paper)]">
-      <div className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[var(--paper-masthead)] text-stone-950">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
-            {formatEditionDateShort(date)}
-          </span>
-          <span className="hidden sm:inline font-typewriter font-bold text-xs uppercase tracking-wider truncate">
-            {formatEditionDate(date)}
-          </span>
-        </div>
-        <Lock className="w-3.5 h-3.5 text-[color:var(--ink-prussian)] shrink-0" />
-      </div>
-      <div className="relative">
-        <div className="p-2.5 flex flex-row gap-2.5">
-          <div className="relative flex flex-col p-3 border rounded-xs flex-1 min-w-0 bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
-            <span className="px-1.5 py-0.5 w-fit bg-[#e8e0d0] text-xs font-newspaper font-bold uppercase tracking-wider text-stone-950">
-              Morning Edition
-            </span>
-          </div>
-          <div className="relative flex flex-col p-3 border rounded-xs w-1/4 flex-none bg-stone-200/70 border-stone-400 min-h-[4.5rem]">
-            <span className="px-1.5 py-0.5 w-fit bg-[#d6c9b0] text-xs font-newspaper font-bold uppercase tracking-wider text-stone-950">
-              Night Extra
-            </span>
-          </div>
-        </div>
-        <p
-          aria-live="polite"
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
-        >
-          <span className="px-2.5 py-1 bg-[var(--paper)] border border-stone-800 font-typewriter font-black text-sm sm:text-base text-stone-950 tabular-nums">
-            {formatIssueCountdown(releaseAt - now)}
-          </span>
-        </p>
-      </div>
-    </article>
-  );
-}
-
 export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   isOpen,
   onClose,
@@ -177,23 +125,22 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   onSelectPuzzle,
   onStartPractice,
   solvedPuzzleIds,
+  frontPage,
 }) => {
-  const issues = groupPuzzlesByDate(puzzles);
+  const issues = groupIssues(puzzles);
   const chapters = groupIssuesByChapter(issues);
-  const currentDate = publishedThroughDate(puzzles);
-  const upcomingDate = nextIssueDate(puzzles);
-  const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([currentDate]));
+  const [openEditions, setOpenEditions] = useState<Set<number>>(() => new Set([frontPage]));
 
   useEffect(() => {
     if (!isOpen) return;
-    setOpenDates(new Set([publishedThroughDate(puzzles)]));
-  }, [isOpen, puzzles]);
+    setOpenEditions(new Set([frontPage]));
+  }, [isOpen, frontPage]);
 
-  const toggleDate = (date: string) => {
-    setOpenDates((prev) => {
+  const toggleEdition = (edition: number) => {
+    setOpenEditions((prev) => {
       const next = new Set(prev);
-      if (next.has(date)) next.delete(date);
-      else next.add(date);
+      if (next.has(edition)) next.delete(edition);
+      else next.add(edition);
       return next;
     });
   };
@@ -230,7 +177,10 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
               </header>
               {chapter.issues.map((issue) => {
             const primerIssue = issue.editionNumber === 0;
-            const nightUnlocked = isNightUnlockedForDate(puzzles, solvedPuzzleIds, issue.date);
+            // The Primer sits outside the season walk, so it is never gated by frontPage.
+            const editionLocked = !primerIssue && issue.editionNumber > frontPage;
+            const nightUnlocked =
+              !editionLocked && isNightUnlocked(puzzles, solvedPuzzleIds, issue.editionNumber);
             const morningSolved = Boolean(issue.morning && solvedPuzzleIds.includes(issue.morning.id));
             const nightSolved = Boolean(issue.night && solvedPuzzleIds.includes(issue.night.id));
             const practiceUnlocked = Boolean(morningSolved && onStartPractice);
@@ -239,16 +189,16 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
             const extraCurrent = primerIssue
               ? isPracticePuzzle({ id: currentPuzzleId, category: '' })
               : issue.night?.id === currentPuzzleId;
-            const isOpenIssue = openDates.has(issue.date);
-            const isToday = issue.date === currentDate;
+            const isOpenIssue = openEditions.has(issue.editionNumber);
+            const isFrontPage = issue.editionNumber === frontPage;
 
             return (
-              <article key={issue.date} className="border-2 border-stone-700 bg-[var(--paper)]">
+              <article key={issue.editionNumber} className="border-2 border-stone-700 bg-[var(--paper)]">
                 <button
                   type="button"
-                  onClick={() => toggleDate(issue.date)}
+                  onClick={() => toggleEdition(issue.editionNumber)}
                   aria-expanded={isOpenIssue}
-                  aria-controls={`issue-${issue.date}`}
+                  aria-controls={`issue-${issue.editionNumber}`}
                   className="w-full flex items-center justify-between gap-2 px-3 min-h-12 py-2 bg-[var(--paper-masthead)] text-stone-950 cursor-pointer hover:bg-[#e0d5c0]"
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -256,17 +206,15 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       name={issue.morning?.silhouette ?? issue.night?.silhouette}
                       className="newspaper-silhouette w-6 h-6 shrink-0"
                     />
-                    <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate sm:hidden">
-                      {formatEditionDateShort(issue.date)}
+                    <span className="font-typewriter font-bold text-xs uppercase tracking-wider truncate">
+                      {editionLabel(issue.editionNumber)}
                     </span>
-                    <span className="hidden sm:inline font-typewriter font-bold text-xs uppercase tracking-wider truncate">
-                      {formatEditionDate(issue.date)}
-                    </span>
-                    {isToday && (
+                    {isFrontPage && (
                       <span className="hidden sm:inline shrink-0 px-1.5 py-0.5 bg-amber-600 text-stone-950 font-typewriter font-black text-xs uppercase tracking-wider">
-                        Today
+                        Front Page
                       </span>
                     )}
+                    {editionLocked && <Lock className="w-3.5 h-3.5 text-stone-600 shrink-0" />}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="flex items-center gap-1.5">
@@ -283,15 +231,16 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                   </div>
                 </button>
                 {isOpenIssue && (
-                  <div id={`issue-${issue.date}`} className="p-2.5 flex flex-row gap-2.5">
+                  <div id={`issue-${issue.editionNumber}`} className="p-2.5 flex flex-row gap-2.5">
                     <IssueSlot
                       label={primerIssue ? 'Training Primer' : 'Morning Edition'}
                       puzzle={issue.morning}
-                      locked={false}
+                      locked={editionLocked}
+                      lockHint="Decode the edition before it to unlock."
                       isCurrent={issue.morning?.id === currentPuzzleId}
                       isSolved={morningSolved}
                       onOpen={() => {
-                        if (!issue.morning) return;
+                        if (!issue.morning || editionLocked) return;
                         onSelectPuzzle(issue.morning);
                         onClose();
                       }}
@@ -304,7 +253,11 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       isCurrent={extraCurrent}
                       isSolved={primerIssue ? false : nightSolved}
                       lockHint={
-                        primerIssue ? 'Decode the Primer to unlock.' : 'Decode Morning Edition to unlock.'
+                        primerIssue
+                          ? 'Decode the Primer to unlock.'
+                          : editionLocked
+                            ? 'Decode the edition before it to unlock.'
+                            : 'Decode Morning Edition to unlock.'
                       }
                       onOpen={() => {
                         if (primerIssue) {
@@ -325,7 +278,6 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
           })}
             </section>
           ))}
-          {upcomingDate && <UpcomingIssueCard date={upcomingDate} />}
         </div>
     </DeskModal>
   );

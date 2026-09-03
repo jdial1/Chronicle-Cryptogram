@@ -11,7 +11,7 @@ import {
   runTransaction,
   serverTimestamp,
   setDoc,
-  where,
+
   type Unsubscribe,
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
@@ -29,7 +29,7 @@ import {
   clipHintedSymbolIds,
   clipSelectedSymbolId,
   clipDailyWallet,
-  isEditionDate,
+  isEditionKey,
   mergeDailyHints,
   mergeProgress,
   normalizeDailyHints,
@@ -85,7 +85,7 @@ export async function importLocalProgressToCloud(
   uid: string,
   localProgress: Record<string, PuzzleProgress>,
   solvedPuzzleIds: string[],
-  puzzles: { id: string; editionDate: string }[] = []
+  puzzles: { id: string; editionNumber: number }[] = []
 ) {
   if (!db) return;
   const puzzleIds = new Set([...Object.keys(localProgress), ...solvedPuzzleIds]);
@@ -119,39 +119,40 @@ export async function importLocalProgressToCloud(
       writeLocalProgress(puzzleId, merged);
     })
   );
-  const dates = new Set(Object.keys(readAllLocalDailyHints()));
-  const checkDates = new Set(Object.keys(readAllLocalDailyChecks()));
+  // Number() on an orphaned date key yields NaN, which isEditionKey below rejects.
+  const dates = new Set(Object.keys(readAllLocalDailyHints()).map(Number));
+  const checkDates = new Set(Object.keys(readAllLocalDailyChecks()).map(Number));
   for (const puzzle of puzzles) {
     const stored = localProgress[puzzle.id];
     if (stored && (stored.hintsUsed > 0 || stored.hintedSymbolIds.length > 0)) {
-      dates.add(puzzle.editionDate);
+      dates.add(puzzle.editionNumber);
     }
     if (stored && (stored.checksUsed > 0 || stored.verifiedSymbolIds.length > 0 || stored.flaggedSymbolIds.length > 0)) {
-      checkDates.add(puzzle.editionDate);
+      checkDates.add(puzzle.editionNumber);
     }
   }
   await Promise.all(
-    Array.from(dates).map(async (editionDate) => {
-      if (!isEditionDate(editionDate)) return;
-      const local = reconcileDailyHints(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyHints(uid, editionDate).catch((err) => {
+    Array.from(dates).map(async (edition) => {
+      if (!isEditionKey(edition)) return;
+      const local = reconcileDailyHints(edition, puzzles, localProgress);
+      const cloud = await loadCloudDailyHints(uid, edition).catch((err) => {
         logDesk('load-hints-import', err);
         return null;
       });
-      const merged = mergeDailyHints(local, cloud, editionDate);
+      const merged = mergeDailyHints(local, cloud, edition);
       writeLocalDailyHints(merged);
       forgetCloud(saveCloudDailyHints(uid, merged), 'save-hints-import');
     })
   );
   await Promise.all(
-    Array.from(checkDates).map(async (editionDate) => {
-      if (!isEditionDate(editionDate)) return;
-      const local = reconcileDailyChecks(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyChecks(uid, editionDate).catch((err) => {
+    Array.from(checkDates).map(async (edition) => {
+      if (!isEditionKey(edition)) return;
+      const local = reconcileDailyChecks(edition, puzzles, localProgress);
+      const cloud = await loadCloudDailyChecks(uid, edition).catch((err) => {
         logDesk('load-checks-import', err);
         return null;
       });
-      const merged = mergeDailyHints(local, cloud, editionDate, DAILY_CHECKS);
+      const merged = mergeDailyHints(local, cloud, edition, DAILY_CHECKS);
       writeLocalDailyChecks(merged);
       forgetCloud(saveCloudDailyChecks(uid, merged), 'save-checks-import');
     })
@@ -167,8 +168,6 @@ export async function loadUserProfile(uid: string) {
     gameStats: {
       puzzlesPlayed: data.puzzlesPlayed ?? 0,
       puzzlesSolved: data.puzzlesSolved ?? 0,
-      currentStreak: data.currentStreak ?? 1,
-      maxStreak: data.maxStreak ?? 1,
       fastestTime: data.fastestTime ?? null,
       totalTimePlayed: data.totalTimePlayed ?? 0,
       averageAccuracy: data.averageAccuracy ?? 100,
@@ -249,36 +248,36 @@ export async function saveCloudProgress(uid: string, puzzleId: string, progress:
   });
 }
 
-export async function loadCloudDailyHints(uid: string, editionDate: string): Promise<DailyHintWallet | null> {
-  if (!db || !isEditionDate(editionDate)) return null;
-  const snap = await getDoc(doc(db, 'users', uid, 'dailyHints', editionDate));
+export async function loadCloudDailyHints(uid: string, edition: number): Promise<DailyHintWallet | null> {
+  if (!db || !isEditionKey(edition)) return null;
+  const snap = await getDoc(doc(db, 'users', uid, 'dailyHints', String(edition)));
   if (!snap.exists()) return null;
-  return normalizeDailyHints(snap.data(), editionDate);
+  return normalizeDailyHints(snap.data(), edition);
 }
 
 export async function saveCloudDailyHints(uid: string, wallet: DailyHintWallet) {
-  if (!db || !isEditionDate(wallet.editionDate)) return;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used);
-  await setDoc(doc(db, 'users', uid, 'dailyHints', next.editionDate), {
-    editionDate: next.editionDate,
+  if (!db || !isEditionKey(wallet.edition)) return;
+  const next = clipDailyWallet(wallet.edition, wallet.used);
+  await setDoc(doc(db, 'users', uid, 'dailyHints', String(next.edition)), {
+    edition: next.edition,
     used: next.used,
     remaining: next.remaining,
     updatedAt: serverTimestamp(),
   });
 }
 
-export async function loadCloudDailyChecks(uid: string, editionDate: string): Promise<DailyHintWallet | null> {
-  if (!db || !isEditionDate(editionDate)) return null;
-  const snap = await getDoc(doc(db, 'users', uid, 'dailyChecks', editionDate));
+export async function loadCloudDailyChecks(uid: string, edition: number): Promise<DailyHintWallet | null> {
+  if (!db || !isEditionKey(edition)) return null;
+  const snap = await getDoc(doc(db, 'users', uid, 'dailyChecks', String(edition)));
   if (!snap.exists()) return null;
-  return normalizeDailyHints(snap.data(), editionDate, DAILY_CHECKS);
+  return normalizeDailyHints(snap.data(), edition, DAILY_CHECKS);
 }
 
 export async function saveCloudDailyChecks(uid: string, wallet: DailyHintWallet) {
-  if (!db || !isEditionDate(wallet.editionDate)) return;
-  const next = clipDailyWallet(wallet.editionDate, wallet.used, DAILY_CHECKS);
-  await setDoc(doc(db, 'users', uid, 'dailyChecks', next.editionDate), {
-    editionDate: next.editionDate,
+  if (!db || !isEditionKey(wallet.edition)) return;
+  const next = clipDailyWallet(wallet.edition, wallet.used, DAILY_CHECKS);
+  await setDoc(doc(db, 'users', uid, 'dailyChecks', String(next.edition)), {
+    edition: next.edition,
     used: next.used,
     remaining: next.remaining,
     updatedAt: serverTimestamp(),
@@ -457,29 +456,6 @@ export async function submitLeaderboardEntry(
   return { rank: board.findIndex((item) => item.id === uid) + 1 || null };
 }
 
-function dispatchTokenId(token: string) {
-  return token.replace(/\//g, '_').slice(0, 1500);
-}
-
-export async function saveDispatchToken(
-  uid: string,
-  token: string,
-  subscribed: boolean
-) {
-  if (!db || !uid || !token) return;
-  await setDoc(doc(db, 'dispatchTokens', dispatchTokenId(token)), {
-    uid,
-    token,
-    subscribed,
-    updatedAt: serverTimestamp(),
-  });
-}
-
-export async function clearDispatchToken(uid: string, token: string) {
-  if (!db || !uid || !token) return;
-  await deleteDoc(doc(db, 'dispatchTokens', dispatchTokenId(token)));
-}
-
 export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
   if (!db || !uid) return;
   const store = db;
@@ -490,8 +466,6 @@ export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
   await wipe('progress');
   await wipe('dailyHints');
   await wipe('dailyChecks');
-  const tokens = await getDocs(query(collection(store, 'dispatchTokens'), where('uid', '==', uid)));
-  await Promise.all(tokens.docs.map((item) => deleteDoc(item.ref)));
   await Promise.all(
     puzzleIds.map((puzzleId) =>
       Promise.all([

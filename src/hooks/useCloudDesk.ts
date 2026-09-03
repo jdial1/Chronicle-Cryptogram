@@ -154,14 +154,14 @@ export function useCloudDesk({
             : liveFlaggedIds(currentPuzzle, nextMappings, merged.flaggedSymbolIds, lockedSymbolIds),
           isSolved: knownSolved,
         };
-        const progressById = editionProgress(currentPuzzle.editionDate, allPuzzles);
-        const localWallet = reconcileDailyHints(currentPuzzle.editionDate, allPuzzles, progressById);
-        const cloudWallet = await store.loadCloudDailyHints(user.uid, currentPuzzle.editionDate);
-        const localChecks = reconcileDailyChecks(currentPuzzle.editionDate, allPuzzles, progressById);
-        const cloudChecks = await store.loadCloudDailyChecks(user.uid, currentPuzzle.editionDate);
+        const progressById = editionProgress(currentPuzzle.editionNumber, allPuzzles);
+        const localWallet = reconcileDailyHints(currentPuzzle.editionNumber, allPuzzles, progressById);
+        const cloudWallet = await store.loadCloudDailyHints(user.uid, currentPuzzle.editionNumber);
+        const localChecks = reconcileDailyChecks(currentPuzzle.editionNumber, allPuzzles, progressById);
+        const cloudChecks = await store.loadCloudDailyChecks(user.uid, currentPuzzle.editionNumber);
         if (cancelled) return;
-        const wallet = mergeDailyHints(localWallet, cloudWallet, currentPuzzle.editionDate);
-        const checkWallet = mergeDailyHints(localChecks, cloudChecks, currentPuzzle.editionDate, DAILY_CHECKS);
+        const wallet = mergeDailyHints(localWallet, cloudWallet, currentPuzzle.editionNumber);
+        const checkWallet = mergeDailyHints(localChecks, cloudChecks, currentPuzzle.editionNumber, DAILY_CHECKS);
         const stored = {
           ...next,
           hintsRemaining: wallet.remaining,

@@ -19,7 +19,6 @@ export interface CryptogramWord {
 
 export interface PuzzleData {
   id: string;
-  editionDate: string; // '2026-08-17'
   editionNumber: number;
   title: string;
   headline: string;
@@ -81,8 +80,6 @@ export type SymbolMapping = Record<string, string>;
 export interface GameStats {
   puzzlesPlayed: number;
   puzzlesSolved: number;
-  currentStreak: number;
-  maxStreak: number;
   fastestTime: number | null;
   totalTimePlayed: number;
   averageAccuracy: number;
@@ -90,7 +87,7 @@ export interface GameStats {
 }
 
 export interface DailyHintWallet {
-  editionDate: string;
+  edition: number;
   used: number;
   remaining: number;
 }

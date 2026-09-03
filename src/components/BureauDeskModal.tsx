@@ -19,17 +19,11 @@ interface BureauDeskModalProps {
   user?: User | null;
   night?: boolean;
   gameStats?: GameStats;
+  seasonLength?: number;
   authConfigured: boolean;
   authError?: string | null;
   onIssueCredentials: () => void;
   onSignOut?: () => void;
-  deliverySupported: boolean;
-  deliverySubscribed: boolean;
-  deliveryBlocked: boolean;
-  deliveryError?: string | null;
-  deliveryCopy: string;
-  onToggleDelivery: () => void;
-  onOpenSettings: () => void;
   darkPaper: boolean;
   onTogglePaper: () => void;
   gameKeyboard: boolean;
@@ -51,17 +45,11 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
   user,
   night = false,
   gameStats = DEFAULT_GAME_STATS,
+  seasonLength,
   authConfigured,
   authError,
   onIssueCredentials,
   onSignOut,
-  deliverySupported,
-  deliverySubscribed,
-  deliveryBlocked,
-  deliveryError,
-  deliveryCopy,
-  onToggleDelivery,
-  onOpenSettings,
   darkPaper,
   onTogglePaper,
   gameKeyboard,
@@ -92,11 +80,12 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
 
   const showFile = identified && user;
   const showCredentials = authConfigured && !showFile && pack.online;
-  const showDispatch = deliverySupported;
   const rows = [
-    { short: 'Decoded', label: 'Editions decoded', value: String(gameStats.puzzlesSolved) },
-    { short: 'Streak', label: 'Current streak', value: String(gameStats.currentStreak) },
-    { short: 'Longest', label: 'Longest streak', value: String(gameStats.maxStreak) },
+    {
+      short: 'Decoded',
+      label: 'Editions decoded',
+      value: seasonLength ? `${gameStats.puzzlesSolved} / ${seasonLength}` : String(gameStats.puzzlesSolved),
+    },
     { short: 'Quickest', label: 'Quickest solve', value: gameStats.fastestTime == null ? '—' : formatTime(gameStats.fastestTime) },
     { short: 'On desk', label: 'Time on desk', value: formatTime(gameStats.totalTimePlayed), wide: true },
   ];
@@ -301,7 +290,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                 Issue Detective Credentials
               </p>
               <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
-                Save investigation records, streak counts, and sync the case across devices.
+                Save investigation records and sync the case across devices.
               </p>
               <div className="mt-3">
                 <GoogleDeskButton onClick={onIssueCredentials} full identity />
@@ -309,51 +298,6 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
               {authError && (
                 <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                   {authError}
-                </p>
-              )}
-            </article>
-          )}
-
-          {showDispatch && (
-            <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
-              <div className="flex items-center gap-2">
-                <Send className="w-3.5 h-3.5 shrink-0" />
-                <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
-                  The Morning Dispatch
-                </p>
-              </div>
-              <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
-                {deliveryBlocked ? 'Notifications are off' : deliveryCopy}
-              </p>
-              {deliveryBlocked ? (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onOpenSettings();
-                  }}
-                  className={`mt-3 ${slipPress} ${slipFill}`}
-                >
-                  Open settings
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onToggleDelivery();
-                  }}
-                  aria-pressed={deliverySubscribed}
-                  className={`mt-3 ${slipPress} ${
-                    deliverySubscribed ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
-                  }`}
-                >
-                  {deliverySubscribed ? 'Unsubscribe' : 'Subscribe'}
-                </button>
-              )}
-              {deliveryError && (
-                <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
-                  {deliveryError}
                 </p>
               )}
             </article>

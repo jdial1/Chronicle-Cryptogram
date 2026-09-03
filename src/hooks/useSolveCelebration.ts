@@ -93,8 +93,6 @@ export function useSolveCelebration({
     const next: GameStats = {
       ...gameStats,
       puzzlesSolved: gameStats.puzzlesSolved + 1,
-      currentStreak: gameStats.currentStreak + 1,
-      maxStreak: Math.max(gameStats.maxStreak, gameStats.currentStreak + 1),
       fastestTime:
         gameStats.fastestTime === null ? elapsed : Math.min(gameStats.fastestTime, elapsed),
       totalTimePlayed: gameStats.totalTimePlayed + elapsed,

@@ -14,9 +14,10 @@ import { isHardPuzzle, isMorningEdition, isPrimerPuzzle, currentMorningPuzzle } 
 import { buildCipherAlphabet, parseCryptogramText } from '../utils/cipherEngine';
 
 export function getInitialPuzzle(): PuzzleData {
+  const solved = readSolvedPuzzleIds();
   const primer = INITIAL_PUZZLES.find((puzzle) => isPrimerPuzzle(puzzle) && isMorningEdition(puzzle));
-  if (primer && !readSolvedPuzzleIds().includes(primer.id)) return primer;
-  return currentMorningPuzzle(INITIAL_PUZZLES) || INITIAL_PUZZLES[0];
+  if (primer && !solved.includes(primer.id)) return primer;
+  return currentMorningPuzzle(INITIAL_PUZZLES, solved) || INITIAL_PUZZLES[0];
 }
 
 export function withHintedMappings(
@@ -84,12 +85,12 @@ export function puzzleWasSolved(puzzleId: string, progress: PuzzleProgress | nul
 }
 
 export function editionProgress(
-  editionDate: string,
-  puzzles: { id: string; editionDate: string }[]
+  edition: number,
+  puzzles: { id: string; editionNumber: number }[]
 ) {
   const out: Record<string, PuzzleProgress> = {};
   for (const puzzle of puzzles) {
-    if (puzzle.editionDate !== editionDate) continue;
+    if (puzzle.editionNumber !== edition) continue;
     const progress = readLocalProgress(puzzle.id);
     if (progress) out[puzzle.id] = progress;
   }
@@ -103,9 +104,9 @@ export function loadPuzzleState(puzzle: PuzzleData, puzzles: PuzzleData[] = INIT
   const lockedSymbolIds = clipHintedSymbolIds([...hintedSymbolIds, ...verifiedSymbolIds]);
   const hintsUsed = Math.max(progress?.hintsUsed || 0, hintedSymbolIds.length);
   const checksUsed = Math.max(progress?.checksUsed || 0, verifiedSymbolIds.length);
-  const progressById = editionProgress(puzzle.editionDate, puzzles);
-  const wallet = reconcileDailyHints(puzzle.editionDate, puzzles, progressById);
-  const checkWallet = reconcileDailyChecks(puzzle.editionDate, puzzles, progressById);
+  const progressById = editionProgress(puzzle.editionNumber, puzzles);
+  const wallet = reconcileDailyHints(puzzle.editionNumber, puzzles, progressById);
+  const checkWallet = reconcileDailyChecks(puzzle.editionNumber, puzzles, progressById);
   writeLocalDailyHints(wallet);
   writeLocalDailyChecks(checkWallet);
   const mappings = withHintedMappings(puzzle, progress?.mappings || {}, lockedSymbolIds);

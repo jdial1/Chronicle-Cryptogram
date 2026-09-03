@@ -283,7 +283,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               title={
                 !checkReady || checksRemaining <= 0
                   ? deskNote
-                  : 'Check the highlighted letter. Three per day.'
+                  : 'Check the highlighted letter. Three per edition.'
               }
               disabled={checksRemaining <= 0 || !checkReady}
               onPointerDown={armKey}
@@ -320,7 +320,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
                       ? selectedSymbolId
                         ? 'That letter is already solved.'
                         : 'Select a mark first'
-                      : 'Reveal the highlighted letter. Three per day.'
+                      : 'Reveal the highlighted letter. Three per edition.'
               }
               disabled={hintsRemaining <= 0 || !hintReady}
               onPointerDown={armKey}
