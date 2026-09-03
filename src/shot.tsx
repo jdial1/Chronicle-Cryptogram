@@ -1,15 +1,35 @@
 import { StrictMode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { CaseFileModal } from './components/CaseFileModal';
 import { CryptogramGrid } from './components/CryptogramGrid';
 import { GlyphTally } from './components/PrimerCoach';
+import { TodayStatsBulletin } from './components/TodayStatsBulletin';
+import { INITIAL_PUZZLES } from './data/puzzles';
 import { WoodcutPressFilter } from './deskIcons';
 import { SymbolMapping } from './types';
+import { isMorningEdition } from './utils/edition';
 import { buildCipherAlphabet, calculateSymbolFrequencies, parseCryptogramText } from './utils/cipherEngine';
 import './index.css';
 
 const TITLE = 'CHRONICLE CRYPTOGRAM';
 const MID_SOLVE = 'CROEA';
 const SILHOUETTE = 'GiSecretBook';
+
+/** Store-listing scenes. 'board' also covers the Night Extra, via the homophones toggle. */
+type Scene = 'board' | 'caseFile' | 'bulletin';
+
+/**
+ * Real puzzles and a real solve history, so the case file assembles genuine fragments
+ * rather than lorem. Six editions in is far enough for several characters to have
+ * something on file.
+ */
+const SHOT_SOLVED_IDS = INITIAL_PUZZLES.filter((puzzle) => puzzle.editionNumber <= 6).map(
+  (puzzle) => puzzle.id
+);
+
+const SHOT_PUZZLE =
+  INITIAL_PUZZLES.find((puzzle) => puzzle.editionNumber === 6 && isMorningEdition(puzzle)) ??
+  INITIAL_PUZZLES[0];
 
 function firstSymbolId(words: ReturnType<typeof parseCryptogramText>) {
   for (const word of words) {
@@ -46,6 +66,7 @@ function mappingsForLetters(
 }
 
 function ShotPage() {
+  const [scene, setScene] = useState<Scene>('board');
   const [text, setText] = useState(TITLE);
   const [reveal, setReveal] = useState('');
   const [homophonic, setHomophonic] = useState(false);
@@ -164,14 +185,57 @@ function ShotPage() {
           night={night}
         />
       </div>
+
+      {/* Overlay scenes render above the board, which is what they look like in play. */}
+      <CaseFileModal
+        isOpen={scene === 'caseFile'}
+        onClose={() => setScene('board')}
+        puzzles={INITIAL_PUZZLES}
+        solvedPuzzleIds={SHOT_SOLVED_IDS}
+      />
+      <TodayStatsBulletin
+        isOpen={scene === 'bulletin'}
+        onClose={() => setScene('board')}
+        currentPuzzle={SHOT_PUZZLE}
+        timerSeconds={247}
+        onUnlockHardMode={() => undefined}
+        seasonLength={30}
+      />
+
       {dock ? (
         <form
-          className="fixed bottom-3 left-1/2 z-30 w-[min(42rem,calc(100%-1.5rem))] -translate-x-1/2 border-2 border-stone-800 bg-[var(--paper-masthead)] p-3 shadow-md"
+          // Above the modal backdrop (z-50/z-55), or opening a scene would trap the
+          // operator with no way to switch back. Escape also toggles the dock away
+          // for the actual capture.
+          className="fixed bottom-3 left-1/2 z-[80] w-[min(42rem,calc(100%-1.5rem))] -translate-x-1/2 border-2 border-stone-800 bg-[var(--paper-masthead)] p-3 shadow-md"
           onSubmit={(e) => {
             e.preventDefault();
             applyReveal(reveal, false);
           }}
         >
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {(
+              [
+                ['board', 'Board'],
+                ['caseFile', 'Case file'],
+                ['bulletin', 'Solve bulletin'],
+              ] as [Scene, string][]
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setScene(value)}
+                aria-pressed={scene === value}
+                className={`cursor-pointer border px-2 py-1 font-mono-code text-xs font-bold uppercase ${
+                  scene === value
+                    ? 'border-stone-950 bg-[var(--selected)]'
+                    : 'border-stone-700 bg-[#faf6ed]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <label className="block font-mono-code text-xs font-bold uppercase tracking-widest text-stone-600">
             Puzzle text
             <input

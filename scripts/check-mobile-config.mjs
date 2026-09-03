@@ -36,6 +36,22 @@ for (const entry of app.plugins ?? []) {
 const services = app.android?.googleServicesFile;
 if (services && !existsSync(join(mobile, services))) {
   problems.push(`android.googleServicesFile not found: ${services}`);
+} else if (services) {
+  // app.config.js overwrites this file from GOOGLE_SERVICES_CLIENT_JSON whenever that
+  // env var is set, so a wrong or stale secret silently produces a build pointed at
+  // another Firebase project. Every other check would still pass.
+  const pkg = app.android?.package;
+  try {
+    const google = readJson(join(mobile, services));
+    const clients = (google.client ?? []).map((c) => c.client_info?.android_client_info?.package_name);
+    if (!clients.includes(pkg)) {
+      problems.push(
+        `${services} has no Android client for "${pkg}" (found: ${clients.join(', ') || 'none'})`
+      );
+    }
+  } catch (err) {
+    problems.push(`${services} is not readable JSON: ${err.message}`);
+  }
 }
 
 if (problems.length) {

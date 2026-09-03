@@ -9,7 +9,7 @@ Chronicle Cryptogram is a 1920s-newspaper cryptogram game: a React 19 + Vite PWA
 **Three findings drive the shape of the plan:**
 
 1. **Content cliff.** `src/data/puzzles.json` holds 61 puzzles (30 editions × Morning + Night) hard-dated `2026-08-16` → `2026-09-15`, gated by real wall-clock date. Today is 2026-09-03. After Sept 15 `currentMorningPuzzle()` returns `undefined`. There is no authoring pipeline and content is bundled in the binary, so every future edition would require a store release. **Decision taken: reframe 1.0 as a finite 30-edition season/campaign** — unlock by progression, not by calendar. Season 2 ships later.
-2. **Store submission blockers.** Only 2 phone screenshots (Play requires 4), IARC content rating not filed, and Play App Signing SHA-1/256 not yet registered in Firebase — the last of which silently breaks native Google Sign-In on Play-signed builds only.
+2. **Store submission blockers.** Only 2 phone screenshots (Play requires 4) and the IARC content rating not filed. *(The Play App Signing SHA — which would have broken native Google Sign-In on Play-signed builds only — has since been registered on the Google Sign-In auth keys. See Phase 3.)*
 3. **No safety net.** No CI runs `npm test` or `npm run lint` despite both existing. No crash reporting anywhere — production failures go to `console.error` and vanish.
 
 Competitive scan (below) says the differentiator to protect is that this game has **no ads, no coin economy, no subscription** — which is precisely what every negative review in the category is about.
@@ -331,12 +331,28 @@ Note: the full description is **duplicated verbatim** in `listing.json` and `ful
 
 ## Phase 3 — Android build & submission mechanics
 
-- **Register Play App Signing SHA-1/SHA-256 in Firebase** after the first AAB upload. `mobile/store/listing.json` flags this itself (`afterFirstEasBuild`). Play re-signs with a different certificate than the upload key, so **native Google Sign-In works in `preview`/`test` APKs and fails only on Play-signed builds** — the worst possible failure mode to discover in production.
-- **Two more phone screenshots** (Play minimum is 4; only `phone-grid.jpg` and `phone-bulletin.jpg` exist, both 1080×1920). `src/shot.tsx` + `shot.html` is already a purpose-built harness that renders a fake mid-solve board and is excluded from the SW precache. **Extend it with the missing scenes** — case file, Night Extra, solve bulletin — then capture and upload manually. Tablet screenshots are optional, but the app declares itself tablet-capable (`resizeableActivity="true"`), so the listing will show "not optimized for tablets" without them.
+- ~~**Register Play App Signing SHA-1/SHA-256 in Firebase.**~~ **Done** — the Play App Signing SHA is on the Google Sign-In auth keys. This was the item that would have let native sign-in work in `preview`/`test` APKs and fail only on Play-signed builds.
+
+  **One loose end, and it is hygiene rather than a blocker.** The committed `mobile/google-services.json` still carries a single certificate hash (`505ec34b…`) per Android client, so it predates the change; a regenerated file would list two `oauth_client` type-1 entries for `com.chroniclecryptogram`. That file is what ships — `.github/workflows/eas-android.yml` sets no `GOOGLE_SERVICES_CLIENT_JSON`, though `mobile/app.config.js` supports injecting one.
+
+  It is very likely inert for sign-in: `mobile/App.tsx:233` calls `GoogleOneTapSignIn.configure({ webClientId: GOOGLE_WEB_CLIENT_ID })` with the id hard-coded in `app.config.js`, so the library never reads the `oauth_client` array, and certificate validation happens server-side against the Cloud project — which is exactly what was just updated. `google-services.json` is still consumed by `@react-native-firebase/app` for project id, API key and app id, none of which involve cert hashes.
+
+  Refresh it when convenient for accuracy, but **the only real proof is still the check below**: install a Play-signed internal-track build on a real device and sign in with Google.
+
+- **Add a `google-services.json` sanity check** to `scripts/check-mobile-config.mjs`, which already asserts the file exists. Extend it to assert the file contains an Android client matching `expo.android.package`. Roughly ten lines. This is worth having because `app.config.js` will overwrite the file from `GOOGLE_SERVICES_CLIENT_JSON` whenever that env var is set, so a wrong or stale secret silently produces a build pointed at the wrong Firebase project — and every existing check would still pass.
+- **Two more phone screenshots** (Play minimum is 4; only `phone-grid.jpg` and `phone-bulletin.jpg` exist, both 1080×1920). Agreed split: I extend the harness, you capture and upload.
+
+  `src/shot.tsx` today renders only the cipher board, with toggles for text, revealed letters, phone frame, glyph tally, dock and solved state. **Night Extra is already covered** by its existing `homophonic` toggle — that is one of the two missing shots for free. What it cannot render is the **case file** and the **solve bulletin**.
+
+  Both are cheap to add because they need no fake data: `CaseFileModal` takes `puzzles` + `solvedPuzzleIds`, so passing `INITIAL_PUZZLES` with editions 1–6 marked solved assembles real fragments; `TodayStatsBulletin` takes a `currentPuzzle`, a `timerSeconds` and some optional flags. Add a scene selector (board / case file / solve bulletin) alongside the existing toggles. Roughly 60–80 lines, no new dependencies.
+
+  Note the harness is excluded from both the SW precache and the bundled Android build, so this adds nothing to either shipped artifact.
+
+  Tablet screenshots stay optional, but the app declares itself tablet-capable (`resizeableActivity="true"`), so the listing will show "not optimized for tablets" without them.
 - **File the IARC questionnaire** (see UGC note above).
 - **Pin `targetSdkVersion`** via `expo-build-properties`. Nothing pins it today; the build inherits the Expo SDK 57 default. Pinning makes Play's target-API deadlines a deliberate decision rather than a side effect of an SDK bump.
 - **Review `mobile/plugins/with-android-edge-to-edge.js`.** It patches React Native's `WindowUtil.kt` in place with exact-string `replaceOnce` and *throws* on mismatch, and forces a from-source RN build (slow, fragile across RN upgrades). It works today. Before 1.0, confirm whether Expo SDK 57 / RN 0.86 still needs it, or whether `react-native-edge-to-edge` / the built-in Expo edge-to-edge support now covers it — this is the highest-value `delete:` in the repo if it can go.
-- Clean up the duplicate `com.chroniclecryptogram.app` Android client in `google-services.json` (it is the iOS bundle id registered as an Android app, sharing the same cert hash — harmless, confusing).
+- Clean up the duplicate `com.chroniclecryptogram.app` Android client in `google-services.json`. It is the iOS bundle id registered as an Android app in Firebase, sharing the same cert hash. Harmless — `app.json`'s `android.package` is `com.chroniclecryptogram` and that client is present and correct — but it means a stray OAuth client exists for a package that will never ship as Android. Worth deleting in the Firebase console next time the file is regenerated.
 - Note: `scripts/ensure-emulator.mjs` and `scripts/project-paths.mjs` hardcode Windows SDK paths (`C:\Users\justin.dial\...`). The Android smoke suite is developer-machine-only and will never run in CI. Acceptable for 1.0; just know the smoke test is manual.
 
 ---
