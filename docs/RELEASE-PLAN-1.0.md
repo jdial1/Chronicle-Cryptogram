@@ -55,6 +55,70 @@ Neither is a reason to reverse the decision; both are reasons to sequence it del
 
 ---
 
+## Current batch — the remaining device-independent work
+
+Everything below is verifiable in this session. The two items that need an Android build are called out separately at the end.
+
+### 1. The leaderboard claims verification it does not have
+
+`src/components/LeaderboardModal.tsx` tells the player, on submit:
+
+> **"Verified!** You are officially ranked #N on the global board!"
+
+and in the footer:
+
+> "Official Timings Certified by Bureau of Cryptanalysis"
+
+Neither is true. `recordPuzzleSolve` / `submitLeaderboardEntry` write `timeSeconds`, `accuracy` and `hintsUsed` straight from the client, and the only defence is a rules-level range check (`inRange(data.timeSeconds, 5, 86400)`). Any anonymous player can post a five-second solve.
+
+This is worse than the "frame it honestly" note in Phase 2 below: it is not a missing caveat, it is an affirmative false claim, in a paid app, about the integrity of a competitive feature. The in-fiction framing ("Bureau of Cryptanalysis") makes it read as flavour, but "Verified" and "Certified" are the two words a player would reasonably rely on.
+
+Fix is copy only — keep the period voice, drop the claim. "Posted" rather than "Verified"; a footer that describes what the board actually is (times as filed by solvers) rather than certifying them. No behaviour change, no schema change.
+
+### 2. Cut `server.ts`, Express, `tsx` and `esbuild`
+
+The biggest structural deletion in the audit, and it turns out to be cleaner than it looked. Production deploys to GitHub Pages, so the Express server is never exercised. Verified:
+
+- **Its one unique behaviour is already duplicated.** The `/splash`, `/splash.html`, `/splashdev`, `/splashdev.html` → `index.html` rewrite exists in `editionVersionPlugin`'s `configureServer` in `vite.config.ts`. `npm run dev` can become plain `vite` and lose nothing.
+- **`/api/health` is dead** — nothing in `src`, `mobile` or `scripts` calls it.
+- **The security headers never ship.** `X-Frame-Options`, `Referrer-Policy` and the `frame-ancestors` CSP apply only to `npm start`, and the file's own comment says Pages cannot set them. Production has never had them.
+- **`tsx` and `esbuild` exist solely for this file** — `tsx server.ts` and the `esbuild server.ts --bundle` half of `npm run build`.
+
+So: delete `server.ts`; `dev` becomes `vite`; `build` loses its esbuild half; `start` goes (or becomes `vite preview`); `lint` stops linting a file that no longer exists; drop `express`, `@types/express`, `tsx`, `esbuild`. The `server.cjs` exclusions in `scripts/stage-web-assets.mjs` become vestigial — harmless, but worth a comment saying why they stay.
+
+Roughly **−70 lines, −4 dependencies, and one build step**.
+
+### 3. Pin `targetSdkVersion` — **dropped, reversing an earlier plan item**
+
+Nothing pins it today, and that is the safer state until the real default is known.
+
+Pinning requires knowing what Expo SDK 57 actually resolves to, and that is not determinable in this session: `mobile/node_modules` is not installed, there is no prebuilt `android/` to read `build.gradle` from, and there is no Android SDK. Expo's own `expo-build-properties` docs example shows `36`, but SDK 54 already targeted 36, so 57 may well be higher.
+
+Guessing is worse than leaving it alone. Expo's default is curated to satisfy Play's target-API minimum, so a pin set too low either falls below that minimum or silently changes runtime behaviour — and `targetSdk` 35 → 36 is precisely what changed edge-to-edge enforcement, the one area this app has a fragile plugin for.
+
+Two minutes of work once someone has the toolchain:
+
+```
+cd mobile && npx expo prebuild --platform android --no-install
+grep -n "targetSdkVersion\|compileSdkVersion" android/app/build.gradle android/build.gradle
+```
+
+Then pin those exact values via `expo-build-properties` if the reproducibility is wanted.
+
+### Needs your Android build to verify
+
+**Delete `mobile/plugins/with-android-edge-to-edge.js` entirely.** The plan has called this "the highest-value `delete:` in the repo if it can go", and the evidence now says it can:
+
+From Expo SDK 54 / RN 0.81 onward, edge-to-edge is enabled by default and **cannot be disabled** on Android 16 targets; the `edgeToEdgeEnabled` app config property has no effect there; and `react-native-edge-to-edge` was dropped as an Expo dependency **because the functionality moved into React Native itself**. This project is on Expo **57** / RN **0.86** — two SDKs past that line.
+
+The plugin's `edgeToEdgeEnabled=true` gradle property is therefore redundant, and its `WindowUtil.kt` patch guards deprecated `statusBarColor`/`navigationBarColor` setters that RN now handles. Critically, the from-source RN build (`includeBuild(expoAutolinking.reactNative)` with `dependencySubstitution`) exists **only** to make that patch take effect — so removing the patch removes a slow, fragile from-source build and the seven exact-string `replaceOnce` anchors that throw on any RN upgrade.
+
+Two of its behaviours may still be doing real work and should be checked before assuming the whole file goes: `LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS`, and forcing `com.google.android.material:material:1.14.0`. If either is still needed, they are a few lines in a much smaller plugin.
+
+I cannot verify any of this — there is no Android toolchain in this session. The check is: delete it, build, and confirm the board still renders under the status and navigation bars with correct insets on an Android 15/16 device.
+
+---
+
 ## Phase 0 — Stop the bleeding (prereq for everything)
 
 No user-visible change. This is the safety net every later phase leans on.
@@ -299,7 +363,7 @@ There is also a **stat-inflation loop**: `starts`/`solves` receipts allow `delet
 
 Recommended (ponytail: the laziest defensible fix, no server added):
 - Make `starts`/`solves` receipts **non-deletable** (`allow delete: if false`) in `firestore.rules`. This closes the inflation loop with a one-line change; the account-deletion path in `firebaseStore.ts:483` needs a matching carve-out or the receipts get left behind by design (acceptable — they carry no PII).
-- Leave client-asserted times as-is for 1.0 and **frame the leaderboard honestly in the UI** ("posted times", not "verified"). A server-authoritative timer is a real project and does not belong in 1.0 for a game with no monetary stake.
+- Leave client-asserted times as-is for 1.0 and **frame the leaderboard honestly in the UI**. This turned out to be more than a missing caveat — the UI actively says "Verified!" and "Official Timings Certified by Bureau of Cryptanalysis". See item 1 of the current batch above. A server-authoritative timer is a real project and does not belong in 1.0 for a game with no monetary stake.
 
 ### Account deletion (Play blocker)
 `BureauDeskModal.tsx` → `App.tsx:1169` → `firebaseStore.ts:483` deletes all Firestore documents, then signs out — but **never calls `deleteUser()`**, so the Firebase Auth account survives. Play's requirement is deletion of the *account*, not just the data. Two gaps:
@@ -401,6 +465,7 @@ Ranked, biggest cut first. All are safe, independent, and can land in Phase 0:
 
 ## Verification
 
+- **Current batch:** lint, `npm test` (53) and `npm run check:mobile` stay green, and all three build variants (normal, `VITE_MAX_EDITION=3`, `VITE_BUNDLED=1`) still build. After the `server.ts` cut, confirm `npm run dev` serves the app **and still rewrites `/splash` to it** — that rewrite is the one behaviour being inherited from `vite.config.ts` rather than deleted, so it is the thing most likely to break silently. Drive the leaderboard in a browser and confirm no "Verified"/"Certified" copy survives.
 - **Phase 0:** PR triggers the new lint/test job; deliberately break a test and confirm CI goes red. `npm run firebase:configure` runs without `ERR_MODULE_NOT_FOUND`. Confirm a thrown error reaches the crash reporter dashboard.
 - **Phase 1:** `npm test` — new `edition.test.ts` cases for progression gating. Manual: clear all storage, confirm a fresh player lands on edition 1 regardless of system date; set the device clock to 2027 and confirm nothing breaks (this is the regression the whole phase exists to prevent).
 - **Phase 2a:** build the demo with `VITE_MAX_EDITION=3` and confirm editions 4–30 are locked in the archive **and absent from the bundle** — grep the built assets for an edition-7 quote string; a hit means the content strip didn't work and only the gate did.

@@ -327,8 +327,10 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           <div className="p-3 bg-emerald-100 border-b border-emerald-300 text-emerald-900 text-xs font-mono-code flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-emerald-700" />
+              {/* Times are filed by the solver, not measured by the bureau — see the
+                  footer note. "Verified" and "certified" would be claims we cannot make. */}
               <span>
-                Verified! You are officially ranked <strong>#{submissionRank}</strong> on the global board!
+                Filed. Your time stands at <strong>#{submissionRank}</strong> on the board.
               </span>
             </div>
           </div>
@@ -461,7 +463,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
         {/* Footer */}
         <DeskActionDock>
-          <span>Official Timings Certified by Bureau of Cryptanalysis</span>
+          <span>Times as filed by solvers. The bureau prints them; it does not clock them.</span>
           <button
             type="button"
             onClick={onClose}

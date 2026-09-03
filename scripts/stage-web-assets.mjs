@@ -18,10 +18,8 @@ import { mobileDir, root } from './project-paths.mjs';
 
 export const STAGE_DIR = join(mobileDir, 'web-assets');
 
-/** Never belongs in an APK: the Express bundle, the screenshot harness, dev previews. */
+/** Never belongs in an APK: the screenshot harness, dev previews, the service worker. */
 const EXCLUDED = new Set([
-  'server.cjs',
-  'server.cjs.map',
   'shot.html',
   'splash.html',
   'splashdev.html',

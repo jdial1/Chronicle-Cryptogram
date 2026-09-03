@@ -281,6 +281,11 @@ export default defineConfig(() => {
       },
     },
     server: {
+      // Was the Express dev server's port before it was removed. firebase.json
+      // authorizes localhost:3000 for Google Sign-In redirects, so keeping it means
+      // local sign-in testing works without touching the Firebase config.
+      port: 3000,
+      strictPort: true,
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
