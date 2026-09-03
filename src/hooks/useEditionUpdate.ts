@@ -5,6 +5,13 @@ import { logDesk } from '../utils/deskError';
 
 const POLL_MS = 5 * 60 * 1000;
 
+/**
+ * The bundled Android build emits no version.json and updates through Play, so the
+ * poll can only ever fail -- on a 1.2s timer, every five minutes, and on every focus
+ * and visibility change. Short-circuit the whole hook there.
+ */
+const IS_BUNDLED = import.meta.env.VITE_BUNDLED === '1';
+
 function pressVersionUrl() {
   const url = new URL('version.json', window.location.href);
   url.searchParams.set('t', String(Date.now()));
@@ -38,6 +45,7 @@ export function useEditionUpdate() {
   const [preview, setPreview] = useState(false);
 
   useEffect(() => {
+    if (IS_BUNDLED) return;
     let timer = 0;
     let cancelled = false;
 
@@ -68,6 +76,7 @@ export function useEditionUpdate() {
   }, []);
 
   useEffect(() => {
+    if (IS_BUNDLED) return; // the preview hotkey would show a banner that cannot be acted on
     const onKey = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || !event.shiftKey) return;
       if (event.key !== 'U' && event.key !== 'u') return;

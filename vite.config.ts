@@ -66,6 +66,53 @@ function demoContentPlugin(): Plugin | null {
   };
 }
 
+/** True when building the copy that ships inside the Android app rather than to Pages. */
+const isBundledBuild = process.env.VITE_BUNDLED === '1';
+
+/**
+ * The bundled build is served by WebViewAssetLoader from a synthetic origin, so the
+ * Pages origin in the CSP is dead weight and the Google Identity Services entries are
+ * unreachable -- the shell does sign-in natively and never loads the GIS script.
+ * Narrowing it here keeps one index.html as the single source of truth.
+ */
+function bundledBuildPlugin(): Plugin | null {
+  if (!isBundledBuild) return null;
+  const csp = [
+    "default-src 'self' https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
+    // Google profile photos on the agent plate are remote.
+    "img-src 'self' data: https:",
+    "connect-src 'self' https:",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+  ].join('; ') + ';';
+
+  const PWA_STUB = 'virtual:pwa-register';
+  return {
+    name: 'bundled-build',
+    // main.tsx guards the call, but Rollup still resolves the import inside the dead
+    // branch, and VitePWA -- which normally supplies this module -- is not loaded here.
+    resolveId(id) {
+      return id === PWA_STUB ? `\0${PWA_STUB}` : null;
+    },
+    load(id) {
+      return id === `\0${PWA_STUB}` ? 'export function registerSW() {}' : null;
+    },
+    transformIndexHtml(html, ctx) {
+      // shot.html is a screenshot harness and carries no CSP; only the app entry does.
+      if (!ctx.path.endsWith('index.html')) return html;
+      const pattern = /(<meta http-equiv="Content-Security-Policy" content=")[^"]*(")/;
+      if (!pattern.test(html)) {
+        throw new Error('bundled build: could not find the CSP meta tag in index.html');
+      }
+      return html.replace(pattern, `$1${csp}$2`);
+    },
+  };
+}
+
 function editionVersionPlugin(): Plugin {
   const payload = JSON.stringify({ version: APP_VERSION });
   return {
@@ -93,6 +140,9 @@ function editionVersionPlugin(): Plugin {
       });
     },
     generateBundle() {
+      // A bundled build's version is fixed at install time and updates arrive via
+      // Play, so there is nothing for useEditionUpdate to poll.
+      if (isBundledBuild) return;
       this.emitFile({
         type: 'asset',
         fileName: 'version.json',
@@ -100,6 +150,7 @@ function editionVersionPlugin(): Plugin {
       });
     },
     writeBundle(options) {
+      if (isBundledBuild) return; // path-based splash previews need a server
       const dir = options.dir || path.resolve(__dirname, 'dist');
       const index = path.join(dir, 'index.html');
       if (!existsSync(index)) return;
@@ -114,9 +165,14 @@ export default defineConfig(() => {
     base: './', // Use relative paths for GitHub Pages hosting
     plugins: [
       demoContentPlugin(),
+      bundledBuildPlugin(),
       react(),
       tailwindcss(),
       editionVersionPlugin(),
+      // No service worker in the bundled build: the assets are already on disk, and a
+      // registered worker would try real DNS for the asset-loader origin, since
+      // ServiceWorkerController is a separate interception point from the WebView's.
+      !isBundledBuild &&
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: false,
@@ -210,7 +266,9 @@ export default defineConfig(() => {
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html'),
-          shot: path.resolve(__dirname, 'shot.html'),
+          // shot.html is the store-screenshot harness; excluding the entry outright
+          // beats shipping its orphaned chunk into the APK.
+          ...(isBundledBuild ? {} : { shot: path.resolve(__dirname, 'shot.html') }),
         },
         output: {
           manualChunks: (id) => (id.includes('@sentry') ? 'crash-reporter' : undefined),

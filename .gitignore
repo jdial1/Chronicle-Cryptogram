@@ -13,3 +13,7 @@ coverage/
 google-services.json
 !mobile/google-services.json
 mobile/.ship/
+
+# Staged web bundle for the Android build (see scripts/stage-web-assets.mjs).
+# Build output: git-ignored, but deliberately NOT in mobile/.easignore.
+mobile/web-assets/

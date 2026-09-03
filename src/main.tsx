@@ -12,6 +12,9 @@ document.title = 'Chronicle Cryptogram';
 
 if (!splashPreviewMode()) {
   function registerPressWorker() {
+    // The bundled Android build ships its assets on disk and has no service worker
+    // (see bundledBuildPlugin in vite.config.ts).
+    if (import.meta.env.VITE_BUNDLED === '1') return;
     void import('virtual:pwa-register').then(({ registerSW }) => {
       registerSW();
     });

@@ -33,6 +33,8 @@ interface BureauDeskModalProps {
   onDeleteRecords?: () => Promise<void>;
 }
 
+const IS_BUNDLED = import.meta.env.VITE_BUNDLED === '1';
+
 const slipPress =
   'w-full min-h-12 px-3 py-1.5 border-2 font-typewriter font-bold text-xs uppercase tracking-wider cursor-pointer';
 const slipFill =
@@ -153,7 +155,9 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
     >
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-newsprint space-y-3">
           <p className="font-treatise italic text-sm text-stone-700">
-            Press pass, morning wire, and a packed copy for the field. Keep the file intact across desks.
+            {IS_BUNDLED
+              ? 'Press pass and morning wire. Keep the file intact across desks.'
+              : 'Press pass, morning wire, and a packed copy for the field. Keep the file intact across desks.'}
           </p>
           <button
             type="button"
@@ -173,43 +177,50 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
           >
             {gameKeyboard ? 'Native keyboard' : 'Typewriter keys'}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              void pack.download();
-            }}
-            disabled={pack.status === 'packing' || pack.status === 'unsupported'}
-            aria-pressed={pack.status === 'packed'}
-            aria-label="Keep a full copy of the press"
-            className={`${slipPress} ${
-              pack.status === 'packed' ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
-            } disabled:opacity-50`}
-          >
-            {pack.status === 'packing'
-              ? 'Setting the type…'
-              : pack.status === 'packed'
-                ? 'Press packed'
+          {/* Assets ship on disk in the bundled Android build, so packing a field
+              copy is a no-op there -- and without a service worker the control would
+              render permanently disabled. */}
+          {!IS_BUNDLED && (
+            <>
+            <button
+              type="button"
+              onClick={() => {
+                void pack.download();
+              }}
+              disabled={pack.status === 'packing' || pack.status === 'unsupported'}
+              aria-pressed={pack.status === 'packed'}
+              aria-label="Keep a full copy of the press"
+              className={`${slipPress} ${
+                pack.status === 'packed' ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
+              } disabled:opacity-50`}
+            >
+              {pack.status === 'packing'
+                ? 'Setting the type…'
+                : pack.status === 'packed'
+                  ? 'Press packed'
+                  : pack.status === 'stale'
+                    ? 'Refresh the packed press'
+                    : pack.status === 'unsupported'
+                      ? 'Press copy unavailable'
+                      : 'Keep a full copy of the press'}
+            </button>
+            <p className="font-newspaper text-xs text-stone-600 leading-relaxed">
+              {pack.status === 'packed' && pack.record
+                ? `Field copy ready. Packed ${formatPackedAt(pack.record.packedAt)}${
+                    pack.bytes != null ? ` · ${formatPackBytes(pack.bytes)} on this desk` : ''
+                  }. Edition ${pack.record.version}. Offline play uses this copy; the bureau board still needs the wire.`
                 : pack.status === 'stale'
-                  ? 'Refresh the packed press'
+                  ? 'A newer press is on the stands. Pack again to take it into the field.'
                   : pack.status === 'unsupported'
-                    ? 'Press copy unavailable'
-                    : 'Keep a full copy of the press'}
-          </button>
-          <p className="font-newspaper text-xs text-stone-600 leading-relaxed">
-            {pack.status === 'packed' && pack.record
-              ? `Field copy ready. Packed ${formatPackedAt(pack.record.packedAt)}${
-                  pack.bytes != null ? ` · ${formatPackBytes(pack.bytes)} on this desk` : ''
-                }. Edition ${pack.record.version}. Offline play uses this copy; the bureau board still needs the wire.`
-              : pack.status === 'stale'
-                ? 'A newer press is on the stands. Pack again to take it into the field.'
-                : pack.status === 'unsupported'
-                  ? 'This desk cannot store a press copy.'
-                  : 'Offline field copy. Save type, plates, and the serial on this desk so Morning and Night Extra still open with the wire down. Sign-in and the bureau board stay on the network.'}
-          </p>
-          {pack.error && (
-            <p className="font-typewriter text-[13px] uppercase tracking-widest text-red-800">
-              {pack.error}
+                    ? 'This desk cannot store a press copy.'
+                    : 'Offline field copy. Save type, plates, and the serial on this desk so Morning and Night Extra still open with the wire down. Sign-in and the bureau board stay on the network.'}
             </p>
+            {pack.error && (
+              <p className="font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+                {pack.error}
+              </p>
+            )}
+            </>
           )}
           {todayClue ? (
             <>

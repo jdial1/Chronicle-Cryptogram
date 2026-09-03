@@ -4,6 +4,13 @@ import { PuzzleData } from '../types';
 import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 import { DeskModal } from './DeskModal';
 
+/**
+ * Where a shared score should send a reader. Deliberately not window.location.href:
+ * in the bundled Android build that is the WebViewAssetLoader path, and even on the
+ * web it carries the ?source=android query the shell appends.
+ */
+const SHARE_URL = 'https://jdial1.github.io/Chronicle-Cryptogram/';
+
 interface NewspaperClippingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,7 +41,7 @@ export const NewspaperClippingModal: React.FC<NewspaperClippingModalProps> = ({
 ⏱️ Time: ${timeFormatted}
 🎯 Accuracy: ${accuracy}%
 💡 Hints Used: ${hintsUsed}
-Play Chronicle Cryptogram: ${window.location.href}`;
+Play Chronicle Cryptogram: ${SHARE_URL}`;
 
   const share = async () => {
     const title = 'Chronicle Cryptogram';

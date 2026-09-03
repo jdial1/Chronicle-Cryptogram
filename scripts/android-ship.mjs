@@ -5,9 +5,11 @@
  *   node scripts/android-ship.mjs
  *   node scripts/android-ship.mjs --test-only
  *   node scripts/android-ship.mjs --yes
+ *   node scripts/android-ship.mjs --skip-stage   (reuse the staged web bundle)
  *
  * Always run against mobile/ (src/ is the web app).
  *
+ * 0. Build the web app and stage it into mobile/web-assets for the APK
  * 1. npx eas-cli build --platform android --profile test
  * 2. Wait for you to type yes (skip with --yes)
  * 3. npx eas-cli build --platform android --profile production
@@ -22,6 +24,7 @@ import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { pipeline } from "node:stream/promises";
 import { mobileDir, resolveMaestroBin, root } from "./project-paths.mjs";
+import { assertStaged, stageWebAssets } from "./stage-web-assets.mjs";
 
 const mobile = mobileDir;
 const shipApk = path.join(mobile, ".ship", "test.apk");
@@ -120,6 +123,17 @@ function runSmoke() {
 
 console.log("Repo:   ", root);
 console.log("Mobile: ", mobile);
+
+// Staged once, here. The production build below reuses this exact tree: there is an
+// interactive gate between the two, and re-staging there would ship assets that never
+// went through the smoke test.
+if (flags.has("--skip-stage")) {
+  assertStaged();
+  console.log("Reusing the already-staged web bundle.");
+} else {
+  step("Build and stage the web bundle");
+  stageWebAssets();
+}
 
 step("EAS test build (APK)");
 const testOut = easCapture([
