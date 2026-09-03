@@ -47,6 +47,9 @@ function isSymbolSolved(words: CryptogramWord[], mappings: SymbolMapping, symbol
   return false;
 }
 
+/** Per-cell typewriter wobble, keyed to the letter it was generated for. */
+type TypewriterJitter = { letter: string; rotate: string; y: string };
+
 function typewriterJitter() {
   return {
     rotate: `${(Math.random() * 6 - 3).toFixed(2)}deg`,
@@ -79,7 +82,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
 }) => {
   const { zoom, zoomOut, zoomIn, canZoomOut, canZoomIn } = useZoom(ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, ZOOM_DEFAULT);
   const [showTally, setShowTally] = useState(false);
-  const jitterRef = useRef<Record<string, { letter: string; rotate: string; y: string }>>({});
+  const jitterRef = useRef<Record<string, TypewriterJitter>>({});
   const skipJitter =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -125,7 +128,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
           const mappedLetter = mappings[item.symbolId] || '';
           const isError = !isSolved && flaggedSymbolIds.includes(item.symbolId) && mappedLetter && mappedLetter !== item.targetLetter;
           const cellKey = `${word.id}_${charIdx}`;
-          let jitter = jitterRef.current[cellKey];
+          let jitter: TypewriterJitter | undefined = jitterRef.current[cellKey];
           if (!mappedLetter || skipJitter) {
             delete jitterRef.current[cellKey];
             jitter = undefined;

@@ -15,6 +15,8 @@
     "noImplicitThis": true,
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",

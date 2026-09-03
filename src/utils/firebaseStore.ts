@@ -495,11 +495,11 @@ export async function deleteCloudUserData(uid: string, puzzleIds: string[]) {
   await Promise.all(
     puzzleIds.map((puzzleId) =>
       Promise.all([
-        deleteDoc(doc(db, 'leaderboard', puzzleId, 'entries', uid)),
-        deleteDoc(doc(db, 'starts', `${uid}_${puzzleId}`)),
-        deleteDoc(doc(db, 'solves', `${uid}_${puzzleId}`)),
+        deleteDoc(doc(store, 'leaderboard', puzzleId, 'entries', uid)),
+        deleteDoc(doc(store, 'starts', `${uid}_${puzzleId}`)),
+        deleteDoc(doc(store, 'solves', `${uid}_${puzzleId}`)),
       ])
     )
   );
-  await deleteDoc(doc(db, 'users', uid));
+  await deleteDoc(doc(store, 'users', uid));
 }
