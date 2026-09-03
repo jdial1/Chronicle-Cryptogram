@@ -13,6 +13,10 @@ const places = [
   new URL('./data/images/l3.png', import.meta.url).href,
 ];
 
+/** Cancels an animation started by one of the coin helpers below. */
+type Stop = () => void;
+const noStop: Stop = () => {};
+
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
     window.setTimeout(resolve, ms);
@@ -68,7 +72,7 @@ function startCoin(
   held: Set<string>,
   interval = 2000,
   delay = 0
-) {
+): Stop {
   let lastPerson = '';
   let lastPlace = '';
   const nextPerson = () => {
@@ -119,14 +123,14 @@ function startCoin(
   };
 }
 
-function startAllCoins() {
+function startAllCoins(): Stop {
   const held = new Set<string>();
   const coins = [...document.querySelectorAll<HTMLElement>('#splash .splash-coin')];
   const center = document.getElementById('splash-coin') as HTMLElement | null;
-  const startOne = (coin: HTMLElement, index: number) => {
+  const startOne = (coin: HTMLElement, index: number): Stop => {
     const front = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-front img');
     const back = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-back img');
-    if (!front || !back) return () => undefined;
+    if (!front || !back) return noStop;
     return startCoin(coin, front, back, held, 2000 + index * 650, 0);
   };
   const stops: Array<() => void> = [];
@@ -143,13 +147,13 @@ function startAllCoins() {
   };
 }
 
-function startTwoFaceCoin(coin: HTMLElement, frontSrc: string, backSrc: string, interval = 1600) {
+function startTwoFaceCoin(coin: HTMLElement, frontSrc: string, backSrc: string, interval = 1600): Stop {
   const front = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-front img');
   const back = coin.querySelector<HTMLImageElement>('.splash-coin-face.is-back img');
-  if (!front || !back) return () => undefined;
+  if (!front || !back) return noStop;
   paintFace(front, frontSrc);
   paintFace(back, backSrc);
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return () => undefined;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return noStop;
   let flipped = false;
   const tick = window.setInterval(() => {
     flipped = !flipped;
@@ -174,7 +178,7 @@ async function playDeveloperSplash(holdForClick = false) {
   const panel = document.getElementById('dev-splash');
   if (!panel) return;
   const coin = document.getElementById('dev-splash-coin');
-  const stopDevCoin = coin ? startTwoFaceCoin(coin, badge, badge2) : () => undefined;
+  const stopDevCoin = coin ? startTwoFaceCoin(coin, badge, badge2) : noStop;
   if (holdForClick) {
     panel.setAttribute('role', 'button');
     panel.setAttribute('aria-label', 'Continue from OrangeTopGames');
@@ -273,11 +277,11 @@ export function startSplash() {
   }
 
   root?.setAttribute('inert', '');
-  let stopCoin = () => undefined;
+  let stopCoin: Stop = noStop;
   const bootGameSplash = () => {
     overlay.removeAttribute('inert');
     void typeTitle();
-    stopCoin = people.length && places.length ? startAllCoins() : () => undefined;
+    stopCoin = people.length && places.length ? startAllCoins() : noStop;
   };
 
   if (preview === 'game') {

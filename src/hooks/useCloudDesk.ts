@@ -104,16 +104,15 @@ export function useCloudDesk({
         if (cancelled) return;
         const solverName = solverDisplayName(user);
         await Promise.all(
-          nextSolved.map((puzzleId) => {
+          nextSolved.map((puzzleId): void => {
             const puzzle = INITIAL_PUZZLES.find((item) => item.id === puzzleId);
-            if (!puzzle) return null;
+            if (!puzzle) return;
             const stored = readLocalProgress(puzzleId);
-            if (!stored?.isSolved || stored.timerSeconds < 0.1) return null;
+            if (!stored?.isSolved || stored.timerSeconds < 0.1) return;
             forgetCloud(
               store.recordPuzzleSolve(user.uid, puzzleId, stored.timerSeconds, stored.hintsUsed, 100, solverName),
               'record-solve'
             );
-            return null;
           })
         );
       } catch (err) {

@@ -321,7 +321,20 @@ export const ROLE_RULES = [
   },
 ] as const;
 
-export const CHARACTERS = [
+export interface CharacterSheet {
+  id: string;
+  name: string;
+  role: string;
+  motivation: string;
+  /** null where the bible leaves the trait open. */
+  immutableTrait: string | null;
+  storyFunction: string;
+  /** null where the character is keeping nothing back. */
+  secret: string | null;
+  boundary: string;
+}
+
+export const CHARACTERS: readonly CharacterSheet[] = [
   {
     id: 'thorne',
     name: 'Detective Elias Thorne',

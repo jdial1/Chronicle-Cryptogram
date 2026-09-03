@@ -109,7 +109,7 @@ export async function importLocalProgressToCloud(
         })),
         isSolved: Boolean(stored?.isSolved || solvedPuzzleIds.includes(puzzleId)),
       });
-      const cloud = await loadCloudProgress(uid, puzzleId).catch((err) => {
+      const cloud = await loadCloudProgress(uid, puzzleId).catch((err): PuzzleProgress | null => {
         logDesk('load-progress-import', err);
         return null;
       });
@@ -134,7 +134,7 @@ export async function importLocalProgressToCloud(
     Array.from(dates).map(async (editionDate) => {
       if (!isEditionDate(editionDate)) return;
       const local = reconcileDailyHints(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyHints(uid, editionDate).catch((err) => {
+      const cloud = await loadCloudDailyHints(uid, editionDate).catch((err): DailyHintWallet | null => {
         logDesk('load-hints-import', err);
         return null;
       });
@@ -147,7 +147,7 @@ export async function importLocalProgressToCloud(
     Array.from(checkDates).map(async (editionDate) => {
       if (!isEditionDate(editionDate)) return;
       const local = reconcileDailyChecks(editionDate, puzzles, localProgress);
-      const cloud = await loadCloudDailyChecks(uid, editionDate).catch((err) => {
+      const cloud = await loadCloudDailyChecks(uid, editionDate).catch((err): DailyHintWallet | null => {
         logDesk('load-checks-import', err);
         return null;
       });
