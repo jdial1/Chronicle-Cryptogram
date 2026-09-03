@@ -55,6 +55,51 @@ Neither is a reason to reverse the decision; both are reasons to sequence it del
 
 ---
 
+## Blocked on you
+
+Everything I can do without a device or a Play Console is done. What remains is grouped by what it unblocks.
+
+### Longest lead — start now, it runs in parallel
+
+- **Google Play merchant account / payments profile.** Verification can take days. It blocks setting a price, which blocks the first production publish. Because **free → paid is not reversible**, the price has to exist before you publish anything to production.
+- **Decide the price.** Same reason.
+
+### Gates Phase 2b — two tests, roughly half a day
+
+Both need an Android device or emulator. The second could kill the phase, so do it before any of the plumbing.
+
+1. **Airplane-mode cold start.** Install the current test APK, launch once online, force-stop, enable airplane mode, cold start. The emitted `sw.js` already has `navigateFallback: index.html` and the shell uses `LOAD_CACHE_ELSE_NETWORK`, so this may already work — in which case bundling loses one of its three justifications and the cheaper content-injection fallback becomes the better deal.
+2. **Firebase on the synthetic origin.** Patch `react-native-webview` locally, serve a trivial page from `WebViewAssetLoader` at `https://appassets.androidplatform.net`, and confirm an anonymous sign-in plus one Firestore read/write succeed. If Firestore's WebChannel misbehaves there, Phase 2b is +1–3 days or a dead end.
+
+Tell me the outcome of both and I finish the phase — or switch to the fallback, which is ~1.5–3 days instead of 4–7.
+
+### Gates submission
+
+- **IARC content rating questionnaire.** Answer it as **containing user-generated content** — `LeaderboardModal` takes a free-text codename onto a world-readable board. `listing.json` warns against filing "Everyone" before the questionnaire returns a rating, and a false filing is what gets an app pulled after launch.
+- **Two more phone screenshots.** You have `phone-grid.jpg` and `phone-bulletin.jpg`; Play wants four. The harness now renders the case file and the solve bulletin — run `npm run dev`, open `/shot.html`, pick a scene, press Escape to hide the dock, and capture at a phone-sized viewport (360×640 at DPR 3 is exactly 1080×1920).
+- **Play License Testing accounts.** Paid apps are not free to internal/closed testers; without this only the account owner can test the internal track.
+
+### Otherwise crash reporting does not exist
+
+- **Create a Sentry project and add `VITE_SENTRY_DSN` as a GitHub secret.** `deploy.yml` already passes it. Without the secret the value is empty, the reporter chunk tree-shakes away, and production errors go to `console.error` and vanish — which leaves Phase 4's staged rollout with no signal to roll back on.
+
+### Needed before the Android build can ship
+
+- **Add the `VITE_FIREBASE_*` secrets to `eas-android.yml`'s environment.** They exist for `deploy.yml` but the Android workflow has none, and `stage-web-assets.mjs` now refuses to build without them — deliberately, because a build without them ships a *paid* app with sign-in, leaderboard and cloud save silently missing while still passing the smoke test.
+
+### Optional, with the toolchain
+
+- **`targetSdkVersion`:** `cd mobile && npx expo prebuild --platform android --no-install`, then grep `targetSdkVersion` out of `android/app/build.gradle` if you want it pinned.
+- **Delete `mobile/plugins/with-android-edge-to-edge.js`** and confirm the board still renders correctly under the system bars. Likely fully redundant on Expo 57 — this removes a from-source RN build and seven exact-string patch anchors.
+- **Rewrite `day_4_hard`'s quote** so its Night Extra actually splits E, T or A. Currently pinned as a tracked exception.
+- **Refresh `google-services.json`** so it carries both certificate hashes. Hygiene; almost certainly inert for sign-in.
+
+### Not 1.0
+
+- **Season 2 content.** 30 editions × 2 ciphers plus case-file fragments — the same volume as the entire existing game. The contract tests will force the season axis when it lands.
+
+---
+
 ## Current batch — the remaining device-independent work
 
 Everything below is verifiable in this session. The two items that need an Android build are called out separately at the end.
@@ -225,11 +270,13 @@ Resolves the paid-app conflict: the public web build stops being a free substitu
 
 Roughly a day, and it reuses Phase 1's work rather than adding a parallel mechanism.
 
-**Honest limitation:** this gate is client-side and therefore soft. `src/utils/androidApp.ts` detects the shell via `ReactNativeWebView` / `?source=android`, all of which a curious player can spoof, and the full `puzzles.json` would still be in the Pages bundle unless the demo build strips it. **Strip the content at build time, not just the gate** — filter `puzzles.json` to editions 0–3 in the demo build so the withheld editions are genuinely absent rather than merely hidden. That turns a soft gate into a real one for the same effort, and it also shrinks the demo bundle.
+**Current shape: a runtime ceiling, not a content strip.** `src/data/puzzles.ts` filters `INITIAL_PUZZLES` by `VITE_MAX_EDITION` at module load, so the full season stays in `puzzles.json` and everything downstream inherits the ceiling for free — `maxEdition()` and `frontPageEdition()` derive from that array, `getInitialPuzzle()` reads it at module scope, and case-file fragments only assemble when their edition's puzzle exists, so the narrative follows.
+
+**Honest limitation:** the withheld editions are present in the demo bundle and readable with devtools. A build-time strip (`demoContentPlugin`, recoverable from git history at `bcc6214`) removed them outright and closed that leak, at the cost of parsing `caseFiles.ts` to cut fragments too. The runtime flag was chosen deliberately for now to keep the full days JSON in the data. Revisit if content exclusivity turns out to matter more than the simplicity.
 
 ### Status: shipped, but the deploy flip is held
 
-The gate and content strip are **done and verified** (commit `bcc6214`). What is *not* done is pointing `deploy.yml` at the demo build — because `mobile/App.tsx` loads `https://jdial1.github.io/Chronicle-Cryptogram/`, the same Pages deployment. Publishing a demo there turns the paid app into the demo. The web/Android split has to become real first, which is Phase 2b below.
+The gate is **done and verified**. What is *not* done is pointing `deploy.yml` at the demo build — because `mobile/App.tsx` loads `https://jdial1.github.io/Chronicle-Cryptogram/`, the same Pages deployment. Publishing a demo there turns the paid app into the demo. The web/Android split has to become real first, which is Phase 2b below.
 
 ---
 
@@ -468,7 +515,7 @@ Ranked, biggest cut first. All are safe, independent, and can land in Phase 0:
 - **Current batch:** lint, `npm test` (53) and `npm run check:mobile` stay green, and all three build variants (normal, `VITE_MAX_EDITION=3`, `VITE_BUNDLED=1`) still build. After the `server.ts` cut, confirm `npm run dev` serves the app **and still rewrites `/splash` to it** — that rewrite is the one behaviour being inherited from `vite.config.ts` rather than deleted, so it is the thing most likely to break silently. Drive the leaderboard in a browser and confirm no "Verified"/"Certified" copy survives.
 - **Phase 0:** PR triggers the new lint/test job; deliberately break a test and confirm CI goes red. `npm run firebase:configure` runs without `ERR_MODULE_NOT_FOUND`. Confirm a thrown error reaches the crash reporter dashboard.
 - **Phase 1:** `npm test` — new `edition.test.ts` cases for progression gating. Manual: clear all storage, confirm a fresh player lands on edition 1 regardless of system date; set the device clock to 2027 and confirm nothing breaks (this is the regression the whole phase exists to prevent).
-- **Phase 2a:** build the demo with `VITE_MAX_EDITION=3` and confirm editions 4–30 are locked in the archive **and absent from the bundle** — grep the built assets for an edition-7 quote string; a hit means the content strip didn't work and only the gate did.
+- **Phase 2a:** build with `VITE_MAX_EDITION=3` and confirm the archive offers only editions 1–3 under Chapter I, and that an unset ceiling still ships all 30. The withheld editions *are* expected in the demo bundle — it is a runtime gate, not a strip.
 - **Phase 2:** Firestore rules — attempt a receipt delete and confirm denial. Run the account-deletion flow as both an anonymous and a signed-in user; confirm in Firebase console that the Auth user is gone, not just the documents.
 - **Phase 3:** Install the Play-signed internal-track build on a real device and sign in with Google — this is the only way to catch the SHA gap.
 - **Phase 4:** Pre-launch report clean; crash-free rate holds through the staged percentages before widening.
