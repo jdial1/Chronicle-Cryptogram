@@ -24,7 +24,12 @@ import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { pipeline } from "node:stream/promises";
 import { mobileDir, resolveMaestroBin, root } from "./project-paths.mjs";
+import { loadProjectEnv } from "./env.mjs";
 import { assertStaged, stageWebAssets } from "./stage-web-assets.mjs";
+
+// Before anything reads process.env: stageWebAssets() and requireExpoAuth() both
+// refuse to run without credentials, and .env is where they live locally.
+loadProjectEnv();
 
 const mobile = mobileDir;
 const shipApk = path.join(mobile, ".ship", "test.apk");
@@ -76,6 +81,29 @@ function easCapture(easArgs) {
   return out;
 }
 
+/**
+ * EAS needs an identity before anything else is worth doing. Checked up front because
+ * the web build below takes minutes, and discovering this afterwards wastes all of it.
+ */
+function requireExpoAuth() {
+  if (process.env.EXPO_TOKEN) return;
+
+  // An existing `eas-cli login` session is equally valid -- this is a check, not a prompt.
+  const who = runNpx(["--yes", "eas-cli", "whoami"]);
+  if (who.status === 0) {
+    console.log("Expo account:", (who.stdout || "").trim() || "(logged in)");
+    return;
+  }
+
+  console.error("Refusing to build: no Expo credentials.");
+  console.error("  - EXPO_TOKEN is unset and there is no eas-cli login session");
+  console.error("\nEither add EXPO_TOKEN to mobile/.env (create one at");
+  console.error("https://expo.dev/settings/access-tokens), or run:");
+  console.error("  cd mobile && npx eas-cli login");
+  console.error("\nSee docs/SECRETS.md.");
+  process.exit(1);
+}
+
 function parseBuildId(text) {
   const ids = [...text.matchAll(/"id"\s*:\s*"([0-9a-f-]{8,})"/gi)].map((m) => m[1]);
   if (ids.length) return ids[ids.length - 1];
@@ -123,6 +151,8 @@ function runSmoke() {
 
 console.log("Repo:   ", root);
 console.log("Mobile: ", mobile);
+
+requireExpoAuth();
 
 // Staged once, here. The production build below reuses this exact tree: there is an
 // interactive gate between the two, and re-staging there would ship assets that never

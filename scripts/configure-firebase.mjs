@@ -5,20 +5,9 @@ import { spawnSync } from 'node:child_process';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getSecurityRules } from 'firebase-admin/security-rules';
+import { loadEnvFile } from './env.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-
-/** Load .env into process.env without a dependency. Existing vars win, so CI secrets are never clobbered. */
-function loadEnvFile(path) {
-  if (!existsSync(path)) return;
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
-    const match = /^\s*([\w.-]+)\s*=\s*(.*)$/.exec(line);
-    if (!match || line.trimStart().startsWith('#')) continue;
-    const [, key, rawValue] = match;
-    if (process.env[key] !== undefined) continue;
-    process.env[key] = rawValue.trim().replace(/^(['"])([\s\S]*)\1$/, '$2');
-  }
-}
 
 loadEnvFile(join(root, '.env'));
 
