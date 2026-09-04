@@ -31,8 +31,6 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm test
-      - name: Check mobile config
-        run: npm run check:mobile
       # The Kotlin port in android/core/cipher asserts against fixtures generated
       # from this TypeScript. If the logic changed, the fixtures are stale and the
       # two implementations can drift silently -- so fail here, not on a device.

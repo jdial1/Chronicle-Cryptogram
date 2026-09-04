@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../data/appVersion';
-import { postToAndroidApp } from '../utils/androidApp';
 import { logDesk } from '../utils/deskError';
 
 const POLL_MS = 5 * 60 * 1000;
@@ -28,7 +27,6 @@ async function readPressVersion() {
 }
 
 export async function reloadEdition() {
-  postToAndroidApp({ type: 'RELOAD' });
   try {
     const keys = await caches.keys();
     await Promise.all(keys.map((key) => caches.delete(key)));

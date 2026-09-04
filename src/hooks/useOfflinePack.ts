@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION } from '../data/appVersion';
 import { plateSrcs } from '../data/plates';
-import { postToAndroidApp } from '../utils/androidApp';
 import { useDeskOnline } from './useDeskOnline';
 
 import { STORAGE_KEYS } from '../utils/storageKeys';
@@ -219,7 +218,6 @@ export async function downloadPressPack() {
   await cachePack(urls);
   const record = { version: APP_VERSION, packedAt: Date.now() };
   writeRecord(record);
-  postToAndroidApp({ type: 'PRESS_PACKED', version: APP_VERSION });
   return record;
 }
 

@@ -1,4 +1,3 @@
-import { postToAndroidApp } from './androidApp';
 import { PAPER_DARK, PAPER_LIGHT } from '../themeTokens';
 import { STORAGE_KEYS } from './storageKeys';
 import { storageGet, storageSet } from './safeStorage';
@@ -21,7 +20,6 @@ export function applyDeskTheme(dark = deskThemeIsDark()) {
   document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
     meta.setAttribute('content', dark ? PAPER_DARK : PAPER_LIGHT);
   });
-  postToAndroidApp({ type: 'THEME', dark });
 }
 
 export function toggleDeskTheme() {

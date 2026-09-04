@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
+import { useEffect, useRef } from 'react';
 import { useDialogFocus } from './useDialogFocus';
 
 export function useSheetStack(depth: number, closeTop: () => boolean) {
@@ -8,11 +7,6 @@ export function useSheetStack(depth: number, closeTop: () => boolean) {
   const histPushed = useRef(false);
 
   useEffect(() => {
-    postToAndroidApp({ type: 'SHEET_STACK', depth });
-  }, [depth]);
-
-  useEffect(() => {
-    if (isAndroidAppShell()) return;
     const stacked = Boolean(
       window.history.state && (window.history.state as { chronicleSheet?: boolean }).chronicleSheet
     );
@@ -36,10 +30,6 @@ export function useSheetStack(depth: number, closeTop: () => boolean) {
 
   useDialogFocus(depth);
 
-  const onAndroidBack = useCallback(() => {
-    closeTopRef.current();
-  }, []);
-
   useEffect(() => {
     const focusedField = (target: EventTarget | null) => {
       if (!(target instanceof HTMLElement)) return false;
@@ -51,16 +41,13 @@ export function useSheetStack(depth: number, closeTop: () => boolean) {
       if (closeTopRef.current()) event.preventDefault();
     };
     const onPop = () => {
-      if (isAndroidAppShell()) return;
       closeTopRef.current();
     };
-    window.addEventListener('chronicle-android-back', onAndroidBack);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('popstate', onPop);
     return () => {
-      window.removeEventListener('chronicle-android-back', onAndroidBack);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('popstate', onPop);
     };
-  }, [onAndroidBack]);
+  }, []);
 }

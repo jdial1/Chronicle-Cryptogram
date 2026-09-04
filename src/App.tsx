@@ -33,7 +33,6 @@ import { useEditionUpdate } from './hooks/useEditionUpdate';
 import { Newspaper, WoodcutPressFilter } from './deskIcons';
 import { splashBlocksDesk } from './splashGate';
 import { isFirebaseEnabled } from './utils/firebaseFlags';
-import { isAndroidAppShell, postToAndroidApp } from './utils/androidApp';
 import { useDeskOnline } from './hooks/useDeskOnline';
 import {
   bureauDeskSeen,
@@ -459,17 +458,6 @@ export default function App() {
     setFlaggedSymbolIds((prev) => prev.filter((id) => id !== prior.symbolId));
   }, [selectedSymbolId, selectedCellId, isSolved, boardReady, mappings, words, hintedSymbolIds, verifiedSymbolIds]);
 
-  useEffect(() => {
-    if (!isAndroidAppShell()) return;
-    const onCipher = (event: Event) => {
-      const detail = (event as CustomEvent<{ type?: string; letter?: string }>).detail;
-      if (detail?.type === 'KEY' && detail.letter) handleKeyPress(detail.letter);
-      if (detail?.type === 'BACKSPACE') handleBackspace();
-      if (detail?.type === 'SHOW') setDeskArmed(true);
-    };
-    window.addEventListener('chronicle-native-cipher', onCipher);
-    return () => window.removeEventListener('chronicle-native-cipher', onCipher);
-  }, [handleKeyPress, handleBackspace]);
 
   const handleResetMappings = useCallback(() => {
     setIsResetLettersOpen(true);
@@ -577,10 +565,6 @@ export default function App() {
     }
     if (!selectedSymbolId) return;
     setDeskArmed(true);
-    if (isAndroidAppShell()) {
-      postToAndroidApp({ type: 'CIPHER_FOCUS' });
-      return;
-    }
     hiddenInputRef.current?.focus();
   };
 
@@ -792,10 +776,6 @@ export default function App() {
       webTypeFeel('tap');
       setDeskArmed(true);
       if (gameKeyboard) return;
-      if (isAndroidAppShell()) {
-        postToAndroidApp({ type: 'CIPHER_FOCUS' });
-        return;
-      }
       hiddenInputRef.current?.focus();
     },
     [boardReady, isSolved, gameKeyboard]
@@ -803,11 +783,10 @@ export default function App() {
 
   useEffect(() => {
     if (!selectedSymbolId || isSolved || !boardReady) return;
-    const nativeDesk = isAndroidAppShell();
     const input = hiddenInputRef.current;
     const pinBoard = deskArmed;
     const anchor = (scroll: boolean) => {
-      if (!gameKeyboard && !nativeDesk && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
+      if (!gameKeyboard && input) placeCipherInput(selectedSymbolId, input, selectedCellId);
       if (scroll && pinBoard) {
         selectedGlyphTile(selectedSymbolId, selectedCellId)?.scrollIntoView({
           behavior: 'smooth',

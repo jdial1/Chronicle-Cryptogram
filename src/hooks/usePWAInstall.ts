@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { isAndroidAppShell } from '../utils/androidApp';
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -7,12 +6,10 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 export function usePWAInstall() {
-  const androidApp = isAndroidAppShell();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
-    if (androidApp) return;
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -24,7 +21,7 @@ export function usePWAInstall() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, [androidApp]);
+  }, []);
 
   const promptInstall = async () => {
     if (!deferredPrompt) return;
@@ -34,5 +31,5 @@ export function usePWAInstall() {
     setIsInstallable(false);
   };
 
-  return { isInstallable: androidApp ? false : isInstallable, promptInstall };
+  return { isInstallable, promptInstall };
 }
