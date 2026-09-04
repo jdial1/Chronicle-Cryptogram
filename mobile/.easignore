@@ -1,0 +1,18 @@
+node_modules
+.expo
+dist
+.easignore
+
+# expo prebuild output. mobile/.gitignore ignores /android, but .easignore replaces
+# .gitignore for the EAS upload entirely (see below), so without these two lines a
+# machine that has run prebuild locally uploads gigabytes of Gradle output AND makes
+# EAS treat the project as bare -- skipping the server-side prebuild that runs the
+# config plugins, so the SDK pins and edge-to-edge plugin would not apply.
+android/
+ios/
+
+# Do NOT add web-assets/ here. It is the staged web bundle that
+# scripts/stage-web-assets.mjs produces and the Android build copies into
+# app/src/main/assets. When .easignore exists it replaces .gitignore for the EAS
+# upload entirely, so anything listed here is silently absent on the build server --
+# which would produce an APK with a black WebView that still passes the smoke test.
