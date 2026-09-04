@@ -13,6 +13,18 @@ plugins {
  * build green for a contributor with no credentials, and keeps CI honest.
  */
 val hasFirebaseConfig = file("google-services.json").exists()
+
+/** The type-3 (web) OAuth client from google-services.json, or empty. */
+fun googleWebClientId(): String {
+    val config = file("google-services.json")
+    if (!config.exists()) return ""
+    // client_type 3 is the web client. Type 1 is Android and does NOT work with
+    // Credential Manager -- using it is the classic cause of a silent sign-in
+    // failure, so it is read from the file rather than pasted in by hand.
+    val pattern = Regex(""""client_id"\s*:\s*"([^"]+)",\s*"client_type"\s*:\s*3""")
+    return pattern.find(config.readText())?.groupValues?.get(1).orEmpty()
+}
+
 if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
 }
@@ -71,6 +83,9 @@ android {
         minSdk = 26
         targetSdk = 37
         buildConfigField("boolean", "HAS_FIREBASE", hasFirebaseConfig.toString())
+        // Credential Manager needs the *web* OAuth client id. Reading it from
+        // google-services.json keeps it from being pasted in twice and drifting.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${'$'}{googleWebClientId()}\"")
         // CI stamps the build number; a local build is always 1.
         versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
         versionName = "1.0.0"
@@ -141,6 +156,7 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
+    implementation(libs.compose.material.icons.core)
     implementation("androidx.activity:activity-compose:1.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     implementation(libs.androidx.lifecycle.viewmodel.compose)

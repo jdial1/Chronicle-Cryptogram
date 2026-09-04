@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -263,6 +265,7 @@ private fun CipherTile(
             glyph = cell.char.orEmpty(),
             guess = guess,
             tile = tile,
+            ruleColor = colors.paperRule,
             inkColor = when {
                 flagged -> colors.cinnabar
                 locked -> colors.brass
@@ -274,12 +277,35 @@ private fun CipherTile(
 }
 
 @Composable
-private fun TileContents(glyph: String, guess: String?, tile: TileSize, inkColor: androidx.compose.ui.graphics.Color) {
+private fun TileContents(
+    glyph: String,
+    guess: String?,
+    tile: TileSize,
+    inkColor: androidx.compose.ui.graphics.Color,
+    ruleColor: androidx.compose.ui.graphics.Color,
+) {
     Box(Modifier.padding(2.dp), contentAlignment = Alignment.Center) {
         androidx.compose.foundation.layout.Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BoardText(guess.orEmpty().ifEmpty { " " }, tile.letterStyle, inkColor)
+            // The letter slot keeps its height whether or not a guess is in it,
+            // so the board does not reflow as the player types. Empty, it shows
+            // the writing rule a printed cryptogram puts under each glyph --
+            // which says "your answer goes here" instead of reading as a gap.
+            Box(contentAlignment = Alignment.BottomCenter) {
+                BoardText(" ", tile.letterStyle, inkColor)
+                if (guess.isNullOrEmpty()) {
+                    Box(
+                        Modifier
+                            .padding(bottom = 2.dp)
+                            .width(tile.width * 0.45f)
+                            .height(1.5.dp)
+                            .background(ruleColor)
+                    )
+                } else {
+                    BoardText(guess, tile.letterStyle, inkColor)
+                }
+            }
             BoardText(glyph, tile.glyphStyle, inkColor)
         }
     }

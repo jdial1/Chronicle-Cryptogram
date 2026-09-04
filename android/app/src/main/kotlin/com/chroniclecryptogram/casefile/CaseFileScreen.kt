@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -92,13 +98,24 @@ fun CaseFileScreen(
         }
 
         items(dossiers, key = { it.first.id }) { (character, fragments) ->
+            val isOpen = expanded == character.id
+            // The chevron turns to point down when the row is open, so the
+            // affordance is visible before the tap rather than discovered by it.
+            val chevron by animateFloatAsState(
+                targetValue = if (isOpen) 90f else 0f,
+                label = "dossierChevron",
+            )
+
             Column(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(6.dp))
                     .background(colors.paperCard)
-                    .clickable {
-                        expanded = if (expanded == character.id) null else character.id
+                    .clickable(
+                        role = Role.Button,
+                        onClickLabel = if (isOpen) "Collapse dossier" else "Expand dossier",
+                    ) {
+                        expanded = if (isOpen) null else character.id
                     }
                     .padding(12.dp)
                     .semantics {
@@ -107,6 +124,9 @@ fun CaseFileScreen(
                         } else {
                             "${character.name}, ${fragments.size} notes decoded"
                         }
+                        // TalkBack announces open/closed, which colour and a
+                        // rotated glyph cannot convey on their own.
+                        stateDescription = if (isOpen) "Expanded" else "Collapsed"
                     },
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -133,6 +153,14 @@ fun CaseFileScreen(
                         },
                         style = MaterialTheme.typography.labelLarge,
                         color = if (fragments.isEmpty()) colors.paperRule else colors.brass,
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = colors.brass,
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .rotate(chevron),
                     )
                 }
 

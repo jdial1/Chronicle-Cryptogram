@@ -58,6 +58,7 @@ fun BoardScreen(
     onAction: ((BoardState) -> BoardState) -> Unit,
     modifier: Modifier = Modifier,
     onNext: (() -> Unit)? = null,
+    useSystemKeyboard: Boolean = false,
 ) {
     val colors = ChronicleTheme.colors
     val puzzle = state.puzzle
@@ -83,6 +84,7 @@ fun BoardScreen(
                 puzzle = puzzle,
                 onNext = onNext,
                 onRequestClear = { confirmingClear = true },
+                useSystemKeyboard = useSystemKeyboard,
             )
         }
     }
@@ -138,6 +140,7 @@ private fun DeskContent(
     colors: com.chroniclecryptogram.designsystem.theme.ChronicleColors,
     puzzle: PuzzleData,
     onNext: (() -> Unit)?,
+    useSystemKeyboard: Boolean,
     onRequestClear: () -> Unit,
 ) {
     Column(
@@ -225,10 +228,18 @@ private fun DeskContent(
                 onCheck = { onAction(BoardActions::check) },
                 onClear = onRequestClear,
             )
-            TypewriterKeyboard(
-                onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
-                onBackspace = { onAction(BoardActions::backspace) },
-            )
+            if (useSystemKeyboard) {
+                SystemKeyboardField(
+                    enabled = state.selectedCellId != null,
+                    onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
+                    onBackspace = { onAction(BoardActions::backspace) },
+                )
+            } else {
+                TypewriterKeyboard(
+                    onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
+                    onBackspace = { onAction(BoardActions::backspace) },
+                )
+            }
         }
     }
 }
@@ -252,8 +263,12 @@ private fun Masthead(puzzle: PuzzleData) {
                 color = colors.ink,
             )
             Text(
-                text = Edition.editionLabel(puzzle.editionNumber) + " · " +
-                    Edition.chapterForEdition(puzzle.editionNumber).title,
+                // Edition 0's label and its chapter title are both "The Primer";
+                // printing both reads as a bug rather than as a kicker.
+                text = Edition.editionLabel(puzzle.editionNumber).let { label ->
+                    val chapter = Edition.chapterForEdition(puzzle.editionNumber).title
+                    if (chapter == label) label else "$label · $chapter"
+                },
                 style = MaterialTheme.typography.labelLarge,
                 color = colors.brass,
             )

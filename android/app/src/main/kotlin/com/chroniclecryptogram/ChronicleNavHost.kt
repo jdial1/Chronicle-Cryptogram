@@ -10,12 +10,16 @@ import androidx.compose.runtime.setValue
 /**
  * Where the player is.
  *
- * A sealed hierarchy and one saved value rather than navigation-compose: there
- * are six destinations, none takes an argument the board does not already hold,
- * and nothing deep-links. A nav graph would be more machinery than the app has
- * navigation.
+ * Five top-level destinations, within Material's three-to-five guidance. The
+ * leaderboard is not one of them: it is a view of the player's own standing, so
+ * it lives inside the Bureau File next to their campaign stats rather than
+ * competing for a slot in the bar.
+ *
+ * A sealed hierarchy and one saved value rather than navigation-compose: nothing
+ * takes an argument the board does not already hold, and nothing deep-links, so
+ * a nav graph would be more machinery than the app has navigation.
  */
-enum class Destination { Board, Archive, CaseFile, Guide, Leaderboard, Desk }
+enum class Destination { Board, Archive, CaseFile, Guide, Desk }
 
 /**
  * Holds the current destination and survives configuration changes.
