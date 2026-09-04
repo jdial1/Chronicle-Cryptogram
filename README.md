@@ -30,6 +30,18 @@ The Codebreaker's Handbook (Guide) has a Press tab with the same field instructi
 
 ## Building this yourself
 
-`npm run dev` serves the web app. Building the Android app or deploying needs
-credentials — see **[docs/SECRETS.md](docs/SECRETS.md)** for what each one is,
-where it goes, and how to get it.
+`npm run dev` serves the web app.
+
+The Android app is being rewritten natively in Kotlin and Jetpack Compose, in
+[`android/`](android). `cd android && ./gradlew test` runs it; no credentials
+are needed, and the game is fully playable without them. See
+**[docs/ANDROID-REWRITE.md](docs/ANDROID-REWRITE.md)** for what is built, what
+is verified, and what still has to happen on a real device.
+
+`mobile/` is the older Expo WebView shell. It still builds and is still the only
+Android path that has shipped an artifact; it goes when the native app has run
+on hardware.
+
+Deploying, or building either Android app for release, needs credentials — see
+**[docs/SECRETS.md](docs/SECRETS.md)** for what each one is, where it goes, and
+how to get it.

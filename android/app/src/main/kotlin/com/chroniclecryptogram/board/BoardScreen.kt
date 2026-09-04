@@ -15,11 +15,16 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -61,12 +66,67 @@ fun BoardScreen(
         onAction { it.copy(selectedCellId = null) }
     }
 
+    // Clearing wipes every guess on the edition, so it asks first. The web has
+    // the same confirmation; without it a stray tap on a nearly-solved board is
+    // unrecoverable.
+    var confirmingClear by remember { mutableStateOf(false) }
+
     BoxWithConstraints(modifier.fillMaxSize()) {
         val deskWidth = DeskWidth.fromWidth(maxWidth)
         CompositionLocalProvider(LocalDeskWidth provides deskWidth) {
-            DeskContent(state, onAction, deskWidth, colors, puzzle, onNext)
+            DeskContent(
+                state = state,
+                onAction = onAction,
+                deskWidth = deskWidth,
+                colors = colors,
+                puzzle = puzzle,
+                onNext = onNext,
+                onRequestClear = { confirmingClear = true },
+            )
         }
     }
+
+    if (confirmingClear) {
+        ClearLettersDialog(
+            onDismiss = { confirmingClear = false },
+            onConfirm = {
+                confirmingClear = false
+                onAction(BoardActions::clearLetters)
+            },
+        )
+    }
+}
+
+@Composable
+private fun ClearLettersDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    val colors = ChronicleTheme.colors
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Clear letters", color = colors.ink) },
+        text = {
+            Text(
+                "This wipes every mapped letter on this edition. The cipher itself stays.",
+                color = colors.ink,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                modifier = Modifier.semantics { contentDescription = "Confirm clearing every letter" },
+            ) {
+                Text("Clear letters", color = colors.cinnabar)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.semantics { contentDescription = "Keep working" },
+            ) {
+                Text("Keep working", color = colors.ink)
+            }
+        },
+        containerColor = colors.paperCard,
+    )
 }
 
 @Composable
@@ -77,6 +137,7 @@ private fun DeskContent(
     colors: com.chroniclecryptogram.designsystem.theme.ChronicleColors,
     puzzle: PuzzleData,
     onNext: (() -> Unit)?,
+    onRequestClear: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -150,7 +211,7 @@ private fun DeskContent(
                     state = state,
                     onHint = { onAction(BoardActions::hint) },
                     onCheck = { onAction(BoardActions::check) },
-                    onClear = { onAction(BoardActions::clearLetters) },
+                    onClear = onRequestClear,
                 )
             }
         } else {
@@ -158,7 +219,7 @@ private fun DeskContent(
                 state = state,
                 onHint = { onAction(BoardActions::hint) },
                 onCheck = { onAction(BoardActions::check) },
-                onClear = { onAction(BoardActions::clearLetters) },
+                onClear = onRequestClear,
             )
             TypewriterKeyboard(
                 onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
