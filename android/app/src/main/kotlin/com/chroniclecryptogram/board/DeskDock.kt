@@ -198,7 +198,13 @@ internal fun TallySheet(
     onDismiss: () -> Unit,
 ) {
     val colors = ChronicleTheme.colors
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.paperCard) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = colors.paperCard,
+        // Square at the top, like a sheet pulled from a drawer.
+        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
+        dragHandle = null,
+    ) {
         Column(
             Modifier
                 .padding(horizontal = 20.dp)

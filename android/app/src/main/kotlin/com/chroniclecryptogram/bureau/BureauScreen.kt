@@ -1,6 +1,7 @@
 package com.chroniclecryptogram.bureau
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -92,6 +93,12 @@ fun BureauScreen(
         AlertDialog(
             onDismissRequest = { confirmingDelete = false },
             containerColor = colors.paperCard,
+            titleContentColor = colors.ink,
+            textContentColor = colors.ink,
+            // As above: square corners and an ink rule, so a dialog reads as a
+            // slip of paper rather than a Material surface.
+            shape = RoundedCornerShape(4.dp),
+            modifier = Modifier.border(2.dp, colors.ink, RoundedCornerShape(4.dp)),
             title = { Text("Delete account", color = colors.ink) },
             text = {
                 Text(

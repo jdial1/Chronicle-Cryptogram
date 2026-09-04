@@ -2,6 +2,7 @@ package com.chroniclecryptogram.board
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -137,6 +138,13 @@ private fun ClearLettersDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     val colors = ChronicleTheme.colors
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = colors.paperCard,
+        titleContentColor = colors.ink,
+        textContentColor = colors.ink,
+        // A filed dispatch, not a Material card. The stock 28dp corner radius is
+        // the single most recognisable Material tell, and this app is printed.
+        shape = RoundedCornerShape(4.dp),
+        modifier = Modifier.border(2.dp, colors.ink, RoundedCornerShape(4.dp)),
         title = { Text("Clear letters", color = colors.ink) },
         text = {
             Text(
@@ -160,7 +168,6 @@ private fun ClearLettersDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                 Text("Keep working", color = colors.ink)
             }
         },
-        containerColor = colors.paperCard,
     )
 }
 
