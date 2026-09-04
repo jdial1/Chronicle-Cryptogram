@@ -96,3 +96,41 @@ node scripts/gen-glyph-font.mjs  # the merged cipher font (needs .fontsrc)
 
 Content is not generated: Gradle stages `src/data/*.json` into assets on every
 build, so the web and Android read the same bytes.
+
+## Web parity pass (cross-match at 411x891)
+
+Each Android screen was compared against the web build running at the emulator's
+own 411x891 viewport. What changed, and what deliberately did not:
+
+**Closed, functional**
+
+- The desk dock had three tools where the web has five. `Undo` and `Tally` did
+  not exist on Android at all. Undo keeps a history of guess maps on
+  `BoardState`; it does not rewind wallet spends, or a hint would be free. Tally
+  is the glyph frequency sheet, filtered to repeats, busiest first, tappable to
+  move the cursor.
+
+**Closed, visual**
+
+- Dock: five icon-and-label tools on the dark bar, wallet counts as badges.
+- Board: bordered folio on `Modifier.scannedPaper`, word rules running under each
+  word and through the gaps between its letters, tile borders.
+- The Primer coach (`PrimerCoach.kt`), edition 0 only, as on the web.
+- Archive: chapter headings, one collapsed line per edition with plate, lock and
+  a dot per slot; one row expanded at a time.
+- Board masthead capped at two lines; small caps labels on the typewriter face.
+
+**Deliberately not matched**
+
+- The web's top nav bar. Android keeps the bottom `NavigationBar`, which is the
+  platform convention and was an explicit earlier decision.
+- The web's in-board zoom controls. Tiles are measured from `sp` text, so the
+  system font-size setting is the zoom control.
+
+**Still unverified**
+
+- `FirestoreDesk` and `FirebaseAccount` remain untested: they need real
+  credentials and a Play-signed build.
+- The release variant builds **unsigned** -- there is no keystore configured, so
+  only the debug APK is installable. See the signing section of
+  `app/build.gradle.kts`.
