@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -10,10 +12,26 @@ plugins {
  */
 val generatedAssets = "build/generated/assets"
 
-val stageContent by tasks.registering(Sync::class) {
+val stageContent = tasks.register<Sync>("stageContent") {
     from(rootProject.file("../src/data")) { include("*.json") }
     into(layout.projectDirectory.dir("$generatedAssets/content"))
 }
+
+/**
+ * Release signing. The keystore lives outside the repo and is read from
+ * android/keystore.properties locally, or from environment variables in CI --
+ * a debug-signed release build cannot be uploaded to Play, and committing a
+ * keystore would be worse.
+ */
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun signingValue(key: String, env: String): String? =
+    keystoreProperties.getProperty(key) ?: System.getenv(env)
+
+val hasSigningConfig = signingValue("storeFile", "ANDROID_KEYSTORE_PATH") != null
 
 android {
     namespace = "com.chroniclecryptogram"
@@ -28,11 +46,29 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        if (hasSigningConfig) {
+            create("release") {
+                storeFile = file(signingValue("storeFile", "ANDROID_KEYSTORE_PATH")!!)
+                storePassword = signingValue("storePassword", "ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "ANDROID_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Unsigned when no keystore is configured, so a contributor can still
+            // build a release variant; publishing checks for a signature.
+            signingConfig = if (hasSigningConfig) signingConfigs.getByName("release") else null
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
 

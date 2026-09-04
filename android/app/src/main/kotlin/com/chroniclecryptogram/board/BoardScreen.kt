@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
+import com.chroniclecryptogram.casefile.WoodcutPlate
 import com.chroniclecryptogram.designsystem.DeskWidth
 import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
@@ -168,18 +169,28 @@ private fun DeskContent(
 @Composable
 private fun Masthead(puzzle: PuzzleData) {
     val colors = ChronicleTheme.colors
-    Column(Modifier.padding(bottom = 16.dp)) {
-        Text(
-            text = puzzle.headline,
-            style = MaterialTheme.typography.displayMedium,
-            color = colors.ink,
-        )
-        Text(
-            text = Edition.editionLabel(puzzle.editionNumber) + " · " +
-                Edition.chapterForEdition(puzzle.editionNumber).title,
-            style = MaterialTheme.typography.labelLarge,
-            color = colors.brass,
-        )
+    Row(
+        Modifier.padding(bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        // The edition's press plate. Also the only reference to the woodcut
+        // drawables, without which resource shrinking strips all thirty-one from
+        // the release build -- the release APK is where that shows up, not debug.
+        puzzle.silhouette?.let { WoodcutPlate(it) }
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = puzzle.headline,
+                style = MaterialTheme.typography.displayMedium,
+                color = colors.ink,
+            )
+            Text(
+                text = Edition.editionLabel(puzzle.editionNumber) + " · " +
+                    Edition.chapterForEdition(puzzle.editionNumber).title,
+                style = MaterialTheme.typography.labelLarge,
+                color = colors.brass,
+            )
+        }
     }
 }
 

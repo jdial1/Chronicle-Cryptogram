@@ -14,13 +14,13 @@ plugins {
 val generatedAssets = "build/generated/assets"
 val generatedTestContent = "build/generated/test-content"
 
-val stageContent by tasks.registering(Sync::class) {
+val stageContent = tasks.register<Sync>("stageContent") {
     from(rootProject.file("../src/data")) { include("*.json") }
     into(layout.projectDirectory.dir("$generatedAssets/content"))
 }
 
 /** The same files again for the schema guard, a plain JVM test -- no Robolectric. */
-val stageContentForTests by tasks.registering(Sync::class) {
+val stageContentForTests = tasks.register<Sync>("stageContentForTests") {
     from(rootProject.file("../src/data")) { include("*.json") }
     into(layout.projectDirectory.dir("$generatedTestContent/content"))
 }

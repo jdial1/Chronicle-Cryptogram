@@ -48,6 +48,25 @@ jobs:
         working-directory: android
         run: ./gradlew :app:assembleDebug --no-daemon
 
+      # The release variant is where R8 and resource shrinking run, and both
+      # fail in ways debug never shows: a stripped serializer or a stripped
+      # drawable is a runtime problem, not a build error.
+      - name: Assemble release APK
+        working-directory: android
+        run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Check the release build kept its resources
+        working-directory: android
+        run: |
+          report=app/build/outputs/mapping/release/resources.txt
+          stripped=$(grep -c 'is not reachable' "$report" || true)
+          echo "$stripped resources shrunk out"
+          if grep -qE '^(font|drawable:woodcut).*is not reachable' "$report"; then
+            echo "A font or press plate was stripped from the release build:"
+            grep -E '^(font|drawable:woodcut).*is not reachable' "$report"
+            exit 1
+          fi
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

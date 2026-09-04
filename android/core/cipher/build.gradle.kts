@@ -22,7 +22,7 @@ java {
  * than committing a second copy. This is the same Sync-task mechanism the :app
  * module will use for its assets, exercised early so drift is impossible.
  */
-val stageContentForTests by tasks.registering(Sync::class) {
+val stageContentForTests = tasks.register<Sync>("stageContentForTests") {
     from(rootProject.file("../src/data")) { include("*.json") }
     into(layout.buildDirectory.dir("generated/test-content/content"))
 }
