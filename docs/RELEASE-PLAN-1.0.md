@@ -89,7 +89,7 @@ Tell me the outcome of both and I finish the phase — or switch to the fallback
 
 ### Optional, with the toolchain
 
-- **`targetSdkVersion`:** `cd mobile && npx expo prebuild --platform android --no-install`, then grep `targetSdkVersion` out of `android/app/build.gradle` if you want it pinned.
+- ~~**`targetSdkVersion`**~~ **Done.** A local prebuild reported Expo 57's real values and they are now pinned via `expo-build-properties`: compileSdk/targetSdk 36, minSdk 24, buildTools 36.0.0, ndk 27.1.12297006. See `docs/ANDROID-BUILD.md`.
 - **Delete `mobile/plugins/with-android-edge-to-edge.js`** and confirm the board still renders correctly under the system bars. Likely fully redundant on Expo 57 — this removes a from-source RN build and seven exact-string patch anchors.
 - **Rewrite `day_4_hard`'s quote** so its Night Extra actually splits E, T or A. Currently pinned as a tracked exception.
 - **Refresh `google-services.json`** so it carries both certificate hashes. Hygiene; almost certainly inert for sign-in.
@@ -133,22 +133,26 @@ So: delete `server.ts`; `dev` becomes `vite`; `build` loses its esbuild half; `s
 
 Roughly **−70 lines, −4 dependencies, and one build step**.
 
-### 3. Pin `targetSdkVersion` — **dropped, reversing an earlier plan item**
+### 3. Pin `targetSdkVersion` — **done, reversing the reversal**
 
-Nothing pins it today, and that is the safer state until the real default is known.
-
-Pinning requires knowing what Expo SDK 57 actually resolves to, and that is not determinable in this session: `mobile/node_modules` is not installed, there is no prebuilt `android/` to read `build.gradle` from, and there is no Android SDK. Expo's own `expo-build-properties` docs example shows `36`, but SDK 54 already targeted 36, so 57 may well be higher.
-
-Guessing is worse than leaving it alone. Expo's default is curated to satisfy Play's target-API minimum, so a pin set too low either falls below that minimum or silently changes runtime behaviour — and `targetSdk` 35 → 36 is precisely what changed edge-to-edge enforcement, the one area this app has a fragile plugin for.
-
-Two minutes of work once someone has the toolchain:
+This was dropped on the grounds that the real values were "not determinable in this
+session" -- no `mobile/node_modules`, no prebuilt `android/`, no Android SDK -- and that
+guessing was worse than leaving it alone. That reasoning was sound while it held. It
+stopped holding the moment a local `expo prebuild` printed:
 
 ```
-cd mobile && npx expo prebuild --platform android --no-install
-grep -n "targetSdkVersion\|compileSdkVersion" android/app/build.gradle android/build.gradle
+buildTools 36.0.0   minSdk 24   compileSdk 36   targetSdk 36   ndk 27.1.12297006
 ```
 
-Then pin those exact values via `expo-build-properties` if the reproducibility is wanted.
+All five are now pinned in `mobile/app.json` through `expo-build-properties`. They match
+today's defaults exactly, so nothing changed -- it is a latch, not a change. `targetSdk`
+is the one Play enforces deadlines against, and 35 -> 36 is precisely the transition that
+altered edge-to-edge enforcement.
+
+`ndkVersion` is pinned too, correcting an earlier call: it was left out on the argument
+that the NDK was only needed for the from-source React Native build. That was wrong.
+`expo-modules-core` (197 C++ files), `react-native-nitro-modules` and
+`react-native-nitro-google-signin` all compile through CMake regardless.
 
 ### Needs your Android build to verify
 
@@ -461,7 +465,7 @@ Note: the full description is **duplicated verbatim** in `listing.json` and `ful
 
   Tablet screenshots stay optional, but the app declares itself tablet-capable (`resizeableActivity="true"`), so the listing will show "not optimized for tablets" without them.
 - **File the IARC questionnaire** (see UGC note above).
-- **Pin `targetSdkVersion`** via `expo-build-properties`. Nothing pins it today; the build inherits the Expo SDK 57 default. Pinning makes Play's target-API deadlines a deliberate decision rather than a side effect of an SDK bump.
+- ~~**Pin `targetSdkVersion`**~~ **Done**, via `expo-build-properties`, once a local prebuild printed the real values. Play's target-API deadlines are now a deliberate decision rather than a side effect of an SDK bump.
 - **Review `mobile/plugins/with-android-edge-to-edge.js`.** It patches React Native's `WindowUtil.kt` in place with exact-string `replaceOnce` and *throws* on mismatch, and forces a from-source RN build (slow, fragile across RN upgrades). It works today. Before 1.0, confirm whether Expo SDK 57 / RN 0.86 still needs it, or whether `react-native-edge-to-edge` / the built-in Expo edge-to-edge support now covers it — this is the highest-value `delete:` in the repo if it can go.
 - Clean up the duplicate `com.chroniclecryptogram.app` Android client in `google-services.json`. It is the iOS bundle id registered as an Android app in Firebase, sharing the same cert hash. Harmless — `app.json`'s `android.package` is `com.chroniclecryptogram` and that client is present and correct — but it means a stray OAuth client exists for a package that will never ship as Android. Worth deleting in the Firebase console next time the file is regenerated.
 - Note: `scripts/ensure-emulator.mjs` and `scripts/project-paths.mjs` hardcode Windows SDK paths (`C:\Users\justin.dial\...`). The Android smoke suite is developer-machine-only and will never run in CI. Acceptable for 1.0; just know the smoke test is manual.

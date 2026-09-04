@@ -30,6 +30,6 @@ The Codebreaker's Handbook (Guide) has a Press tab with the same field instructi
 
 ## Building this yourself
 
-`npm run dev` serves the web app. Building the Android app or deploying needs
-credentials — see **[docs/SECRETS.md](docs/SECRETS.md)** for what each one is,
-where it goes, and how to get it.
+`npm run dev` serves the web app. For the Android app see
+**[docs/ANDROID-BUILD.md](docs/ANDROID-BUILD.md)**; for the credentials any build or
+deploy needs, **[docs/SECRETS.md](docs/SECRETS.md)**.
