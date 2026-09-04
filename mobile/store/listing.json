@@ -16,7 +16,7 @@
   "contentRating": {
     "questionnaire": "IARC",
     "expected": "Retake IARC in Play Console with these answers; do not file Everyone until the questionnaire returns a rating",
-    "notes": "Serialized 1920s mystery. Implied crime in newspaper text. No graphic violence, no UGC, no purchases."
+    "notes": "Serialized 1920s mystery. Implied crime in newspaper text; no graphic violence. ANSWER YES TO USER-GENERATED CONTENT: LeaderboardModal takes a free-text codename (maxLength 20) written to a world-readable Firestore collection other players see. Paid app, one-time price, no in-app purchases and no ads."
   },
   "dataSafety": {
     "dataCollected": [
