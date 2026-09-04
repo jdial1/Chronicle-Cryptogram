@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -27,9 +29,12 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
+import com.chroniclecryptogram.designsystem.DeskWidth
+import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 /**
@@ -54,8 +59,24 @@ fun BoardScreen(
         onAction { it.copy(selectedCellId = null) }
     }
 
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val deskWidth = DeskWidth.fromWidth(maxWidth)
+        CompositionLocalProvider(LocalDeskWidth provides deskWidth) {
+            DeskContent(state, onAction, deskWidth, colors, puzzle)
+        }
+    }
+}
+
+@Composable
+private fun DeskContent(
+    state: BoardState,
+    onAction: ((BoardState) -> BoardState) -> Unit,
+    deskWidth: DeskWidth,
+    colors: com.chroniclecryptogram.designsystem.theme.ChronicleColors,
+    puzzle: PuzzleData,
+) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(colors.paper)
             .safeDrawingPadding()
@@ -89,9 +110,15 @@ fun BoardScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    // A reading measure, so a tablet does not stretch the board
-                    // to the full width of the screen.
-                    .widthIn(max = 720.dp)
+                    // A reading measure, so a wide window does not stretch the
+                    // board across the whole screen.
+                    .then(
+                        if (deskWidth.boardMaxWidth != Dp.Unspecified) {
+                            Modifier.widthIn(max = deskWidth.boardMaxWidth)
+                        } else {
+                            Modifier
+                        }
+                    )
                     .align(Alignment.CenterHorizontally),
             ) {
                 CipherBoard(
@@ -107,6 +134,22 @@ fun BoardScreen(
 
         if (state.isSolved) {
             SolvedNotice(Modifier.fillMaxWidth())
+        } else if (deskWidth.usesSideRail) {
+            // Wide windows put the tools beside the keyboard rather than
+            // stacking a full-width dock the player's thumbs cannot reach.
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                TypewriterKeyboard(
+                    onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
+                    onBackspace = { onAction(BoardActions::backspace) },
+                    modifier = Modifier.weight(1f),
+                )
+                DeskRail(
+                    state = state,
+                    onHint = { onAction(BoardActions::hint) },
+                    onCheck = { onAction(BoardActions::check) },
+                    onClear = { onAction(BoardActions::clearLetters) },
+                )
+            }
         } else {
             DeskDock(
                 state = state,
@@ -192,6 +235,44 @@ private fun DockButton(
         modifier = Modifier.semantics { contentDescription = description },
     ) {
         Text(label, color = ChronicleTheme.colors.ink)
+    }
+}
+
+/** The same three tools, stacked vertically for a wide window. */
+@Composable
+private fun DeskRail(
+    state: BoardState,
+    onHint: () -> Unit,
+    onCheck: () -> Unit,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = ChronicleTheme.colors
+    Column(
+        modifier
+            .background(colors.paperMasthead)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        DockButton(
+            label = "Hint (${state.hintsRemaining})",
+            description = "Reveal the selected glyph. ${state.hintsRemaining} hints left this edition.",
+            enabled = state.hintsRemaining > 0 && state.selectedSymbolId != null,
+            onClick = onHint,
+        )
+        DockButton(
+            label = "Check (${state.checksRemaining})",
+            description = "Test the selected guess. ${state.checksRemaining} checks left this edition.",
+            enabled = state.checksRemaining > 0 && state.selectedSymbolId != null,
+            onClick = onCheck,
+        )
+        DockButton(
+            label = "Clear",
+            description = "Wipe every guess and start the quote over.",
+            enabled = state.mappings.keys.any { it !in state.lockedSymbolIds },
+            onClick = onClear,
+        )
     }
 }
 

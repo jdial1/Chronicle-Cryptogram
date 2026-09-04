@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.model.CipherCell
 import com.chroniclecryptogram.cipher.model.CryptogramWord
+import com.chroniclecryptogram.designsystem.DeskLayout
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlin.math.max
@@ -44,8 +45,12 @@ data class TileSize(
     val glyphStyle: TextStyle,
 )
 
-/** Widths tried largest-first until the longest word fits. */
-private val TileWidthLadder = listOf(56.dp, 48.dp, 44.dp, 40.dp, 36.dp, 32.dp)
+/**
+ * Widths tried largest-first until the longest word fits. The top of the ladder
+ * is capped by [DeskWidth] so a tablet gets a roomier board rather than
+ * enormous type.
+ */
+private val TileWidthLadder = listOf(64.dp, 60.dp, 56.dp, 48.dp, 44.dp, 40.dp, 36.dp, 32.dp)
 
 private val WordGap = 20.dp
 private val LineGap = 28.dp
@@ -61,10 +66,11 @@ private val CellGap = 6.dp
 fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
+    val deskWidth = DeskLayout.width
     val letterStyle = BoardTextStyles.tileLetter
     val glyphStyle = BoardTextStyles.tileGlyph
 
-    return remember(words, maxWidth, density.density, density.fontScale) {
+    return remember(words, maxWidth, deskWidth, density.density, density.fontScale) {
         val letterHeight = measurer.measure("W", letterStyle).size.height
         val glyphHeight = measurer.measure("⦿", glyphStyle).size.height
         val letterWidth = measurer.measure("W", letterStyle).size.width
@@ -78,7 +84,8 @@ fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
             // Largest width that still fits the longest word on one line; the
             // smallest rung is a floor, and long words wrap inside themselves.
             val width = TileWidthLadder.firstOrNull { candidate ->
-                candidate >= minWidth &&
+                candidate <= deskWidth.maxTileWidth &&
+                    candidate >= minWidth &&
                     (candidate * longestWord) + (CellGap * (longestWord - 1)) <= maxWidth
             } ?: maxOf(TileWidthLadder.last(), minWidth)
 
