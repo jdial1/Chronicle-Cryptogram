@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,9 +58,12 @@ import com.chroniclecryptogram.archive.ArchiveScreen
 import com.chroniclecryptogram.board.BoardScreen
 import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.casefile.CaseFileScreen
+import com.chroniclecryptogram.cipher.model.Wallets
+import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.content.ContentRepository
 import com.chroniclecryptogram.cloud.createAccountRepository
+import com.chroniclecryptogram.cloud.createLeaderboard
 import com.chroniclecryptogram.bureau.AccountState
 import com.chroniclecryptogram.bureau.BureauScreen
 import com.chroniclecryptogram.data.DataStoreDeskStore
@@ -70,7 +74,8 @@ import com.chroniclecryptogram.data.NoAccountRepository
 import com.chroniclecryptogram.data.ThemeMode
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
-import com.chroniclecryptogram.data.Standings
+import com.chroniclecryptogram.data.LeaderboardEntry
+import com.chroniclecryptogram.data.TitleBadges
 import com.chroniclecryptogram.content.CaseFileContent
 import com.chroniclecryptogram.content.CipherTacticsContent
 import com.chroniclecryptogram.cipher.model.PuzzleData
@@ -111,6 +116,7 @@ private fun ChronicleApp() {
             NoAccountRepository
         }
     }
+    val boards = remember { createLeaderboard(BuildConfig.HAS_FIREBASE) }
     val account by accounts.account.collectAsStateWithLifecycle(initialValue = null)
     var authBusy by remember { mutableStateOf(false) }
     var authError by remember { mutableStateOf<String?>(null) }
@@ -175,6 +181,58 @@ private fun ChronicleApp() {
         ThemeMode.Dark -> true
     }
 
+    var boardState by remember {
+        mutableStateOf<LeaderboardBoardState>(
+            if (BuildConfig.HAS_FIREBASE) LeaderboardBoardState.Loading
+            else LeaderboardBoardState.Offline
+        )
+    }
+    var postError by remember { mutableStateOf<String?>(null) }
+    // Bumped after a successful post so the board refetches and the player sees
+    // where their own time landed.
+    var boardRevision by remember { mutableIntStateOf(0) }
+
+    val puzzleId = board?.puzzle?.id
+    LaunchedEffect(puzzleId, account?.uid, boardRevision) {
+        if (!BuildConfig.HAS_FIREBASE || puzzleId == null) return@LaunchedEffect
+        boardState = LeaderboardBoardState.Loading
+        boardState = runCatching { boards.standings(puzzleId, account?.uid) }
+            .fold(
+                onSuccess = { LeaderboardBoardState.Ready(it) },
+                // Offline rather than an error screen: a board that cannot be
+                // reached is the ordinary case on a train, not a fault.
+                onFailure = { LeaderboardBoardState.Offline },
+            )
+    }
+
+    // Posting happens on the transition into solved, and only when the player
+    // has chosen a name -- a time is published, so it is never posted under a
+    // name they did not pick.
+    val justSolved = board?.isSolved == true
+    LaunchedEffect(puzzleId, justSolved, prefs.canPost, account?.uid) {
+        val state = board ?: return@LaunchedEffect
+        val uid = account?.uid ?: return@LaunchedEffect
+        if (!justSolved || !prefs.canPost) return@LaunchedEffect
+
+        val entry = LeaderboardEntry(
+            uid = uid,
+            codename = prefs.codename,
+            timeSeconds = state.timerSeconds.toInt(),
+            accuracy = Solve.accuracy(state.mappings, state.answer),
+            hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining,
+            postedAt = System.currentTimeMillis(),
+            titleBadge = prefs.titleBadge.ifBlank { TitleBadges.last() },
+            timeFormatted = Solve.formatTime(state.timerSeconds),
+            countryCode = prefs.countryCode,
+        )
+        boards.post(state.puzzle.id, entry)
+            .onSuccess {
+                postError = null
+                boardRevision++
+            }
+            .onFailure { postError = it.message }
+    }
+
     ChronicleTheme(dark = dark, slot = slot) {
         val current = board
         val solved = desk?.solvedPuzzleIds?.toSet().orEmpty()
@@ -228,6 +286,9 @@ private fun ChronicleApp() {
                         onThemeMode = { scope.launch { prefsStore.setThemeMode(it) } },
                         onKeyboardMode = { scope.launch { prefsStore.setKeyboardMode(it) } },
                         onReduceMotion = { scope.launch { prefsStore.setReduceMotion(it) } },
+                        onCodename = { scope.launch { prefsStore.setCodename(it) } },
+                        onTitleBadge = { scope.launch { prefsStore.setTitleBadge(it) } },
+                        onCountryCode = { scope.launch { prefsStore.setCountryCode(it) } },
                         onSignIn = {
                             scope.launch {
                                 authBusy = true
@@ -245,12 +306,9 @@ private fun ChronicleApp() {
                         onSignOut = { scope.launch { accounts.signOut() } },
                         board = {
                             LeaderboardScreen(
-                                state = if (BuildConfig.HAS_FIREBASE) {
-                                    LeaderboardBoardState.Ready(Standings.rank(emptyList(), null))
-                                } else {
-                                    LeaderboardBoardState.Offline
-                                },
+                                state = boardState,
                                 playerUid = account?.uid,
+                                note = postError,
                             )
                         },
                     )

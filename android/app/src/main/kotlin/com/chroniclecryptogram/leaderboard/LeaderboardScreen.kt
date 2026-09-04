@@ -4,15 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +25,9 @@ import com.chroniclecryptogram.data.LeaderboardStanding
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 const val LeaderboardListTag = "leaderboard-list"
+
+/** How many rows the embedded board shows before summarising the rest. */
+private const val BOARD_ROWS = 25
 
 /** What the board is doing, so the screen can say so rather than showing nothing. */
 sealed interface BoardState {
@@ -52,21 +50,30 @@ fun LeaderboardScreen(
     state: BoardState,
     playerUid: String?,
     modifier: Modifier = Modifier,
+    /** Why the last posting did not go through, when it did not. */
+    note: String? = null,
 ) {
     val colors = ChronicleTheme.colors
 
-    Column(
-        modifier
-            .fillMaxSize()
-            .background(colors.paper)
-            .safeDrawingPadding(),
-    ) {
+    // Width, not size: this board is embedded in the Bureau's scrolling list, so
+    // it is measured with an unbounded height. fillMaxSize resolved to nothing
+    // there and every weight(1f) below it collapsed to zero.
+    Column(modifier.fillMaxWidth().background(colors.paper)) {
         Text(
             text = "The Bureau Board",
             style = MaterialTheme.typography.displayMedium,
             color = colors.ink,
             modifier = Modifier.padding(16.dp),
         )
+
+        note?.let { message ->
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.cinnabar,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+        }
 
         when (state) {
             BoardState.Loading -> Notice("Reading the wire…")
@@ -79,24 +86,45 @@ fun LeaderboardScreen(
                 if (state.standing.entries.isEmpty()) {
                     Notice("No times filed for this edition yet.")
                 } else {
-                    LazyColumn(
-                        Modifier.weight(1f).testTag(LeaderboardListTag),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
+                    // A plain Column, not a LazyColumn: a vertical scroller
+                    // inside the Bureau's vertical scroller is measured with an
+                    // infinite height and throws. The board is capped instead.
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .testTag(LeaderboardListTag),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        itemsIndexed(
-                            state.standing.entries,
-                            key = { _, entry -> entry.uid },
-                        ) { index, entry ->
-                            EntryRow(
-                                rank = index + 1,
-                                codename = entry.codename,
-                                time = Solve.formatTime(entry.timeSeconds.toDouble()),
-                                hints = entry.hintsUsed,
-                                isPlayer = entry.uid == playerUid,
+                        state.standing.entries.take(BOARD_ROWS)
+                            .forEachIndexed { index, entry ->
+                                EntryRow(
+                                    rank = index + 1,
+                                    codename = entry.codename,
+                                    time = Solve.formatTime(entry.timeSeconds.toDouble()),
+                                    hints = entry.hintsUsed,
+                                    isPlayer = entry.uid == playerUid,
+                                )
+                            }
+
+                        val hidden = state.standing.entries.size - BOARD_ROWS
+                        if (hidden > 0) {
+                            Text(
+                                text = "and $hidden more.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = colors.paperRule,
                             )
                         }
                     }
+                }
+
+                state.standing.playerRank?.let { rank ->
+                    Text(
+                        text = "You stand $rank of ${state.standing.entries.size}.",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colors.brass,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                    )
                 }
 
                 Text(
@@ -112,17 +140,19 @@ fun LeaderboardScreen(
 }
 
 /**
- * An empty or offline board centred in the space it has. Left at the top it read
- * as a screen that had failed to finish loading rather than one with nothing to
- * show.
+ * An empty or offline board, centred in a reserved band. Left flush at the top it
+ * read as a screen that had failed to finish loading rather than one with
+ * nothing to show.
  */
 @Composable
-private fun ColumnScope.Notice(text: String) {
+private fun Notice(text: String) {
     Box(
         Modifier
-            .weight(1f)
             .fillMaxWidth()
-            .padding(32.dp),
+            // A minimum rather than a weight, for the same reason: there is no
+            // leftover space to take a share of inside a scrolling parent.
+            .heightIn(min = 96.dp)
+            .padding(24.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

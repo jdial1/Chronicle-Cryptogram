@@ -14,6 +14,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -22,6 +29,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
 import com.chroniclecryptogram.data.ThemeMode
+import com.chroniclecryptogram.data.TitleBadges
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 const val BureauListTag = "bureau-list"
@@ -62,6 +74,9 @@ fun BureauScreen(
     onThemeMode: (ThemeMode) -> Unit,
     onKeyboardMode: (KeyboardMode) -> Unit,
     onReduceMotion: (Boolean) -> Unit,
+    onCodename: (String) -> Unit,
+    onTitleBadge: (String) -> Unit,
+    onCountryCode: (String) -> Unit,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
@@ -150,6 +165,59 @@ fun BureauScreen(
                     detail = "Still keys and no letter jitter.",
                     checked = prefs.reduceMotion,
                     onChange = onReduceMotion,
+                )
+            }
+        }
+
+        item {
+            Card {
+                SectionTitle("Posting")
+                Text(
+                    // Said plainly, because posting is publishing: the name goes
+                    // on a board other people read.
+                    text = "Times are posted under this name, where every other " +
+                        "solver can see them. Leave it empty and nothing is posted.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.paperRule,
+                )
+
+                SettingLabel("Codename")
+                OutlinedTextField(
+                    value = prefs.codename,
+                    onValueChange = { onCodename(it.take(24)) },
+                    singleLine = true,
+                    placeholder = { Text("Unsigned", color = colors.paperRule) },
+                    supportingText = { Text("${prefs.codename.length} of 24") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = colors.ink,
+                        unfocusedTextColor = colors.ink,
+                        focusedBorderColor = colors.brass,
+                        unfocusedBorderColor = colors.paperRule,
+                        cursorColor = colors.brass,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = "Codename" },
+                )
+
+                SettingLabel("Title")
+                TitlePicker(selected = prefs.titleBadge, onSelect = onTitleBadge)
+
+                SettingLabel("Country")
+                OutlinedTextField(
+                    value = prefs.countryCode,
+                    onValueChange = { onCountryCode(it.filter { c -> c.isLetter() }.take(2)) },
+                    singleLine = true,
+                    isError = prefs.countryCode.length != 2,
+                    supportingText = { Text("Two letters, like US") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = colors.ink,
+                        unfocusedTextColor = colors.ink,
+                        focusedBorderColor = colors.brass,
+                        unfocusedBorderColor = colors.paperRule,
+                        cursorColor = colors.brass,
+                    ),
+                    modifier = Modifier.semantics { contentDescription = "Country code" },
                 )
             }
         }
@@ -288,6 +356,57 @@ private fun SettingRow(
             ),
             modifier = Modifier.semantics { contentDescription = title },
         )
+    }
+}
+
+/**
+ * The rank beside the name on the board.
+ *
+ * A dropdown rather than free text: the rules cap it at 60 characters, and the
+ * web offers exactly this list, so a board read on either app looks the same.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TitlePicker(selected: String, onSelect: (String) -> Unit) {
+    val colors = ChronicleTheme.colors
+    var open by remember { mutableStateOf(false) }
+    val current = selected.ifBlank { TitleBadges.last() }
+
+    ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it }) {
+        OutlinedTextField(
+            value = current,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(open) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = colors.ink,
+                unfocusedTextColor = colors.ink,
+                focusedBorderColor = colors.brass,
+                unfocusedBorderColor = colors.paperRule,
+            ),
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+                .semantics { contentDescription = "Title, $current" },
+        )
+        ExposedDropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            // The menu is a Material surface, not a themed one: left alone it
+            // paints the default tonal lavender in the middle of the paper.
+            containerColor = colors.paperCard,
+        ) {
+            TitleBadges.forEach { badge ->
+                DropdownMenuItem(
+                    text = { Text(badge, color = colors.ink) },
+                    onClick = {
+                        onSelect(badge)
+                        open = false
+                    },
+                )
+            }
+        }
     }
 }
 

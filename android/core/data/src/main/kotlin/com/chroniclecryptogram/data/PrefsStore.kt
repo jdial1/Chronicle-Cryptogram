@@ -28,7 +28,18 @@ data class DeskPrefs(
     val themeMode: ThemeMode = ThemeMode.System,
     val keyboardMode: KeyboardMode = KeyboardMode.Typewriter,
     val reduceMotion: Boolean = false,
-)
+    /**
+     * How the player is named on the board. Empty means they have not chosen
+     * one, and nothing is posted until they do -- a time is published under this
+     * name, so it is never picked for them.
+     */
+    val codename: String = "",
+    val titleBadge: String = "",
+    val countryCode: String = "US",
+) {
+    /** A board posting needs a name; everything else has a default. */
+    val canPost: Boolean get() = codename.isNotBlank()
+}
 
 /**
  * Small, independent settings.
@@ -42,6 +53,9 @@ interface PrefsStore {
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setKeyboardMode(mode: KeyboardMode)
     suspend fun setReduceMotion(enabled: Boolean)
+    suspend fun setCodename(codename: String)
+    suspend fun setTitleBadge(badge: String)
+    suspend fun setCountryCode(code: String)
 }
 
 class DataStorePrefsStore(private val store: DataStore<Preferences>) : PrefsStore {
@@ -54,6 +68,9 @@ class DataStorePrefsStore(private val store: DataStore<Preferences>) : PrefsStor
                 themeMode = values[ThemeKey]?.toThemeMode() ?: ThemeMode.System,
                 keyboardMode = values[KeyboardKey]?.toKeyboardMode() ?: KeyboardMode.Typewriter,
                 reduceMotion = values[ReduceMotionKey] ?: false,
+                codename = values[CodenameKey].orEmpty(),
+                titleBadge = values[TitleBadgeKey] ?: TitleBadges.last(),
+                countryCode = values[CountryKey] ?: "US",
             )
         }
 
@@ -69,10 +86,25 @@ class DataStorePrefsStore(private val store: DataStore<Preferences>) : PrefsStor
         store.edit { it[ReduceMotionKey] = enabled }
     }
 
+    override suspend fun setCodename(codename: String) {
+        store.edit { it[CodenameKey] = Posting.clipCodename(codename) }
+    }
+
+    override suspend fun setTitleBadge(badge: String) {
+        store.edit { it[TitleBadgeKey] = badge.take(60) }
+    }
+
+    override suspend fun setCountryCode(code: String) {
+        store.edit { it[CountryKey] = code.uppercase().take(2) }
+    }
+
     companion object {
         private val ThemeKey = stringPreferencesKey("themeMode")
         private val KeyboardKey = stringPreferencesKey("keyboardMode")
         private val ReduceMotionKey = booleanPreferencesKey("reduceMotion")
+        private val CodenameKey = stringPreferencesKey("codename")
+        private val TitleBadgeKey = stringPreferencesKey("titleBadge")
+        private val CountryKey = stringPreferencesKey("countryCode")
 
         /** An unrecognised stored value falls back rather than throwing. */
         private fun String.toThemeMode() =

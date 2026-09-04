@@ -1,5 +1,9 @@
 package com.chroniclecryptogram.leaderboard
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -101,5 +105,65 @@ class LeaderboardScreenTest {
         compose.onNodeWithText("Verified", substring = true).assertDoesNotExist()
         compose.onNodeWithText("Certified", substring = true).assertDoesNotExist()
         compose.onNodeWithText("certified", substring = true).assertDoesNotExist()
+    }
+
+    /**
+     * The board's real home is inside the Bureau's LazyColumn, which measures
+     * its children with an unbounded height. A vertical scroller there throws,
+     * and a weight(1f) there collapses to nothing -- both of which this screen
+     * did until the rows were flattened. Rendering it in that exact shape is the
+     * only way the test catches either.
+     */
+    @Test
+    fun `the board renders inside a scrolling parent`() {
+        val entries = (1..30).map { entry("uid-$it", time = 60 + it) }
+        compose.setContent {
+            ChronicleTheme(dark = false) {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    item {
+                        LeaderboardScreen(
+                            state = BoardState.Ready(Standings.rank(entries, "uid-3")),
+                            playerUid = "uid-3",
+                        )
+                    }
+                }
+            }
+        }
+
+        compose.onNodeWithText("UID-1").assertExists()
+        // Capped, with the remainder summarised rather than silently dropped.
+        compose.onNodeWithText("and 5 more.").assertExists()
+        compose.onNodeWithText("You stand 3 of 30.").assertExists()
+    }
+
+    @Test
+    fun `an empty board says so inside a scrolling parent`() {
+        compose.setContent {
+            ChronicleTheme(dark = false) {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    item {
+                        LeaderboardScreen(
+                            state = BoardState.Ready(Standings.rank(emptyList(), null)),
+                            playerUid = null,
+                        )
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText("No times filed for this edition yet.").assertExists()
+    }
+
+    @Test
+    fun `a failed posting is reported on the board`() {
+        compose.setContent {
+            ChronicleTheme(dark = false) {
+                LeaderboardScreen(
+                    state = BoardState.Ready(Standings.rank(emptyList(), null)),
+                    playerUid = null,
+                    note = "Choose a codename before posting a time.",
+                )
+            }
+        }
+        compose.onNodeWithText("Choose a codename before posting a time.").assertExists()
     }
 }

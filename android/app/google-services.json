@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "647414230767-anbv43nkrmcmls6t5jn57jo793ur6fv3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chroniclecryptogram",
+            "certificate_hash": "1b8e0ad37a8a3bb7c709b6bef6460f0e36509954"
+          }
+        },
+        {
+          "client_id": "647414230767-knu7o1552kuimtfi3508nf7gohajtl2n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chroniclecryptogram",
+            "certificate_hash": "6a8c7c409831dc8c762f7265c39e5358e3c35bac"
+          }
+        },
+        {
           "client_id": "647414230767-coj2nt4mk2ok8rf919gh108502qtptup.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -57,6 +73,14 @@
           "android_info": {
             "package_name": "com.chroniclecryptogram.app",
             "certificate_hash": "505ec34b5ee6a7057609c8038ab3da8ca567210b"
+          }
+        },
+        {
+          "client_id": "647414230767-kjk85t5tlvamn4abuutm12lseoobu4c9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chroniclecryptogram.app",
+            "certificate_hash": "6a8c7c409831dc8c762f7265c39e5358e3c35bac"
           }
         },
         {
