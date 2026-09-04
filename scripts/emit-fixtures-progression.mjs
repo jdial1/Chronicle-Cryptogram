@@ -37,6 +37,7 @@ import {
 } from '../src/utils/localStore.ts';
 import { letterCells, cellCursor, nextOpenCell, previousCell } from '../src/game/cipherCursor.ts';
 import { decodedMappingsFromPuzzle, withHintedMappings, liveFlaggedIds } from '../src/game/puzzleState.ts';
+import { CASE_CHARACTERS, CASE_FRAGMENTS, assembleFragment, unlockedFragmentsForCharacter, hasDecodedFragments } from '../src/data/caseFiles.ts';
 import { buildCipherAlphabet, parseCryptogramText } from '../src/utils/cipherEngine.ts';
 import { INITIAL_PUZZLES } from '../src/data/puzzles.ts';
 
@@ -403,6 +404,86 @@ export function emitPuzzleState(emit) {
         ],
       };
     }),
+  });
+}
+
+/**
+ * Case-file assembly is prose the player reads, and its rules are subtle: a
+ * fragment with no decoded quote is withheld entirely, and text following a
+ * quote gets its punctuation stitched (leading periods dropped, the quote's full
+ * stop removed before a lower-case continuation). Worth pinning exactly.
+ */
+export function emitCaseFiles(emit) {
+  const morningId = (n) =>
+    INITIAL_PUZZLES.find((p) => p.editionNumber === n && !isHardPuzzle(p) && n > 0)?.id;
+  const nightId = (n) => INITIAL_PUZZLES.find((p) => p.editionNumber === n && isHardPuzzle(p))?.id;
+
+  const solvedSets = [
+    { name: 'none', solvedIds: [] },
+    { name: 'edition-1-morning', solvedIds: [morningId(1)].filter(Boolean) },
+    { name: 'edition-1-both', solvedIds: [morningId(1), nightId(1)].filter(Boolean) },
+    {
+      name: 'first-six-mornings',
+      solvedIds: [1, 2, 3, 4, 5, 6].map(morningId).filter(Boolean),
+    },
+    { name: 'everything', solvedIds: INITIAL_PUZZLES.map((p) => p.id) },
+  ];
+
+  // The shipped content never lands on the branch that strips a quote's full
+  // stop before a lower-case continuation, so real fragments pin that code
+  // without testing it. These synthetic ones drive every seam deliberately.
+  const seamCases = [
+    { name: 'continuation-lowercase', text: ' and he paid it.' },
+    { name: 'continuation-comma', text: ', which settled it.' },
+    { name: 'continuation-semicolon', text: '; the file closed.' },
+    { name: 'new-sentence-uppercase', text: ' He paid it.' },
+    { name: 'stray-leading-period', text: ' . and he paid it.' },
+    { name: 'stray-leading-periods', text: '.... and he paid it.' },
+    { name: 'whitespace-only', text: '   ' },
+    { name: 'empty', text: '' },
+  ];
+
+  const seamFragments = seamCases.map((seam) => ({
+    name: seam.name,
+    fragment: {
+      characterId: CASE_CHARACTERS[0].id,
+      editionNumber: 1,
+      title: `Seam: ${seam.name}`,
+      parts: [
+        { kind: 'text', value: 'Before the quote. ' },
+        { kind: 'quote', slot: 'Morning' },
+        { kind: 'text', value: seam.text },
+      ],
+    },
+  }));
+
+  emit('case-files', {
+    characters: CASE_CHARACTERS.map((c) => c.id),
+    // Assembled with edition 1's morning solved, so the quote is always present.
+    seams: seamFragments.map(({ name, fragment }) => ({
+      name,
+      fragment,
+      assembled: assembleFragment(
+        fragment,
+        INITIAL_PUZZLES,
+        [morningId(1)].filter(Boolean)
+      ),
+    })),
+    cases: solvedSets.map((set) => ({
+      name: set.name,
+      solvedIds: set.solvedIds,
+      hasDecodedFragments: hasDecodedFragments(INITIAL_PUZZLES, set.solvedIds),
+      fragments: CASE_FRAGMENTS.map((fragment) => ({
+        characterId: fragment.characterId,
+        editionNumber: fragment.editionNumber,
+        title: fragment.title,
+        assembled: assembleFragment(fragment, INITIAL_PUZZLES, set.solvedIds),
+      })),
+      perCharacter: CASE_CHARACTERS.map((c) => ({
+        characterId: c.id,
+        fragments: unlockedFragmentsForCharacter(c.id, INITIAL_PUZZLES, set.solvedIds),
+      })),
+    })),
   });
 }
 

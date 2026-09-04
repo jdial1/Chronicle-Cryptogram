@@ -1,0 +1,3527 @@
+{
+  "characters": [
+    "thorne",
+    "beatrice",
+    "clara",
+    "sterling",
+    "archibald",
+    "blackwood",
+    "reginald"
+  ],
+  "seams": [
+    {
+      "name": "continuation-lowercase",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-lowercase",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": " and he paid it."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-lowercase",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE"
+          },
+          {
+            "kind": "text",
+            "value": " and he paid it."
+          }
+        ]
+      }
+    },
+    {
+      "name": "continuation-comma",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-comma",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": ", which settled it."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-comma",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE"
+          },
+          {
+            "kind": "text",
+            "value": ", which settled it."
+          }
+        ]
+      }
+    },
+    {
+      "name": "continuation-semicolon",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-semicolon",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": "; the file closed."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: continuation-semicolon",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE"
+          },
+          {
+            "kind": "text",
+            "value": "; the file closed."
+          }
+        ]
+      }
+    },
+    {
+      "name": "new-sentence-uppercase",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: new-sentence-uppercase",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": " He paid it."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: new-sentence-uppercase",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+          },
+          {
+            "kind": "text",
+            "value": " He paid it."
+          }
+        ]
+      }
+    },
+    {
+      "name": "stray-leading-period",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: stray-leading-period",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": " . and he paid it."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: stray-leading-period",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE"
+          },
+          {
+            "kind": "text",
+            "value": " and he paid it."
+          }
+        ]
+      }
+    },
+    {
+      "name": "stray-leading-periods",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: stray-leading-periods",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": ".... and he paid it."
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: stray-leading-periods",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE"
+          },
+          {
+            "kind": "text",
+            "value": " and he paid it."
+          }
+        ]
+      }
+    },
+    {
+      "name": "whitespace-only",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: whitespace-only",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": "   "
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: whitespace-only",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty",
+      "fragment": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: empty",
+        "parts": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "slot": "Morning"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ]
+      },
+      "assembled": {
+        "characterId": "thorne",
+        "editionNumber": 1,
+        "title": "Seam: empty",
+        "segments": [
+          {
+            "kind": "text",
+            "value": "Before the quote. "
+          },
+          {
+            "kind": "quote",
+            "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "none",
+      "solvedIds": [],
+      "hasDecodedFragments": false,
+      "fragments": [
+        {
+          "characterId": "thorne",
+          "editionNumber": 1,
+          "title": "The Detective",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 6,
+          "title": "The Bloodhound",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 16,
+          "title": "The Lone Wolf",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 17,
+          "title": "The Executioner",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 24,
+          "title": "The Tactician",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 30,
+          "title": "The Civilian",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 2,
+          "title": "The Cold Widow",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 5,
+          "title": "The Extortionist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 9,
+          "title": "The Mother Twist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 12,
+          "title": "The Smuggler",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 18,
+          "title": "The Killer",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 22,
+          "title": "The Monster",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 26,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 3,
+          "title": "The Missing Heir",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 6,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 10,
+          "title": "The Witness",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 13,
+          "title": "The Hunted",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 18,
+          "title": "The Survivor",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 21,
+          "title": "The Bait",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 29,
+          "title": "The Successor",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 3,
+          "title": "The Panicked Partner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 7,
+          "title": "The Bootlegger",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 11,
+          "title": "The Mob Boss",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 14,
+          "title": "The Gun Runner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 17,
+          "title": "The Alibi",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 23,
+          "title": "The Viper",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 25,
+          "title": "The Convict",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 1,
+          "title": "The Victim",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 7,
+          "title": "The Ultimatum",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 9,
+          "title": "The Blackmailer",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 28,
+          "title": "The Paranoid Tycoon",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 19,
+          "title": "The Accomplice",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 20,
+          "title": "The Expendable Lover",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 8,
+          "title": "The Bribed Servant",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 14,
+          "title": "The Dead Fool",
+          "assembled": null
+        }
+      ],
+      "perCharacter": [
+        {
+          "characterId": "thorne",
+          "fragments": []
+        },
+        {
+          "characterId": "beatrice",
+          "fragments": []
+        },
+        {
+          "characterId": "clara",
+          "fragments": []
+        },
+        {
+          "characterId": "sterling",
+          "fragments": []
+        },
+        {
+          "characterId": "archibald",
+          "fragments": []
+        },
+        {
+          "characterId": "blackwood",
+          "fragments": []
+        },
+        {
+          "characterId": "reginald",
+          "fragments": []
+        }
+      ]
+    },
+    {
+      "name": "edition-1-morning",
+      "solvedIds": [
+        "day_1_easy"
+      ],
+      "hasDecodedFragments": true,
+      "fragments": [
+        {
+          "characterId": "thorne",
+          "editionNumber": 1,
+          "title": "The Detective",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 1,
+            "title": "The Detective",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "NYPD detective assigned to the Vance Estate. "
+              },
+              {
+                "kind": "text",
+                "value": "The initial sweep proves "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              },
+              {
+                "kind": "text",
+                "value": " Archibald knew too much about the smuggling ring."
+              },
+              {
+                "kind": "text",
+                "value": " I'm going to find out who did it."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 6,
+          "title": "The Bloodhound",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 16,
+          "title": "The Lone Wolf",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 17,
+          "title": "The Executioner",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 24,
+          "title": "The Tactician",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 30,
+          "title": "The Civilian",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 2,
+          "title": "The Cold Widow",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 5,
+          "title": "The Extortionist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 9,
+          "title": "The Mother Twist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 12,
+          "title": "The Smuggler",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 18,
+          "title": "The Killer",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 22,
+          "title": "The Monster",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 26,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 3,
+          "title": "The Missing Heir",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 6,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 10,
+          "title": "The Witness",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 13,
+          "title": "The Hunted",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 18,
+          "title": "The Survivor",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 21,
+          "title": "The Bait",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 29,
+          "title": "The Successor",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 3,
+          "title": "The Panicked Partner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 7,
+          "title": "The Bootlegger",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 11,
+          "title": "The Mob Boss",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 14,
+          "title": "The Gun Runner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 17,
+          "title": "The Alibi",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 23,
+          "title": "The Viper",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 25,
+          "title": "The Convict",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 1,
+          "title": "The Victim",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 1,
+            "title": "The Victim",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 7,
+          "title": "The Ultimatum",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 9,
+          "title": "The Blackmailer",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 28,
+          "title": "The Paranoid Tycoon",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 19,
+          "title": "The Accomplice",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 20,
+          "title": "The Expendable Lover",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 8,
+          "title": "The Bribed Servant",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 14,
+          "title": "The Dead Fool",
+          "assembled": null
+        }
+      ],
+      "perCharacter": [
+        {
+          "characterId": "thorne",
+          "fragments": [
+            {
+              "characterId": "thorne",
+              "editionNumber": 1,
+              "title": "The Detective",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "NYPD detective assigned to the Vance Estate. "
+                },
+                {
+                  "kind": "text",
+                  "value": "The initial sweep proves "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                },
+                {
+                  "kind": "text",
+                  "value": " Archibald knew too much about the smuggling ring."
+                },
+                {
+                  "kind": "text",
+                  "value": " I'm going to find out who did it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "beatrice",
+          "fragments": []
+        },
+        {
+          "characterId": "clara",
+          "fragments": []
+        },
+        {
+          "characterId": "sterling",
+          "fragments": []
+        },
+        {
+          "characterId": "archibald",
+          "fragments": [
+            {
+              "characterId": "archibald",
+              "editionNumber": 1,
+              "title": "The Victim",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "blackwood",
+          "fragments": []
+        },
+        {
+          "characterId": "reginald",
+          "fragments": []
+        }
+      ]
+    },
+    {
+      "name": "edition-1-both",
+      "solvedIds": [
+        "day_1_easy",
+        "day_1_hard"
+      ],
+      "hasDecodedFragments": true,
+      "fragments": [
+        {
+          "characterId": "thorne",
+          "editionNumber": 1,
+          "title": "The Detective",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 1,
+            "title": "The Detective",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "NYPD detective assigned to the Vance Estate. "
+              },
+              {
+                "kind": "text",
+                "value": "The initial sweep proves "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              },
+              {
+                "kind": "text",
+                "value": " Archibald knew too much about the smuggling ring."
+              },
+              {
+                "kind": "text",
+                "value": " The night extra confirms "
+              },
+              {
+                "kind": "quote",
+                "value": "HE THREATENED TO EXPOSE US ALL."
+              },
+              {
+                "kind": "text",
+                "value": " I'm going to find out who did it."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 6,
+          "title": "The Bloodhound",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 16,
+          "title": "The Lone Wolf",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 17,
+          "title": "The Executioner",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 24,
+          "title": "The Tactician",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 30,
+          "title": "The Civilian",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 2,
+          "title": "The Cold Widow",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 5,
+          "title": "The Extortionist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 9,
+          "title": "The Mother Twist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 12,
+          "title": "The Smuggler",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 18,
+          "title": "The Killer",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 22,
+          "title": "The Monster",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 26,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 3,
+          "title": "The Missing Heir",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 6,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 10,
+          "title": "The Witness",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 13,
+          "title": "The Hunted",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 18,
+          "title": "The Survivor",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 21,
+          "title": "The Bait",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 29,
+          "title": "The Successor",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 3,
+          "title": "The Panicked Partner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 7,
+          "title": "The Bootlegger",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 11,
+          "title": "The Mob Boss",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 14,
+          "title": "The Gun Runner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 17,
+          "title": "The Alibi",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 23,
+          "title": "The Viper",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 25,
+          "title": "The Convict",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 1,
+          "title": "The Victim",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 1,
+            "title": "The Victim",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 7,
+          "title": "The Ultimatum",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 9,
+          "title": "The Blackmailer",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 28,
+          "title": "The Paranoid Tycoon",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 19,
+          "title": "The Accomplice",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 20,
+          "title": "The Expendable Lover",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 8,
+          "title": "The Bribed Servant",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 14,
+          "title": "The Dead Fool",
+          "assembled": null
+        }
+      ],
+      "perCharacter": [
+        {
+          "characterId": "thorne",
+          "fragments": [
+            {
+              "characterId": "thorne",
+              "editionNumber": 1,
+              "title": "The Detective",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "NYPD detective assigned to the Vance Estate. "
+                },
+                {
+                  "kind": "text",
+                  "value": "The initial sweep proves "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                },
+                {
+                  "kind": "text",
+                  "value": " Archibald knew too much about the smuggling ring."
+                },
+                {
+                  "kind": "text",
+                  "value": " The night extra confirms "
+                },
+                {
+                  "kind": "quote",
+                  "value": "HE THREATENED TO EXPOSE US ALL."
+                },
+                {
+                  "kind": "text",
+                  "value": " I'm going to find out who did it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "beatrice",
+          "fragments": []
+        },
+        {
+          "characterId": "clara",
+          "fragments": []
+        },
+        {
+          "characterId": "sterling",
+          "fragments": []
+        },
+        {
+          "characterId": "archibald",
+          "fragments": [
+            {
+              "characterId": "archibald",
+              "editionNumber": 1,
+              "title": "The Victim",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "blackwood",
+          "fragments": []
+        },
+        {
+          "characterId": "reginald",
+          "fragments": []
+        }
+      ]
+    },
+    {
+      "name": "first-six-mornings",
+      "solvedIds": [
+        "day_1_easy",
+        "day_2_easy",
+        "day_3_easy",
+        "day_4_easy",
+        "day_5_easy",
+        "day_6_easy"
+      ],
+      "hasDecodedFragments": true,
+      "fragments": [
+        {
+          "characterId": "thorne",
+          "editionNumber": 1,
+          "title": "The Detective",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 1,
+            "title": "The Detective",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "NYPD detective assigned to the Vance Estate. "
+              },
+              {
+                "kind": "text",
+                "value": "The initial sweep proves "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              },
+              {
+                "kind": "text",
+                "value": " Archibald knew too much about the smuggling ring."
+              },
+              {
+                "kind": "text",
+                "value": " I'm going to find out who did it."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 6,
+          "title": "The Bloodhound",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 6,
+            "title": "The Bloodhound",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Four hours north on a sleeper. I clocked him as an upstate jailer, not a gala guest. Relentless on the trail. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+              },
+              {
+                "kind": "text",
+                "value": " I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 16,
+          "title": "The Lone Wolf",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 17,
+          "title": "The Executioner",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 24,
+          "title": "The Tactician",
+          "assembled": null
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 30,
+          "title": "The Civilian",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 2,
+          "title": "The Cold Widow",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 2,
+            "title": "The Cold Widow",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The grieving act is a sham. She was not hiding an affair. He left the revocation on the study desk for her to steal. She burned it, thinking that would keep the fleet in syndicate hands forever. "
+              },
+              {
+                "kind": "quote",
+                "value": "HE CHANGED THE WILL BEFORE THE GALA."
+              },
+              {
+                "kind": "text",
+                "value": " That sent her hunting the library for the compartment behind the red sailboat."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 5,
+          "title": "The Extortionist",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 5,
+            "title": "The Extortionist",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Intercepted wires prove she is shaking down her husband's partner. "
+              },
+              {
+                "kind": "quote",
+                "value": "SEND MY HALF TO THE PLAZA."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 9,
+          "title": "The Mother Twist",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 12,
+          "title": "The Smuggler",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 18,
+          "title": "The Killer",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 22,
+          "title": "The Monster",
+          "assembled": null
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 26,
+          "title": "The Prisoner",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 3,
+          "title": "The Missing Heir",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 3,
+            "title": "The Missing Heir",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Archibald's estranged daughter, who vanished three years ago. We just learned it: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GIRL IS STILL BREATHING."
+              },
+              {
+                "kind": "text",
+                "value": " She inherits the massive fortune."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 6,
+          "title": "The Prisoner",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 6,
+            "title": "The Prisoner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "But the nurse confirms it: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 10,
+          "title": "The Witness",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 13,
+          "title": "The Hunted",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 18,
+          "title": "The Survivor",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 21,
+          "title": "The Bait",
+          "assembled": null
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 29,
+          "title": "The Successor",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 3,
+          "title": "The Panicked Partner",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 3,
+            "title": "The Panicked Partner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Archibald's business partner. He sweats bullets. We learned "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GIRL IS STILL BREATHING."
+              },
+              {
+                "kind": "text",
+                "value": " The heir is back."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 7,
+          "title": "The Bootlegger",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 11,
+          "title": "The Mob Boss",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 14,
+          "title": "The Gun Runner",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 17,
+          "title": "The Alibi",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 23,
+          "title": "The Viper",
+          "assembled": null
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 25,
+          "title": "The Convict",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 1,
+          "title": "The Victim",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 1,
+            "title": "The Victim",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 7,
+          "title": "The Ultimatum",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 9,
+          "title": "The Blackmailer",
+          "assembled": null
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 28,
+          "title": "The Paranoid Tycoon",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 19,
+          "title": "The Accomplice",
+          "assembled": null
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 20,
+          "title": "The Expendable Lover",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 8,
+          "title": "The Bribed Servant",
+          "assembled": null
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 14,
+          "title": "The Dead Fool",
+          "assembled": null
+        }
+      ],
+      "perCharacter": [
+        {
+          "characterId": "thorne",
+          "fragments": [
+            {
+              "characterId": "thorne",
+              "editionNumber": 1,
+              "title": "The Detective",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "NYPD detective assigned to the Vance Estate. "
+                },
+                {
+                  "kind": "text",
+                  "value": "The initial sweep proves "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                },
+                {
+                  "kind": "text",
+                  "value": " Archibald knew too much about the smuggling ring."
+                },
+                {
+                  "kind": "text",
+                  "value": " I'm going to find out who did it."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 6,
+              "title": "The Bloodhound",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Four hours north on a sleeper. I clocked him as an upstate jailer, not a gala guest. Relentless on the trail. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+                },
+                {
+                  "kind": "text",
+                  "value": " I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "beatrice",
+          "fragments": [
+            {
+              "characterId": "beatrice",
+              "editionNumber": 2,
+              "title": "The Cold Widow",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The grieving act is a sham. She was not hiding an affair. He left the revocation on the study desk for her to steal. She burned it, thinking that would keep the fleet in syndicate hands forever. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "HE CHANGED THE WILL BEFORE THE GALA."
+                },
+                {
+                  "kind": "text",
+                  "value": " That sent her hunting the library for the compartment behind the red sailboat."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 5,
+              "title": "The Extortionist",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Intercepted wires prove she is shaking down her husband's partner. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "SEND MY HALF TO THE PLAZA."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "clara",
+          "fragments": [
+            {
+              "characterId": "clara",
+              "editionNumber": 3,
+              "title": "The Missing Heir",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Archibald's estranged daughter, who vanished three years ago. We just learned it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GIRL IS STILL BREATHING."
+                },
+                {
+                  "kind": "text",
+                  "value": " She inherits the massive fortune."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 6,
+              "title": "The Prisoner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "But the nurse confirms it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "sterling",
+          "fragments": [
+            {
+              "characterId": "sterling",
+              "editionNumber": 3,
+              "title": "The Panicked Partner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Archibald's business partner. He sweats bullets. We learned "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GIRL IS STILL BREATHING."
+                },
+                {
+                  "kind": "text",
+                  "value": " The heir is back."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "archibald",
+          "fragments": [
+            {
+              "characterId": "archibald",
+              "editionNumber": 1,
+              "title": "The Victim",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "blackwood",
+          "fragments": []
+        },
+        {
+          "characterId": "reginald",
+          "fragments": []
+        }
+      ]
+    },
+    {
+      "name": "everything",
+      "solvedIds": [
+        "day_0_primer",
+        "day_1_easy",
+        "day_1_hard",
+        "day_2_easy",
+        "day_2_hard",
+        "day_3_easy",
+        "day_3_hard",
+        "day_4_easy",
+        "day_4_hard",
+        "day_5_easy",
+        "day_5_hard",
+        "day_6_easy",
+        "day_6_hard",
+        "day_7_easy",
+        "day_7_hard",
+        "day_8_easy",
+        "day_8_hard",
+        "day_9_easy",
+        "day_9_hard",
+        "day_10_easy",
+        "day_10_hard",
+        "day_11_easy",
+        "day_11_hard",
+        "day_12_easy",
+        "day_12_hard",
+        "day_13_easy",
+        "day_13_hard",
+        "day_14_easy",
+        "day_14_hard",
+        "day_15_easy",
+        "day_15_hard",
+        "day_16_easy",
+        "day_16_hard",
+        "day_17_easy",
+        "day_17_hard",
+        "day_18_easy",
+        "day_18_hard",
+        "day_19_easy",
+        "day_19_hard",
+        "day_20_easy",
+        "day_20_hard",
+        "day_21_easy",
+        "day_21_hard",
+        "day_22_easy",
+        "day_22_hard",
+        "day_23_easy",
+        "day_23_hard",
+        "day_24_easy",
+        "day_24_hard",
+        "day_25_easy",
+        "day_25_hard",
+        "day_26_easy",
+        "day_26_hard",
+        "day_27_easy",
+        "day_27_hard",
+        "day_28_easy",
+        "day_28_hard",
+        "day_29_easy",
+        "day_29_hard",
+        "day_30_easy",
+        "day_30_hard"
+      ],
+      "hasDecodedFragments": true,
+      "fragments": [
+        {
+          "characterId": "thorne",
+          "editionNumber": 1,
+          "title": "The Detective",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 1,
+            "title": "The Detective",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "NYPD detective assigned to the Vance Estate. "
+              },
+              {
+                "kind": "text",
+                "value": "The initial sweep proves "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              },
+              {
+                "kind": "text",
+                "value": " Archibald knew too much about the smuggling ring."
+              },
+              {
+                "kind": "text",
+                "value": " The night extra confirms "
+              },
+              {
+                "kind": "quote",
+                "value": "HE THREATENED TO EXPOSE US ALL."
+              },
+              {
+                "kind": "text",
+                "value": " I'm going to find out who did it."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 6,
+          "title": "The Bloodhound",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 6,
+            "title": "The Bloodhound",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Four hours north on a sleeper. I clocked him as an upstate jailer, not a gala guest. Relentless on the trail. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+              },
+              {
+                "kind": "text",
+                "value": " I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 16,
+          "title": "The Lone Wolf",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 16,
+            "title": "The Lone Wolf",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The Mayor is out and I cannot trust my own Chief. He sprung the butler. I filed it: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE BADGES ARE BOUGHT AND PAID FOR."
+              },
+              {
+                "kind": "text",
+                "value": " I officially burn my bridges and go rogue."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 17,
+          "title": "The Executioner",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 17,
+            "title": "The Executioner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Crossed the ultimate line to save Clara's life. "
+              },
+              {
+                "kind": "quote",
+                "value": "A CROOKED STAR LEFT BLEEDING ON THE DOCKS."
+              },
+              {
+                "kind": "text",
+                "value": " I am the one who pulled the trigger."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 24,
+          "title": "The Tactician",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 24,
+            "title": "The Tactician",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "I did not invent the climax. I struck a match the old man left on Pier 84. Rather than calling for backup I wrote: "
+              },
+              {
+                "kind": "quote",
+                "value": "LET THE FEDS SWEEP UP THE BODIES."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "thorne",
+          "editionNumber": 30,
+          "title": "The Civilian",
+          "assembled": {
+            "characterId": "thorne",
+            "editionNumber": 30,
+            "title": "The Civilian",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Left my tarnished badge on a diner counter. "
+              },
+              {
+                "kind": "text",
+                "value": "Clara's parting cipher read: "
+              },
+              {
+                "kind": "quote",
+                "value": "A GOLD WATCH BOUGHT WITH BLOOD AND BRASS."
+              },
+              {
+                "kind": "text",
+                "value": " The last envelope named her vanishing act:"
+              },
+              {
+                "kind": "quote",
+                "value": "CLARA BOARDED A STEAMSHIP FOR PARIS UNDER A FALSE NAME."
+              },
+              {
+                "kind": "text",
+                "value": " The city isn't honest, but I made it safe for one more night."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 2,
+          "title": "The Cold Widow",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 2,
+            "title": "The Cold Widow",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The grieving act is a sham. She was not hiding an affair. He left the revocation on the study desk for her to steal. She burned it, thinking that would keep the fleet in syndicate hands forever. "
+              },
+              {
+                "kind": "quote",
+                "value": "HE CHANGED THE WILL BEFORE THE GALA."
+              },
+              {
+                "kind": "text",
+                "value": " That sent her hunting the library for the compartment behind the red sailboat."
+              },
+              {
+                "kind": "quote",
+                "value": "A COMPARTMENT BEHIND THE RED SAILBOAT."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 5,
+          "title": "The Extortionist",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 5,
+            "title": "The Extortionist",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Intercepted wires prove she is shaking down her husband's partner. "
+              },
+              {
+                "kind": "quote",
+                "value": "SEND MY HALF TO THE PLAZA."
+              },
+              {
+                "kind": "text",
+                "value": " The same night, Blackwood ran his own bluff on the dead wire:"
+              },
+              {
+                "kind": "quote",
+                "value": "PAY THE CLINIC OR SHE WALKS."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 9,
+          "title": "The Mother Twist",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 9,
+            "title": "The Mother Twist",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The ultimate liar. A birth certificate in the wall safe proves "
+              },
+              {
+                "kind": "quote",
+                "value": "THE WIDOW IS HER TRUE BIOLOGICAL MOTHER."
+              },
+              {
+                "kind": "text",
+                "value": " The girl was born out of wedlock before Beatrice married Vance."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 12,
+          "title": "The Smuggler",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 12,
+            "title": "The Smuggler",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "A pawnshop trace confirms the hollow cane. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE WALKING STICK WAS A CONCEALED FLASK."
+              },
+              {
+                "kind": "text",
+                "value": " She pawned the hollow cane hours after the gala. The lab extra:"
+              },
+              {
+                "kind": "quote",
+                "value": "TRACES OF BITTER ALMONDS IN THE GLASS TUBE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 18,
+          "title": "The Killer",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 18,
+            "title": "The Killer",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Clara's testimony confirms she didn't just plan it. "
+              },
+              {
+                "kind": "quote",
+                "value": "A PAIR OF WOLVES LOCKED FROM THE INSIDE."
+              },
+              {
+                "kind": "text",
+                "value": " From the priest-hole Clara swore she saw the cane and heard a deep voice, but not his face. The night extra named the voice:"
+              },
+              {
+                "kind": "quote",
+                "value": "THE SHADOW SPOKE WITH A CLINICAL TONE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 22,
+          "title": "The Monster",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 22,
+            "title": "The Monster",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Arrives at Pier 84 with the doctor still in the passenger seat. She decided at the Plaza he would not split the take. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE WIDOW BROUGHT LEAD INSTEAD OF LAWYERS."
+              },
+              {
+                "kind": "text",
+                "value": " She would even kill her own daughter for the gold. The night extra:"
+              },
+              {
+                "kind": "quote",
+                "value": "SHE SLAUGHTERED THE DOCTOR TO KEEP ALL THE LOOT."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "beatrice",
+          "editionNumber": 26,
+          "title": "The Prisoner",
+          "assembled": {
+            "characterId": "beatrice",
+            "editionNumber": 26,
+            "title": "The Prisoner",
+            "segments": [
+              {
+                "kind": "quote",
+                "value": "OFFERING BLOOD MONEY FOR CLEMENCY."
+              },
+              {
+                "kind": "text",
+                "value": " She did it to keep her loot. It failed."
+              },
+              {
+                "kind": "text",
+                "value": "The bullion returns to the rightful heir. The night inventory: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE OFFSHORE VAULT BELONGS TO THE DAUGHTER."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 3,
+          "title": "The Missing Heir",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 3,
+            "title": "The Missing Heir",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Archibald's estranged daughter, who vanished three years ago. We just learned it: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GIRL IS STILL BREATHING."
+              },
+              {
+                "kind": "text",
+                "value": " She inherits the massive fortune."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 6,
+          "title": "The Prisoner",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 6,
+            "title": "The Prisoner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The doctor kept her drugged to hide the bootlegging routes. The ledger extra: "
+              },
+              {
+                "kind": "quote",
+                "value": "HEAVY DOSES OF MORPHINE ORDERED BY STERLING."
+              },
+              {
+                "kind": "text",
+                "value": " But the nurse confirms it:"
+              },
+              {
+                "kind": "quote",
+                "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 10,
+          "title": "The Witness",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 10,
+            "title": "The Witness",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Hiding in the Bowery. She slipped into the priest-hole uninvited and watched her father's murder from the wall. He never knew she was there. I am still hunting a Manhattan phantom. The letter is all smell and silver: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE KILLER LEANS ON CARVED SILVER."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 13,
+          "title": "The Hunted",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 13,
+            "title": "The Hunted",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "I arrived at her boarding house too late. Her mirror held a lipstick line: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE WARD WAS DRAGGED OUT IN POLICE HANDCUFFS."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 18,
+          "title": "The Survivor",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 18,
+            "title": "The Survivor",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Rescued from the hit squad. She sat ice-still in the interrogation room and confirmed it: "
+              },
+              {
+                "kind": "quote",
+                "value": "A PAIR OF WOLVES LOCKED FROM THE INSIDE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 21,
+          "title": "The Bait",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 21,
+            "title": "The Bait",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Stood as bait at Pier 84 until the dockworker confirmed the old man's gold map: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE RUMOR PROMISED OFFSHORE GOLD AT THE DOCKS."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "clara",
+          "editionNumber": 29,
+          "title": "The Successor",
+          "assembled": {
+            "characterId": "clara",
+            "editionNumber": 29,
+            "title": "The Successor",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Takes over the company. "
+              },
+              {
+                "kind": "quote",
+                "value": "PURGING THE SYNDICATE FROM THE MANIFESTS."
+              },
+              {
+                "kind": "text",
+                "value": " She fed her father's last blackmail files to the study furnace. The night extra confirmed it:"
+              },
+              {
+                "kind": "quote",
+                "value": "CLARA BURNED THE FINAL BLACKMAIL LEDGER IN THE FURNACE."
+              },
+              {
+                "kind": "text",
+                "value": " The red pen was hers."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 3,
+          "title": "The Panicked Partner",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 3,
+            "title": "The Panicked Partner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Archibald's business partner. He sweats bullets. We learned "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GIRL IS STILL BREATHING."
+              },
+              {
+                "kind": "text",
+                "value": " The heir is back."
+              },
+              {
+                "kind": "text",
+                "value": " He paid to have her sent away to the sanatorium. The night extra: "
+              },
+              {
+                "kind": "quote",
+                "value": "BOUGHT HER A ONE WAY TICKET UPSTATE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 7,
+          "title": "The Bootlegger",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 7,
+            "title": "The Bootlegger",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "The Coast Guard raid proves it: "
+              },
+              {
+                "kind": "quote",
+                "value": "ARTHUR GIVES THE ORDERS NOW."
+              },
+              {
+                "kind": "text",
+                "value": " He runs the waterfront underworld."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 11,
+          "title": "The Mob Boss",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 11,
+            "title": "The Mob Boss",
+            "segments": [
+              {
+                "kind": "quote",
+                "value": "BUYING MUSCLE FROM THE EAST SIDE BOYS."
+              },
+              {
+                "kind": "text",
+                "value": " He did it at The Blind Tiger speakeasy, where the bartender distributes the dock payoffs."
+              },
+              {
+                "kind": "text",
+                "value": "The napkin in the booth named the weapon, not the man: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE KILLER LEANED ON A HOLLOW SILVER CANE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 14,
+          "title": "The Gun Runner",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 14,
+            "title": "The Gun Runner",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "He is worse than a bootlegger. The private ledger proves he was smuggling weapons. The torn page ran straight to City Hall: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE SMUGGLED RIFLES WENT TO MUNICIPAL ARMORIES."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 17,
+          "title": "The Alibi",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 17,
+            "title": "The Alibi",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Proved innocent of the physical murder. He was at the speakeasy during the killing. A dropped police file at Pier 44 confirmed it: "
+              },
+              {
+                "kind": "quote",
+                "value": "ARTHUR NEVER STEPPED FOOT IN THE STUDY."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 23,
+          "title": "The Viper",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 23,
+            "title": "The Viper",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Turns on Beatrice at Pier 84. He kept a carbon from his own crooked chemist—the same bench Blackwood used for the almonds. He means to hang the doctor with it. The rafters extra: "
+              },
+              {
+                "kind": "quote",
+                "value": "ARTHUR KEPT THE APOTHECARY RECEIPT FOR BLACKMAIL."
+              },
+              {
+                "kind": "text",
+                "value": " There is no honor among thieves."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "sterling",
+          "editionNumber": 25,
+          "title": "The Convict",
+          "assembled": {
+            "characterId": "sterling",
+            "editionNumber": 25,
+            "title": "The Convict",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Tackled into the Hudson. Under the lights he finally said it: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE WIFE SERVED THE DEADLY VINTAGE."
+              },
+              {
+                "kind": "text",
+                "value": " Then he named the pieces. The doctor supplied the cyanide. Beatrice poured it. He claimed he only laundered the money. The second signature:"
+              },
+              {
+                "kind": "quote",
+                "value": "A SIGNED CONFESSION PINS THE MASTERMIND."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 1,
+          "title": "The Victim",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 1,
+            "title": "The Victim",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+              },
+              {
+                "kind": "quote",
+                "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 7,
+          "title": "The Ultimatum",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 7,
+            "title": "The Ultimatum",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "He wasn't suicidal; he was angry. He left the rum books where the Coast Guard would have to find them. The harbor extra: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE OLD MAN PLANTED THE BOOTLEGGING LEDGER AS A TRAP."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 9,
+          "title": "The Blackmailer",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 9,
+            "title": "The Blackmailer",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Far from innocent himself. Clara threatened to expose his blackmail ring to the press. The midnight extra: "
+              },
+              {
+                "kind": "quote",
+                "value": "CLARA VOWED TO EXPOSE HER OWN MOTHER."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "archibald",
+          "editionNumber": 28,
+          "title": "The Paranoid Tycoon",
+          "assembled": {
+            "characterId": "archibald",
+            "editionNumber": 28,
+            "title": "The Paranoid Tycoon",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "His final cipher proved he wasn't blind. He did not hand Clara the keys in 1923. He sealed a dead-man's trust that slept until they killed him. He did not put her in the wall that night. She put herself there. The last night letter: "
+              },
+              {
+                "kind": "quote",
+                "value": "THE OLD MAN ENGINEERED HIS OWN REVENGE."
+              },
+              {
+                "kind": "quote",
+                "value": "THE PATENTS AND SHIPS WERE SIGNED OVER YEARS AGO."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 19,
+          "title": "The Accomplice",
+          "assembled": {
+            "characterId": "blackwood",
+            "editionNumber": 19,
+            "title": "The Accomplice",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "A travel alias put him at the gala. Phantom train down, Albany desk after. The locker held the rest: "
+              },
+              {
+                "kind": "quote",
+                "value": "A TRAVEL ALIAS PROVES HE WAS AT THE GALA."
+              },
+              {
+                "kind": "text",
+                "value": " He supplied the cyanide from his medical bag. The night search found:"
+              },
+              {
+                "kind": "quote",
+                "value": "HE SUPPLIED THE CYANIDE FOR HER PLOT."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "blackwood",
+          "editionNumber": 20,
+          "title": "The Expendable Lover",
+          "assembled": {
+            "characterId": "blackwood",
+            "editionNumber": 20,
+            "title": "The Expendable Lover",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Plotted to split the fortune with Beatrice in Havana. A terrified maid spotted them leaving the Plaza Hotel. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GUILTY BIRDS ARE FLYING SOUTH."
+              },
+              {
+                "kind": "text",
+                "value": " He is already arguing for a split. She is already done sharing."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 8,
+          "title": "The Bribed Servant",
+          "assembled": {
+            "characterId": "reginald",
+            "editionNumber": 8,
+            "title": "The Bribed Servant",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Vance's trusted butler. Confesses to the hall key on a mortise lock that works both sides, remembering "
+              },
+              {
+                "kind": "quote",
+                "value": "A WOMAN IN THE LOCKED STUDY."
+              },
+              {
+                "kind": "text",
+                "value": " He would not name the man in the hall. He did name the lock:"
+              },
+              {
+                "kind": "quote",
+                "value": "SOMEONE LOCKED THE DEADBOLT FROM THE HALLWAY."
+              },
+              {
+                "kind": "text",
+                "value": " I booked him. The Chief will cut him loose."
+              }
+            ]
+          }
+        },
+        {
+          "characterId": "reginald",
+          "editionNumber": 14,
+          "title": "The Dead Fool",
+          "assembled": {
+            "characterId": "reginald",
+            "editionNumber": 14,
+            "title": "The Dead Fool",
+            "segments": [
+              {
+                "kind": "text",
+                "value": "Found floating in the East River with cobblestones in his pockets. O'Malley sprung him for insufficient evidence. He walked with a planted page and tried to squeeze Sterling. It was the wrong sheet. "
+              },
+              {
+                "kind": "quote",
+                "value": "THE GREEDY SNITCH SANK TO THE BOTTOM OF THE RIVER."
+              },
+              {
+                "kind": "text",
+                "value": " He paid it."
+              }
+            ]
+          }
+        }
+      ],
+      "perCharacter": [
+        {
+          "characterId": "thorne",
+          "fragments": [
+            {
+              "characterId": "thorne",
+              "editionNumber": 1,
+              "title": "The Detective",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "NYPD detective assigned to the Vance Estate. "
+                },
+                {
+                  "kind": "text",
+                  "value": "The initial sweep proves "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                },
+                {
+                  "kind": "text",
+                  "value": " Archibald knew too much about the smuggling ring."
+                },
+                {
+                  "kind": "text",
+                  "value": " The night extra confirms "
+                },
+                {
+                  "kind": "quote",
+                  "value": "HE THREATENED TO EXPOSE US ALL."
+                },
+                {
+                  "kind": "text",
+                  "value": " I'm going to find out who did it."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 6,
+              "title": "The Bloodhound",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Four hours north on a sleeper. I clocked him as an upstate jailer, not a gala guest. Relentless on the trail. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+                },
+                {
+                  "kind": "text",
+                  "value": " I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 16,
+              "title": "The Lone Wolf",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The Mayor is out and I cannot trust my own Chief. He sprung the butler. I filed it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE BADGES ARE BOUGHT AND PAID FOR."
+                },
+                {
+                  "kind": "text",
+                  "value": " I officially burn my bridges and go rogue."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 17,
+              "title": "The Executioner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Crossed the ultimate line to save Clara's life. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A CROOKED STAR LEFT BLEEDING ON THE DOCKS."
+                },
+                {
+                  "kind": "text",
+                  "value": " I am the one who pulled the trigger."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 24,
+              "title": "The Tactician",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "I did not invent the climax. I struck a match the old man left on Pier 84. Rather than calling for backup I wrote: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "LET THE FEDS SWEEP UP THE BODIES."
+                }
+              ]
+            },
+            {
+              "characterId": "thorne",
+              "editionNumber": 30,
+              "title": "The Civilian",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Left my tarnished badge on a diner counter. "
+                },
+                {
+                  "kind": "text",
+                  "value": "Clara's parting cipher read: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A GOLD WATCH BOUGHT WITH BLOOD AND BRASS."
+                },
+                {
+                  "kind": "text",
+                  "value": " The last envelope named her vanishing act:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "CLARA BOARDED A STEAMSHIP FOR PARIS UNDER A FALSE NAME."
+                },
+                {
+                  "kind": "text",
+                  "value": " The city isn't honest, but I made it safe for one more night."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "beatrice",
+          "fragments": [
+            {
+              "characterId": "beatrice",
+              "editionNumber": 2,
+              "title": "The Cold Widow",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The grieving act is a sham. She was not hiding an affair. He left the revocation on the study desk for her to steal. She burned it, thinking that would keep the fleet in syndicate hands forever. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "HE CHANGED THE WILL BEFORE THE GALA."
+                },
+                {
+                  "kind": "text",
+                  "value": " That sent her hunting the library for the compartment behind the red sailboat."
+                },
+                {
+                  "kind": "quote",
+                  "value": "A COMPARTMENT BEHIND THE RED SAILBOAT."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 5,
+              "title": "The Extortionist",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Intercepted wires prove she is shaking down her husband's partner. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "SEND MY HALF TO THE PLAZA."
+                },
+                {
+                  "kind": "text",
+                  "value": " The same night, Blackwood ran his own bluff on the dead wire:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "PAY THE CLINIC OR SHE WALKS."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 9,
+              "title": "The Mother Twist",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The ultimate liar. A birth certificate in the wall safe proves "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE WIDOW IS HER TRUE BIOLOGICAL MOTHER."
+                },
+                {
+                  "kind": "text",
+                  "value": " The girl was born out of wedlock before Beatrice married Vance."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 12,
+              "title": "The Smuggler",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "A pawnshop trace confirms the hollow cane. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE WALKING STICK WAS A CONCEALED FLASK."
+                },
+                {
+                  "kind": "text",
+                  "value": " She pawned the hollow cane hours after the gala. The lab extra:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "TRACES OF BITTER ALMONDS IN THE GLASS TUBE."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 18,
+              "title": "The Killer",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Clara's testimony confirms she didn't just plan it. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A PAIR OF WOLVES LOCKED FROM THE INSIDE."
+                },
+                {
+                  "kind": "text",
+                  "value": " From the priest-hole Clara swore she saw the cane and heard a deep voice, but not his face. The night extra named the voice:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE SHADOW SPOKE WITH A CLINICAL TONE."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 22,
+              "title": "The Monster",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Arrives at Pier 84 with the doctor still in the passenger seat. She decided at the Plaza he would not split the take. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE WIDOW BROUGHT LEAD INSTEAD OF LAWYERS."
+                },
+                {
+                  "kind": "text",
+                  "value": " She would even kill her own daughter for the gold. The night extra:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "SHE SLAUGHTERED THE DOCTOR TO KEEP ALL THE LOOT."
+                }
+              ]
+            },
+            {
+              "characterId": "beatrice",
+              "editionNumber": 26,
+              "title": "The Prisoner",
+              "segments": [
+                {
+                  "kind": "quote",
+                  "value": "OFFERING BLOOD MONEY FOR CLEMENCY."
+                },
+                {
+                  "kind": "text",
+                  "value": " She did it to keep her loot. It failed."
+                },
+                {
+                  "kind": "text",
+                  "value": "The bullion returns to the rightful heir. The night inventory: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE OFFSHORE VAULT BELONGS TO THE DAUGHTER."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "clara",
+          "fragments": [
+            {
+              "characterId": "clara",
+              "editionNumber": 3,
+              "title": "The Missing Heir",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Archibald's estranged daughter, who vanished three years ago. We just learned it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GIRL IS STILL BREATHING."
+                },
+                {
+                  "kind": "text",
+                  "value": " She inherits the massive fortune."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 6,
+              "title": "The Prisoner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The doctor kept her drugged to hide the bootlegging routes. The ledger extra: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "HEAVY DOSES OF MORPHINE ORDERED BY STERLING."
+                },
+                {
+                  "kind": "text",
+                  "value": " But the nurse confirms it:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE BIRD FLEW THE COOP ON SUNDAY."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 10,
+              "title": "The Witness",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Hiding in the Bowery. She slipped into the priest-hole uninvited and watched her father's murder from the wall. He never knew she was there. I am still hunting a Manhattan phantom. The letter is all smell and silver: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE KILLER LEANS ON CARVED SILVER."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 13,
+              "title": "The Hunted",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "I arrived at her boarding house too late. Her mirror held a lipstick line: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE WARD WAS DRAGGED OUT IN POLICE HANDCUFFS."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 18,
+              "title": "The Survivor",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Rescued from the hit squad. She sat ice-still in the interrogation room and confirmed it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A PAIR OF WOLVES LOCKED FROM THE INSIDE."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 21,
+              "title": "The Bait",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Stood as bait at Pier 84 until the dockworker confirmed the old man's gold map: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE RUMOR PROMISED OFFSHORE GOLD AT THE DOCKS."
+                }
+              ]
+            },
+            {
+              "characterId": "clara",
+              "editionNumber": 29,
+              "title": "The Successor",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Takes over the company. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "PURGING THE SYNDICATE FROM THE MANIFESTS."
+                },
+                {
+                  "kind": "text",
+                  "value": " She fed her father's last blackmail files to the study furnace. The night extra confirmed it:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "CLARA BURNED THE FINAL BLACKMAIL LEDGER IN THE FURNACE."
+                },
+                {
+                  "kind": "text",
+                  "value": " The red pen was hers."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "sterling",
+          "fragments": [
+            {
+              "characterId": "sterling",
+              "editionNumber": 3,
+              "title": "The Panicked Partner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Archibald's business partner. He sweats bullets. We learned "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GIRL IS STILL BREATHING."
+                },
+                {
+                  "kind": "text",
+                  "value": " The heir is back."
+                },
+                {
+                  "kind": "text",
+                  "value": " He paid to have her sent away to the sanatorium. The night extra: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "BOUGHT HER A ONE WAY TICKET UPSTATE."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 7,
+              "title": "The Bootlegger",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "The Coast Guard raid proves it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "ARTHUR GIVES THE ORDERS NOW."
+                },
+                {
+                  "kind": "text",
+                  "value": " He runs the waterfront underworld."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 11,
+              "title": "The Mob Boss",
+              "segments": [
+                {
+                  "kind": "quote",
+                  "value": "BUYING MUSCLE FROM THE EAST SIDE BOYS."
+                },
+                {
+                  "kind": "text",
+                  "value": " He did it at The Blind Tiger speakeasy, where the bartender distributes the dock payoffs."
+                },
+                {
+                  "kind": "text",
+                  "value": "The napkin in the booth named the weapon, not the man: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE KILLER LEANED ON A HOLLOW SILVER CANE."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 14,
+              "title": "The Gun Runner",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "He is worse than a bootlegger. The private ledger proves he was smuggling weapons. The torn page ran straight to City Hall: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE SMUGGLED RIFLES WENT TO MUNICIPAL ARMORIES."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 17,
+              "title": "The Alibi",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Proved innocent of the physical murder. He was at the speakeasy during the killing. A dropped police file at Pier 44 confirmed it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "ARTHUR NEVER STEPPED FOOT IN THE STUDY."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 23,
+              "title": "The Viper",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Turns on Beatrice at Pier 84. He kept a carbon from his own crooked chemist—the same bench Blackwood used for the almonds. He means to hang the doctor with it. The rafters extra: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "ARTHUR KEPT THE APOTHECARY RECEIPT FOR BLACKMAIL."
+                },
+                {
+                  "kind": "text",
+                  "value": " There is no honor among thieves."
+                }
+              ]
+            },
+            {
+              "characterId": "sterling",
+              "editionNumber": 25,
+              "title": "The Convict",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Tackled into the Hudson. Under the lights he finally said it: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE WIFE SERVED THE DEADLY VINTAGE."
+                },
+                {
+                  "kind": "text",
+                  "value": " Then he named the pieces. The doctor supplied the cyanide. Beatrice poured it. He claimed he only laundered the money. The second signature:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "A SIGNED CONFESSION PINS THE MASTERMIND."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "archibald",
+          "fragments": [
+            {
+              "characterId": "archibald",
+              "editionNumber": 1,
+              "title": "The Victim",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE FATAL DOSE WAS IN THE CHAMPAGNE."
+                }
+              ]
+            },
+            {
+              "characterId": "archibald",
+              "editionNumber": 7,
+              "title": "The Ultimatum",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "He wasn't suicidal; he was angry. He left the rum books where the Coast Guard would have to find them. The harbor extra: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE OLD MAN PLANTED THE BOOTLEGGING LEDGER AS A TRAP."
+                }
+              ]
+            },
+            {
+              "characterId": "archibald",
+              "editionNumber": 9,
+              "title": "The Blackmailer",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Far from innocent himself. Clara threatened to expose his blackmail ring to the press. The midnight extra: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "CLARA VOWED TO EXPOSE HER OWN MOTHER."
+                }
+              ]
+            },
+            {
+              "characterId": "archibald",
+              "editionNumber": 28,
+              "title": "The Paranoid Tycoon",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "His final cipher proved he wasn't blind. He did not hand Clara the keys in 1923. He sealed a dead-man's trust that slept until they killed him. He did not put her in the wall that night. She put herself there. The last night letter: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE OLD MAN ENGINEERED HIS OWN REVENGE."
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE PATENTS AND SHIPS WERE SIGNED OVER YEARS AGO."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "blackwood",
+          "fragments": [
+            {
+              "characterId": "blackwood",
+              "editionNumber": 19,
+              "title": "The Accomplice",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "A travel alias put him at the gala. Phantom train down, Albany desk after. The locker held the rest: "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A TRAVEL ALIAS PROVES HE WAS AT THE GALA."
+                },
+                {
+                  "kind": "text",
+                  "value": " He supplied the cyanide from his medical bag. The night search found:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "HE SUPPLIED THE CYANIDE FOR HER PLOT."
+                }
+              ]
+            },
+            {
+              "characterId": "blackwood",
+              "editionNumber": 20,
+              "title": "The Expendable Lover",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Plotted to split the fortune with Beatrice in Havana. A terrified maid spotted them leaving the Plaza Hotel. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GUILTY BIRDS ARE FLYING SOUTH."
+                },
+                {
+                  "kind": "text",
+                  "value": " He is already arguing for a split. She is already done sharing."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "characterId": "reginald",
+          "fragments": [
+            {
+              "characterId": "reginald",
+              "editionNumber": 8,
+              "title": "The Bribed Servant",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Vance's trusted butler. Confesses to the hall key on a mortise lock that works both sides, remembering "
+                },
+                {
+                  "kind": "quote",
+                  "value": "A WOMAN IN THE LOCKED STUDY."
+                },
+                {
+                  "kind": "text",
+                  "value": " He would not name the man in the hall. He did name the lock:"
+                },
+                {
+                  "kind": "quote",
+                  "value": "SOMEONE LOCKED THE DEADBOLT FROM THE HALLWAY."
+                },
+                {
+                  "kind": "text",
+                  "value": " I booked him. The Chief will cut him loose."
+                }
+              ]
+            },
+            {
+              "characterId": "reginald",
+              "editionNumber": 14,
+              "title": "The Dead Fool",
+              "segments": [
+                {
+                  "kind": "text",
+                  "value": "Found floating in the East River with cobblestones in his pockets. O'Malley sprung him for insufficient evidence. He walked with a planted page and tried to squeeze Sterling. It was the wrong sheet. "
+                },
+                {
+                  "kind": "quote",
+                  "value": "THE GREEDY SNITCH SANK TO THE BOTTOM OF THE RIVER."
+                },
+                {
+                  "kind": "text",
+                  "value": " He paid it."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
