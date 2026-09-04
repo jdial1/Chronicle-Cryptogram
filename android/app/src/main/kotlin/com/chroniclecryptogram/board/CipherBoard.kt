@@ -1,6 +1,7 @@
 package com.chroniclecryptogram.board
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
@@ -247,6 +248,7 @@ private fun CipherTile(
             .size(tile.width, tile.height)
             .clip(RoundedCornerShape(4.dp))
             .background(if (selected) colors.selected else colors.paperCard)
+            .clickable(onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
