@@ -11,7 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -143,7 +144,10 @@ private fun DeskContent(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.paper)
-            .safeDrawingPadding()
+            // Top and side insets only. The desk bar below owns the bottom one,
+            // so taking it here too leaves a dead band under the keyboard.
+            .statusBarsPadding()
+            .displayCutoutPadding()
             .imePadding()
             // Physical keyboards on tablets, Chromebooks and DeX. The web build
             // got this by accident through its hidden input; here it is explicit.

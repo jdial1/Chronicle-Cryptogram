@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -79,6 +80,17 @@ fun CaseFileScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item {
+            Text(
+                text = "Case File",
+                style = MaterialTheme.typography.displayMedium,
+                color = colors.ink,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .semantics { heading() },
+            )
+        }
+
         items(dossiers, key = { it.first.id }) { (character, fragments) ->
             Column(
                 Modifier
@@ -110,10 +122,17 @@ fun CaseFileScreen(
                             color = colors.brass,
                         )
                     }
+                    // A bare dash read as a placeholder rather than as "none".
                     Text(
-                        text = if (fragments.isEmpty()) "—" else fragments.size.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colors.brass,
+                        text = if (fragments.isEmpty()) {
+                            "No notes"
+                        } else if (fragments.size == 1) {
+                            "1 note"
+                        } else {
+                            "${fragments.size} notes"
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (fragments.isEmpty()) colors.paperRule else colors.brass,
                     )
                 }
 

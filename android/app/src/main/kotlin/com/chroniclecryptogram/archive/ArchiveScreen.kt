@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Edition
@@ -66,6 +69,19 @@ fun ArchiveScreen(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item {
+            // Every screen states what it is. Archive and the case file were the
+            // only two that dropped the reader straight into cards.
+            Text(
+                text = "The Archive",
+                style = MaterialTheme.typography.displayMedium,
+                color = colors.ink,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .semantics { heading() },
+            )
+        }
+
         items(issues, key = { it.editionNumber }) { issue ->
             IssueRow(
                 issue = issue,
@@ -171,7 +187,10 @@ private fun SlotChip(
             .then(
                 if (unlocked) Modifier.clickable { onOpen(puzzle) } else Modifier
             )
-            .padding(horizontal = 10.dp, vertical = 6.dp)
+            // 48dp is Android's minimum touch target; the chip was about 34dp.
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 14.dp)
+            .wrapContentHeight(Alignment.CenterVertically)
             .semantics {
                 contentDescription =
                     "$label, ${Edition.editionLabel(puzzle.editionNumber)}, $state"

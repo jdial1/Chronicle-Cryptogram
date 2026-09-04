@@ -2,7 +2,9 @@ package com.chroniclecryptogram.leaderboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.data.LeaderboardStanding
@@ -108,14 +111,27 @@ fun LeaderboardScreen(
     }
 }
 
+/**
+ * An empty or offline board centred in the space it has. Left at the top it read
+ * as a screen that had failed to finish loading rather than one with nothing to
+ * show.
+ */
 @Composable
-private fun Notice(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = ChronicleTheme.colors.ink,
-        modifier = Modifier.padding(horizontal = 16.dp),
-    )
+private fun ColumnScope.Notice(text: String) {
+    Box(
+        Modifier
+            .weight(1f)
+            .fillMaxWidth()
+            .padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = ChronicleTheme.colors.paperRule,
+            textAlign = TextAlign.Center,
+        )
+    }
 }
 
 @Composable

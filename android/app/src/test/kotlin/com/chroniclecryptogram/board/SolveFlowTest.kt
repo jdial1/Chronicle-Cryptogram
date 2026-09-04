@@ -104,7 +104,11 @@ class SolveFlowTest {
     fun `after a morning the night extra comes next`() = runTest(dispatcher) {
         val morning = Edition.morningPuzzleForEdition(puzzles, 1)!!
         val night = Edition.nightPuzzleForEdition(puzzles, 1)!!
-        val model = BoardViewModel(FakeStore(DeskState(solvedPuzzleIds = listOf(morning.id))), puzzles)
+        val model = BoardViewModel(
+            FakeStore(DeskState(solvedPuzzleIds = listOf(morning.id))),
+            puzzles,
+            compute = dispatcher,
+        )
 
         assertEquals(night.id, model.nextPuzzle(morning)?.id)
     }
@@ -117,6 +121,7 @@ class SolveFlowTest {
         val model = BoardViewModel(
             FakeStore(DeskState(solvedPuzzleIds = listOf(morning.id, night.id))),
             puzzles,
+            compute = dispatcher,
         )
 
         assertEquals(
@@ -129,7 +134,7 @@ class SolveFlowTest {
     @Test
     fun `an unsolved morning does not offer its night extra`() = runTest(dispatcher) {
         val morning = Edition.morningPuzzleForEdition(puzzles, 1)!!
-        val model = BoardViewModel(FakeStore(DeskState()), puzzles)
+        val model = BoardViewModel(FakeStore(DeskState()), puzzles, compute = dispatcher)
 
         assertNull("nothing is unlocked yet", model.nextPuzzle(morning))
     }
@@ -142,6 +147,7 @@ class SolveFlowTest {
         val model = BoardViewModel(
             FakeStore(DeskState(solvedPuzzleIds = puzzles.map { it.id })),
             puzzles,
+            compute = dispatcher,
         )
 
         assertNull("the season is over", model.nextPuzzle(finale))

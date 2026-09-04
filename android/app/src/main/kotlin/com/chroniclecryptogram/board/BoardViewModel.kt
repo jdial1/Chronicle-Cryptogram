@@ -10,7 +10,10 @@ import com.chroniclecryptogram.data.DeskStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 
 /**
@@ -24,6 +27,8 @@ class BoardViewModel(
     private val store: DeskStore,
     private val puzzles: List<PuzzleData>,
     private val now: () -> Long = System::currentTimeMillis,
+    /** Injected so tests can drive the board build on their own scheduler. */
+    private val compute: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<BoardState?>(null)
@@ -39,21 +44,28 @@ class BoardViewModel(
         viewModelScope.launch {
             val desk = store.state.first()
             val target = puzzle ?: bootPuzzle(desk)
-            val fresh = BoardState.forPuzzle(target)
+
+            // viewModelScope is Dispatchers.Main.immediate, and building a board
+            // means a seeded Fisher-Yates over 54 glyphs plus a full parse of the
+            // quote. On the main thread that is hundreds of dropped frames --
+            // measured, not guessed: "Skipped 473 frames" on first launch.
             val saved = DeskActions.progressFor(desk, target.id)
 
-            var restored = if (saved != null) BoardActions.restore(fresh, saved) else fresh
+            val restored = withContext(compute) {
+                val fresh = BoardState.forPuzzle(target)
+                val board = if (saved != null) BoardActions.restore(fresh, saved) else fresh
 
-            // Wallets are per-edition and shared by the morning and night extra,
-            // so they are reconciled against every board in the edition rather
-            // than read from this puzzle alone.
-            val editionPuzzles = puzzles.map { it.id to it.editionNumber }
-            restored = restored.copy(
-                hintsRemaining = DeskActions
-                    .reconcileHints(desk, target.editionNumber, editionPuzzles).remaining,
-                checksRemaining = DeskActions
-                    .reconcileChecks(desk, target.editionNumber, editionPuzzles).remaining,
-            )
+                // Wallets are per-edition and shared by the morning and night
+                // extra, so they are reconciled against every board in the
+                // edition rather than read from this puzzle alone.
+                val editionPuzzles = puzzles.map { it.id to it.editionNumber }
+                board.copy(
+                    hintsRemaining = DeskActions
+                        .reconcileHints(desk, target.editionNumber, editionPuzzles).remaining,
+                    checksRemaining = DeskActions
+                        .reconcileChecks(desk, target.editionNumber, editionPuzzles).remaining,
+                )
+            }
 
             _state.value = restored
             if (saved == null) {

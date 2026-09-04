@@ -55,7 +55,8 @@ class BoardViewModelTest {
 
     @AfterEach fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel(store: DeskStore) = BoardViewModel(store, puzzles) { now }
+    private fun viewModel(store: DeskStore) =
+        BoardViewModel(store, puzzles, { now }, dispatcher)
 
     @Test
     fun `a fresh desk opens the primer`() = runTest(dispatcher) {
