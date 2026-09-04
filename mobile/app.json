@@ -83,7 +83,8 @@
       ],
       "./plugins/with-adi-registration.js",
       "./plugins/with-cipher-ime.js",
-      "./plugins/with-android-edge-to-edge.js"
+      "./plugins/with-android-edge-to-edge.js",
+      "./plugins/with-native-build-paths.js"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
