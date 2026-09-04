@@ -13,7 +13,9 @@ import { mobileDir, root } from './project-paths.mjs';
 /** Load one .env into process.env. Existing vars win, so CI secrets are never clobbered. */
 export function loadEnvFile(path) {
   if (!existsSync(path)) return;
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
+  // Split on \r?\n: a .env authored on Windows is CRLF, and a trailing \r makes the
+  // line regex fail to match at all -- every value would be silently dropped.
+  for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
     const match = /^\s*([\w.-]+)\s*=\s*(.*)$/.exec(line);
     if (!match || line.trimStart().startsWith('#')) continue;
     const [, key, rawValue] = match;
