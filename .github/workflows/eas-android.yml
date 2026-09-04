@@ -30,7 +30,9 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - run: npm install
+      - name: Install mobile dependencies
+        run: npm ci --no-audit --no-fund
+        timeout-minutes: 10
       - run: eas build --platform android --profile ${{ github.event.inputs.profile }} --non-interactive
         env:
           ADI_REGISTRATION_TOKEN: ${{ secrets.ADI_REGISTRATION_TOKEN }}
