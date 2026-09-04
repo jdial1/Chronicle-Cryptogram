@@ -1,0 +1,24 @@
+# Versions verified against Google Maven / Maven Central on 2026-09-04.
+# Build JVM here is Temurin 25; bytecode targets 17 so the toolchain does not
+# need a second JDK installed.
+[versions]
+agp = "9.4.0"
+kotlin = "2.4.10"
+kotlinxSerialization = "1.9.0"
+composeBom = "2026.08.00"
+junit = "5.11.4"
+
+[libraries]
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+# Kotlin 2.x moves the Compose compiler out of composeOptions into its own plugin.
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

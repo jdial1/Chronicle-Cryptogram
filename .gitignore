@@ -17,3 +17,11 @@ mobile/.ship/
 # Staged web bundle for the Android build (see scripts/stage-web-assets.mjs).
 # Build output: git-ignored, but deliberately NOT in mobile/.easignore.
 mobile/web-assets/
+
+# Android build
+.gradle/
+local.properties
+*.jks
+*.keystore
+!mobile/android/app/debug.keystore
+android/keystore.properties
