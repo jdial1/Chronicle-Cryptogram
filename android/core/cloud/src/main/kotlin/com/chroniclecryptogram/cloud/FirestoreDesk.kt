@@ -4,7 +4,10 @@ import com.chroniclecryptogram.cipher.model.DailyHintWallet
 import com.chroniclecryptogram.cipher.model.GameStats
 import com.chroniclecryptogram.cipher.model.PuzzleProgress
 import com.chroniclecryptogram.data.CloudDesk
+import com.chroniclecryptogram.data.CloudProfile
 import com.chroniclecryptogram.data.CloudSnapshot
+import com.chroniclecryptogram.data.NoCloudDesk
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
@@ -84,22 +87,48 @@ class FirestoreDesk(private val db: FirebaseFirestore) : CloudDesk {
             .set(checks.toMap(), SetOptions.merge()).await()
     }
 
-    override suspend fun pushStats(uid: String, stats: GameStats, solvedPuzzleIds: List<String>) {
-        db.collection(USERS).document(uid)
-            .set(
-                mapOf(
-                    "puzzlesPlayed" to stats.puzzlesPlayed,
-                    "puzzlesSolved" to stats.puzzlesSolved,
-                    "fastestTime" to stats.fastestTime,
-                    "totalTimePlayed" to stats.totalTimePlayed,
-                    "averageAccuracy" to stats.averageAccuracy,
-                    "leaderboardSubmissions" to stats.leaderboardSubmissions,
-                    "solvedPuzzleIds" to solvedPuzzleIds,
-                    "updatedAt" to System.currentTimeMillis(),
-                ),
-                SetOptions.merge(),
-            )
-            .await()
+    override suspend fun pushStats(
+        uid: String,
+        profile: CloudProfile,
+        stats: GameStats,
+        solvedPuzzleIds: List<String>,
+    ) {
+        val user = db.collection(USERS).document(uid)
+        val fields = profile.clipped()
+
+        val payload = mutableMapOf<String, Any?>(
+            "uid" to uid,
+            "displayName" to fields.displayName,
+            "photoURL" to fields.photoUrl,
+            "codename" to fields.codename,
+            "titleBadge" to fields.titleBadge,
+            "countryCode" to fields.countryCode,
+            "puzzlesPlayed" to stats.puzzlesPlayed,
+            "puzzlesSolved" to stats.puzzlesSolved,
+            "fastestTime" to stats.fastestTime,
+            "totalTimePlayed" to stats.totalTimePlayed,
+            "averageAccuracy" to stats.averageAccuracy,
+            "leaderboardSubmissions" to stats.leaderboardSubmissions,
+            // The rules cap the list; sending more is a rejected write.
+            "solvedPuzzleIds" to solvedPuzzleIds.take(SOLVED_LIMIT),
+            // A timestamp, not a Long. The rules require `isRecentTimestamp`,
+            // and the server's clock rather than the device's so a phone with a
+            // wrong clock is not locked out of syncing.
+            "updatedAt" to FieldValue.serverTimestamp(),
+        )
+
+        // createdAt is required on every write and immutable once set, so it is
+        // supplied whenever the stored document does not already carry one.
+        // Keying this off document existence alone is not enough: a document
+        // written without it -- by an older client, or a partial write -- could
+        // never be updated again, because every future write would fail the
+        // rule and there would be no way to add it.
+        val existing = user.get().await()
+        if (existing.get("createdAt") == null) {
+            payload["createdAt"] = FieldValue.serverTimestamp()
+        }
+
+        user.set(payload, SetOptions.merge()).await()
     }
 
     /**
@@ -118,6 +147,9 @@ class FirestoreDesk(private val db: FirebaseFirestore) : CloudDesk {
     }
 
     private companion object {
+        /** The rules cap solvedPuzzleIds at 500. */
+        const val SOLVED_LIMIT = 500
+
         const val USERS = "users"
         const val PROGRESS = "progress"
         const val DAILY_HINTS = "dailyHints"
@@ -183,3 +215,16 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toStats() = GameStats
     averageAccuracy = (getLong("averageAccuracy") ?: 100L).toInt(),
     leaderboardSubmissions = (getLong("leaderboardSubmissions") ?: 0L).toInt(),
 )
+
+/**
+ * Builds the cloud desk, or the no-op one when Firebase is absent or
+ * unconfigured.
+ *
+ * Lives here so `:app` never names a Firebase type and stays compilable in a
+ * build with no credentials -- the same reasoning as [createAccountRepository].
+ */
+fun createCloudDesk(configured: Boolean): CloudDesk = try {
+    if (configured) FirestoreDesk(FirebaseFirestore.getInstance()) else NoCloudDesk
+} catch (error: Throwable) {
+    NoCloudDesk
+}

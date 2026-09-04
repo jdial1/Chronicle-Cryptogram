@@ -134,3 +134,50 @@ own 411x891 viewport. What changed, and what deliberately did not:
 - The release variant builds **unsigned** -- there is no keystore configured, so
   only the debug APK is installable. See the signing section of
   `app/build.gradle.kts`.
+
+## Web-to-Android functionality audit
+
+Every web feature checked against the Android build.
+
+### Closed in this pass
+
+| Gap | Was |
+|---|---|
+| Bureau Board | `Standings.rank(emptyList(), null)` -- a hardcoded empty list. Now `FirestoreLeaderboard`, reading and posting against the paths in `firestore.rules`. |
+| Posting identity | No codename anywhere. Now a Bureau section; nothing posts until a name is chosen. |
+| Cloud progress sync | `FirestoreDesk` had no factory and was never constructed. Now hydrated on sign-in and pushed debounced. |
+| Account deletion | `deleteAccount()` existed with no caller. Now a confirmed action in the Bureau -- a Play requirement. |
+| Anonymous auth | Never called. Now on launch, as the web does. |
+| Sign-in errors | Raw `GetCredentialException` messages. Now translated. |
+
+### Deliberately not ported
+
+- Top nav bar, in-board zoom, offline pack, PWA install, edition-update banner --
+  see the parity-pass section above and the plan's delete list.
+
+### Open
+
+- **`starts/`, `solves/` and `puzzleStats/` are never written.** The web writes
+  these and its `TodayStatsBulletin` reads them for solver counts and solve
+  rates. Android has neither the writes nor the bulletin.
+- **No Crashlytics.** Called for in the plan's phase 5.
+- **The share card is text only.** The web renders a newspaper clipping image.
+
+### Blocked: Firestore writes are refused
+
+Every write under `users/{uid}` returns `PERMISSION_DENIED` for an anonymous
+user -- the profile, the per-puzzle progress, and the wallets, each of which is
+guarded by a *different* validator. Three different validators do not reject
+valid data in the same way; the common factor is the `isOwner()` ->
+`isAuthenticated()` gate that all three share. Public reads (`allow read: if
+true`) work, which is why the leaderboard renders.
+
+The payload was checked field by field against `isValidUser` in this repo's
+`firestore.rules` and satisfies it. So either the deployed rules differ from
+this file, or `isAuthenticated()` is deployed in a form that excludes anonymous
+sign-ins. **Check the console's Rules tab against this file before assuming the
+client is wrong**, and redeploy with `firebase deploy --only firestore:rules` if
+they have drifted.
+
+Sync failures are logged under the `ChronicleSync` tag rather than swallowed,
+which is how this surfaced at all.

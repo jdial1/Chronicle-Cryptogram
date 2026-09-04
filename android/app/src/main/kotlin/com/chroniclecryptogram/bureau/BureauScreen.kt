@@ -21,6 +21,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -79,10 +81,47 @@ fun BureauScreen(
     onCountryCode: (String) -> Unit,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
+    onDeleteAccount: () -> Unit,
     modifier: Modifier = Modifier,
     board: @Composable () -> Unit = {},
 ) {
     val colors = ChronicleTheme.colors
+    var confirmingDelete by remember { mutableStateOf(false) }
+
+    if (confirmingDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmingDelete = false },
+            containerColor = colors.paperCard,
+            title = { Text("Delete account", color = colors.ink) },
+            text = {
+                Text(
+                    // Says exactly what goes and what stays. The solve receipts
+                    // are non-deletable by rule -- they carry no personal data,
+                    // and being able to delete one would let a client re-run the
+                    // public solve counters.
+                    text = "This deletes your account and everything filed under " +
+                        "it: progress, posted times and your place on the board. " +
+                        "It cannot be undone. Progress on this device is kept.",
+                    color = colors.ink,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmingDelete = false
+                    onDeleteAccount()
+                }) {
+                    // Paired with "Keep it" and distinct from the dialog's
+                    // own title, so the destructive choice reads as a choice.
+                    Text("Delete it", color = colors.cinnabar)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmingDelete = false }) {
+                    Text("Keep it", color = colors.ink)
+                }
+            },
+        )
+    }
 
     LazyColumn(
         modifier = modifier
@@ -253,6 +292,20 @@ fun BureauScreen(
                             color = colors.cinnabar,
                             modifier = Modifier.padding(top = 4.dp),
                         )
+                    }
+                    if (account.signedIn) {
+                        // Play requires an in-app route to delete the account,
+                        // not just the data. It is deliberately plain text under
+                        // the sign-out button rather than a second loud button:
+                        // it is irreversible, and it asks before it acts.
+                        TextButton(
+                            onClick = { confirmingDelete = true },
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .heightIn(min = 48.dp),
+                        ) {
+                            Text("Delete account and data", color = colors.cinnabar)
+                        }
                     }
                     Button(
                         onClick = if (account.signedIn) onSignOut else onSignIn,

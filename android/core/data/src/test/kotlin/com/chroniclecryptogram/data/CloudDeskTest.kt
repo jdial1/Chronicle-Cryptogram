@@ -35,7 +35,12 @@ private class FakeCloud(private val snapshot: CloudSnapshot?) : CloudDesk {
         hints: DailyHintWallet,
         checks: DailyHintWallet,
     ) = Unit
-    override suspend fun pushStats(uid: String, stats: GameStats, solvedPuzzleIds: List<String>) = Unit
+    override suspend fun pushStats(
+        uid: String,
+        profile: CloudProfile,
+        stats: GameStats,
+        solvedPuzzleIds: List<String>,
+    ) = Unit
     override suspend fun deleteAccountData(uid: String) { deleted = true }
 }
 
@@ -129,7 +134,7 @@ class CloudDeskTest {
             DailyHintWallet(1, 0, 3),
             DailyHintWallet(1, 0, 3),
         )
-        NoCloudDesk.pushStats("uid", GameStats(), emptyList())
+        NoCloudDesk.pushStats("uid", CloudProfile(), GameStats(), emptyList())
         NoCloudDesk.deleteAccountData("uid")
     }
 
@@ -138,5 +143,61 @@ class CloudDeskTest {
         val cloud = FakeCloud(null)
         cloud.deleteAccountData("uid")
         assertTrue(cloud.deleted)
+    }
+}
+
+/**
+ * `firestore.rules` requires every identity field on the user document to be
+ * present and within length, on updates as well as creates. These bounds are
+ * quoted from `isValidUser`; if the rules move, this moves with them.
+ */
+class CloudProfileTest {
+
+    @Test
+    fun `an empty profile still satisfies the rules`() {
+        val clipped = CloudProfile(
+            displayName = "",
+            codename = "  ",
+            titleBadge = "",
+            countryCode = "",
+        ).clipped()
+
+        // Non-empty is a rule, so a player who has chosen nothing still gets a
+        // valid document. It is a document field only -- nothing is posted to
+        // the public board until they pick a name themselves.
+        assertEquals(DEFAULT_CODENAME, clipped.displayName)
+        assertEquals(DEFAULT_CODENAME, clipped.codename)
+        assertTrue(clipped.titleBadge.isNotEmpty())
+        assertEquals("US", clipped.countryCode)
+    }
+
+    @Test
+    fun `over-long fields are clipped to the rules' limits`() {
+        val clipped = CloudProfile(
+            displayName = "d".repeat(200),
+            codename = "c".repeat(200),
+            titleBadge = "t".repeat(200),
+        ).clipped()
+
+        assertEquals(80, clipped.displayName.length)
+        assertEquals(24, clipped.codename.length)
+        assertEquals(60, clipped.titleBadge.length)
+    }
+
+    @Test
+    fun `a photo url is https or empty`() {
+        assertEquals("", CloudProfile(photoUrl = "http://example.com/a.png").clipped().photoUrl)
+        assertEquals("", CloudProfile(photoUrl = "javascript:alert(1)").clipped().photoUrl)
+        assertEquals(
+            "https://example.com/a.png",
+            CloudProfile(photoUrl = "https://example.com/a.png").clipped().photoUrl,
+        )
+    }
+
+    @Test
+    fun `a country code is normalised to two capitals or defaulted`() {
+        assertEquals("GB", CloudProfile(countryCode = "gb").clipped().countryCode)
+        assertEquals("US", CloudProfile(countryCode = "USA").clipped().countryCode)
+        assertEquals("US", CloudProfile(countryCode = "1").clipped().countryCode)
     }
 }
