@@ -32,3 +32,7 @@ android/keystore.properties
 
 # Firebase config for the native app. Matches the existing mobile/ exception.
 !android/app/google-services.json
+
+# Leftover Expo build output. The shell itself is gone (Phase 9); these are
+# generated directories git never tracked until .gitignore went with it.
+mobile/
