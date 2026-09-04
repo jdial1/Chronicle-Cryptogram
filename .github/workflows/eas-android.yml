@@ -20,6 +20,15 @@ jobs:
       run:
         working-directory: mobile
     steps:
+      - name: Require EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "::error::EXPO_TOKEN is not set. EAS cannot authenticate without it."
+            echo "Create a token at https://expo.dev/settings/access-tokens and add it"
+            echo "as a repository secret named EXPO_TOKEN."
+            exit 1
+          fi
+        working-directory: .
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
