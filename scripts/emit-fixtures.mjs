@@ -34,6 +34,7 @@ import {
   emitCursor,
   emitPuzzleState,
   emitCaseFiles,
+  emitSolve,
 } from './emit-fixtures-progression.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -198,6 +199,7 @@ emitNormalizeProgress(emit);
 emitWallets(emit);
 emitPuzzleState(emit);
 emitCaseFiles(emit);
+emitSolve(emit);
 emitCursor(emit);
 
 if (CHECK) {

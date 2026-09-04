@@ -39,6 +39,7 @@ import { letterCells, cellCursor, nextOpenCell, previousCell } from '../src/game
 import { decodedMappingsFromPuzzle, withHintedMappings, liveFlaggedIds } from '../src/game/puzzleState.ts';
 import { CASE_CHARACTERS, CASE_FRAGMENTS, assembleFragment, unlockedFragmentsForCharacter, hasDecodedFragments } from '../src/data/caseFiles.ts';
 import { buildCipherAlphabet, parseCryptogramText } from '../src/utils/cipherEngine.ts';
+import { formatTime } from '../src/utils/formatTime.ts';
 import { INITIAL_PUZZLES } from '../src/data/puzzles.ts';
 
 /** The seed each puzzle actually uses, per puzzleState.ts:59. */
@@ -483,6 +484,50 @@ export function emitCaseFiles(emit) {
         characterId: c.id,
         fragments: unlockedFragmentsForCharacter(c.id, INITIAL_PUZZLES, set.solvedIds),
       })),
+    })),
+  });
+}
+
+/**
+ * The numbers a finished puzzle reports. They end up in text the player posts
+ * publicly, so a rounding or padding difference between the surfaces is visible.
+ */
+export function emitSolve(emit) {
+  const times = [
+    0, 0.1, 0.9, 1, 1.05, 9.94, 12.94, 59.9, 59.99, 60, 61.5,
+    599.9, 600, 3599.9, 3600, 86399.9, 86400,
+  ];
+
+  // Accuracy is over *assigned* symbols, so an untouched board is 100%.
+  const accuracyCases = [
+    { name: 'untouched', answer: { a: 'A', b: 'B' }, mappings: {} },
+    { name: 'all-correct', answer: { a: 'A', b: 'B' }, mappings: { a: 'A', b: 'B' } },
+    { name: 'half-wrong', answer: { a: 'A', b: 'B' }, mappings: { a: 'A', b: 'Z' } },
+    { name: 'all-wrong', answer: { a: 'A', b: 'B' }, mappings: { a: 'Z', b: 'Z' } },
+    { name: 'partial-correct', answer: { a: 'A', b: 'B', c: 'C' }, mappings: { a: 'A' } },
+    { name: 'rounds-to-67', answer: { a: 'A', b: 'B', c: 'C' }, mappings: { a: 'A', b: 'B', c: 'Z' } },
+    { name: 'rounds-to-33', answer: { a: 'A', b: 'B', c: 'C' }, mappings: { a: 'A', b: 'Z', c: 'Z' } },
+    { name: 'empty-guess-ignored', answer: { a: 'A', b: 'B' }, mappings: { a: '', b: 'B' } },
+  ];
+
+  const accuracyOf = (mappings, answer) => {
+    let correct = 0;
+    let total = 0;
+    for (const [id, truth] of Object.entries(answer)) {
+      if (!mappings[id]) continue;
+      total++;
+      if (mappings[id] === truth) correct++;
+    }
+    return total === 0 ? 100 : Math.round((correct / total) * 100);
+  };
+
+  emit('solve', {
+    formatTime: times.map((seconds) => ({ seconds, formatted: formatTime(seconds) })),
+    accuracy: accuracyCases.map((c) => ({
+      name: c.name,
+      answer: c.answer,
+      mappings: c.mappings,
+      accuracy: accuracyOf(c.mappings, c.answer),
     })),
   });
 }

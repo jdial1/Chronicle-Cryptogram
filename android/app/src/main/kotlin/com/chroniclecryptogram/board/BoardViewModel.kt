@@ -68,6 +68,35 @@ class BoardViewModel(
         return Edition.currentMorningPuzzle(puzzles, desk.solvedPuzzleIds) ?: puzzles.first()
     }
 
+    /**
+     * The next thing to open after a solve: the Night Extra of the same edition
+     * if it just became unlocked, else the next Morning, else nothing because the
+     * season is over.
+     *
+     * The web wrapped a modulo index into a date-filtered array; progression
+     * gating makes this a straight walk.
+     */
+    suspend fun nextPuzzle(after: PuzzleData): PuzzleData? {
+        val solved = store.state.first().solvedPuzzleIds
+        if (Edition.isMorningEdition(after)) {
+            val night = Edition.nightPuzzleForEdition(puzzles, after.editionNumber)
+            if (night != null && Edition.isNightUnlocked(puzzles, solved, after.editionNumber)) {
+                return night
+            }
+        }
+        val nextEdition = after.editionNumber + 1
+        if (nextEdition > Edition.frontPageEdition(puzzles, solved)) return null
+        return Edition.morningPuzzleForEdition(puzzles, nextEdition)
+    }
+
+    /** Opens whatever [nextPuzzle] finds, or stays put at the end of the season. */
+    fun advance() {
+        viewModelScope.launch {
+            val current = _state.value?.puzzle ?: return@launch
+            nextPuzzle(current)?.let { open(it) }
+        }
+    }
+
     /** Applies a transition and persists the result. */
     fun act(transition: (BoardState) -> BoardState) {
         val current = _state.value ?: return

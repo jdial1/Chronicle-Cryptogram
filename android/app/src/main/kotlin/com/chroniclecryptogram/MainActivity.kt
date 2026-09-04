@@ -96,7 +96,11 @@ private fun ChronicleApp() {
         Column(Modifier.fillMaxSize().background(ChronicleTheme.colors.paper)) {
             Box(Modifier.weight(1f)) {
                 when (navigator.current) {
-                    Destination.Board -> BoardScreen(state = current, onAction = model::act)
+                    Destination.Board -> BoardScreen(
+                        state = current,
+                        onAction = model::act,
+                        onNext = model::advance,
+                    )
 
                     Destination.Archive -> ArchiveScreen(
                         puzzles = puzzles,

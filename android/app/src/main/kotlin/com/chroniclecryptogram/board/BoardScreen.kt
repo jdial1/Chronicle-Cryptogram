@@ -51,6 +51,7 @@ fun BoardScreen(
     state: BoardState,
     onAction: ((BoardState) -> BoardState) -> Unit,
     modifier: Modifier = Modifier,
+    onNext: (() -> Unit)? = null,
 ) {
     val colors = ChronicleTheme.colors
     val puzzle = state.puzzle
@@ -63,7 +64,7 @@ fun BoardScreen(
     BoxWithConstraints(modifier.fillMaxSize()) {
         val deskWidth = DeskWidth.fromWidth(maxWidth)
         CompositionLocalProvider(LocalDeskWidth provides deskWidth) {
-            DeskContent(state, onAction, deskWidth, colors, puzzle)
+            DeskContent(state, onAction, deskWidth, colors, puzzle, onNext)
         }
     }
 }
@@ -75,6 +76,7 @@ private fun DeskContent(
     deskWidth: DeskWidth,
     colors: com.chroniclecryptogram.designsystem.theme.ChronicleColors,
     puzzle: PuzzleData,
+    onNext: (() -> Unit)?,
 ) {
     Column(
         modifier = Modifier
@@ -134,7 +136,7 @@ private fun DeskContent(
         }
 
         if (state.isSolved) {
-            SolvedNotice(Modifier.fillMaxWidth())
+            SolveBulletin(state = state, onNext = onNext)
         } else if (deskWidth.usesSideRail) {
             // Wide windows put the tools beside the keyboard rather than
             // stacking a full-width dock the player's thumbs cannot reach.
@@ -283,23 +285,6 @@ private fun DeskRail(
             description = "Wipe every guess and start the quote over.",
             enabled = state.mappings.keys.any { it !in state.lockedSymbolIds },
             onClick = onClear,
-        )
-    }
-}
-
-@Composable
-private fun SolvedNotice(modifier: Modifier = Modifier) {
-    val colors = ChronicleTheme.colors
-    Box(
-        modifier
-            .background(colors.paperMasthead)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "DECODED",
-            style = MaterialTheme.typography.displayMedium,
-            color = colors.brass,
         )
     }
 }
