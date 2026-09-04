@@ -20,6 +20,39 @@ two local files for plain Node scripts (Vite loads `.env` on its own).
 `npx eas-cli login` also works locally instead of a token — `android-ship.mjs` accepts
 either. CI has no interactive session, so there the token is the only option.
 
+## Building an APK on your own machine
+
+No `EXPO_TOKEN` needed here -- a login session satisfies the preflight just as well.
+CI is the only place that requires the token, because it has no interactive session.
+
+```
+git fetch origin && git checkout claude/release-plan-phases-srwica
+npm ci
+cd mobile && npm ci && npx eas-cli login
+npm run ship:android:test -- --skip-smoke
+```
+
+`ship:android:test` stops after the test APK and never touches Play; drop
+`--skip-smoke` if you have an emulator running. The APK lands at
+`mobile/.ship/test.apk`.
+
+**You need a root `.env` first.** `scripts/stage-web-assets.mjs` refuses to build
+without the Firebase values, and those live in GitHub secrets, not on your disk.
+Copy `.env.example` to `.env` and fill in the same values the repository secrets
+hold.
+
+**One trap:** `.env.example` ships `VITE_FIREBASE_ENABLED="false"`, which is the
+right default for web work but is rejected by the staging guard. It must read
+`"true"` or the build stops with `VITE_FIREBASE_ENABLED must be "true"`.
+
+The minimum the guard enforces is `VITE_FIREBASE_ENABLED=true` plus non-empty
+`VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID` and `VITE_FIREBASE_APP_ID`.
+Fill in the rest anyway -- the app uses them at runtime, and a build that passes
+the guard can still ship a half-configured app.
+
+`VITE_MAX_EDITION` must stay **unset**. It is the Pages demo ceiling; leaking it
+into an app build would ship three editions instead of thirty.
+
 ## Android build — `.github/workflows/eas-android.yml`, `mobile/.env`
 
 | Secret | Consumed at | How to obtain |
