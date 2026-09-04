@@ -185,6 +185,7 @@ private fun ChronicleApp() {
                         onAction = model::act,
                         onNext = model::advance,
                         useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
+                        tactics = tactics.tactics,
                     )
 
                     Destination.Archive -> ArchiveScreen(

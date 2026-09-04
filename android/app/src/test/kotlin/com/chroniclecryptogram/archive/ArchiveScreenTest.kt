@@ -5,9 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.chroniclecryptogram.cipher.Edition
@@ -71,7 +74,19 @@ class ArchiveScreenTest {
             .performScrollToNode(hasContentDescription(description))
     }
 
-    private fun assertChip(description: String) {
+    /**
+     * Rows are collapsed until tapped, so every slot assertion has to open its
+     * edition first. That is the archive's actual shape now, and a test that
+     * skipped the tap would be testing a screen that no longer exists.
+     */
+    private fun expand(edition: Int) {
+        compose.onNodeWithTag(ArchiveListTag)
+            .performScrollToNode(hasTestTag(issueRowTag(edition)))
+        compose.onNodeWithTag(issueRowTag(edition)).performClick()
+    }
+
+    private fun assertChip(edition: Int, description: String) {
+        expand(edition)
         scrollTo(description)
         compose.onNodeWithContentDescription(description).assertExists()
     }
@@ -79,28 +94,28 @@ class ArchiveScreenTest {
     @Test
     fun `a fresh player sees edition one open and edition two locked`() {
         show()
-        assertChip("Morning, Edition No. 1, open")
-        assertChip("Morning, Edition No. 2, locked")
+        assertChip(1, "Morning Edition, Edition No. 1, open")
+        assertChip(2, "Morning Edition, Edition No. 2, locked")
     }
 
     @Test
     fun `the night extra is locked before its morning is solved`() {
         show()
-        assertChip("Night Extra, Edition No. 1, locked")
+        assertChip(1, "Night Extra, Edition No. 1, locked")
     }
 
     @Test
     fun `the night extra opens once its own morning is solved`() {
         show(setOf(morning(1).id))
-        assertChip("Night Extra, Edition No. 1, open")
+        assertChip(1, "Night Extra, Edition No. 1, open")
     }
 
     @Test
     fun `solving a morning opens the next edition`() {
         show(setOf(morning(1).id))
-        assertChip("Morning, Edition No. 1, decoded")
-        assertChip("Morning, Edition No. 2, open")
-        assertChip("Morning, Edition No. 3, locked")
+        assertChip(1, "Morning Edition, Edition No. 1, decoded")
+        assertChip(2, "Morning Edition, Edition No. 2, open")
+        assertChip(3, "Morning Edition, Edition No. 3, locked")
     }
 
     /**
@@ -110,8 +125,8 @@ class ArchiveScreenTest {
     @Test
     fun `a hole in the run cannot be skipped`() {
         show(setOf(morning(1).id, morning(2).id, morning(4).id))
-        assertChip("Morning, Edition No. 3, open")
-        assertChip("Morning, Edition No. 4, locked")
+        assertChip(3, "Morning Edition, Edition No. 3, open")
+        assertChip(4, "Morning Edition, Edition No. 4, locked")
     }
 
     @Test
@@ -119,8 +134,10 @@ class ArchiveScreenTest {
         show()
         opened.clear()
 
-        scrollTo("Morning, Edition No. 2, locked")
-        compose.onNodeWithContentDescription("Morning, Edition No. 2, locked").performClick()
+        expand(2)
+        val locked = "Morning Edition, Edition No. 2, locked"
+        scrollTo(locked)
+        compose.onNodeWithContentDescription(locked).performClick()
 
         assertTrue("a locked issue must not open", opened.isEmpty())
     }
@@ -130,7 +147,8 @@ class ArchiveScreenTest {
         show()
         opened.clear()
 
-        compose.onNodeWithContentDescription("Morning, Edition No. 1, open").performClick()
+        expand(1)
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open").performClick()
 
         assertEquals(1, opened.size)
         assertEquals(morning(1).id, opened.first().id)
@@ -141,6 +159,33 @@ class ArchiveScreenTest {
     fun `the last edition in the season is reachable in the list`() {
         show()
         val last = Edition.maxEdition(puzzles)
-        assertChip("Morning, Edition No. $last, locked")
+        assertChip(last, "Morning Edition, Edition No. $last, locked")
+    }
+
+    @Test
+    fun `rows start collapsed and only one opens at a time`() {
+        show()
+
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+            .assertDoesNotExist()
+
+        expand(1)
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+            .assertExists()
+
+        // Opening another edition must close the first, or a phone screen fills
+        // with expanded rows and the overview is gone again.
+        expand(2)
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+            .assertDoesNotExist()
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 2, locked")
+            .assertExists()
+    }
+
+    @Test
+    fun `the list is grouped under its chapter headings`() {
+        show()
+        // Chapter titles are the landmarks that make thirty editions navigable.
+        compose.onNodeWithText(Edition.chapterForEdition(1).title).assertExists()
     }
 }

@@ -1,6 +1,7 @@
 package com.chroniclecryptogram.board
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,12 +36,16 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.content.CipherTactic
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.casefile.WoodcutPlate
 import com.chroniclecryptogram.designsystem.DeskWidth
+import com.chroniclecryptogram.designsystem.scannedPaper
 import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
@@ -59,6 +64,7 @@ fun BoardScreen(
     modifier: Modifier = Modifier,
     onNext: (() -> Unit)? = null,
     useSystemKeyboard: Boolean = false,
+    tactics: List<CipherTactic> = emptyList(),
 ) {
     val colors = ChronicleTheme.colors
     val puzzle = state.puzzle
@@ -72,6 +78,16 @@ fun BoardScreen(
     // the same confirmation; without it a stray tap on a nearly-solved board is
     // unrecoverable.
     var confirmingClear by remember { mutableStateOf(false) }
+    var showingTally by remember { mutableStateOf(false) }
+
+    val tools = deskTools(
+        state = state,
+        onHint = { onAction(BoardActions::hint) },
+        onCheck = { onAction(BoardActions::check) },
+        onUndo = { onAction(BoardActions::undo) },
+        onTally = { showingTally = true },
+        onClear = { confirmingClear = true },
+    )
 
     BoxWithConstraints(modifier.fillMaxSize()) {
         val deskWidth = DeskWidth.fromWidth(maxWidth)
@@ -83,10 +99,23 @@ fun BoardScreen(
                 colors = colors,
                 puzzle = puzzle,
                 onNext = onNext,
-                onRequestClear = { confirmingClear = true },
+                tools = tools,
+                tactics = tactics,
                 useSystemKeyboard = useSystemKeyboard,
             )
         }
+    }
+
+    if (showingTally) {
+        TallySheet(
+            state = state,
+            onSelectSymbol = { symbolId ->
+                state.firstCellFor(symbolId)?.let { cellId ->
+                    onAction { BoardActions.select(it, cellId) }
+                }
+            },
+            onDismiss = { showingTally = false },
+        )
     }
 
     if (confirmingClear) {
@@ -141,7 +170,8 @@ private fun DeskContent(
     puzzle: PuzzleData,
     onNext: (() -> Unit)?,
     useSystemKeyboard: Boolean,
-    onRequestClear: () -> Unit,
+    tools: List<DeskTool>,
+    tactics: List<CipherTactic>,
 ) {
     Column(
         modifier = Modifier
@@ -178,6 +208,19 @@ private fun DeskContent(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
             Masthead(puzzle)
+
+            // Only the Primer coaches. Its hints name the words in that one
+            // quote, and a permanent tutorial strip would be noise on every
+            // other edition.
+            if (Edition.isPrimerPuzzle(puzzle) && !state.isSolved) {
+                PrimerCoach(
+                    tactics = tactics,
+                    words = state.words,
+                    mappings = state.mappings,
+                    isSolved = state.isSolved,
+                )
+            }
+
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -190,7 +233,12 @@ private fun DeskContent(
                             Modifier
                         }
                     )
-                    .align(Alignment.CenterHorizontally),
+                    .align(Alignment.CenterHorizontally)
+                    // The folio: a bordered sheet of scanned paper the cipher
+                    // is printed on, rather than glyphs floating on the desk.
+                    .border(1.dp, colors.paperRule)
+                    .scannedPaper(fill = colors.paperGrainFill, dot = colors.paperGrain)
+                    .padding(horizontal = 12.dp, vertical = 16.dp),
             ) {
                 CipherBoard(
                     words = state.words,
@@ -214,20 +262,10 @@ private fun DeskContent(
                     onBackspace = { onAction(BoardActions::backspace) },
                     modifier = Modifier.weight(1f),
                 )
-                DeskRail(
-                    state = state,
-                    onHint = { onAction(BoardActions::hint) },
-                    onCheck = { onAction(BoardActions::check) },
-                    onClear = onRequestClear,
-                )
+                DeskRail(tools)
             }
         } else {
-            DeskDock(
-                state = state,
-                onHint = { onAction(BoardActions::hint) },
-                onCheck = { onAction(BoardActions::check) },
-                onClear = onRequestClear,
-            )
+            DeskDock(tools)
             if (useSystemKeyboard) {
                 SystemKeyboardField(
                     enabled = state.selectedCellId != null,
@@ -248,7 +286,7 @@ private fun DeskContent(
 private fun Masthead(puzzle: PuzzleData) {
     val colors = ChronicleTheme.colors
     Row(
-        Modifier.padding(bottom = 16.dp),
+        Modifier.padding(bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -258,9 +296,17 @@ private fun Masthead(puzzle: PuzzleData) {
         puzzle.silhouette?.let { WoodcutPlate(it) }
         Column(Modifier.weight(1f)) {
             Text(
+                // Two lines at most: on the board the headline is a kicker over
+                // the cipher, and a three-line masthead pushes the quote itself
+                // off a phone screen.
                 text = puzzle.headline,
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontSize = 24.sp,
+                    lineHeight = 27.sp,
+                ),
                 color = colors.ink,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 // Edition 0's label and its chapter title are both "The Primer";
@@ -273,99 +319,6 @@ private fun Masthead(puzzle: PuzzleData) {
                 color = colors.brass,
             )
         }
-    }
-}
-
-/** Hints and checks, with their remaining counts. Both wallets are per-edition. */
-@Composable
-private fun DeskDock(
-    state: BoardState,
-    onHint: () -> Unit,
-    onCheck: () -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = ChronicleTheme.colors
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(colors.paperMasthead)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        DockButton(
-            label = "Hint (${state.hintsRemaining})",
-            description = "Reveal the selected glyph. ${state.hintsRemaining} hints left this edition.",
-            enabled = state.hintsRemaining > 0 && state.selectedSymbolId != null,
-            onClick = onHint,
-        )
-        DockButton(
-            label = "Check (${state.checksRemaining})",
-            description = "Test the selected guess. ${state.checksRemaining} checks left this edition.",
-            enabled = state.checksRemaining > 0 && state.selectedSymbolId != null,
-            onClick = onCheck,
-        )
-        DockButton(
-            label = "Clear",
-            description = "Wipe every guess and start the quote over.",
-            enabled = state.mappings.keys.any { it !in state.lockedSymbolIds },
-            onClick = onClear,
-        )
-    }
-}
-
-@Composable
-private fun DockButton(
-    label: String,
-    description: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    TextButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.semantics { contentDescription = description },
-    ) {
-        Text(label, color = ChronicleTheme.colors.ink)
-    }
-}
-
-/** The same three tools, stacked vertically for a wide window. */
-@Composable
-private fun DeskRail(
-    state: BoardState,
-    onHint: () -> Unit,
-    onCheck: () -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = ChronicleTheme.colors
-    Column(
-        modifier
-            .background(colors.paperMasthead)
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        DockButton(
-            label = "Hint (${state.hintsRemaining})",
-            description = "Reveal the selected glyph. ${state.hintsRemaining} hints left this edition.",
-            enabled = state.hintsRemaining > 0 && state.selectedSymbolId != null,
-            onClick = onHint,
-        )
-        DockButton(
-            label = "Check (${state.checksRemaining})",
-            description = "Test the selected guess. ${state.checksRemaining} checks left this edition.",
-            enabled = state.checksRemaining > 0 && state.selectedSymbolId != null,
-            onClick = onCheck,
-        )
-        DockButton(
-            label = "Clear",
-            description = "Wipe every guess and start the quote over.",
-            enabled = state.mappings.keys.any { it !in state.lockedSymbolIds },
-            onClick = onClear,
-        )
     }
 }
 

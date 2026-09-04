@@ -95,14 +95,14 @@ class BoardScreenTest {
     fun `a hint locks a symbol and decrements the wallet`() {
         showBoard()
 
-        compose.onNodeWithText("Hint (3)").assertExists()
+        compose.onNodeWithContentDescription("3 hints left", substring = true).assertExists()
         compose.onAllNodesWithContentDescription(", unassigned", substring = true)
             .onFirst()
             .performClick()
-        compose.onNodeWithText("Hint (3)").performClick()
+        compose.onNodeWithContentDescription("3 hints left", substring = true).performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText("Hint (2)").assertExists()
+        compose.onNodeWithContentDescription("2 hints left", substring = true).assertExists()
         val locked = compose.onAllNodesWithContentDescription(", locked as ", substring = true)
             .fetchSemanticsNodes()
         assertTrue("hint did not lock a symbol", locked.isNotEmpty())
@@ -112,7 +112,7 @@ class BoardScreenTest {
     fun `the check wallet starts at three and spends one on a guess`() {
         showBoard()
 
-        compose.onNodeWithText("Check (3)").assertExists()
+        compose.onNodeWithContentDescription("3 checks left", substring = true).assertExists()
         compose.onAllNodesWithContentDescription(", unassigned", substring = true)
             .onFirst()
             .performClick()
@@ -123,9 +123,9 @@ class BoardScreenTest {
         compose.onAllNodesWithContentDescription(", mapped to Q", substring = true)
             .onFirst()
             .performClick()
-        compose.onNodeWithText("Check (3)").performClick()
+        compose.onNodeWithContentDescription("3 checks left", substring = true).performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText("Check (2)").assertExists()
+        compose.onNodeWithContentDescription("2 checks left", substring = true).assertExists()
     }
 }

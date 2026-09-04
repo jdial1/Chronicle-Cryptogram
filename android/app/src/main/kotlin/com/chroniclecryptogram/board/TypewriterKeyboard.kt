@@ -56,13 +56,13 @@ private const val PressMillis = 150L
 private val KeyTravel = 7.dp
 
 /* The bank is near-black rather than paper: these keys are machine, not page. */
-private val BankInk = Color(0xFF1A1816)
-private val BankEdge = Color(0xFF0A0908)
+internal val BankInk = Color(0xFF1A1816)
+internal val BankEdge = Color(0xFF0A0908)
 private val KeyTop = Color(0xFF3A342C)
 private val KeyBottom = Color(0xFF141210)
 private val KeyPressedTop = Color(0xFF1C1814)
 private val KeyPressedBottom = Color(0xFF070605)
-private val KeyShadow = Color(0xFF5C4A28)
+internal val KeyShadow = Color(0xFF5C4A28)
 
 /**
  * The brass typewriter bank, ported from `TypewriterKeyboard.tsx` and

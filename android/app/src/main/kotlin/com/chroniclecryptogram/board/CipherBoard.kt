@@ -1,5 +1,8 @@
 package com.chroniclecryptogram.board
 
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -55,8 +58,12 @@ data class TileSize(
 private val TileWidthLadder = listOf(64.dp, 60.dp, 56.dp, 48.dp, 44.dp, 40.dp, 36.dp, 32.dp)
 
 private val WordGap = 20.dp
-private val LineGap = 28.dp
+private val LineGap = 18.dp
 private val CellGap = 6.dp
+
+/** How far below a tile the word rule sits, and how heavy it is. */
+private val WordRuleDrop = 3.dp
+private val WordRuleWidth = 1.5.dp
 
 /**
  * Chooses a tile size that fits [maxWidth] and always contains its own text.
@@ -134,11 +141,31 @@ fun CipherBoard(
             }
         }
 
+        // Which neighbours the word rule should run into. A rule that stops at
+        // every tile edge reads as underlined letters; running it through the
+        // gaps is what makes it read as one word on a ruled line, the way the
+        // web board and a printed cryptogram both draw it.
+        val ruleJoins = remember(words) {
+            words.flatMap { word ->
+                word.symbols.mapIndexed { index, cell ->
+                    if (cell.isPunctuation) {
+                        false to false
+                    } else {
+                        (word.symbols.getOrNull(index - 1)?.isPunctuation == false) to
+                            (word.symbols.getOrNull(index + 1)?.isPunctuation == false)
+                    }
+                }
+            }
+        }
+
         Layout(
             content = {
-                cells.forEach { (wordId, index, cell) ->
+                cells.forEachIndexed { flatIndex, (wordId, index, cell) ->
                     val cellId = "${wordId}_$index"
+                    val (joinLeft, joinRight) = ruleJoins[flatIndex]
                     CipherTile(
+                        joinLeft = joinLeft,
+                        joinRight = joinRight,
                         cell = cell,
                         guess = mappings[cell.symbolId],
                         tile = tile,
@@ -218,6 +245,8 @@ fun CipherBoard(
 
 @Composable
 private fun CipherTile(
+    joinLeft: Boolean,
+    joinRight: Boolean,
     cell: CipherCell,
     guess: String?,
     tile: TileSize,
@@ -252,11 +281,29 @@ private fun CipherTile(
         }
     }
 
+    val ruleColor = colors.paperRule
     Box(
         modifier = modifier
             .size(tile.width, tile.height)
+            // Drawn before the clip, so the word rule can run past the tile's
+            // own bounds and through the gap to the next letter.
+            .drawBehind {
+                val overhang = (CellGap.toPx() / 2f) + 0.5f
+                val y = size.height + WordRuleDrop.toPx()
+                drawLine(
+                    color = ruleColor,
+                    start = Offset(if (joinLeft) -overhang else 0f, y),
+                    end = Offset(size.width + if (joinRight) overhang else 0f, y),
+                    strokeWidth = WordRuleWidth.toPx(),
+                )
+            }
             .clip(RoundedCornerShape(4.dp))
             .background(if (selected) colors.selected else colors.paperCard)
+            .border(
+                width = if (selected) 2.dp else 1.dp,
+                color = if (selected) colors.brass else colors.paperRule,
+                shape = RoundedCornerShape(4.dp),
+            )
             .clickable(onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,

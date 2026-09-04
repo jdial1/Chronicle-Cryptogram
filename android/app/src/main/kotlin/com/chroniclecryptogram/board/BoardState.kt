@@ -10,6 +10,14 @@ import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.cipher.model.PuzzleProgress
 import com.chroniclecryptogram.cipher.model.Wallets
 
+/** One row of the glyph tally. */
+data class GlyphCount(
+    val symbolId: String,
+    val glyph: String,
+    val count: Int,
+    val mappedLetter: String?,
+)
+
 /**
  * Everything the board renders from, and the pure transitions between states.
  *
@@ -33,6 +41,12 @@ data class BoardState(
     val checksRemaining: Int = Wallets.DAILY_CHECKS,
     val timerSeconds: Double = 0.0,
     val isSolved: Boolean = false,
+    /**
+     * Previous boards, newest last. Only the guess map is kept -- undo walks
+     * back typing, not hints or checks, which cost from a wallet and would be
+     * refunded by rewinding them.
+     */
+    val history: List<Map<String, String>> = emptyList(),
 ) {
 
     val cells: List<BoardCell> = CipherCursor.letterCells(words)
@@ -42,6 +56,35 @@ data class BoardState(
 
     val selectedSymbolId: String?
         get() = cells.firstOrNull { it.cellId == selectedCellId }?.symbolId
+
+    val canUndo: Boolean get() = history.isNotEmpty()
+
+    /**
+     * Glyph counts, busiest first, for the tally sheet.
+     *
+     * Glyphs appearing once are dropped: a single occurrence tells the player
+     * nothing about frequency and only crowds the sheet. That matches the web
+     * build, which filters the same way.
+     */
+    val tally: List<GlyphCount> by lazy {
+        val glyphs = words.flatMap { it.symbols }.associateBy({ it.symbolId }, { it.char.orEmpty() })
+        cells.groupingBy { it.symbolId }.eachCount()
+            .filterValues { it > 1 }
+            .entries
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+            .map { (symbolId, count) ->
+                GlyphCount(
+                    symbolId = symbolId,
+                    glyph = glyphs[symbolId].orEmpty(),
+                    count = count,
+                    mappedLetter = mappings[symbolId],
+                )
+            }
+    }
+
+    /** The first cell showing [symbolId], so tapping the tally moves the cursor. */
+    fun firstCellFor(symbolId: String): String? =
+        cells.firstOrNull { it.symbolId == symbolId }?.cellId
 
     companion object {
         fun forPuzzle(puzzle: PuzzleData): BoardState {
@@ -80,6 +123,7 @@ object BoardActions {
         val mappings = LinkedHashMap(state.mappings).apply { put(symbolId, letter.uppercase()) }
         val next = state.copy(
             mappings = mappings,
+            history = state.history + state.mappings,
             // A guess that changed clears its own wrong-marker; the player is
             // told again only when they ask for another check.
             flaggedSymbolIds = state.flaggedSymbolIds - symbolId,
@@ -94,6 +138,7 @@ object BoardActions {
 
         if (symbolId != null && state.mappings.containsKey(symbolId)) {
             return state.copy(
+                history = state.history + state.mappings,
                 mappings = state.mappings - symbolId,
                 flaggedSymbolIds = state.flaggedSymbolIds - symbolId,
                 isSolved = false,
@@ -156,7 +201,19 @@ object BoardActions {
     }
 
     /** Wipes every guess the player made. Locked symbols and the timer survive. */
+    /** One step back through typing. Wallet spends are not rewound. */
+    fun undo(state: BoardState): BoardState {
+        val previous = state.history.lastOrNull() ?: return state
+        return state.copy(
+            mappings = previous,
+            history = state.history.dropLast(1),
+            flaggedSymbolIds = emptySet(),
+            isSolved = false,
+        )
+    }
+
     fun clearLetters(state: BoardState): BoardState = state.copy(
+        history = state.history + state.mappings,
         mappings = state.mappings.filterKeys { it in state.lockedSymbolIds },
         flaggedSymbolIds = emptySet(),
         isSolved = false,

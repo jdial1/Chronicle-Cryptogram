@@ -199,4 +199,69 @@ class BoardActionsTest {
             "a correct guess must not stay flagged after a reload",
         )
     }
+
+    @Test
+    fun `undo walks back one typed letter at a time`() {
+        val first = BoardActions.type(boardAtFirstCell(), "E")
+        val second = BoardActions.type(first, "T")
+
+        assertTrue(second.canUndo, "two letters typed, so undo must be offered")
+
+        val back = BoardActions.undo(second)
+        assertEquals(first.mappings, back.mappings)
+
+        val backAgain = BoardActions.undo(back)
+        assertTrue(backAgain.mappings.isEmpty())
+        assertFalse(backAgain.canUndo, "the board is back where it started")
+    }
+
+    @Test
+    fun `undo does not refund a hint`() {
+        val hinted = BoardActions.hint(boardAtFirstCell())
+        assertEquals(Wallets.DAILY_HINTS - 1, hinted.hintsRemaining)
+
+        val typed = BoardActions.type(hinted, "E")
+        val back = BoardActions.undo(typed)
+
+        // The wallet is scarce on purpose; rewinding typing must not be a way
+        // to buy hints back, or the whole tension evaporates.
+        assertEquals(Wallets.DAILY_HINTS - 1, back.hintsRemaining)
+        assertTrue(back.hintedSymbolIds.isNotEmpty())
+    }
+
+    @Test
+    fun `undo on an untouched board is a no-op`() {
+        val state = boardAtFirstCell()
+        assertFalse(state.canUndo)
+        assertEquals(state.mappings, BoardActions.undo(state).mappings)
+    }
+
+    @Test
+    fun `the tally counts repeated glyphs, busiest first`() {
+        val state = BoardState.forPuzzle(puzzle)
+        val tally = state.tally
+
+        val repeated = state.cells.groupingBy { it.symbolId }.eachCount().filterValues { it > 1 }
+        assertEquals(repeated.size, tally.size, "single-occurrence glyphs teach nothing")
+        assertEquals(repeated.values.sum(), tally.sumOf { it.count })
+        assertEquals(
+            tally.map { it.count }.sortedDescending(),
+            tally.map { it.count },
+            "the tally is only useful for frequency analysis if it is sorted",
+        )
+        assertTrue(tally.all { it.glyph.isNotEmpty() })
+        assertTrue(tally.all { it.mappedLetter == null }, "nothing is typed yet")
+    }
+
+    @Test
+    fun `the tally reports the letter a glyph currently carries`() {
+        val typed = BoardActions.type(boardAtFirstCell(), "E")
+        val symbolId = boardAtFirstCell().selectedSymbolId!!
+
+        val row = typed.tally.firstOrNull { it.symbolId == symbolId }
+        // The first cell's glyph may appear only once, in which case it is
+        // filtered out -- either way the tally must never disagree with the board.
+        if (row != null) assertEquals("E", row.mappedLetter)
+        assertEquals(typed.cells.first().cellId, typed.firstCellFor(symbolId))
+    }
 }
