@@ -1,0 +1,66 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The parity gate. :core:cipher asserts against fixtures generated from
+      # the TypeScript, and :core:content parses the same src/data JSON the web
+      # app reads -- so a data or logic change that Kotlin cannot follow fails
+      # here, on the same PR that made it.
+      - name: Parity and content tests
+        working-directory: android
+        run: ./gradlew :core:cipher:test :core:content:testDebugUnitTest --no-daemon
+
+      - name: Unit and screenshot tests
+        working-directory: android
+        run: ./gradlew test --no-daemon
+
+      - name: Lint
+        working-directory: android
+        run: ./gradlew :app:lintDebug --no-daemon
+
+      - name: Assemble debug APK
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            android/**/build/reports/tests/
+            android/**/build/test-results/
+          if-no-files-found: ignore
