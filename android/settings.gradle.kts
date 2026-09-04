@@ -29,3 +29,6 @@ include(":core:cipher")
 
 // Content loading: reads the JSON staged from src/data into assets.
 include(":core:content")
+
+// Theme, typography and shared Compose components.
+include(":core:designsystem")

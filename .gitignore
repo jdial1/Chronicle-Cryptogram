@@ -25,3 +25,7 @@ local.properties
 *.keystore
 !mobile/android/app/debug.keystore
 android/keystore.properties
+
+# Noto sources for scripts/gen-glyph-font.mjs (OFL; only needed to regenerate).
+.fontsrc/node_modules/
+.fontsrc/package-lock.json

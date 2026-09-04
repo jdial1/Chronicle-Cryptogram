@@ -11,3 +11,5 @@
 # The Gradle wrapper script must stay LF or it will not run on Linux CI.
 gradlew text eol=lf
 gradlew.bat text eol=crlf
+*.ttf binary
+*.otf binary
