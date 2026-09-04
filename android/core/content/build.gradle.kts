@@ -27,7 +27,7 @@ val stageContentForTests by tasks.registering(Sync::class) {
 
 android {
     namespace = "com.chroniclecryptogram.content"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig { minSdk = 26 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

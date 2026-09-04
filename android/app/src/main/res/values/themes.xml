@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Compose paints everything; this exists so the window background matches the
+      paper before the first frame instead of flashing the platform default.
+      Colours are duplicated here because a resource cannot read a Compose token.
+    -->
+    <style name="Theme.Chronicle" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

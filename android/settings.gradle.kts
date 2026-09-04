@@ -32,3 +32,5 @@ include(":core:content")
 
 // Theme, typography and shared Compose components.
 include(":core:designsystem")
+
+include(":app")
