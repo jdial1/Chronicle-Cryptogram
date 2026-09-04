@@ -74,6 +74,17 @@ if (System.getenv("ANDROID_PUBLISHER_CREDENTIALS") != null) {
     apply(plugin = "com.github.triplet.play")
 }
 
+/**
+ * The platform the app targets, overridable for a sideload build.
+ *
+ * The default is the newest SDK, which is what Play wants. `compileSdk` is not
+ * a knob -- the AndroidX stack in the current Compose BOM refuses to be compiled
+ * against anything older -- but the *target* is, and lowering it removes a
+ * variable when a device refuses to install a sideloaded APK:
+ * `-PchronicleTargetSdk=36` targets a shipped Android version instead.
+ */
+val chronicleSdk = providers.gradleProperty("chronicleTargetSdk").get().toInt()
+
 android {
     namespace = "com.chroniclecryptogram"
     compileSdk = 37
@@ -81,7 +92,7 @@ android {
     defaultConfig {
         applicationId = "com.chroniclecryptogram"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = chronicleSdk
         buildConfigField("boolean", "HAS_FIREBASE", hasFirebaseConfig.toString())
         // Credential Manager needs the *web* OAuth client id. Reading it from
         // google-services.json keeps it from being pasted in twice and drifting.
