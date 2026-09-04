@@ -104,13 +104,35 @@ function requireExpoAuth() {
   process.exit(1);
 }
 
-function parseBuildId(text) {
-  const ids = [...text.matchAll(/"id"\s*:\s*"([0-9a-f-]{8,})"/gi)].map((m) => m[1]);
-  if (ids.length) return ids[ids.length - 1];
+/**
+ * `eas build --json` prints an array of build objects. Read the first one rather than
+ * scraping for `"id"`: the old regex took the *last* match, and a build object nests
+ * fingerprint, initiatingActor, app and app.ownerAccount ids after its own -- so it
+ * returned the account id. Harmless when only logged, but it is also what feeds
+ * `eas submit --id` below.
+ */
+function parseBuild(text) {
+  const start = text.indexOf('[');
+  if (start !== -1) {
+    try {
+      const parsed = JSON.parse(text.slice(start, text.lastIndexOf(']') + 1));
+      if (Array.isArray(parsed) && parsed[0]) return parsed[0];
+    } catch {
+      // Fall through to the URL scrape below.
+    }
+  }
   const url = text.match(
     /https:\/\/expo\.dev\/accounts\/[^/]+\/projects\/[^/]+\/builds\/([0-9a-f-]+)/i
   );
-  return url ? url[1] : null;
+  return url ? { id: url[1] } : null;
+}
+
+/** Fail loudly on a build that did not produce an artifact, naming why. */
+function assertBuildFinished(build, label) {
+  const status = build?.status;
+  if (status && status !== 'FINISHED') {
+    fail(`${label} build ${build.id ?? "(unknown)"} ended as ${status}, not FINISHED.`);
+  }
 }
 
 function parseArtifactUrl(text) {
@@ -174,10 +196,13 @@ const testOut = easCapture([
   "--wait",
   "--json",
 ]);
-const testId = parseBuildId(testOut);
-const apkUrl = parseArtifactUrl(testOut);
-if (!testId) fail("Could not find test build id in eas-cli output.");
-console.log("Test build", testId);
+const testBuild = parseBuild(testOut);
+if (!testBuild) fail("Could not find test build in eas-cli output.");
+console.log("Test build", testBuild.id);
+assertBuildFinished(testBuild, "Test");
+const apkUrl = testBuild.artifacts?.buildUrl
+  ?? testBuild.artifacts?.applicationArchiveUrl
+  ?? parseArtifactUrl(testOut);
 
 if (apkUrl) {
   step("Download test APK");
@@ -214,9 +239,11 @@ const prodOut = easCapture([
   "--wait",
   "--json",
 ]);
-const prodId = parseBuildId(prodOut);
-if (!prodId) fail("Could not find production build id in eas-cli output.");
+const prodBuild = parseBuild(prodOut);
+if (!prodBuild) fail("Could not find production build in eas-cli output.");
+const prodId = prodBuild.id;
 console.log("Production build", prodId);
+assertBuildFinished(prodBuild, "Production");
 
 step("Play Console: same AAB to internal, alpha, EA");
 for (const profile of ["internal", "alpha", "ea"]) {
