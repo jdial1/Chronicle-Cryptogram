@@ -11,11 +11,11 @@ import androidx.compose.runtime.setValue
  * Where the player is.
  *
  * A sealed hierarchy and one saved value rather than navigation-compose: there
- * are five destinations, none takes an argument the board does not already hold,
+ * are six destinations, none takes an argument the board does not already hold,
  * and nothing deep-links. A nav graph would be more machinery than the app has
  * navigation.
  */
-enum class Destination { Board, Archive, CaseFile, Guide, Desk }
+enum class Destination { Board, Archive, CaseFile, Guide, Leaderboard, Desk }
 
 /**
  * Holds the current destination and survives configuration changes.

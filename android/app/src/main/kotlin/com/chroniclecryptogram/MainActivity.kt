@@ -40,7 +40,10 @@ import com.chroniclecryptogram.content.ContentRepository
 import com.chroniclecryptogram.data.DataStoreDeskStore
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
+import com.chroniclecryptogram.data.Standings
 import com.chroniclecryptogram.guide.GuideScreen
+import com.chroniclecryptogram.leaderboard.LeaderboardScreen
+import com.chroniclecryptogram.leaderboard.BoardState as LeaderboardBoardState
 
 class MainActivity : ComponentActivity() {
 
@@ -119,6 +122,18 @@ private fun ChronicleApp() {
 
                     Destination.Guide -> GuideScreen(tactics = tactics)
 
+                    Destination.Leaderboard -> LeaderboardScreen(
+                        // Firestore is not wired to the UI yet; a build without
+                        // credentials shows the offline notice rather than an
+                        // empty board that looks like nobody has played.
+                        state = if (BuildConfig.HAS_FIREBASE) {
+                            LeaderboardBoardState.Ready(Standings.rank(emptyList(), null))
+                        } else {
+                            LeaderboardBoardState.Offline
+                        },
+                        playerUid = null,
+                    )
+
                     Destination.Desk -> DeskScreen(
                         solvedCount = solved.size,
                         totalEditions = Edition.maxEdition(puzzles),
@@ -148,6 +163,7 @@ private fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
                 Destination.Board -> "Desk"
                 Destination.Archive -> "Archive"
                 Destination.CaseFile -> "Case File"
+                Destination.Leaderboard -> "Board"
                 Destination.Guide -> "Guide"
                 Destination.Desk -> "Bureau"
             }
