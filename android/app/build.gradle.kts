@@ -44,6 +44,24 @@ fun signingValue(key: String, env: String): String? =
 
 val hasSigningConfig = signingValue("storeFile", "ANDROID_KEYSTORE_PATH") != null
 
+/**
+ * Play publishing, optional. The service-account JSON never lives in the repo --
+ * it is a credential that can push a build to every user of the app -- so the
+ * plugin only applies when one is configured.
+ *
+ * Gradle Play Publisher reads that credential from ANDROID_PUBLISHER_CREDENTIALS
+ * itself and takes the track from the command line, so there is no DSL block
+ * here and nothing can accidentally promote a build:
+ *
+ *   ANDROID_PUBLISHER_CREDENTIALS=... ./gradlew :app:publishBundle --track internal
+ *
+ * Tracks match the ladder the Expo setup used: internal, then alpha, then
+ * production at a staged rollout.
+ */
+if (System.getenv("ANDROID_PUBLISHER_CREDENTIALS") != null) {
+    apply(plugin = "com.github.triplet.play")
+}
+
 android {
     namespace = "com.chroniclecryptogram"
     compileSdk = 37
