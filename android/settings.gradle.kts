@@ -26,3 +26,6 @@ rootProject.name = "chronicle-cryptogram"
 // the parity gate against the fixtures generated from the TypeScript, and they
 // must run in seconds with no emulator and no Robolectric.
 include(":core:cipher")
+
+// Content loading: reads the JSON staged from src/data into assets.
+include(":core:content")
