@@ -155,13 +155,28 @@ Every web feature checked against the Android build.
 - Top nav bar, in-board zoom, offline pack, PWA install, edition-update banner --
   see the parity-pass section above and the plan's delete list.
 
+### Closed in the follow-up pass
+
+- **`starts/`, `solves/` and `puzzleStats/`** are written, and `LiveStatsRow`
+  shows quickest/solvers/rate/average on solving. Both writes are transactions
+  because the rules require the receipt document in the same write.
+- **Crashlytics** is applied alongside the other Firebase plugins. No uid is
+  attached to reports.
+- **The share card is a real image.** `Clipping` draws a newspaper clipping on a
+  Canvas and hands it to the share sheet through a FileProvider, rather than
+  screenshotting the board.
+- **The bottom bar is no longer Material's `NavigationBar`.** It is a newspaper
+  section rail: five hand-drawn marks, typewriter caps, a cinnabar section rule
+  on the open section, and an ink rule joining it to the page.
+- **The app had no launcher icon at all** and was shipping the stock Android
+  robot. It now has an adaptive icon built from the web's own mark, with a
+  monochrome layer for themed icons, plus a launch theme and an entry splash
+  that ports the web's masthead, turning plate and "Enter the edition" key.
+
 ### Open
 
-- **`starts/`, `solves/` and `puzzleStats/` are never written.** The web writes
-  these and its `TodayStatsBulletin` reads them for solver counts and solve
-  rates. Android has neither the writes nor the bulletin.
-- **No Crashlytics.** Called for in the plan's phase 5.
-- **The share card is text only.** The web renders a newspaper clipping image.
+- Nothing from the web feature list. The remaining risks are on the device and
+  server side, below.
 
 ### Blocked: Firestore writes are refused
 

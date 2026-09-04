@@ -7,6 +7,8 @@
     <application
         android:allowBackup="true"
         android:label="Chronicle Cryptogram"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chronicle">
 
@@ -16,11 +18,26 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density|fontScale"
             android:windowSoftInputMode="adjustResize"
             android:enableOnBackInvokedCallback="true"
-            android:theme="@style/Theme.Chronicle">
+            android:theme="@style/Theme.Chronicle.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+          Hands the shared clipping to the receiving app as a content:// URI.
+          A file:// URI has thrown since API 24, and the other app has no
+          permission to this cache directory in any case.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.clippings"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

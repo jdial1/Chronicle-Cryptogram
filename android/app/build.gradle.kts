@@ -27,6 +27,10 @@ fun googleWebClientId(): String {
 
 if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
+    // Crash reporting. Gated with the rest of Firebase so a credential-less
+    // build still assembles, and it closes the gap the release plan calls out:
+    // the native path shipped with no crash reporting at all.
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 /**
@@ -158,6 +162,7 @@ kotlin {
 tasks.named("preBuild") { dependsOn(stageContent) }
 
 dependencies {
+    implementation(libs.androidx.splashscreen)
     implementation(project(":core:cipher"))
     implementation(project(":core:content"))
     implementation(project(":core:data"))

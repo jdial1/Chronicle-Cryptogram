@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The desk: a dip-pen nib on its rule. Drawn in the app's own line idiom rather than a stock Material glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="#000000">
+    <path android:fillColor="#000000"
+        android:pathData="M12,2.2 L15.6,9.4 C16,10.2 15.6,11 14.9,11.3 L12.6,12.3 L12.6,15.2 L11.4,15.2 L11.4,12.3 L9.1,11.3 C8.4,11 8,10.2 8.4,9.4 Z M12,5.4 L10.1,9.3 L12,10.1 L13.9,9.3 Z" />
+    <path android:fillColor="#000000" android:pathData="M4,18.4 L20,18.4 L20,20 L4,20 Z" />
+</vector>

@@ -2,4 +2,11 @@
 <resources>
     <!-- The paper token from src/styles/tokens.css. Keep in step with ChronicleColors. -->
     <color name="paper">#FBF7EE</color>
+
+    <!--
+      The launcher icon's ground. Deliberately not the `paper` token: an icon
+      keeps one identity whatever the device theme, and a night-inverted app
+      icon reads as a different app on the home screen.
+    -->
+    <color name="icon_paper">#FBF7EE</color>
 </resources>

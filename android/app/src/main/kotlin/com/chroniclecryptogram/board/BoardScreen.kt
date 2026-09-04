@@ -44,6 +44,7 @@ import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.content.CipherTactic
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.casefile.WoodcutPlate
+import com.chroniclecryptogram.data.PuzzleLiveStats
 import com.chroniclecryptogram.designsystem.DeskWidth
 import com.chroniclecryptogram.designsystem.scannedPaper
 import com.chroniclecryptogram.designsystem.LocalDeskWidth
@@ -65,6 +66,7 @@ fun BoardScreen(
     onNext: (() -> Unit)? = null,
     useSystemKeyboard: Boolean = false,
     tactics: List<CipherTactic> = emptyList(),
+    liveStats: PuzzleLiveStats? = null,
 ) {
     val colors = ChronicleTheme.colors
     val puzzle = state.puzzle
@@ -101,6 +103,7 @@ fun BoardScreen(
                 onNext = onNext,
                 tools = tools,
                 tactics = tactics,
+                liveStats = liveStats,
                 useSystemKeyboard = useSystemKeyboard,
             )
         }
@@ -172,6 +175,7 @@ private fun DeskContent(
     useSystemKeyboard: Boolean,
     tools: List<DeskTool>,
     tactics: List<CipherTactic>,
+    liveStats: PuzzleLiveStats?,
 ) {
     Column(
         modifier = Modifier
@@ -252,7 +256,7 @@ private fun DeskContent(
         }
 
         if (state.isSolved) {
-            SolveBulletin(state = state, onNext = onNext)
+            SolveBulletin(state = state, onNext = onNext, liveStats = liveStats)
         } else if (deskWidth.usesSideRail) {
             // Wide windows put the tools beside the keyboard rather than
             // stacking a full-width dock the player's thumbs cannot reach.

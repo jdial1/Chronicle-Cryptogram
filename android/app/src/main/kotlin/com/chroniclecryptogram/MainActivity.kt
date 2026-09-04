@@ -4,7 +4,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -66,6 +78,8 @@ import com.chroniclecryptogram.content.ContentRepository
 import com.chroniclecryptogram.cloud.createAccountRepository
 import com.chroniclecryptogram.cloud.createCloudDesk
 import com.chroniclecryptogram.cloud.createLeaderboard
+import com.chroniclecryptogram.cloud.createPuzzleStats
+import com.chroniclecryptogram.cloud.setCrashReporting
 import com.chroniclecryptogram.bureau.AccountState
 import com.chroniclecryptogram.bureau.BureauScreen
 import com.chroniclecryptogram.data.DataStoreDeskStore
@@ -78,6 +92,7 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
 import com.chroniclecryptogram.data.CloudProfile
 import com.chroniclecryptogram.data.LeaderboardEntry
+import com.chroniclecryptogram.data.PuzzleLiveStats
 import com.chroniclecryptogram.data.hydrateFromCloud
 import com.chroniclecryptogram.data.TitleBadges
 import com.chroniclecryptogram.content.CaseFileContent
@@ -91,11 +106,17 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import com.chroniclecryptogram.leaderboard.LeaderboardScreen
+import com.chroniclecryptogram.splash.SplashScreen
 import com.chroniclecryptogram.leaderboard.BoardState as LeaderboardBoardState
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Before super.onCreate, and before anything else: this is what hands
+        // the window from the launch theme over to Theme.Chronicle. Without it
+        // the activity keeps the splash theme for its whole life, which brings
+        // that theme's action bar with it.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         // Draws behind the system bars. Replaces the edge-to-edge config plugin
         // the Expo shell needed and the --safe-* variables it injected into the
@@ -126,6 +147,12 @@ private fun ChronicleApp() {
     }
     val boards = remember { createLeaderboard(BuildConfig.HAS_FIREBASE) }
     val cloud = remember { createCloudDesk(BuildConfig.HAS_FIREBASE) }
+    val puzzleStats = remember { createPuzzleStats(BuildConfig.HAS_FIREBASE) }
+
+    // Crash reporting follows whether this build has credentials at all: a
+    // Firebase-less build has nowhere to report to. No uid is attached -- tying
+    // a crash to a player's account is not needed to fix a crash.
+    LaunchedEffect(Unit) { setCrashReporting(BuildConfig.HAS_FIREBASE) }
     val account by accounts.account.collectAsStateWithLifecycle(initialValue = null)
     var authBusy by remember { mutableStateOf(false) }
     var authError by remember { mutableStateOf<String?>(null) }
@@ -309,7 +336,52 @@ private fun ChronicleApp() {
             .onFailure { postError = it.message }
     }
 
+    // The public counters for whatever board is open. Opening a puzzle files a
+    // start receipt, which is what the solve rate is measured against.
+    var liveStats by remember { mutableStateOf<PuzzleLiveStats?>(null) }
+    var statsRevision by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(puzzleId, uid, statsRevision) {
+        val id = puzzleId ?: return@LaunchedEffect
+        withContext(Dispatchers.IO) {
+            if (uid != null) runCatching { puzzleStats.recordStart(uid, id) }
+            liveStats = runCatching { puzzleStats.stats(id) }.getOrNull()
+        }
+    }
+
+    // Filed once per player per puzzle; the rules refuse a second receipt, so a
+    // replayed puzzle cannot pad the public counters.
+    LaunchedEffect(puzzleId, justSolved, uid) {
+        val state = board ?: return@LaunchedEffect
+        val id = uid ?: return@LaunchedEffect
+        if (!justSolved) return@LaunchedEffect
+        withContext(Dispatchers.IO) {
+            puzzleStats.recordSolve(
+                uid = id,
+                puzzleId = state.puzzle.id,
+                timeSeconds = state.timerSeconds.toInt(),
+                hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining,
+                accuracy = Solve.accuracy(state.mappings, state.answer),
+                solverName = prefs.codename,
+            ).onFailure { Log.w(SyncTag, "solve receipt refused -- ${it.message}") }
+        }
+        statsRevision++
+    }
+
+    // Shown once per launch, as the web shows it once per session. It is state
+    // rather than a preference on purpose: a splash a player can never see again
+    // is a splash that was not worth building.
+    var entered by remember { mutableStateOf(false) }
+
     ChronicleTheme(dark = dark, slot = slot) {
+        if (!entered) {
+            SplashScreen(
+                onEnter = { entered = true },
+                reduceMotion = prefs.reduceMotion,
+            )
+            return@ChronicleTheme
+        }
+
         val current = board
         val solved = desk?.solvedPuzzleIds?.toSet().orEmpty()
 
@@ -329,6 +401,7 @@ private fun ChronicleApp() {
                         onNext = model::advance,
                         useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
                         tactics = tactics.tactics,
+                        liveStats = liveStats,
                     )
 
                     Destination.Archive -> ArchiveScreen(
@@ -438,33 +511,106 @@ private const val PUSH_DEBOUNCE_MS = 2_000L
 @Composable
 private fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
     val colors = ChronicleTheme.colors
-    NavigationBar(
-        containerColor = colors.paperMasthead,
-        contentColor = colors.ink,
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(colors.paperMasthead)
+            // The masthead rule. A newspaper separates its sections with a rule,
+            // not with a shadow, so the bar is joined to the page above it
+            // rather than floating over it.
+            .drawBehind {
+                drawRect(
+                    color = inkRule,
+                    size = Size(size.width, ruleHeight.toPx()),
+                )
+            }
+            .navigationBarsPadding()
+            .padding(top = 4.dp),
+        verticalAlignment = Alignment.Top,
     ) {
         for (destination in Destination.entries) {
             val (label, icon) = when (destination) {
-                Destination.Board -> "Desk" to Icons.Filled.Create
-                Destination.Archive -> "Archive" to Icons.AutoMirrored.Filled.List
-                Destination.CaseFile -> "Case File" to Icons.Filled.Person
-                Destination.Guide -> "Guide" to Icons.Filled.Info
-                Destination.Desk -> "Bureau" to Icons.Filled.Settings
+                Destination.Board -> "Desk" to R.drawable.ic_nav_desk
+                Destination.Archive -> "Archive" to R.drawable.ic_nav_archive
+                Destination.CaseFile -> "Case File" to R.drawable.ic_nav_casefile
+                Destination.Guide -> "Guide" to R.drawable.ic_nav_guide
+                Destination.Desk -> "Bureau" to R.drawable.ic_nav_bureau
             }
-            NavigationBarItem(
+            DeskBarItem(
+                label = label,
+                icon = icon,
                 selected = destination == current,
                 onClick = { onGo(destination) },
-                icon = { Icon(icon, contentDescription = null) },
-                label = { Text(label, maxLines = 1) },
-                alwaysShowLabel = true,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = colors.paper,
-                    selectedTextColor = colors.brass,
-                    indicatorColor = colors.brass,
-                    unselectedIconColor = colors.ink,
-                    unselectedTextColor = colors.ink,
-                ),
+                modifier = Modifier.weight(1f),
             )
         }
+    }
+}
+
+/** The rule under the masthead, and the section marker on the open one. */
+private val ruleHeight = 2.dp
+private val inkRule = Color(0xFF1C1A17)
+
+/**
+ * One section of the desk.
+ *
+ * A newspaper section marker rather than Material's pill: the open section takes
+ * a cinnabar rule and heavier type. Both change together, so the state is never
+ * carried by colour alone -- and the whole column is the target, which is what
+ * gets it past 48dp without a stock component doing it.
+ */
+@Composable
+private fun DeskBarItem(
+    label: String,
+    icon: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = ChronicleTheme.colors
+    val tint = if (selected) colors.ink else colors.paperRule
+
+    Column(
+        modifier
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+                // No ripple: a Material ripple on paper is the one thing that
+                // gives away that this is not print.
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            )
+            .heightIn(min = 56.dp)
+            .padding(vertical = 6.dp)
+            .semantics { contentDescription = label },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        // The section rule, above the mark, the width of the column's type.
+        Box(
+            Modifier
+                .width(28.dp)
+                .height(3.dp)
+                .background(if (selected) colors.cinnabar else Color.Transparent)
+        )
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(22.dp),
+        )
+        Text(
+            text = label.uppercase(),
+            style = ChronicleTypography.labelLarge,
+            fontSize = 10.sp,
+            letterSpacing = 0.6.sp,
+            fontWeight = if (selected) FontWeight.Black else FontWeight.Normal,
+            color = tint,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

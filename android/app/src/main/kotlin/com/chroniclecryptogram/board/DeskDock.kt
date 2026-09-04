@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 
@@ -289,7 +290,14 @@ private fun TallyCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(item.glyph, style = MaterialTheme.typography.titleMedium, color = colors.ink)
+        // The bundled cipher face, not the body face. The 54 glyphs span
+        // Latin Extended, UCAS, Lisu and APL; a text face has none of them and
+        // renders a tofu box, which is the whole reason that font is bundled.
+        Text(
+            text = item.glyph,
+            style = BoardTextStyles.tileGlyph.copy(fontSize = 18.sp),
+            color = colors.ink,
+        )
         Text(
             text = "${item.count}",
             color = colors.ink,
