@@ -5,12 +5,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chroniclecryptogram.board.BoardScreen
+import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.content.ContentRepository
+import com.chroniclecryptogram.data.DataStoreDeskStore
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
 
@@ -29,20 +40,34 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ChronicleApp() {
     val context = LocalContext.current
-    val repository = remember { ContentRepository(context.assets) }
-    val puzzles = remember { repository.puzzles() }
+    val puzzles = remember { ContentRepository(context.assets).puzzles() }
+    val store = remember { DataStoreDeskStore.create(context.applicationContext) }
 
-    // Boot puzzle: the Primer if it exists, else edition one's morning.
-    // Progression gating replaces this once persistence lands.
-    val puzzle = remember(puzzles) {
-        puzzles.firstOrNull { Edition.isPrimerPuzzle(it) }
-            ?: Edition.morningPuzzleForEdition(puzzles, 1)
-            ?: puzzles.first()
+    val model: BoardViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                BoardViewModel(store, puzzles) as T
+        }
+    )
+
+    LaunchedEffect(Unit) { model.open() }
+    val state by model.state.collectAsStateWithLifecycle()
+
+    val slot = when {
+        state == null -> EditionSlot.Morning
+        Edition.isNightEdition(state!!.puzzle) -> EditionSlot.Evening
+        else -> EditionSlot.Morning
     }
 
-    val slot = if (Edition.isNightEdition(puzzle)) EditionSlot.Evening else EditionSlot.Morning
-
     ChronicleTheme(dark = isSystemInDarkTheme(), slot = slot) {
-        BoardScreen(puzzle)
+        val board = state
+        if (board == null) {
+            // The desk is read from disk before the first frame; a blank paper
+            // ground is better than a flash of an empty board.
+            Box(Modifier.fillMaxSize())
+        } else {
+            BoardScreen(state = board, onAction = model::act)
+        }
     }
 }

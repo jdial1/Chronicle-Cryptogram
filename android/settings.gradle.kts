@@ -33,4 +33,7 @@ include(":core:content")
 // Theme, typography and shared Compose components.
 include(":core:designsystem")
 
+// Local persistence: DataStore-backed desk state and preferences.
+include(":core:data")
+
 include(":app")

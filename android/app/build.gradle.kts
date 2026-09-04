@@ -64,6 +64,7 @@ tasks.named("preBuild") { dependsOn(stageContent) }
 dependencies {
     implementation(project(":core:cipher"))
     implementation(project(":core:content"))
+    implementation(project(":core:data"))
     implementation(project(":core:designsystem"))
 
     implementation(platform(libs.compose.bom))
@@ -71,10 +72,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.kotlinx.coroutines.test)
     testRuntimeOnly(libs.junit.platform.launcher)
 
     // Screenshot and layout tests run on the JVM under Robolectric, so the

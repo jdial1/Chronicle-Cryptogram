@@ -9,6 +9,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertTrue
@@ -44,7 +48,10 @@ class BoardScreenTest {
 
     private fun showBoard() {
         compose.setContent {
-            ChronicleTheme(dark = false) { BoardScreen(puzzle) }
+            var state by remember { mutableStateOf(BoardState.forPuzzle(puzzle)) }
+            ChronicleTheme(dark = false) {
+                BoardScreen(state = state, onAction = { transition -> state = transition(state) })
+            }
         }
     }
 

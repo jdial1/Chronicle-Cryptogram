@@ -18,10 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -46,15 +42,16 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
  */
 @Composable
 fun BoardScreen(
-    puzzle: PuzzleData,
+    state: BoardState,
+    onAction: ((BoardState) -> BoardState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var state by remember(puzzle) { mutableStateOf(BoardState.forPuzzle(puzzle)) }
     val colors = ChronicleTheme.colors
+    val puzzle = state.puzzle
 
     // Deselecting is a real back action -- it must not close the app.
     BackHandler(enabled = state.selectedCellId != null) {
-        state = state.copy(selectedCellId = null)
+        onAction { it.copy(selectedCellId = null) }
     }
 
     Column(
@@ -69,12 +66,12 @@ fun BoardScreen(
                 if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 when {
                     event.key == Key.Backspace || event.key == Key.Delete -> {
-                        state = BoardActions.backspace(state); true
+                        onAction(BoardActions::backspace); true
                     }
                     else -> {
                         val letter = LetterKeys[event.key]
                         if (letter != null) {
-                            state = BoardActions.type(state, letter); true
+                            onAction { BoardActions.type(it, letter) }; true
                         } else {
                             false
                         }
@@ -103,7 +100,7 @@ fun BoardScreen(
                     selectedCellId = state.selectedCellId,
                     lockedSymbolIds = state.lockedSymbolIds,
                     flaggedSymbolIds = state.flaggedSymbolIds,
-                    onCellClick = { cellId, _ -> state = BoardActions.select(state, cellId) },
+                    onCellClick = { cellId, _ -> onAction { BoardActions.select(it, cellId) } },
                 )
             }
         }
@@ -113,13 +110,13 @@ fun BoardScreen(
         } else {
             DeskDock(
                 state = state,
-                onHint = { state = BoardActions.hint(state) },
-                onCheck = { state = BoardActions.check(state) },
-                onClear = { state = BoardActions.clearLetters(state) },
+                onHint = { onAction(BoardActions::hint) },
+                onCheck = { onAction(BoardActions::check) },
+                onClear = { onAction(BoardActions::clearLetters) },
             )
             TypewriterKeyboard(
-                onLetter = { state = BoardActions.type(state, it) },
-                onBackspace = { state = BoardActions.backspace(state) },
+                onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
+                onBackspace = { onAction(BoardActions::backspace) },
             )
         }
     }
