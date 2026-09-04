@@ -1,0 +1,2101 @@
+{
+  "maxEdition": 30,
+  "editionLabels": [
+    {
+      "edition": 0,
+      "label": "The Primer"
+    },
+    {
+      "edition": 1,
+      "label": "Edition No. 1"
+    },
+    {
+      "edition": 2,
+      "label": "Edition No. 2"
+    },
+    {
+      "edition": 3,
+      "label": "Edition No. 3"
+    },
+    {
+      "edition": 4,
+      "label": "Edition No. 4"
+    },
+    {
+      "edition": 5,
+      "label": "Edition No. 5"
+    },
+    {
+      "edition": 6,
+      "label": "Edition No. 6"
+    },
+    {
+      "edition": 7,
+      "label": "Edition No. 7"
+    },
+    {
+      "edition": 8,
+      "label": "Edition No. 8"
+    },
+    {
+      "edition": 9,
+      "label": "Edition No. 9"
+    },
+    {
+      "edition": 10,
+      "label": "Edition No. 10"
+    },
+    {
+      "edition": 11,
+      "label": "Edition No. 11"
+    },
+    {
+      "edition": 12,
+      "label": "Edition No. 12"
+    },
+    {
+      "edition": 13,
+      "label": "Edition No. 13"
+    },
+    {
+      "edition": 14,
+      "label": "Edition No. 14"
+    },
+    {
+      "edition": 15,
+      "label": "Edition No. 15"
+    },
+    {
+      "edition": 16,
+      "label": "Edition No. 16"
+    },
+    {
+      "edition": 17,
+      "label": "Edition No. 17"
+    },
+    {
+      "edition": 18,
+      "label": "Edition No. 18"
+    },
+    {
+      "edition": 19,
+      "label": "Edition No. 19"
+    },
+    {
+      "edition": 20,
+      "label": "Edition No. 20"
+    },
+    {
+      "edition": 21,
+      "label": "Edition No. 21"
+    },
+    {
+      "edition": 22,
+      "label": "Edition No. 22"
+    },
+    {
+      "edition": 23,
+      "label": "Edition No. 23"
+    },
+    {
+      "edition": 24,
+      "label": "Edition No. 24"
+    },
+    {
+      "edition": 25,
+      "label": "Edition No. 25"
+    },
+    {
+      "edition": 26,
+      "label": "Edition No. 26"
+    },
+    {
+      "edition": 27,
+      "label": "Edition No. 27"
+    },
+    {
+      "edition": 28,
+      "label": "Edition No. 28"
+    },
+    {
+      "edition": 29,
+      "label": "Edition No. 29"
+    },
+    {
+      "edition": 30,
+      "label": "Edition No. 30"
+    },
+    {
+      "edition": 31,
+      "label": "Edition No. 31"
+    }
+  ],
+  "chapters": [
+    {
+      "edition": 0,
+      "chapter": {
+        "week": 0,
+        "kicker": "Training",
+        "title": "The Primer",
+        "from": 0,
+        "to": 0
+      }
+    },
+    {
+      "edition": 1,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 2,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 3,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 4,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 5,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 6,
+      "chapter": {
+        "week": 1,
+        "kicker": "Chapter I",
+        "title": "The Panic",
+        "from": 1,
+        "to": 6
+      }
+    },
+    {
+      "edition": 7,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 8,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 9,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 10,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 11,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 12,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 13,
+      "chapter": {
+        "week": 2,
+        "kicker": "Chapter II",
+        "title": "Sins Exposed",
+        "from": 7,
+        "to": 13
+      }
+    },
+    {
+      "edition": 14,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 15,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 16,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 17,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 18,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 19,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 20,
+      "chapter": {
+        "week": 3,
+        "kicker": "Chapter III",
+        "title": "Systemic Rot",
+        "from": 14,
+        "to": 20
+      }
+    },
+    {
+      "edition": 21,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 22,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 23,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 24,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 25,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 26,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 27,
+      "chapter": {
+        "week": 4,
+        "kicker": "Chapter IV",
+        "title": "Rat Trap",
+        "from": 21,
+        "to": 27
+      }
+    },
+    {
+      "edition": 28,
+      "chapter": {
+        "week": 5,
+        "kicker": "Chapter V",
+        "title": "New Dawn",
+        "from": 28,
+        "to": 30
+      }
+    },
+    {
+      "edition": 29,
+      "chapter": {
+        "week": 5,
+        "kicker": "Chapter V",
+        "title": "New Dawn",
+        "from": 28,
+        "to": 30
+      }
+    },
+    {
+      "edition": 30,
+      "chapter": {
+        "week": 5,
+        "kicker": "Chapter V",
+        "title": "New Dawn",
+        "from": 28,
+        "to": 30
+      }
+    },
+    {
+      "edition": 31,
+      "chapter": {
+        "week": 5,
+        "kicker": "Chapter V",
+        "title": "New Dawn",
+        "from": 28,
+        "to": 30
+      }
+    }
+  ],
+  "issues": [
+    {
+      "editionNumber": 0,
+      "morningId": "day_0_primer",
+      "nightId": null
+    },
+    {
+      "editionNumber": 1,
+      "morningId": "day_1_easy",
+      "nightId": "day_1_hard"
+    },
+    {
+      "editionNumber": 2,
+      "morningId": "day_2_easy",
+      "nightId": "day_2_hard"
+    },
+    {
+      "editionNumber": 3,
+      "morningId": "day_3_easy",
+      "nightId": "day_3_hard"
+    },
+    {
+      "editionNumber": 4,
+      "morningId": "day_4_easy",
+      "nightId": "day_4_hard"
+    },
+    {
+      "editionNumber": 5,
+      "morningId": "day_5_easy",
+      "nightId": "day_5_hard"
+    },
+    {
+      "editionNumber": 6,
+      "morningId": "day_6_easy",
+      "nightId": "day_6_hard"
+    },
+    {
+      "editionNumber": 7,
+      "morningId": "day_7_easy",
+      "nightId": "day_7_hard"
+    },
+    {
+      "editionNumber": 8,
+      "morningId": "day_8_easy",
+      "nightId": "day_8_hard"
+    },
+    {
+      "editionNumber": 9,
+      "morningId": "day_9_easy",
+      "nightId": "day_9_hard"
+    },
+    {
+      "editionNumber": 10,
+      "morningId": "day_10_easy",
+      "nightId": "day_10_hard"
+    },
+    {
+      "editionNumber": 11,
+      "morningId": "day_11_easy",
+      "nightId": "day_11_hard"
+    },
+    {
+      "editionNumber": 12,
+      "morningId": "day_12_easy",
+      "nightId": "day_12_hard"
+    },
+    {
+      "editionNumber": 13,
+      "morningId": "day_13_easy",
+      "nightId": "day_13_hard"
+    },
+    {
+      "editionNumber": 14,
+      "morningId": "day_14_easy",
+      "nightId": "day_14_hard"
+    },
+    {
+      "editionNumber": 15,
+      "morningId": "day_15_easy",
+      "nightId": "day_15_hard"
+    },
+    {
+      "editionNumber": 16,
+      "morningId": "day_16_easy",
+      "nightId": "day_16_hard"
+    },
+    {
+      "editionNumber": 17,
+      "morningId": "day_17_easy",
+      "nightId": "day_17_hard"
+    },
+    {
+      "editionNumber": 18,
+      "morningId": "day_18_easy",
+      "nightId": "day_18_hard"
+    },
+    {
+      "editionNumber": 19,
+      "morningId": "day_19_easy",
+      "nightId": "day_19_hard"
+    },
+    {
+      "editionNumber": 20,
+      "morningId": "day_20_easy",
+      "nightId": "day_20_hard"
+    },
+    {
+      "editionNumber": 21,
+      "morningId": "day_21_easy",
+      "nightId": "day_21_hard"
+    },
+    {
+      "editionNumber": 22,
+      "morningId": "day_22_easy",
+      "nightId": "day_22_hard"
+    },
+    {
+      "editionNumber": 23,
+      "morningId": "day_23_easy",
+      "nightId": "day_23_hard"
+    },
+    {
+      "editionNumber": 24,
+      "morningId": "day_24_easy",
+      "nightId": "day_24_hard"
+    },
+    {
+      "editionNumber": 25,
+      "morningId": "day_25_easy",
+      "nightId": "day_25_hard"
+    },
+    {
+      "editionNumber": 26,
+      "morningId": "day_26_easy",
+      "nightId": "day_26_hard"
+    },
+    {
+      "editionNumber": 27,
+      "morningId": "day_27_easy",
+      "nightId": "day_27_hard"
+    },
+    {
+      "editionNumber": 28,
+      "morningId": "day_28_easy",
+      "nightId": "day_28_hard"
+    },
+    {
+      "editionNumber": 29,
+      "morningId": "day_29_easy",
+      "nightId": "day_29_hard"
+    },
+    {
+      "editionNumber": 30,
+      "morningId": "day_30_easy",
+      "nightId": "day_30_hard"
+    }
+  ],
+  "cases": [
+    {
+      "name": "empty",
+      "solvedIds": [],
+      "frontPageEdition": 1,
+      "currentMorningPuzzleId": "day_1_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": false
+        },
+        {
+          "edition": 2,
+          "unlocked": false
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "primer-only",
+      "solvedIds": [
+        "day_0_primer"
+      ],
+      "frontPageEdition": 1,
+      "currentMorningPuzzleId": "day_1_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": true
+        },
+        {
+          "edition": 1,
+          "unlocked": false
+        },
+        {
+          "edition": 2,
+          "unlocked": false
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "one",
+      "solvedIds": [
+        "day_1_easy"
+      ],
+      "frontPageEdition": 2,
+      "currentMorningPuzzleId": "day_2_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": true
+        },
+        {
+          "edition": 2,
+          "unlocked": false
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "three",
+      "solvedIds": [
+        "day_1_easy",
+        "day_2_easy",
+        "day_3_easy"
+      ],
+      "frontPageEdition": 4,
+      "currentMorningPuzzleId": "day_4_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": true
+        },
+        {
+          "edition": 2,
+          "unlocked": true
+        },
+        {
+          "edition": 3,
+          "unlocked": true
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "hole-1-2-4",
+      "solvedIds": [
+        "day_1_easy",
+        "day_2_easy",
+        "day_4_easy"
+      ],
+      "frontPageEdition": 3,
+      "currentMorningPuzzleId": "day_3_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": true
+        },
+        {
+          "edition": 2,
+          "unlocked": true
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": true
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "hole-at-one",
+      "solvedIds": [
+        "day_2_easy",
+        "day_3_easy"
+      ],
+      "frontPageEdition": 1,
+      "currentMorningPuzzleId": "day_1_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": false
+        },
+        {
+          "edition": 2,
+          "unlocked": true
+        },
+        {
+          "edition": 3,
+          "unlocked": true
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "night-only",
+      "solvedIds": [
+        "day_1_hard",
+        "day_2_hard",
+        "day_3_hard",
+        "day_4_hard",
+        "day_5_hard"
+      ],
+      "frontPageEdition": 1,
+      "currentMorningPuzzleId": "day_1_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": false
+        },
+        {
+          "edition": 2,
+          "unlocked": false
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "all-mornings",
+      "solvedIds": [
+        "day_1_easy",
+        "day_2_easy",
+        "day_3_easy",
+        "day_4_easy",
+        "day_5_easy",
+        "day_6_easy",
+        "day_7_easy",
+        "day_8_easy",
+        "day_9_easy",
+        "day_10_easy",
+        "day_11_easy",
+        "day_12_easy",
+        "day_13_easy",
+        "day_14_easy",
+        "day_15_easy",
+        "day_16_easy",
+        "day_17_easy",
+        "day_18_easy",
+        "day_19_easy",
+        "day_20_easy",
+        "day_21_easy",
+        "day_22_easy",
+        "day_23_easy",
+        "day_24_easy",
+        "day_25_easy",
+        "day_26_easy",
+        "day_27_easy",
+        "day_28_easy",
+        "day_29_easy",
+        "day_30_easy"
+      ],
+      "frontPageEdition": 30,
+      "currentMorningPuzzleId": "day_30_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": true
+        },
+        {
+          "edition": 2,
+          "unlocked": true
+        },
+        {
+          "edition": 3,
+          "unlocked": true
+        },
+        {
+          "edition": 4,
+          "unlocked": true
+        },
+        {
+          "edition": 5,
+          "unlocked": true
+        },
+        {
+          "edition": 6,
+          "unlocked": true
+        },
+        {
+          "edition": 7,
+          "unlocked": true
+        },
+        {
+          "edition": 8,
+          "unlocked": true
+        },
+        {
+          "edition": 9,
+          "unlocked": true
+        },
+        {
+          "edition": 10,
+          "unlocked": true
+        },
+        {
+          "edition": 11,
+          "unlocked": true
+        },
+        {
+          "edition": 12,
+          "unlocked": true
+        },
+        {
+          "edition": 13,
+          "unlocked": true
+        },
+        {
+          "edition": 14,
+          "unlocked": true
+        },
+        {
+          "edition": 15,
+          "unlocked": true
+        },
+        {
+          "edition": 16,
+          "unlocked": true
+        },
+        {
+          "edition": 17,
+          "unlocked": true
+        },
+        {
+          "edition": 18,
+          "unlocked": true
+        },
+        {
+          "edition": 19,
+          "unlocked": true
+        },
+        {
+          "edition": 20,
+          "unlocked": true
+        },
+        {
+          "edition": 21,
+          "unlocked": true
+        },
+        {
+          "edition": 22,
+          "unlocked": true
+        },
+        {
+          "edition": 23,
+          "unlocked": true
+        },
+        {
+          "edition": 24,
+          "unlocked": true
+        },
+        {
+          "edition": 25,
+          "unlocked": true
+        },
+        {
+          "edition": 26,
+          "unlocked": true
+        },
+        {
+          "edition": 27,
+          "unlocked": true
+        },
+        {
+          "edition": 28,
+          "unlocked": true
+        },
+        {
+          "edition": 29,
+          "unlocked": true
+        },
+        {
+          "edition": 30,
+          "unlocked": true
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "everything",
+      "solvedIds": [
+        "day_0_primer",
+        "day_1_easy",
+        "day_1_hard",
+        "day_2_easy",
+        "day_2_hard",
+        "day_3_easy",
+        "day_3_hard",
+        "day_4_easy",
+        "day_4_hard",
+        "day_5_easy",
+        "day_5_hard",
+        "day_6_easy",
+        "day_6_hard",
+        "day_7_easy",
+        "day_7_hard",
+        "day_8_easy",
+        "day_8_hard",
+        "day_9_easy",
+        "day_9_hard",
+        "day_10_easy",
+        "day_10_hard",
+        "day_11_easy",
+        "day_11_hard",
+        "day_12_easy",
+        "day_12_hard",
+        "day_13_easy",
+        "day_13_hard",
+        "day_14_easy",
+        "day_14_hard",
+        "day_15_easy",
+        "day_15_hard",
+        "day_16_easy",
+        "day_16_hard",
+        "day_17_easy",
+        "day_17_hard",
+        "day_18_easy",
+        "day_18_hard",
+        "day_19_easy",
+        "day_19_hard",
+        "day_20_easy",
+        "day_20_hard",
+        "day_21_easy",
+        "day_21_hard",
+        "day_22_easy",
+        "day_22_hard",
+        "day_23_easy",
+        "day_23_hard",
+        "day_24_easy",
+        "day_24_hard",
+        "day_25_easy",
+        "day_25_hard",
+        "day_26_easy",
+        "day_26_hard",
+        "day_27_easy",
+        "day_27_hard",
+        "day_28_easy",
+        "day_28_hard",
+        "day_29_easy",
+        "day_29_hard",
+        "day_30_easy",
+        "day_30_hard"
+      ],
+      "frontPageEdition": 30,
+      "currentMorningPuzzleId": "day_30_easy",
+      "seasonComplete": true,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": true
+        },
+        {
+          "edition": 1,
+          "unlocked": true
+        },
+        {
+          "edition": 2,
+          "unlocked": true
+        },
+        {
+          "edition": 3,
+          "unlocked": true
+        },
+        {
+          "edition": 4,
+          "unlocked": true
+        },
+        {
+          "edition": 5,
+          "unlocked": true
+        },
+        {
+          "edition": 6,
+          "unlocked": true
+        },
+        {
+          "edition": 7,
+          "unlocked": true
+        },
+        {
+          "edition": 8,
+          "unlocked": true
+        },
+        {
+          "edition": 9,
+          "unlocked": true
+        },
+        {
+          "edition": 10,
+          "unlocked": true
+        },
+        {
+          "edition": 11,
+          "unlocked": true
+        },
+        {
+          "edition": 12,
+          "unlocked": true
+        },
+        {
+          "edition": 13,
+          "unlocked": true
+        },
+        {
+          "edition": 14,
+          "unlocked": true
+        },
+        {
+          "edition": 15,
+          "unlocked": true
+        },
+        {
+          "edition": 16,
+          "unlocked": true
+        },
+        {
+          "edition": 17,
+          "unlocked": true
+        },
+        {
+          "edition": 18,
+          "unlocked": true
+        },
+        {
+          "edition": 19,
+          "unlocked": true
+        },
+        {
+          "edition": 20,
+          "unlocked": true
+        },
+        {
+          "edition": 21,
+          "unlocked": true
+        },
+        {
+          "edition": 22,
+          "unlocked": true
+        },
+        {
+          "edition": 23,
+          "unlocked": true
+        },
+        {
+          "edition": 24,
+          "unlocked": true
+        },
+        {
+          "edition": 25,
+          "unlocked": true
+        },
+        {
+          "edition": 26,
+          "unlocked": true
+        },
+        {
+          "edition": 27,
+          "unlocked": true
+        },
+        {
+          "edition": 28,
+          "unlocked": true
+        },
+        {
+          "edition": 29,
+          "unlocked": true
+        },
+        {
+          "edition": 30,
+          "unlocked": true
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "name": "unknown-ids",
+      "solvedIds": [
+        "not_a_puzzle",
+        "day_999_easy"
+      ],
+      "frontPageEdition": 1,
+      "currentMorningPuzzleId": "day_1_easy",
+      "seasonComplete": false,
+      "nightUnlocked": [
+        {
+          "edition": 0,
+          "unlocked": false
+        },
+        {
+          "edition": 1,
+          "unlocked": false
+        },
+        {
+          "edition": 2,
+          "unlocked": false
+        },
+        {
+          "edition": 3,
+          "unlocked": false
+        },
+        {
+          "edition": 4,
+          "unlocked": false
+        },
+        {
+          "edition": 5,
+          "unlocked": false
+        },
+        {
+          "edition": 6,
+          "unlocked": false
+        },
+        {
+          "edition": 7,
+          "unlocked": false
+        },
+        {
+          "edition": 8,
+          "unlocked": false
+        },
+        {
+          "edition": 9,
+          "unlocked": false
+        },
+        {
+          "edition": 10,
+          "unlocked": false
+        },
+        {
+          "edition": 11,
+          "unlocked": false
+        },
+        {
+          "edition": 12,
+          "unlocked": false
+        },
+        {
+          "edition": 13,
+          "unlocked": false
+        },
+        {
+          "edition": 14,
+          "unlocked": false
+        },
+        {
+          "edition": 15,
+          "unlocked": false
+        },
+        {
+          "edition": 16,
+          "unlocked": false
+        },
+        {
+          "edition": 17,
+          "unlocked": false
+        },
+        {
+          "edition": 18,
+          "unlocked": false
+        },
+        {
+          "edition": 19,
+          "unlocked": false
+        },
+        {
+          "edition": 20,
+          "unlocked": false
+        },
+        {
+          "edition": 21,
+          "unlocked": false
+        },
+        {
+          "edition": 22,
+          "unlocked": false
+        },
+        {
+          "edition": 23,
+          "unlocked": false
+        },
+        {
+          "edition": 24,
+          "unlocked": false
+        },
+        {
+          "edition": 25,
+          "unlocked": false
+        },
+        {
+          "edition": 26,
+          "unlocked": false
+        },
+        {
+          "edition": 27,
+          "unlocked": false
+        },
+        {
+          "edition": 28,
+          "unlocked": false
+        },
+        {
+          "edition": 29,
+          "unlocked": false
+        },
+        {
+          "edition": 30,
+          "unlocked": false
+        },
+        {
+          "edition": 31,
+          "unlocked": false
+        }
+      ]
+    }
+  ]
+}

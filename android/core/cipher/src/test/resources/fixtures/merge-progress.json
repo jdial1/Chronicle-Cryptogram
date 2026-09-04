@@ -1,0 +1,1401 @@
+{
+  "freshStampSentinel": "<now>",
+  "progress": [
+    {
+      "name": "both-null",
+      "local": null,
+      "cloud": null,
+      "merged": null
+    },
+    {
+      "name": "local-only",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": null,
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "cloud-only",
+      "local": null,
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 99,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 99,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "cloud-solved-local-not",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "local-solved-cloud-not",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "both-solved-cloud-faster",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 90,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "both-solved-local-faster",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 90,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "both-solved-equal",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 60,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 60,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 60,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "stamped-cloud-newer",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      }
+    },
+    {
+      "name": "stamped-local-newer",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      }
+    },
+    {
+      "name": "stamped-equal",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 9,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      }
+    },
+    {
+      "name": "unstamped-union",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [
+          "s1"
+        ],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s2": "B"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [
+          "s2"
+        ],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s2": "B",
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 2,
+        "hintsRemaining": 1,
+        "hintedSymbolIds": [
+          "s2",
+          "s1"
+        ],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "conflicting-mappings",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "Z"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "hints-differ",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 1,
+        "hintsRemaining": 2,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 3,
+        "hintsRemaining": 0,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 3,
+        "hintsRemaining": 0,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "checks-differ",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 2,
+        "checksRemaining": 1,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 2,
+        "checksRemaining": 1,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    },
+    {
+      "name": "flags-differ",
+      "local": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [
+          "s1"
+        ],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "cloud": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [
+          "s2"
+        ],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "merged": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [
+          "s2",
+          "s1"
+        ],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": "<now>"
+      }
+    }
+  ],
+  "progressFields": [
+    {
+      "name": "local-only",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "cloud-solved-local-not",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "local-solved-cloud-not",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 40,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      }
+    },
+    {
+      "name": "both-solved-cloud-faster",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 90,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 90,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      }
+    },
+    {
+      "name": "both-solved-local-faster",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 30,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      }
+    },
+    {
+      "name": "both-solved-equal",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 60,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 60,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": true
+      }
+    },
+    {
+      "name": "stamped-cloud-newer",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      }
+    },
+    {
+      "name": "stamped-local-newer",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 7,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 2000
+      }
+    },
+    {
+      "name": "stamped-equal",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 5,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false,
+        "updatedAt": 1000
+      }
+    },
+    {
+      "name": "unstamped-union",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [
+          "s1"
+        ],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [
+          "s1"
+        ],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "conflicting-mappings",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "hints-differ",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 1,
+        "hintsRemaining": 2,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 1,
+        "hintsRemaining": 2,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "checks-differ",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 2,
+        "checksRemaining": 1,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 2,
+        "checksRemaining": 1,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    },
+    {
+      "name": "flags-differ",
+      "input": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [
+          "s1"
+        ],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "fields": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": 3,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": 3,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [
+          "s1"
+        ],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
+    }
+  ],
+  "gameStats": [
+    {
+      "name": "cloud-null",
+      "local": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "cloud": null,
+      "merged": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      }
+    },
+    {
+      "name": "cloud-ahead",
+      "local": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "cloud": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 4,
+        "fastestTime": 30,
+        "totalTimePlayed": 500,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "merged": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 4,
+        "fastestTime": 30,
+        "totalTimePlayed": 500,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      }
+    },
+    {
+      "name": "local-ahead",
+      "local": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 9,
+        "fastestTime": 12,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "cloud": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 4,
+        "fastestTime": 30,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "merged": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 9,
+        "fastestTime": 12,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      }
+    },
+    {
+      "name": "fastest-null-vs-value",
+      "local": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "cloud": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": 77,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      },
+      "merged": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": 77,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 100,
+        "leaderboardSubmissions": 0
+      }
+    },
+    {
+      "name": "accuracy",
+      "local": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 80,
+        "leaderboardSubmissions": 0
+      },
+      "cloud": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 95,
+        "leaderboardSubmissions": 0
+      },
+      "merged": {
+        "puzzlesPlayed": 0,
+        "puzzlesSolved": 0,
+        "fastestTime": null,
+        "totalTimePlayed": 0,
+        "averageAccuracy": 95,
+        "leaderboardSubmissions": 0
+      }
+    }
+  ],
+  "solvedIds": [
+    {
+      "name": "both-empty",
+      "local": [],
+      "cloud": [],
+      "merged": []
+    },
+    {
+      "name": "disjoint",
+      "local": [
+        "a",
+        "b"
+      ],
+      "cloud": [
+        "c"
+      ],
+      "merged": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "name": "overlapping",
+      "local": [
+        "a",
+        "b"
+      ],
+      "cloud": [
+        "b",
+        "c"
+      ],
+      "merged": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "name": "duplicates-in-local",
+      "local": [
+        "a",
+        "a",
+        "b"
+      ],
+      "cloud": [
+        "b"
+      ],
+      "merged": [
+        "a",
+        "b"
+      ]
+    }
+  ]
+}

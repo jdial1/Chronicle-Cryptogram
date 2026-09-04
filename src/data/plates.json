@@ -1,0 +1,41 @@
+{
+  "plateIds": [
+    "c1", "c2", "c3", "c4", "c5", "c6", "c7",
+    "l1", "l2", "l3", "l4", "l5", "l6",
+    "l7", "l8", "l9", "l10", "l11", "l12"
+  ],
+  "characterPlate": {
+    "thorne": "c1",
+    "beatrice": "c2",
+    "clara": "c3",
+    "sterling": "c4",
+    "archibald": "c5",
+    "blackwood": "c6",
+    "reginald": "c7"
+  },
+  "characterFirstEdition": {
+    "thorne": 1,
+    "beatrice": 2,
+    "clara": 3,
+    "sterling": 3,
+    "archibald": 1,
+    "blackwood": 6,
+    "reginald": 8
+  },
+  "locationByEdition": {
+    "1": "l2",
+    "4": "l3",
+    "5": "l1",
+    "6": "l4",
+    "7": "l5",
+    "9": "l7",
+    "10": "l8",
+    "11": "l6",
+    "14": "l9",
+    "20": "l10",
+    "21": "l11",
+    "22": "l11",
+    "23": "l11",
+    "30": "l12"
+  }
+}

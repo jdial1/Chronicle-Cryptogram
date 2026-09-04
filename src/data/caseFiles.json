@@ -1,0 +1,978 @@
+{
+  "characters": [
+    {
+      "id": "thorne",
+      "name": "Detective Elias Thorne",
+      "dossier": "Lead investigator",
+      "file": "Thorne",
+      "plate": "c1"
+    },
+    {
+      "id": "beatrice",
+      "name": "Beatrice Vance",
+      "dossier": "The widow",
+      "file": "Beatrice",
+      "plate": "c2"
+    },
+    {
+      "id": "clara",
+      "name": "Clara Vance",
+      "dossier": "The missing heir",
+      "file": "Clara",
+      "plate": "c3"
+    },
+    {
+      "id": "sterling",
+      "name": "Arthur Sterling",
+      "dossier": "The partner",
+      "file": "Sterling",
+      "plate": "c4"
+    },
+    {
+      "id": "archibald",
+      "name": "Archibald Vance",
+      "dossier": "The victim",
+      "file": "Archibald",
+      "plate": "c5"
+    },
+    {
+      "id": "blackwood",
+      "name": "Dr. Aris Blackwood",
+      "dossier": "The physician",
+      "file": "Blackwood",
+      "plate": "c6"
+    },
+    {
+      "id": "reginald",
+      "name": "Reginald",
+      "dossier": "The butler",
+      "file": "Reginald",
+      "plate": "c7"
+    }
+  ],
+  "fragments": [
+    {
+      "characterId": "thorne",
+      "editionNumber": 1,
+      "title": "The Detective",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "NYPD detective assigned to the Vance Estate. "
+        },
+        {
+          "kind": "text",
+          "value": "The initial sweep proves ",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " Archibald knew too much about the smuggling ring.",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " The night extra confirms ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": " I'm going to find out who did it."
+        }
+      ]
+    },
+    {
+      "characterId": "thorne",
+      "editionNumber": 6,
+      "title": "The Bloodhound",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Four hours north on a sleeper. I clocked him as an upstate jailer, not a gala guest. Relentless on the trail. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " I am willing to ride sleepless trains to Albany to chase down a single ticket stub to find her.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "thorne",
+      "editionNumber": 16,
+      "title": "The Lone Wolf",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "The Mayor is out and I cannot trust my own Chief. He sprung the butler. I filed it: ",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " I officially burn my bridges and go rogue.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "thorne",
+      "editionNumber": 17,
+      "title": "The Executioner",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Crossed the ultimate line to save Clara's life. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " I am the one who pulled the trigger.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "thorne",
+      "editionNumber": 24,
+      "title": "The Tactician",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "I did not invent the climax. I struck a match the old man left on Pier 84. Rather than calling for backup I wrote: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "thorne",
+      "editionNumber": 30,
+      "title": "The Civilian",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Left my tarnished badge on a diner counter. "
+        },
+        {
+          "kind": "text",
+          "value": "Clara's parting cipher read: ",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "The last envelope named her vanishing act: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": "The city isn't honest, but I made it safe for one more night."
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 2,
+      "title": "The Cold Widow",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "The grieving act is a sham. She was not hiding an affair. He left the revocation on the study desk for her to steal. She burned it, thinking that would keep the fleet in syndicate hands forever. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " That sent her hunting the library for the compartment behind the red sailboat.",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 5,
+      "title": "The Extortionist",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Intercepted wires prove she is shaking down her husband's partner. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "The same night, Blackwood ran his own bluff on the dead wire: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 9,
+      "title": "The Mother Twist",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "The ultimate liar. A birth certificate in the wall safe proves "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". The girl was born out of wedlock before Beatrice married Vance.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 12,
+      "title": "The Smuggler",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "A pawnshop trace confirms the hollow cane. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "She pawned the hollow cane hours after the gala. The lab extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 18,
+      "title": "The Killer",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Clara's testimony confirms she didn't just plan it. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "From the priest-hole Clara swore she saw the cane and heard a deep voice, but not his face. The night extra named the voice: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 22,
+      "title": "The Monster",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Arrives at Pier 84 with the doctor still in the passenger seat. She decided at the Plaza he would not split the take. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "She would even kill her own daughter for the gold. The night extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "beatrice",
+      "editionNumber": 26,
+      "title": "The Prisoner",
+      "parts": [
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " She did it to keep her loot. It failed. ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "The bullion returns to the rightful heir. The night inventory: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 3,
+      "title": "The Missing Heir",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Archibald's estranged daughter, who vanished three years ago. We just learned it: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " She inherits the massive fortune.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 6,
+      "title": "The Prisoner",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "The doctor kept her drugged to hide the bootlegging routes. The ledger extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": "But the nurse confirms it: ",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 10,
+      "title": "The Witness",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Hiding in the Bowery. She slipped into the priest-hole uninvited and watched her father's murder from the wall. He never knew she was there. I am still hunting a Manhattan phantom. The letter is all smell and silver: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 13,
+      "title": "The Hunted",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "I arrived at her boarding house too late. Her mirror held a lipstick line: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 18,
+      "title": "The Survivor",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Rescued from the hit squad. She sat ice-still in the interrogation room and confirmed it: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 21,
+      "title": "The Bait",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Stood as bait at Pier 84 until the dockworker confirmed the old man's gold map: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "clara",
+      "editionNumber": 29,
+      "title": "The Successor",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Takes over the company. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "She fed her father's last blackmail files to the study furnace. The night extra confirmed it: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". The red pen was hers.",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 3,
+      "title": "The Panicked Partner",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Archibald's business partner. He sweats bullets. We learned "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " The heir is back.",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " He paid to have her sent away to the sanatorium. The night extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 7,
+      "title": "The Bootlegger",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "The Coast Guard raid proves it: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " He runs the waterfront underworld.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 11,
+      "title": "The Mob Boss",
+      "parts": [
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " He did it at The Blind Tiger speakeasy, where the bartender distributes the dock payoffs. ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "The napkin in the booth named the weapon, not the man: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 14,
+      "title": "The Gun Runner",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "He is worse than a bootlegger. The private ledger proves he was smuggling weapons. The torn page ran straight to City Hall: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 17,
+      "title": "The Alibi",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Proved innocent of the physical murder. He was at the speakeasy during the killing. A dropped police file at Pier 44 confirmed it: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 23,
+      "title": "The Viper",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Turns on Beatrice at Pier 84. He kept a carbon from his own crooked chemist—the same bench Blackwood used for the almonds. He means to hang the doctor with it. The rafters extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". There is no honor among thieves.",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "sterling",
+      "editionNumber": 25,
+      "title": "The Convict",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Tackled into the Hudson. Under the lights he finally said it: "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "Then he named the pieces. The doctor supplied the cyanide. Beatrice poured it. He claimed he only laundered the money. The second signature: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "archibald",
+      "editionNumber": 1,
+      "title": "The Victim",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Renowned shipping tycoon found dead in a locked study. The coroner confirmed "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "archibald",
+      "editionNumber": 7,
+      "title": "The Ultimatum",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "He wasn't suicidal; he was angry. He left the rum books where the Coast Guard would have to find them. The harbor extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "archibald",
+      "editionNumber": 9,
+      "title": "The Blackmailer",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Far from innocent himself. Clara threatened to expose his blackmail ring to the press. The midnight extra: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "archibald",
+      "editionNumber": 28,
+      "title": "The Paranoid Tycoon",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "His final cipher proved he wasn't blind. He did not hand Clara the keys in 1923. He sealed a dead-man's trust that slept until they killed him. He did not put her in the wall that night. She put herself there. The last night letter: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "blackwood",
+      "editionNumber": 19,
+      "title": "The Accomplice",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "A travel alias put him at the gala. Phantom train down, Albany desk after. The locker held the rest: ",
+          "when": "Morning"
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "He supplied the cyanide from his medical bag. The night search found: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ".",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "blackwood",
+      "editionNumber": 20,
+      "title": "The Expendable Lover",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Plotted to split the fortune with Beatrice in Havana. A terrified maid spotted them leaving the Plaza Hotel. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". He is already arguing for a split. She is already done sharing.",
+          "when": "Morning"
+        }
+      ]
+    },
+    {
+      "characterId": "reginald",
+      "editionNumber": 8,
+      "title": "The Bribed Servant",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Vance's trusted butler. Confesses to the hall key on a mortise lock that works both sides, remembering "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": ". ",
+          "when": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": "He would not name the man in the hall. He did name the lock: ",
+          "when": "Evening"
+        },
+        {
+          "kind": "quote",
+          "slot": "Evening"
+        },
+        {
+          "kind": "text",
+          "value": ". I booked him. The Chief will cut him loose.",
+          "when": "Evening"
+        }
+      ]
+    },
+    {
+      "characterId": "reginald",
+      "editionNumber": 14,
+      "title": "The Dead Fool",
+      "parts": [
+        {
+          "kind": "text",
+          "value": "Found floating in the East River with cobblestones in his pockets. O'Malley sprung him for insufficient evidence. He walked with a planted page and tried to squeeze Sterling. It was the wrong sheet. "
+        },
+        {
+          "kind": "quote",
+          "slot": "Morning"
+        },
+        {
+          "kind": "text",
+          "value": " He paid it.",
+          "when": "Morning"
+        }
+      ]
+    }
+  ]
+}

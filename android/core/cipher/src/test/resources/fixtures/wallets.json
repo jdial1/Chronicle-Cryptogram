@@ -1,0 +1,539 @@
+{
+  "dailyHints": 3,
+  "dailyChecks": 3,
+  "isEditionKey": [
+    {
+      "value": -1,
+      "output": false
+    },
+    {
+      "value": 0,
+      "output": true
+    },
+    {
+      "value": 1,
+      "output": true
+    },
+    {
+      "value": 1.5,
+      "output": false
+    },
+    {
+      "value": 30,
+      "output": true
+    },
+    {
+      "value": 999,
+      "output": true
+    },
+    {
+      "value": 1000,
+      "output": false
+    },
+    {
+      "value": "NaN",
+      "output": false
+    }
+  ],
+  "clipDailyWallet": [
+    {
+      "edition": 1,
+      "used": -3,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "edition": 1,
+      "used": 0,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "edition": 1,
+      "used": 1,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 1,
+        "remaining": 2
+      }
+    },
+    {
+      "edition": 1,
+      "used": 2.7,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "edition": 1,
+      "used": 3,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": 4,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": 999,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": "NaN",
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "edition": 1,
+      "used": -3,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "edition": 1,
+      "used": 0,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "edition": 1,
+      "used": 1,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 1,
+        "remaining": 2
+      }
+    },
+    {
+      "edition": 1,
+      "used": 2.7,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "edition": 1,
+      "used": 3,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": 4,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": 999,
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "edition": 1,
+      "used": "NaN",
+      "cap": 3,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    }
+  ],
+  "normalizeDailyHints": [
+    {
+      "name": "null",
+      "raw": null,
+      "edition": 1,
+      "output": null
+    },
+    {
+      "name": "string-json",
+      "raw": "{\"edition\":1,\"used\":2,\"remaining\":1}",
+      "edition": 1,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "name": "string-bad",
+      "raw": "{{",
+      "edition": 1,
+      "output": null
+    },
+    {
+      "name": "from-remaining",
+      "raw": {
+        "remaining": 1
+      },
+      "edition": 1,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "name": "from-used",
+      "raw": {
+        "used": 2
+      },
+      "edition": 1,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "name": "both-missing",
+      "raw": {},
+      "edition": 1,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "name": "bad-edition",
+      "raw": {
+        "used": 1
+      },
+      "edition": -1,
+      "output": null
+    },
+    {
+      "name": "edition-999",
+      "raw": {
+        "used": 1
+      },
+      "edition": 999,
+      "output": {
+        "edition": 999,
+        "used": 1,
+        "remaining": 2
+      }
+    },
+    {
+      "name": "edition-1000",
+      "raw": {
+        "used": 1
+      },
+      "edition": 1000,
+      "output": null
+    },
+    {
+      "name": "used-over-cap",
+      "raw": {
+        "used": 99
+      },
+      "edition": 1,
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    }
+  ],
+  "mergeDailyHints": [
+    {
+      "name": "both-null",
+      "local": null,
+      "cloud": null,
+      "output": {
+        "edition": 1,
+        "used": 0,
+        "remaining": 3
+      }
+    },
+    {
+      "name": "local-only",
+      "local": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      },
+      "cloud": null,
+      "output": {
+        "edition": 1,
+        "used": 2,
+        "remaining": 1
+      }
+    },
+    {
+      "name": "cloud-only",
+      "local": null,
+      "cloud": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      },
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "name": "local-ahead",
+      "local": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      },
+      "cloud": {
+        "edition": 1,
+        "used": 1,
+        "remaining": 2
+      },
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    },
+    {
+      "name": "cloud-ahead",
+      "local": {
+        "edition": 1,
+        "used": 1,
+        "remaining": 2
+      },
+      "cloud": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      },
+      "output": {
+        "edition": 1,
+        "used": 3,
+        "remaining": 0
+      }
+    }
+  ],
+  "usedFromProgress": [
+    {
+      "edition": 0,
+      "hints": 1,
+      "checks": 1
+    },
+    {
+      "edition": 1,
+      "hints": 5,
+      "checks": 5
+    },
+    {
+      "edition": 2,
+      "hints": 4,
+      "checks": 4
+    },
+    {
+      "edition": 3,
+      "hints": 2,
+      "checks": 2
+    }
+  ],
+  "progressById": {
+    "day_0_primer": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 0,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [
+        "h0"
+      ],
+      "checksUsed": 1,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    },
+    "day_1_easy": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 1,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [
+        "h0",
+        "h1"
+      ],
+      "checksUsed": 2,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [
+        "v0"
+      ],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    },
+    "day_1_hard": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 2,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [
+        "h0",
+        "h1",
+        "h2"
+      ],
+      "checksUsed": 3,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [
+        "v0",
+        "v1"
+      ],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    },
+    "day_2_easy": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 3,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [],
+      "checksUsed": 0,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [
+        "v0",
+        "v1",
+        "v2"
+      ],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    },
+    "day_2_hard": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 0,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [
+        "h0"
+      ],
+      "checksUsed": 1,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    },
+    "day_3_easy": {
+      "mappings": {
+        "s1": "A"
+      },
+      "timerSeconds": 10,
+      "hintsUsed": 1,
+      "hintsRemaining": 3,
+      "hintedSymbolIds": [
+        "h0",
+        "h1"
+      ],
+      "checksUsed": 2,
+      "checksRemaining": 3,
+      "verifiedSymbolIds": [
+        "v0"
+      ],
+      "flaggedSymbolIds": [],
+      "selectedSymbolId": null,
+      "isSolved": false
+    }
+  },
+  "puzzles": [
+    {
+      "id": "day_0_primer",
+      "editionNumber": 0
+    },
+    {
+      "id": "day_1_easy",
+      "editionNumber": 1
+    },
+    {
+      "id": "day_1_hard",
+      "editionNumber": 1
+    },
+    {
+      "id": "day_2_easy",
+      "editionNumber": 2
+    },
+    {
+      "id": "day_2_hard",
+      "editionNumber": 2
+    },
+    {
+      "id": "day_3_easy",
+      "editionNumber": 3
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { PuzzleData } from '../types';
 import { isPrimerPuzzle } from '../utils/edition';
+import data from './plates.json';
 
 const PLATE_FILES: Record<string, string> = {
   c1: new URL('./images/c1.png', import.meta.url).href,
@@ -23,42 +24,8 @@ const PLATE_FILES: Record<string, string> = {
   l12: new URL('./images/l12.png', import.meta.url).href,
 };
 
-const CHARACTER_PLATE: Record<string, string> = {
-  thorne: 'c1',
-  beatrice: 'c2',
-  clara: 'c3',
-  sterling: 'c4',
-  archibald: 'c5',
-  blackwood: 'c6',
-  reginald: 'c7',
-};
-
-const CHARACTER_FIRST_EDITION: Record<string, number> = {
-  thorne: 1,
-  beatrice: 2,
-  clara: 3,
-  sterling: 3,
-  archibald: 1,
-  blackwood: 6,
-  reginald: 8,
-};
-
-const LOCATION_BY_EDITION: Record<number, string> = {
-  1: 'l2',
-  4: 'l3',
-  5: 'l1',
-  6: 'l4',
-  7: 'l5',
-  9: 'l7',
-  10: 'l8',
-  11: 'l6',
-  14: 'l9',
-  20: 'l10',
-  21: 'l11',
-  22: 'l11',
-  23: 'l11',
-  30: 'l12',
-};
+const { characterPlate: CHARACTER_PLATE, characterFirstEdition: CHARACTER_FIRST_EDITION } = data;
+const LOCATION_BY_EDITION: Record<string, string> = data.locationByEdition;
 
 export function plateSrc(id?: string | null) {
   if (!id) return undefined;
