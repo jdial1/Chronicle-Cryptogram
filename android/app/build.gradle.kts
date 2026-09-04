@@ -7,6 +7,17 @@ plugins {
 }
 
 /**
+ * Firebase is optional. Without google-services.json the plugin is not applied,
+ * the app substitutes NoCloudDesk, and the whole game still works -- everything
+ * but the leaderboard and cross-device sync is local anyway. That keeps the
+ * build green for a contributor with no credentials, and keeps CI honest.
+ */
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
+/**
  * The content the app ships. Staged from src/data on every build, so the season
  * in the APK is the same file the web app reads -- there is no second copy.
  */
@@ -41,6 +52,7 @@ android {
         applicationId = "com.chroniclecryptogram"
         minSdk = 26
         targetSdk = 37
+        buildConfigField("boolean", "HAS_FIREBASE", hasFirebaseConfig.toString())
         // CI stamps the build number; a local build is always 1.
         versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
         versionName = "1.0.0"
@@ -67,7 +79,8 @@ android {
             signingConfig = if (hasSigningConfig) signingConfigs.getByName("release") else null
         }
         debug {
-            applicationIdSuffix = ".debug"
+            // No applicationIdSuffix: google-services.json registers
+            // com.chroniclecryptogram, and a suffixed id would not match it.
             versionNameSuffix = "-debug"
         }
     }
@@ -76,7 +89,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     sourceSets {
         getByName("main") { assets.srcDir(generatedAssets) }
     }
@@ -101,6 +117,7 @@ dependencies {
     implementation(project(":core:cipher"))
     implementation(project(":core:content"))
     implementation(project(":core:data"))
+    implementation(project(":core:cloud"))
     implementation(project(":core:designsystem"))
 
     implementation(platform(libs.compose.bom))

@@ -29,3 +29,6 @@ android/keystore.properties
 # Noto sources for scripts/gen-glyph-font.mjs (OFL; only needed to regenerate).
 .fontsrc/node_modules/
 .fontsrc/package-lock.json
+
+# Firebase config for the native app. Matches the existing mobile/ exception.
+!android/app/google-services.json

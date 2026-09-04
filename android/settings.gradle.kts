@@ -36,4 +36,8 @@ include(":core:designsystem")
 // Local persistence: DataStore-backed desk state and preferences.
 include(":core:data")
 
+// Firebase-backed cloud desk. Optional: the app substitutes NoCloudDesk when the
+// project is built without google-services.json.
+include(":core:cloud")
+
 include(":app")
