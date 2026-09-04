@@ -798,6 +798,39 @@
         "selectedSymbolId": null,
         "isSolved": true
       }
+    },
+    {
+      "name": "nan-remaining",
+      "raw": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": "abc",
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": "xyz",
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      },
+      "normalized": {
+        "mappings": {
+          "s1": "A"
+        },
+        "timerSeconds": 10,
+        "hintsUsed": 0,
+        "hintsRemaining": null,
+        "hintedSymbolIds": [],
+        "checksUsed": 0,
+        "checksRemaining": null,
+        "verifiedSymbolIds": [],
+        "flaggedSymbolIds": [],
+        "selectedSymbolId": null,
+        "isSolved": false
+      }
     }
   ],
   "clipHintedSymbolIds": [

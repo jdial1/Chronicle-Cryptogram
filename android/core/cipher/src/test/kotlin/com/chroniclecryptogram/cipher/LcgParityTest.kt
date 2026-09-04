@@ -18,7 +18,7 @@ import org.junit.jupiter.api.TestFactory
  */
 class LcgParityTest {
 
-    private val fixture = Fixtures.load("lcg")
+    private val fixture = Fixtures.obj("lcg")
 
     @TestFactory
     fun `hashSeed matches the TypeScript`(): List<DynamicTest> =

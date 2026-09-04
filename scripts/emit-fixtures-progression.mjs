@@ -36,6 +36,7 @@ import {
   DAILY_CHECKS,
 } from '../src/utils/localStore.ts';
 import { letterCells, cellCursor, nextOpenCell, previousCell } from '../src/game/cipherCursor.ts';
+import { decodedMappingsFromPuzzle, withHintedMappings, liveFlaggedIds } from '../src/game/puzzleState.ts';
 import { buildCipherAlphabet, parseCryptogramText } from '../src/utils/cipherEngine.ts';
 import { INITIAL_PUZZLES } from '../src/data/puzzles.ts';
 
@@ -120,6 +121,9 @@ const NOW = '<now>';
 
 function pinStamp(merged, local, cloud) {
   if (!merged) return merged;
+  // Several branches return an input record untouched, so it carries no stamp at
+  // all. Only a value the merge actually minted gets the sentinel.
+  if (merged.updatedAt === undefined) return merged;
   const carried = Math.max(Number(local?.updatedAt) || 0, Number(cloud?.updatedAt) || 0);
   if (carried && merged.updatedAt === carried) return merged;
   return { ...merged, updatedAt: NOW };
@@ -236,6 +240,12 @@ export function emitNormalizeProgress(emit) {
     ['checks-huge', progress({ checksUsed: 999, checksRemaining: -4 })],
     ['selected-overlong', progress({ selectedSymbolId: 'x'.repeat(200) })],
     ['wrong-types', { mappings: 'no', timerSeconds: 'no', hintedSymbolIds: 'no', isSolved: 'yes' }],
+    // Latent TypeScript defect, pinned so it cannot change unnoticed: a present
+    // but non-numeric hints/checksRemaining takes the `Number(...)` branch rather
+    // than the null branch, so NaN survives every clamp and serialises as null.
+    // Kotlin cannot hold NaN in an Int and deliberately diverges here -- see
+    // Merge.normalizeProgress.
+    ['nan-remaining', progress({ hintsRemaining: 'abc', checksRemaining: 'xyz' })],
   ];
 
   emit('normalize-progress', {
@@ -334,6 +344,65 @@ export function emitWallets(emit) {
     })),
     progressById,
     puzzles,
+  });
+}
+
+export function emitPuzzleState(emit) {
+  // One Easy and one Hard puzzle, so homophone allocation is exercised.
+  const chosen = [
+    INITIAL_PUZZLES.find((p) => p.editionNumber === 1 && !isHardPuzzle(p)),
+    INITIAL_PUZZLES.find((p) => p.editionNumber === 1 && isHardPuzzle(p)),
+  ].filter(Boolean);
+
+  emit('puzzle-state', {
+    puzzles: chosen.map((puzzle) => {
+      const decoded = decodedMappingsFromPuzzle(puzzle);
+      const ids = Object.keys(decoded);
+      const wrong = ids[0];
+      const right = ids[1];
+      const locked = ids[2];
+
+      // A board with one wrong guess, one right guess, and one locked symbol.
+      const mappings = {
+        [wrong]: decoded[wrong] === 'A' ? 'B' : 'A',
+        [right]: decoded[right],
+        [locked]: decoded[locked],
+      };
+
+      return {
+        puzzleId: puzzle.id,
+        hard: isHardPuzzle(puzzle),
+        decoded,
+        mappings,
+        withHintedMappings: withHintedMappings(puzzle, mappings, [ids[3], ids[4], 'not_a_symbol']),
+        liveFlagged: [
+          {
+            name: 'wrong-guess-is-flagged',
+            flagged: [wrong, right],
+            locked: [],
+            output: liveFlaggedIds(puzzle, mappings, [wrong, right], []),
+          },
+          {
+            name: 'locked-symbol-never-flags',
+            flagged: [wrong],
+            locked: [wrong],
+            output: liveFlaggedIds(puzzle, mappings, [wrong], [wrong]),
+          },
+          {
+            name: 'unmapped-symbol-never-flags',
+            flagged: [ids[10]],
+            locked: [],
+            output: liveFlaggedIds(puzzle, mappings, [ids[10]], []),
+          },
+          {
+            name: 'unknown-id-is-dropped',
+            flagged: ['not_a_symbol'],
+            locked: [],
+            output: liveFlaggedIds(puzzle, mappings, ['not_a_symbol'], []),
+          },
+        ],
+      };
+    }),
   });
 }
 

@@ -38,8 +38,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": false,
-        "updatedAt": "<now>"
+        "isSolved": false
       }
     },
     {
@@ -73,8 +72,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": false,
-        "updatedAt": "<now>"
+        "isSolved": false
       }
     },
     {
@@ -122,8 +120,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": true,
-        "updatedAt": "<now>"
+        "isSolved": true
       }
     },
     {
@@ -171,8 +168,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": true,
-        "updatedAt": "<now>"
+        "isSolved": true
       }
     },
     {
@@ -220,8 +216,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": true,
-        "updatedAt": "<now>"
+        "isSolved": true
       }
     },
     {
@@ -269,8 +264,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": true,
-        "updatedAt": "<now>"
+        "isSolved": true
       }
     },
     {
@@ -318,8 +312,7 @@
         "verifiedSymbolIds": [],
         "flaggedSymbolIds": [],
         "selectedSymbolId": null,
-        "isSolved": true,
-        "updatedAt": "<now>"
+        "isSolved": true
       }
     },
     {

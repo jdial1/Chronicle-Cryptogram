@@ -1,21 +1,22 @@
 ﻿appId: com.chroniclecryptogram
+# WebView HTML is often invisible to Android accessibility.
+androidWebViewHierarchy: devtools
 ---
+# Do not match "Chronicle" — that is the launcher icon after a WebView crash.
 - launchApp
 - waitForAnimationToEnd:
-    timeout: 15000
+    timeout: 8000
 - takeScreenshot: smoke-launched
-- extendedWaitUntil:
-    visible:
-      text: ".*Chronicle.*|.*ENTER.*|.*Enter the edition.*"
-    timeout: 45000
+- assertNotVisible: "Play Store"
 - tapOn:
     text: "ENTER"
     optional: true
 - tapOn:
-    text: "Enter the edition"
+    css: "#splash-enter"
     optional: true
 - waitForAnimationToEnd:
-    timeout: 8000
+    timeout: 4000
 - takeScreenshot: smoke-after-enter
+- assertNotVisible: "Play Store"
 - assertNotVisible: "Unfortunately"
 - assertNotVisible: "has stopped"

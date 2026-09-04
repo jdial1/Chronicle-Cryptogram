@@ -1,0 +1,150 @@
+{
+  "puzzles": [
+    {
+      "puzzleId": "day_1_easy",
+      "hard": false,
+      "decoded": {
+        "mono_T_zod_W": "T",
+        "mono_H_zod_turn_J": "H",
+        "mono_E_zod_solid_sq": "E",
+        "mono_F_zod_N": "F",
+        "mono_A_zod_half_sq": "A",
+        "mono_L_zod_T": "L",
+        "mono_D_zod_V": "D",
+        "mono_O_zod_dot_tri": "O",
+        "mono_S_zod_A": "S",
+        "mono_W_zod_H": "W",
+        "mono_I_zod_hollow_tri": "I",
+        "mono_N_zod_S": "N",
+        "mono_C_zod_6": "C",
+        "mono_M_zod_U": "M",
+        "mono_P_zod_J": "P",
+        "mono_G_zod_rev_E": "G"
+      },
+      "mappings": {
+        "mono_T_zod_W": "A",
+        "mono_H_zod_turn_J": "H",
+        "mono_E_zod_solid_sq": "E"
+      },
+      "withHintedMappings": {
+        "mono_T_zod_W": "A",
+        "mono_H_zod_turn_J": "H",
+        "mono_E_zod_solid_sq": "E",
+        "mono_F_zod_N": "F",
+        "mono_A_zod_half_sq": "A"
+      },
+      "liveFlagged": [
+        {
+          "name": "wrong-guess-is-flagged",
+          "flagged": [
+            "mono_T_zod_W",
+            "mono_H_zod_turn_J"
+          ],
+          "locked": [],
+          "output": [
+            "mono_T_zod_W"
+          ]
+        },
+        {
+          "name": "locked-symbol-never-flags",
+          "flagged": [
+            "mono_T_zod_W"
+          ],
+          "locked": [
+            "mono_T_zod_W"
+          ],
+          "output": []
+        },
+        {
+          "name": "unmapped-symbol-never-flags",
+          "flagged": [
+            "mono_I_zod_hollow_tri"
+          ],
+          "locked": [],
+          "output": []
+        },
+        {
+          "name": "unknown-id-is-dropped",
+          "flagged": [
+            "not_a_symbol"
+          ],
+          "locked": [],
+          "output": []
+        }
+      ]
+    },
+    {
+      "puzzleId": "day_1_hard",
+      "hard": true,
+      "decoded": {
+        "homo_H_0_zod_solid_sq": "H",
+        "homo_E_0_zod_X": "E",
+        "homo_T_0_zod_E": "T",
+        "homo_R_0_zod_bullseye": "R",
+        "homo_E_1_zod_rev_C": "E",
+        "homo_A_0_zod_solid_circle": "A",
+        "homo_T_1_zod_rev_D": "T",
+        "homo_N_0_zod_T": "N",
+        "homo_D_0_zod_R": "D",
+        "homo_O_0_zod_rev_E": "O",
+        "homo_X_0_zod_hollow_sq": "X",
+        "homo_P_0_zod_solid_tri": "P",
+        "homo_S_0_zod_F": "S",
+        "homo_U_0_zod_N": "U",
+        "homo_A_1_zod_half_sq": "A",
+        "homo_L_0_zod_vert_circle": "L"
+      },
+      "mappings": {
+        "homo_H_0_zod_solid_sq": "A",
+        "homo_E_0_zod_X": "E",
+        "homo_T_0_zod_E": "T"
+      },
+      "withHintedMappings": {
+        "homo_H_0_zod_solid_sq": "A",
+        "homo_E_0_zod_X": "E",
+        "homo_T_0_zod_E": "T",
+        "homo_R_0_zod_bullseye": "R",
+        "homo_E_1_zod_rev_C": "E"
+      },
+      "liveFlagged": [
+        {
+          "name": "wrong-guess-is-flagged",
+          "flagged": [
+            "homo_H_0_zod_solid_sq",
+            "homo_E_0_zod_X"
+          ],
+          "locked": [],
+          "output": [
+            "homo_H_0_zod_solid_sq"
+          ]
+        },
+        {
+          "name": "locked-symbol-never-flags",
+          "flagged": [
+            "homo_H_0_zod_solid_sq"
+          ],
+          "locked": [
+            "homo_H_0_zod_solid_sq"
+          ],
+          "output": []
+        },
+        {
+          "name": "unmapped-symbol-never-flags",
+          "flagged": [
+            "homo_X_0_zod_hollow_sq"
+          ],
+          "locked": [],
+          "output": []
+        },
+        {
+          "name": "unknown-id-is-dropped",
+          "flagged": [
+            "not_a_symbol"
+          ],
+          "locked": [],
+          "output": []
+        }
+      ]
+    }
+  ]
+}
