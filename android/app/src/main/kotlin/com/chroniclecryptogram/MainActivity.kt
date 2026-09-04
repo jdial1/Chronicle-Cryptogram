@@ -115,6 +115,15 @@ private fun ChronicleApp() {
     var authBusy by remember { mutableStateOf(false) }
     var authError by remember { mutableStateOf<String?>(null) }
 
+    // Sign in anonymously so progress has a home in the cloud before the player
+    // ever names themselves -- the same thing the web build does on load. It
+    // needs no OAuth client, so it works even when Google sign-in does not, and
+    // signInWithGoogle later *links* this uid rather than replacing it, which is
+    // what carries the anonymous progress into the named account.
+    LaunchedEffect(accounts) {
+        if (BuildConfig.HAS_FIREBASE) accounts.signInAnonymously()
+    }
+
     // Roughly 100 KB of JSON across three files. Parsing it inside remember{}
     // ran on the main thread during composition and cost hundreds of frames on
     // first launch; produceState moves it to Dispatchers.IO and the UI waits on

@@ -6,6 +6,10 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.chroniclecryptogram.data.Account
 import com.chroniclecryptogram.data.AccountRepository
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -53,8 +57,15 @@ class FirebaseAccount(
             .setFilterByAuthorizedAccounts(false)
             .build()
 
-        val response = CredentialManager.create(host as Context)
-            .getCredential(host, GetCredentialRequest.Builder().addCredentialOption(option).build())
+        val response = try {
+            CredentialManager.create(host as Context)
+                .getCredential(
+                    host,
+                    GetCredentialRequest.Builder().addCredentialOption(option).build(),
+                )
+        } catch (error: GetCredentialException) {
+            throw SignInProblem(explain(error), error)
+        }
 
         val token = GoogleIdTokenCredential.createFrom(response.credential.data).idToken
         val credential = GoogleAuthProvider.getCredential(token, null)
@@ -81,6 +92,32 @@ class FirebaseAccount(
         val user = auth.currentUser ?: return@runCatching
         user.delete().await()
     }
+}
+
+/** A sign-in failure with a message worth showing a person. */
+class SignInProblem(message: String, cause: Throwable) : Exception(message, cause)
+
+/**
+ * Turns a Credential Manager failure into something actionable.
+ *
+ * The raw messages are written for developers -- "No credentials available" is
+ * what a *certificate mismatch* looks like from the outside, which sends people
+ * hunting in the wrong place entirely. Google sign-in only works when the exact
+ * signing certificate of the installed build is registered with the Firebase
+ * project, so a debug build and a Play build each need their own SHA-1.
+ */
+private fun explain(error: GetCredentialException): String = when (error) {
+    is GetCredentialCancellationException -> "Sign-in cancelled."
+
+    is NoCredentialException ->
+        "No Google account was offered. Either there is no Google account on " +
+            "this device, or this build's signing certificate is not registered " +
+            "with the bureau's Firebase project."
+
+    is GetCredentialProviderConfigurationException ->
+        "Google Play services is missing or out of date on this device."
+
+    else -> error.message ?: "Sign-in failed."
 }
 
 private fun com.google.firebase.auth.FirebaseUser.toAccount() = Account(
