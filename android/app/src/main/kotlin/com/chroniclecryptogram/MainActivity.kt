@@ -16,7 +16,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
-import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.ui.platform.LocalDensity
@@ -38,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +64,7 @@ import com.chroniclecryptogram.board.BoardScreen
 import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.casefile.CaseFileScreen
 import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.content.ContentRepository
+import com.chroniclecryptogram.content.ContentParser
 import com.chroniclecryptogram.cloud.createAccountRepository
 import com.chroniclecryptogram.cloud.createCloudDesk
 import com.chroniclecryptogram.cloud.createLeaderboard
@@ -155,7 +155,7 @@ private fun ChronicleApp() {
     // the paper ground instead of blocking.
     val content by produceState<LoadedContent?>(initialValue = null) {
         value = withContext(Dispatchers.IO) {
-            val repository = ContentRepository(context.assets)
+            val repository = ContentParser.fromAssets(context.assets)
             LoadedContent(
                 puzzles = repository.puzzles(),
                 caseFiles = repository.caseFiles(),
@@ -456,7 +456,7 @@ internal fun DeskBarItem(
         )
         Text(
             text = label.uppercase(),
-            style = ChronicleTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             fontSize = 10.sp,
             letterSpacing = 0.6.sp,
             fontWeight = if (selected) FontWeight.Black else FontWeight.Normal,

@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 
 const val DockTag = "desk-dock"
 const val TallySheetTag = "tally-sheet"
@@ -177,7 +176,7 @@ private fun DockTool(tool: DeskTool, modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = tool.label.uppercase(),
-                style = ChronicleTypography.labelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = tint,
                 fontSize = 10.sp,
                 letterSpacing = 0.8.sp,

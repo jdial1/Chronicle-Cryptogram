@@ -26,7 +26,6 @@ import com.chroniclecryptogram.cipher.model.Wallets
 import com.chroniclecryptogram.data.PuzzleLiveStats
 import com.chroniclecryptogram.data.derivePublicStats
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 
 /** Test handle for the public counters row. */
 const val LiveStatsTag = "live-stats"
@@ -192,14 +191,14 @@ private fun StatCell(label: String, value: String, modifier: Modifier = Modifier
     ) {
         Text(
             text = label.uppercase(),
-            style = ChronicleTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             fontSize = 9.sp,
             color = colors.brass,
             maxLines = 1,
         )
         Text(
             text = value,
-            style = ChronicleTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             fontSize = 13.sp,
             color = colors.ink,
             maxLines = 1,

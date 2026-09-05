@@ -8,6 +8,13 @@ plugins {
  * Stage the canonical content from src/data. Nothing is committed under assets/,
  * so the JSON cannot drift from the copy the web app reads.
  *
+ * This is the only place that stages the shipped content. `:app` had a second
+ * Sync task doing the same copy into its own assets, which was pure duplicate
+ * work -- library assets merge into the app -- and worse than harmless: when the
+ * app's copy was narrowed to drop `plates.json`, this one still globbed `*.json`
+ * and put it back, so the file kept shipping and the narrowing looked like it
+ * had failed.
+ *
  * AGP 9 rejects Provider instances in the SourceSet API, so the directories are
  * named literally and the wiring is an explicit task dependency below.
  */
@@ -15,13 +22,23 @@ val generatedAssets = "build/generated/assets"
 val generatedTestContent = "build/generated/test-content"
 
 val stageContent = tasks.register<Sync>("stageContent") {
-    from(rootProject.file("../src/data")) { include("*.json") }
+    // Named rather than globbed. plates.json is web-only: the web resolves plate
+    // ids to images through Vite, while this app draws its press plates from the
+    // generated Woodcuts drawables, and there are no assets/plates/ images in
+    // the APK for those ids to resolve to.
+    from(rootProject.file("../src/data")) {
+        include("puzzles.json", "caseFiles.json", "cipherTactics.json", "primerPractice.json")
+    }
     into(layout.projectDirectory.dir("$generatedAssets/content"))
 }
 
 /** The same files again for the schema guard, a plain JVM test -- no Robolectric. */
 val stageContentForTests = tasks.register<Sync>("stageContentForTests") {
-    from(rootProject.file("../src/data")) { include("*.json") }
+    // The same four the app ships. plates.json is web-only content, guarded by
+    // src/data/content.test.ts on the side that actually renders it.
+    from(rootProject.file("../src/data")) {
+        include("puzzles.json", "caseFiles.json", "cipherTactics.json", "primerPractice.json")
+    }
     into(layout.projectDirectory.dir("$generatedTestContent/content"))
 }
 

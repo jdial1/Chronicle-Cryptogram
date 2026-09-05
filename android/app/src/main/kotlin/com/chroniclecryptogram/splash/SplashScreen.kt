@@ -46,7 +46,6 @@ import androidx.compose.foundation.Image
 import com.chroniclecryptogram.R
 import com.chroniclecryptogram.designsystem.scannedPaper
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 import kotlinx.coroutines.delay
 
 const val SplashTag = "splash"
@@ -201,7 +200,7 @@ private fun EnterKey(onEnter: () -> Unit) {
     ) {
         Text(
             text = "ENTER THE EDITION",
-            style = ChronicleTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             fontSize = 13.sp,
             letterSpacing = 1.2.sp,
             fontWeight = FontWeight.Black,

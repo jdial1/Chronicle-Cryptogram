@@ -5,10 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import kotlinx.serialization.json.Json
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import org.junit.Assert.assertEquals
@@ -19,7 +16,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * What a screen reader is handed when it walks the board.
@@ -39,12 +35,7 @@ class BoardSemanticsTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(File(root, "src/data/puzzles.json").readText())
-        Edition.morningPuzzleForEdition(all, 1) ?: all.first()
-    }
+    private val puzzle = TestPuzzles.first
 
     private val board = BoardState.forPuzzle(puzzle)
 

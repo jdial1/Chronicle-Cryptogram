@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.model.CipherCell
 import com.chroniclecryptogram.cipher.model.CryptogramWord
-import com.chroniclecryptogram.designsystem.DeskLayout
+import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
 import androidx.compose.ui.graphics.graphicsLayer
 import com.chroniclecryptogram.designsystem.theme.LocalReduceMotion
@@ -77,7 +77,7 @@ private val WordRuleWidth = 1.5.dp
 fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val deskWidth = DeskLayout.width
+    val deskWidth = LocalDeskWidth.current
     val letterStyle = BoardTextStyles.tileLetter
     val glyphStyle = BoardTextStyles.tileGlyph
 

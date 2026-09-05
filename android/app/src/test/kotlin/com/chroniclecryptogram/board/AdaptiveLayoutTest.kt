@@ -6,11 +6,8 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.DeskWidth
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -19,7 +16,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * The board on a phone, a tablet and a foldable opened flat.
@@ -35,12 +31,7 @@ class AdaptiveLayoutTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(File(root, "src/data/puzzles.json").readText())
-        Edition.morningPuzzleForEdition(all, 1) ?: all.first()
-    }
+    private val puzzle = TestPuzzles.first
 
     private fun showBoard() {
         compose.setContent {

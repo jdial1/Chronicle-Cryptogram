@@ -1,16 +1,13 @@
 package com.chroniclecryptogram.board
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -19,7 +16,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * Clearing wipes every guess on the edition. One stray tap on a nearly-solved
@@ -33,12 +29,7 @@ class ClearLettersTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(File(root, "src/data/puzzles.json").readText())
-        Edition.morningPuzzleForEdition(all, 1)!!
-    }
+    private val puzzle = TestPuzzles.first
 
     private lateinit var current: BoardState
 

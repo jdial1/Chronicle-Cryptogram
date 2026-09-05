@@ -7,14 +7,11 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -22,7 +19,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * Drives the real screen: taps a tile, taps a typewriter key, and reads the
@@ -39,12 +35,7 @@ class BoardScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(File(root, "src/data/puzzles.json").readText())
-        Edition.morningPuzzleForEdition(all, 1) ?: all.first()
-    }
+    private val puzzle = TestPuzzles.first
 
     private fun showBoard() {
         compose.setContent {

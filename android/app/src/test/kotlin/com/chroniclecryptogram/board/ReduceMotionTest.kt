@@ -5,11 +5,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.LocalReduceMotion
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -18,7 +15,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /**
  * The reduce-motion setting, which describes itself as "Still keys and no letter
@@ -37,12 +33,7 @@ class ReduceMotionTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(File(root, "src/data/puzzles.json").readText())
-        Edition.morningPuzzleForEdition(all, 1) ?: all.first()
-    }
+    private val puzzle = TestPuzzles.first
 
     private fun showTypedBoard(reduceMotion: Boolean) {
         var state = BoardState.forPuzzle(puzzle)

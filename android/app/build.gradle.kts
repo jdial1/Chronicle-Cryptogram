@@ -41,17 +41,6 @@ if (hasFirebaseConfig) {
 }
 
 /**
- * The content the app ships. Staged from src/data on every build, so the season
- * in the APK is the same file the web app reads -- there is no second copy.
- */
-val generatedAssets = "build/generated/assets"
-
-val stageContent = tasks.register<Sync>("stageContent") {
-    from(rootProject.file("../src/data")) { include("*.json") }
-    into(layout.projectDirectory.dir("$generatedAssets/content"))
-}
-
-/**
  * Release signing. The keystore lives outside the repo and is read from
  * android/keystore.properties locally, or from environment variables in CI --
  * a debug-signed release build cannot be uploaded to Play, and committing a
@@ -182,9 +171,6 @@ android {
         compose = true
         buildConfig = true
     }
-    sourceSets {
-        getByName("main") { assets.srcDir(generatedAssets) }
-    }
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -216,8 +202,6 @@ kotlin {
         allWarningsAsErrors.set(true)
     }
 }
-
-tasks.named("preBuild") { dependsOn(stageContent) }
 
 dependencies {
     implementation(libs.androidx.splashscreen)

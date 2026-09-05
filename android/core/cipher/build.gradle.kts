@@ -23,7 +23,8 @@ java {
  * module will use for its assets, exercised early so drift is impossible.
  */
 val stageContentForTests = tasks.register<Sync>("stageContentForTests") {
-    from(rootProject.file("../src/data")) { include("*.json") }
+    // Only what the parity fixtures read.
+    from(rootProject.file("../src/data")) { include("puzzles.json") }
     into(layout.buildDirectory.dir("generated/test-content/content"))
 }
 

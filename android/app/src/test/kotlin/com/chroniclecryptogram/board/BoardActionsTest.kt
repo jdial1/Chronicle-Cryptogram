@@ -1,15 +1,11 @@
 package com.chroniclecryptogram.board
 
-import com.chroniclecryptogram.cipher.Edition
-import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.cipher.model.Wallets
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.File
 
 /**
  * The board's rules, tested against a real puzzle with no Android runtime.
@@ -20,13 +16,7 @@ import java.io.File
  */
 class BoardActionsTest {
 
-    private val puzzle: PuzzleData = run {
-        val root = File("../..").canonicalFile
-        val text = File(root, "src/data/puzzles.json").readText()
-        val all = Json { ignoreUnknownKeys = false }
-            .decodeFromString<List<PuzzleData>>(text)
-        Edition.morningPuzzleForEdition(all, 1) ?: all.first()
-    }
+    private val puzzle = TestPuzzles.first
 
     private fun boardAtFirstCell(): BoardState {
         val state = BoardState.forPuzzle(puzzle)

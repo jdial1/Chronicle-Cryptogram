@@ -70,20 +70,3 @@ data class TacticPoint(
 data class PrimerPracticeContent(
     val practicePuzzles: List<String>,
 )
-
-/* ------------------------------------------------------------------ plates */
-
-/**
- * Plate ids rather than URLs. The web resolves these through Vite's asset
- * pipeline; Android resolves the same ids to `assets/plates/<id>.webp`.
- *
- * [plateIds] order is load-bearing: `articlePlateId` falls back to
- * `plateIds[(edition - 1) % size]` when an edition has no explicit plate.
- */
-@Serializable
-data class PlateContent(
-    val plateIds: List<String>,
-    val characterPlate: Map<String, String>,
-    val characterFirstEdition: Map<String, Int>,
-    val locationByEdition: Map<String, String>,
-)

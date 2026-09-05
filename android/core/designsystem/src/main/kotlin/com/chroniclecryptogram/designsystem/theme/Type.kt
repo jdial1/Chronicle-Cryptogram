@@ -66,6 +66,11 @@ object ChronicleFonts {
  * larger type makes larger tiles instead of clipping -- which is exactly what the
  * `rem`-based CSS could not do.
  */
+/**
+ * Reach for this through `MaterialTheme.typography`, not by name: [ChronicleTheme]
+ * installs it, so inside the app the two are the same object, and seven call
+ * sites reading it directly meant one value with two spellings.
+ */
 val ChronicleTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = ChronicleFonts.Masthead,

@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.cipher.model.CryptogramWord
 import com.chroniclecryptogram.content.CipherTactic
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
-import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 
 const val PrimerCoachTag = "primer-coach"
 
@@ -159,7 +158,7 @@ fun PrimerCoach(
                 // Folded, the rail carries the tell's own title, so the coach
                 // still teaches at a glance rather than becoming a closed box.
                 text = if (open) "Five tells of English" else tactic.title,
-                style = ChronicleTypography.labelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = colors.ink,
                 fontSize = 12.sp,
                 letterSpacing = 1.sp,
@@ -230,7 +229,7 @@ fun PrimerCoach(
                     )
                     Text(
                         text = tactic.title.uppercase(),
-                        style = ChronicleTypography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = colors.ink,
                         fontSize = 11.sp,
                         letterSpacing = 0.8.sp,

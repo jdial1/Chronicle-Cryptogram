@@ -28,7 +28,6 @@ class ContentRepositoryTest {
         assertTrue(parser.caseFiles().characters.isNotEmpty())
         assertTrue(parser.cipherTactics().tactics.isNotEmpty())
         assertTrue(parser.primerPractice().practicePuzzles.isNotEmpty())
-        assertTrue(parser.plates().plateIds.isNotEmpty())
     }
 
     @Test
@@ -69,22 +68,6 @@ class ContentRepositoryTest {
                 fragment.editionNumber in editions,
                 "fragment ${fragment.title} points at missing edition ${fragment.editionNumber}",
             )
-        }
-    }
-
-    @Test
-    fun `every plate reference resolves to a listed plate id`() {
-        val plates = parser.plates()
-        val ids = plates.plateIds.toSet()
-
-        for ((character, plate) in plates.characterPlate) {
-            assertTrue(plate in ids, "character $character maps to unknown plate $plate")
-        }
-        for ((edition, plate) in plates.locationByEdition) {
-            assertTrue(plate in ids, "edition $edition maps to unknown plate $plate")
-        }
-        for (character in parser.caseFiles().characters) {
-            assertTrue(character.plate in ids, "${character.id} has unknown plate ${character.plate}")
         }
     }
 

@@ -1,6 +1,5 @@
 package com.chroniclecryptogram.designsystem
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -64,12 +63,15 @@ enum class DeskWidth {
     }
 }
 
+/**
+ * Read it with `LocalDeskWidth.current`.
+ *
+ * There used to be a `DeskLayout` object beside this whose only member was a
+ * composable getter returning exactly that, and only one of the two call sites
+ * used it -- so the same value had two spellings, and the object existed to save
+ * an import.
+ */
 val LocalDeskWidth = staticCompositionLocalOf { DeskWidth.Compact }
-
-object DeskLayout {
-    val width: DeskWidth
-        @Composable get() = LocalDeskWidth.current
-}
 
 /**
  * The measure a column of prose is set to.
