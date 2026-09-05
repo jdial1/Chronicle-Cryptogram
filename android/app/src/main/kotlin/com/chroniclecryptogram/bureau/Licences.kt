@@ -15,7 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -146,12 +146,17 @@ fun LicencesSection() {
 @Composable
 private fun LicenceDialog(licence: Licence, onDismiss: () -> Unit) {
     val colors = ChronicleTheme.colors
-    val context = LocalContext.current
+    // LocalResources rather than LocalContext.current.resources: the latter is
+    // not configuration-aware, so the text would not be re-read if the device
+    // configuration changed under it. It makes no difference to a licence, which
+    // has no translations and no density -- but the habit is what matters, and
+    // this was the only place in the app reading a resource directly.
+    val resources = LocalResources.current
     // Read once per opening. Four kilobytes of OFL and eleven of Apache: small
     // enough to hold, large enough not to want in the binary as a string
     // constant, and never touched unless someone opens the dialog.
-    val text = remember(licence) {
-        context.resources.openRawResource(licence.resource)
+    val text = remember(resources, licence) {
+        resources.openRawResource(licence.resource)
             .bufferedReader()
             .use { it.readText() }
     }

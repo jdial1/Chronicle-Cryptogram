@@ -3,13 +3,15 @@ package com.chroniclecryptogram.board
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.core.content.FileProvider
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.withSave
 import androidx.core.content.res.ResourcesCompat
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.designsystem.R as DesignR
@@ -33,10 +35,10 @@ object Clipping {
     private const val WIDTH = 1080
     private const val MARGIN = 72f
 
-    private val Paper = Color.parseColor("#FBF7EE")
-    private val Ink = Color.parseColor("#1C1A17")
-    private val Brass = Color.parseColor("#8A6D2F")
-    private val Cinnabar = Color.parseColor("#A6321E")
+    private val Paper = "#FBF7EE".toColorInt()
+    private val Ink = "#1C1A17".toColorInt()
+    private val Brass = "#8A6D2F".toColorInt()
+    private val Cinnabar = "#A6321E".toColorInt()
 
     /**
      * Renders the clipping.
@@ -90,7 +92,7 @@ object Clipping {
                 quote.height + gap * 1.4f + figures.height + gap + footer.height + MARGIN
             ).toInt()
 
-        val bitmap = Bitmap.createBitmap(WIDTH, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(WIDTH, height)
         val canvas = Canvas(bitmap)
         canvas.drawColor(Paper)
 
@@ -141,10 +143,12 @@ object Clipping {
     }
 
     private fun Canvas.draw(layout: StaticLayout, top: Float): Float {
-        save()
-        translate(MARGIN, top)
-        layout.draw(this)
-        restore()
+        // withSave rather than save/restore by hand: a throw between the two
+        // would leave the canvas translated for every later draw.
+        withSave {
+            translate(MARGIN, top)
+            layout.draw(this)
+        }
         return top + layout.height
     }
 

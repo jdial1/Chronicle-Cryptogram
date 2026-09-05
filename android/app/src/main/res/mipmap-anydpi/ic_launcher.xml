@@ -4,6 +4,12 @@
   launcher masks them to whatever shape the device uses, and animates them apart
   on some. The bordered card sits inside the 66dp safe zone of the foreground,
   so no mask can crop the rule off it.
+
+  This is the only launcher icon. Adaptive icons arrived in API 26 and minSdk is
+  26, so the folder needs no -v26 qualifier; the five legacy square PNGs could
+  never be reached (100 KB of a 2.3 MB APK, and the whole of lint's
+  IconLauncherShape complaint); and ic_launcher_round, an exact copy of this
+  file read only by Android 7.1 launchers, had nothing to serve.
 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/icon_paper" />

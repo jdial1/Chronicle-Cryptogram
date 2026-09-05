@@ -204,6 +204,7 @@ tasks.named("preBuild") { dependsOn(stageContent) }
 
 dependencies {
     implementation(libs.androidx.splashscreen)
+    implementation(libs.androidx.core.ktx)
     implementation(project(":core:cipher"))
     implementation(project(":core:content"))
     implementation(project(":core:data"))
@@ -211,13 +212,13 @@ dependencies {
     implementation(project(":core:designsystem"))
 
     implementation(platform(libs.compose.bom))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.core)
-    implementation("androidx.activity:activity-compose:1.11.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.serialization.json)
