@@ -189,11 +189,42 @@ inverted order since it was written, so its 720dp cap had never once applied.
 
 ---
 
-## Pass 6 — next
+## Pass 6 — the share clipping
+
+**Theme:** look at the image the app actually hands to the share sheet. It had
+been written, wired and tested, and never once opened.
+
+**It is correct.** Kicker, the cinnabar tab on the masthead rule, headline,
+quote, figures and footer all render as intended, at 1080 x 706, sized to the
+quote rather than to a fixed frame. Pulled off the device with
+`adb exec-out run-as … cat` — plain `adb shell` corrupts a PNG by translating
+line endings, which is worth remembering.
+
+**Found, and deliberately not fixed: the stored timer loses its tenths.**
+
+The clipping read `TIME 14:08.0` where the bulletin had shown `14:08.2`. The
+clock counts in tenths and the bulletin prints them, but
+`PuzzleProgress.timerSeconds` is an `Int`, so the fraction is dropped on save;
+reopening a solved puzzle shows `.0`.
+
+The web stores that field as a JS `number` and its `normalizeProgress` only
+clamps, so it keeps the fraction. A save written there and read here loses it.
+
+**The fixtures did not catch this because every timer value in them is a whole
+number** — which says as much about the harness as about the bug.
+
+Left alone on purpose. Widening the field runs through `Merge`, `DeskState` and
+`FirestoreDesk`, the most parity-sensitive code in the project, and the visible
+cost is one tenth of a second on a reloaded solve. Nothing about ranking or the
+solve rate is affected: both take whole seconds. `TimerPrecisionTest` pins the
+current behaviour so it stays a known divergence rather than a lurking one.
+**This is a decision for the owner, not one to make in passing.**
+
+---
+
+## Pass 7 — next
 
 - **TalkBack order and grouping.** Labels exist everywhere; whether the reading
   order and grouping make sense has not been checked.
-- **The share clipping.** Rendered but never opened: nobody has looked at the
-  image `Clipping` actually produces.
 - **The night edition.** Every screen has been seen on night *paper*, but no
   Night Extra puzzle has been opened, which is a different thing.
