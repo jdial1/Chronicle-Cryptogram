@@ -88,6 +88,16 @@ if (System.getenv("ANDROID_PUBLISHER_CREDENTIALS") != null) {
  */
 val chronicleSdk = providers.gradleProperty("chronicleTargetSdk").get().toInt()
 
+/**
+ * Install beside the Play build rather than trying to replace it.
+ *
+ * Only valid because `com.chroniclecryptogram.app` is a registered Firebase
+ * client carrying the debug certificate; check `google-services.json` before
+ * changing the suffix.
+ */
+val sideloadAlongsidePlay =
+    providers.gradleProperty("chronicleSideload").orNull?.toBoolean() ?: false
+
 android {
     namespace = "com.chroniclecryptogram"
     compileSdk = 37
@@ -126,9 +136,29 @@ android {
             signingConfig = if (hasSigningConfig) signingConfigs.getByName("release") else null
         }
         debug {
-            // No applicationIdSuffix: google-services.json registers
-            // com.chroniclecryptogram, and a suffixed id would not match it.
             versionNameSuffix = "-debug"
+
+            // Sideloading onto a phone that already has the Play build fails:
+            // Play owns com.chroniclecryptogram and signs it with its own key,
+            // and Android will not let a differently-signed APK take over a
+            // package. The device reports only "You can't install this app on
+            // your phone", which says nothing about certificates.
+            //
+            // -PchronicleSideload=true installs under a second application id
+            // instead. It is not an arbitrary suffix: google-services.json
+            // registers com.chroniclecryptogram.app as a client in its own
+            // right, carrying this same debug certificate, so Firebase keeps
+            // working. Any other suffix would silently lose it.
+            //
+            // Note this id is the one the retired Expo shell shipped under, so
+            // a device that still has that build hits the identical signature
+            // conflict here. Uninstall whichever copy is in the way first --
+            // there is no suffix that dodges a signature mismatch, only a
+            // package name nothing else already owns.
+            if (sideloadAlongsidePlay) {
+                applicationIdSuffix = ".app"
+                versionNameSuffix = "-sideload"
+            }
         }
     }
 
