@@ -2,6 +2,7 @@ package com.chroniclecryptogram.board
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,17 +22,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.cipher.model.CryptogramWord
@@ -60,6 +64,9 @@ private val PrimerHints = mapOf(
     "doubles" to "SEE hides EE in a short word. LOOK and TOO hide OO. LETTER hides TT. " +
         "Doubles do not lie on the morning edition.",
 )
+
+/** Above this font scale the coach starts folded. Below it, everything fits. */
+private const val FoldAboveScale = 1.3f
 
 /** True once the player has correctly placed [letter] somewhere on the board. */
 private fun letterMapped(
@@ -114,6 +121,13 @@ fun PrimerCoach(
     var index by remember { mutableIntStateOf(unlocked) }
     LaunchedEffect(unlocked) { index = unlocked }
 
+    // At large type the coach and the masthead together fill the whole screen,
+    // and the player arrives on the Primer unable to see the cipher at all --
+    // on the one screen whose entire point is the cipher. So it starts folded
+    // there, showing the tell's title in the rail, and opens on a tap.
+    val fontScale = LocalDensity.current.fontScale
+    var open by remember(fontScale) { mutableStateOf(fontScale <= FoldAboveScale) }
+
     val tactic = tactics[index.coerceIn(tactics.indices)]
     val cleared = isSolved || done.getOrElse(index) { false }
 
@@ -130,18 +144,34 @@ fun PrimerCoach(
             Modifier
                 .fillMaxWidth()
                 .background(colors.paperMasthead)
-                .padding(start = 12.dp),
+                .clickable { open = !open }
+                .padding(start = 12.dp)
+                .semantics {
+                    contentDescription = if (open) {
+                        "Five tells of English, showing. Tap to fold."
+                    } else {
+                        "Five tells of English, folded. Tap to read tell ${index + 1}."
+                    }
+                },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Five tells of English",
+                // Folded, the rail carries the tell's own title, so the coach
+                // still teaches at a glance rather than becoming a closed box.
+                text = if (open) "Five tells of English" else tactic.title,
                 style = ChronicleTypography.labelLarge,
                 color = colors.ink,
                 fontSize = 12.sp,
                 letterSpacing = 1.sp,
                 fontWeight = FontWeight.Black,
-                maxLines = 1,
-                modifier = Modifier.weight(1f).semantics { heading() },
+                // Two lines at large type rather than "Five tells of" and a cut
+                // edge. The rail grows; nothing is lost.
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 6.dp)
+                    .semantics { heading() },
             )
             IconButton(
                 onClick = { index = (index - 1).coerceAtLeast(0) },
@@ -157,6 +187,7 @@ fun PrimerCoach(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
+                softWrap = false,
                 modifier = Modifier.widthIn(min = 52.dp),
             )
             IconButton(
@@ -167,6 +198,8 @@ fun PrimerCoach(
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = colors.ink)
             }
         }
+
+        if (!open) return@Column
 
         Column(Modifier.padding(10.dp)) {
             Column(

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
@@ -123,7 +124,11 @@ internal fun DeskDock(tools: List<DeskTool>, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        tools.forEach { tool -> DockTool(tool, Modifier.weight(1f)) }
+        // Five fixed columns, so the labels are capped for the same reason the
+        // section rail's are: at 2.0 "CHECK 3" lost its count off the edge.
+        CompactChrome {
+            tools.forEach { tool -> DockTool(tool, Modifier.weight(1f)) }
+        }
     }
 }
 
@@ -137,7 +142,9 @@ internal fun DeskRail(tools: List<DeskTool>, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        tools.forEach { tool -> DockTool(tool) }
+        CompactChrome {
+            tools.forEach { tool -> DockTool(tool) }
+        }
     }
 }
 
@@ -160,7 +167,11 @@ private fun DockTool(tool: DeskTool, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Icon(tool.icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // The count is part of the label, not a separate thing to drop.
+            horizontalArrangement = Arrangement.Center,
+        ) {
             Text(
                 text = tool.label.uppercase(),
                 style = ChronicleTypography.labelLarge,

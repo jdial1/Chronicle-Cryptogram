@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
 import androidx.compose.foundation.layout.WindowInsets
@@ -91,6 +92,7 @@ import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
 import com.chroniclecryptogram.data.NoAccountRepository
 import com.chroniclecryptogram.data.ThemeMode
+import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
 import com.chroniclecryptogram.data.CloudProfile
@@ -540,6 +542,9 @@ private fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
             .padding(top = 4.dp),
         verticalAlignment = Alignment.Top,
     ) {
+        // Five fixed columns: the labels have to stop growing before they run
+        // off the ends. The icons carry the same meaning at any scale.
+        CompactChrome {
         for (destination in Destination.entries) {
             val (label, icon) = when (destination) {
                 Destination.Board -> "Desk" to R.drawable.ic_nav_desk
@@ -555,6 +560,7 @@ private fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
                 onClick = { onGo(destination) },
                 modifier = Modifier.weight(1f),
             )
+        }
         }
     }
 }
@@ -620,6 +626,7 @@ private fun DeskBarItem(
             fontWeight = if (selected) FontWeight.Black else FontWeight.Normal,
             color = tint,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
         )
     }
