@@ -5,6 +5,7 @@ import com.chroniclecryptogram.cipher.BoardCell
 import com.chroniclecryptogram.cipher.CipherCursor
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.PuzzleState
+import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.cipher.model.CryptogramWord
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.cipher.model.PuzzleProgress
@@ -58,6 +59,25 @@ data class BoardState(
         get() = cells.firstOrNull { it.cellId == selectedCellId }?.symbolId
 
     val canUndo: Boolean get() = history.isNotEmpty()
+
+    /**
+     * The three figures a finished board is reported by: to the bulletin, to the
+     * leaderboard, to the public counters and to the saved progress.
+     *
+     * They were derived at each of those call sites instead -- the hint count
+     * five times, once through a fully qualified `com.chroniclecryptogram.cipher
+     * .model.Wallets`, and the accuracy three -- which is four chances to
+     * subtract from the wrong wallet, and how the receipt and the leaderboard
+     * entry came to be built from two separate copies of the same arithmetic.
+     */
+    val hintsUsed: Int get() = Wallets.DAILY_HINTS - hintsRemaining
+
+    val checksUsed: Int get() = Wallets.DAILY_CHECKS - checksRemaining
+
+    val accuracy: Int get() = Solve.accuracy(mappings, answer)
+
+    /** mm:ss.t, the form the clipping and the board both print. */
+    val timeFormatted: String get() = Solve.formatTime(timerSeconds)
 
     /**
      * Glyph counts, busiest first, for the tally sheet.
@@ -248,10 +268,10 @@ object BoardActions {
     fun toProgress(state: BoardState): PuzzleProgress = PuzzleProgress(
         mappings = state.mappings,
         timerSeconds = state.timerSeconds.toInt(),
-        hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining,
+        hintsUsed = state.hintsUsed,
         hintsRemaining = state.hintsRemaining,
         hintedSymbolIds = state.hintedSymbolIds.toList(),
-        checksUsed = Wallets.DAILY_CHECKS - state.checksRemaining,
+        checksUsed = state.checksUsed,
         checksRemaining = state.checksRemaining,
         verifiedSymbolIds = state.verifiedSymbolIds.toList(),
         flaggedSymbolIds = state.flaggedSymbolIds.toList(),

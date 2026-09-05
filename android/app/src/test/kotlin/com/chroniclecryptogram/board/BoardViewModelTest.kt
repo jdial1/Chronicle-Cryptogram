@@ -7,8 +7,6 @@ import com.chroniclecryptogram.data.DeskState
 import com.chroniclecryptogram.data.DeskStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -25,20 +23,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 /** An in-memory [DeskStore], so persistence is exercised without a filesystem. */
-private class FakeDeskStore(initial: DeskState = DeskState()) : DeskStore {
-    private val flow = MutableStateFlow(initial)
-    override val state: Flow<DeskState> = flow
-    var writes = 0
-        private set
-
-    override suspend fun update(transform: (DeskState) -> DeskState): DeskState {
-        writes++
-        flow.value = transform(flow.value)
-        return flow.value
-    }
-
-    fun current(): DeskState = flow.value
-}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoardViewModelTest {

@@ -1,7 +1,6 @@
 package com.chroniclecryptogram
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -43,11 +42,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.chroniclecryptogram.leaderboard.BoardState as LeaderboardBoardState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -66,8 +63,6 @@ import com.chroniclecryptogram.archive.ArchiveScreen
 import com.chroniclecryptogram.board.BoardScreen
 import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.casefile.CaseFileScreen
-import com.chroniclecryptogram.cipher.model.Wallets
-import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.content.ContentRepository
 import com.chroniclecryptogram.cloud.createAccountRepository
@@ -78,7 +73,7 @@ import com.chroniclecryptogram.cloud.setCrashReporting
 import com.chroniclecryptogram.bureau.AccountState
 import com.chroniclecryptogram.bureau.BureauScreen
 import com.chroniclecryptogram.data.DataStoreDeskStore
-import com.chroniclecryptogram.data.DataStorePrefsStore
+import com.chroniclecryptogram.data.DeskPrefsStore
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
 import com.chroniclecryptogram.data.NoAccountRepository
@@ -86,9 +81,6 @@ import com.chroniclecryptogram.data.ThemeMode
 import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
-import com.chroniclecryptogram.data.LeaderboardEntry
-import com.chroniclecryptogram.data.PuzzleLiveStats
-import com.chroniclecryptogram.data.TitleBadges
 import com.chroniclecryptogram.content.CaseFileContent
 import com.chroniclecryptogram.content.CipherTacticsContent
 import com.chroniclecryptogram.cipher.model.PuzzleData
@@ -97,8 +89,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.chroniclecryptogram.leaderboard.LeaderboardScreen
+import com.chroniclecryptogram.session.rememberDeskBoard
 import com.chroniclecryptogram.session.CloudSync
-import com.chroniclecryptogram.session.SyncTag
 import com.chroniclecryptogram.splash.SplashScreen
 
 class MainActivity : ComponentActivity() {
@@ -123,7 +115,7 @@ private fun ChronicleApp() {
     val context = LocalContext.current
     val activity = LocalActivity.current
     val store = remember { DataStoreDeskStore.create(context.applicationContext) }
-    val prefsStore = remember { DataStorePrefsStore.create(context.applicationContext) }
+    val prefsStore = remember { DeskPrefsStore.create(context.applicationContext) }
     val prefs by prefsStore.prefs.collectAsStateWithLifecycle(initialValue = DeskPrefs())
     val scope = rememberCoroutineScope()
 
@@ -217,90 +209,13 @@ private fun ChronicleApp() {
         prefs = prefs,
     )
 
-    var boardState by remember {
-        mutableStateOf<LeaderboardBoardState>(
-            if (BuildConfig.HAS_FIREBASE) LeaderboardBoardState.Loading
-            else LeaderboardBoardState.Offline
-        )
-    }
-    var postError by remember { mutableStateOf<String?>(null) }
-    // Bumped after a successful post so the board refetches and the player sees
-    // where their own time landed.
-    var boardRevision by remember { mutableIntStateOf(0) }
-
-    val puzzleId = board?.puzzle?.id
-    LaunchedEffect(puzzleId, account?.uid, boardRevision) {
-        if (!BuildConfig.HAS_FIREBASE || puzzleId == null) return@LaunchedEffect
-        boardState = LeaderboardBoardState.Loading
-        boardState = runCatching { boards.standings(puzzleId, account?.uid) }
-            .fold(
-                onSuccess = { LeaderboardBoardState.Ready(it) },
-                // Offline rather than an error screen: a board that cannot be
-                // reached is the ordinary case on a train, not a fault.
-                onFailure = { LeaderboardBoardState.Offline },
-            )
-    }
-
-    // Posting happens on the transition into solved, and only when the player
-    // has chosen a name -- a time is published, so it is never posted under a
-    // name they did not pick.
-    val justSolved = board?.isSolved == true
-    LaunchedEffect(puzzleId, justSolved, prefs.canPost, account?.uid) {
-        val state = board ?: return@LaunchedEffect
-        val uid = account?.uid ?: return@LaunchedEffect
-        if (!justSolved || !prefs.canPost) return@LaunchedEffect
-
-        val entry = LeaderboardEntry(
-            uid = uid,
-            codename = prefs.codename,
-            timeSeconds = state.timerSeconds.toInt(),
-            accuracy = Solve.accuracy(state.mappings, state.answer),
-            hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining,
-            postedAt = System.currentTimeMillis(),
-            titleBadge = prefs.titleBadge.ifBlank { TitleBadges.last() },
-            timeFormatted = Solve.formatTime(state.timerSeconds),
-            countryCode = prefs.countryCode,
-        )
-        boards.post(state.puzzle.id, entry)
-            .onSuccess {
-                postError = null
-                boardRevision++
-            }
-            .onFailure { postError = it.message }
-    }
-
-    // The public counters for whatever board is open. Opening a puzzle files a
-    // start receipt, which is what the solve rate is measured against.
-    var liveStats by remember { mutableStateOf<PuzzleLiveStats?>(null) }
-    var statsRevision by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(puzzleId, uid, statsRevision) {
-        if (!BuildConfig.HAS_FIREBASE) return@LaunchedEffect
-        val id = puzzleId ?: return@LaunchedEffect
-        withContext(Dispatchers.IO) {
-            if (uid != null) runCatching { puzzleStats.recordStart(uid, id) }
-            liveStats = runCatching { puzzleStats.stats(id) }.getOrNull()
-        }
-    }
-
-    // Filed once per player per puzzle; the rules refuse a second receipt, so a
-    // replayed puzzle cannot pad the public counters.
-    LaunchedEffect(puzzleId, justSolved, uid) {
-        val state = board ?: return@LaunchedEffect
-        val id = uid ?: return@LaunchedEffect
-        if (!justSolved) return@LaunchedEffect
-        withContext(Dispatchers.IO) {
-            puzzleStats.recordSolve(
-                uid = id,
-                puzzleId = state.puzzle.id,
-                timeSeconds = state.timerSeconds.toInt(),
-                hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining,
-                accuracy = Solve.accuracy(state.mappings, state.answer),
-                solverName = prefs.codename,
-            ).onFailure { Log.w(SyncTag, "solve receipt refused -- ${it.message}") }
-        }
-        statsRevision++
-    }
+    val standings = rememberDeskBoard(
+        boards = boards,
+        puzzleStats = puzzleStats,
+        state = board,
+        uid = uid,
+        prefs = prefs,
+    )
 
     // Shown once per launch, as the web shows it once per session. It is state
     // rather than a preference on purpose: a splash a player can never see again
@@ -342,7 +257,7 @@ private fun ChronicleApp() {
                             onNext = model::advance,
                             useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
                             tactics = tactics.tactics,
-                            liveStats = liveStats,
+                            liveStats = standings.stats,
                         )
                     }
 
@@ -374,12 +289,7 @@ private fun ChronicleApp() {
                             busy = authBusy,
                             error = authError,
                         ),
-                        onThemeMode = { scope.launch { prefsStore.setThemeMode(it) } },
-                        onKeyboardMode = { scope.launch { prefsStore.setKeyboardMode(it) } },
-                        onReduceMotion = { scope.launch { prefsStore.setReduceMotion(it) } },
-                        onCodename = { scope.launch { prefsStore.setCodename(it) } },
-                        onTitleBadge = { scope.launch { prefsStore.setTitleBadge(it) } },
-                        onCountryCode = { scope.launch { prefsStore.setCountryCode(it) } },
+                        onPrefs = { edit -> scope.launch { prefsStore.update(edit) } },
                         onSignIn = {
                             scope.launch {
                                 authBusy = true
@@ -416,9 +326,9 @@ private fun ChronicleApp() {
                         },
                         board = {
                             LeaderboardScreen(
-                                state = boardState,
+                                state = standings.board,
                                 playerUid = account?.uid,
-                                note = postError,
+                                note = standings.note,
                             )
                         },
                     )

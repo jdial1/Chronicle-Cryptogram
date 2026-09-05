@@ -39,7 +39,7 @@ class LeaderboardScreenTest {
         postedAt = 0,
     )
 
-    private fun show(state: BoardState, playerUid: String? = null) {
+    private fun show(state: StandingsState, playerUid: String? = null) {
         compose.setContent {
             ChronicleTheme(dark = false) {
                 LeaderboardScreen(state = state, playerUid = playerUid)
@@ -49,13 +49,13 @@ class LeaderboardScreenTest {
 
     @Test
     fun `a loading board says so`() {
-        show(BoardState.Loading)
+        show(StandingsState.Loading)
         compose.onNodeWithText("Reading the wire…").assertExists()
     }
 
     @Test
     fun `an offline board explains itself rather than showing nothing`() {
-        show(BoardState.Offline)
+        show(StandingsState.Offline)
         compose.onNodeWithText(
             "The wire is down. Times post when the connection returns.",
         ).assertExists()
@@ -63,7 +63,7 @@ class LeaderboardScreenTest {
 
     @Test
     fun `an empty board says no times are filed`() {
-        show(BoardState.Ready(Standings.rank(emptyList(), null)))
+        show(StandingsState.Ready(Standings.rank(emptyList(), null)))
         compose.onNodeWithText("No times filed for this edition yet.").assertExists()
     }
 
@@ -73,7 +73,7 @@ class LeaderboardScreenTest {
             listOf(entry("c", 300), entry("a", 100), entry("b", 200)),
             uid = null,
         )
-        show(BoardState.Ready(standing))
+        show(StandingsState.Ready(standing))
 
         compose.onNodeWithContentDescription("Rank 1, A, 01:40.0, 0 hints").assertExists()
         compose.onNodeWithContentDescription("Rank 2, B, 03:20.0, 0 hints").assertExists()
@@ -86,7 +86,7 @@ class LeaderboardScreenTest {
             listOf(entry("a", 100), entry("me", 200)),
             uid = "me",
         )
-        show(BoardState.Ready(standing), playerUid = "me")
+        show(StandingsState.Ready(standing), playerUid = "me")
 
         compose.onNodeWithContentDescription("Rank 2, ME, 03:20.0, 0 hints, your time").assertExists()
     }
@@ -99,7 +99,7 @@ class LeaderboardScreenTest {
     @Test
     fun `nothing on the board claims a time is verified`() {
         val standing = Standings.rank(listOf(entry("a", 100)), uid = null)
-        show(BoardState.Ready(standing))
+        show(StandingsState.Ready(standing))
 
         compose.onNodeWithText("Times as filed by solvers.").assertExists()
         compose.onNodeWithText("Verified", substring = true).assertDoesNotExist()
@@ -122,7 +122,7 @@ class LeaderboardScreenTest {
                 LazyColumn(Modifier.fillMaxSize()) {
                     item {
                         LeaderboardScreen(
-                            state = BoardState.Ready(Standings.rank(entries, "uid-3")),
+                            state = StandingsState.Ready(Standings.rank(entries, "uid-3")),
                             playerUid = "uid-3",
                         )
                     }
@@ -143,7 +143,7 @@ class LeaderboardScreenTest {
                 LazyColumn(Modifier.fillMaxSize()) {
                     item {
                         LeaderboardScreen(
-                            state = BoardState.Ready(Standings.rank(emptyList(), null)),
+                            state = StandingsState.Ready(Standings.rank(emptyList(), null)),
                             playerUid = null,
                         )
                     }
@@ -158,7 +158,7 @@ class LeaderboardScreenTest {
         compose.setContent {
             ChronicleTheme(dark = false) {
                 LeaderboardScreen(
-                    state = BoardState.Ready(Standings.rank(emptyList(), null)),
+                    state = StandingsState.Ready(Standings.rank(emptyList(), null)),
                     playerUid = null,
                     note = "Choose a codename before posting a time.",
                 )

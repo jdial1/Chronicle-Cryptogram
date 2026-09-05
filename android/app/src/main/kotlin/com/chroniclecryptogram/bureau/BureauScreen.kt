@@ -70,12 +70,13 @@ fun BureauScreen(
     totalEditions: Int,
     prefs: DeskPrefs,
     account: AccountState,
-    onThemeMode: (ThemeMode) -> Unit,
-    onKeyboardMode: (KeyboardMode) -> Unit,
-    onReduceMotion: (Boolean) -> Unit,
-    onCodename: (String) -> Unit,
-    onTitleBadge: (String) -> Unit,
-    onCountryCode: (String) -> Unit,
+    /**
+     * Edits a preference. One callback rather than six: every one of them did
+     * the same thing to a different field, and each had to be named again in
+     * the store, again here, again where this screen is wired up and again in
+     * this screen's test.
+     */
+    onPrefs: (DeskPrefs.() -> DeskPrefs) -> Unit,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
@@ -118,7 +119,7 @@ fun BureauScreen(
         item {
             // The campaign stat that replaced the streak, which only ever
             // incremented and was tautological under progression gating.
-            Card {
+            ChroniclePanel {
                 Text(
                     text = "Editions decoded",
                     style = MaterialTheme.typography.labelLarge,
@@ -136,7 +137,7 @@ fun BureauScreen(
         }
 
         item {
-            Card {
+            ChroniclePanel {
                 SectionTitle("The press")
 
                 SettingLabel("Paper")
@@ -144,7 +145,7 @@ fun BureauScreen(
                     ThemeMode.entries.forEachIndexed { index, mode ->
                         SegmentedButton(
                             selected = prefs.themeMode == mode,
-                            onClick = { onThemeMode(mode) },
+                            onClick = { onPrefs { copy(themeMode = mode) } },
                             shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
                             colors = SegmentedButtonDefaults.colors(
                                 activeContainerColor = colors.brass,
@@ -169,7 +170,8 @@ fun BureauScreen(
                     detail = "Type on your own keyboard instead of the typewriter.",
                     checked = prefs.keyboardMode == KeyboardMode.System,
                     onChange = {
-                        onKeyboardMode(if (it) KeyboardMode.System else KeyboardMode.Typewriter)
+                        val mode = if (it) KeyboardMode.System else KeyboardMode.Typewriter
+                        onPrefs { copy(keyboardMode = mode) }
                     },
                 )
 
@@ -177,13 +179,13 @@ fun BureauScreen(
                     title = "Reduce motion",
                     detail = "Still keys and no letter jitter.",
                     checked = prefs.reduceMotion,
-                    onChange = onReduceMotion,
+                    onChange = { on -> onPrefs { copy(reduceMotion = on) } },
                 )
             }
         }
 
         if (account.available) item {
-            Card {
+            ChroniclePanel {
                 SectionTitle("Posting")
                 Text(
                     // Said plainly, because posting is publishing: the name goes
@@ -197,7 +199,7 @@ fun BureauScreen(
                 SettingLabel("Codename")
                 OutlinedTextField(
                     value = prefs.codename,
-                    onValueChange = { onCodename(it.take(24)) },
+                    onValueChange = { typed -> onPrefs { copy(codename = typed.take(24)) } },
                     singleLine = true,
                     placeholder = { Text("Unsigned", color = colors.paperRule) },
                     supportingText = { Text("${prefs.codename.length} of 24") },
@@ -208,12 +210,15 @@ fun BureauScreen(
                 )
 
                 SettingLabel("Title")
-                TitlePicker(selected = prefs.titleBadge, onSelect = onTitleBadge)
+                TitlePicker(selected = prefs.titleBadge) { badge -> onPrefs { copy(titleBadge = badge) } }
 
                 SettingLabel("Country")
                 OutlinedTextField(
                     value = prefs.countryCode,
-                    onValueChange = { onCountryCode(it.filter { c -> c.isLetter() }.take(2)) },
+                    onValueChange = { typed ->
+                        val code = typed.filter { c -> c.isLetter() }.take(2)
+                        onPrefs { copy(countryCode = code) }
+                    },
                     singleLine = true,
                     isError = prefs.countryCode.length != 2,
                     supportingText = { Text("Two letters, like US") },
@@ -228,7 +233,7 @@ fun BureauScreen(
         // player who has only ever seen this build has no account to miss. The
         // 1.0 release ships offline, so the whole section goes.
         if (account.available) item {
-            Card {
+            ChroniclePanel {
                 SectionTitle("Account")
 
                 Text(
@@ -286,14 +291,14 @@ fun BureauScreen(
         }
 
         if (account.available) item {
-            Card {
+            ChroniclePanel {
                 SectionTitle("The board")
                 board()
             }
         }
 
         item {
-            Card {
+            ChroniclePanel {
                 SectionTitle("Type & credits")
                 LicencesSection()
             }
@@ -320,10 +325,6 @@ private fun paperFieldColors() = ChronicleTheme.colors.let { colors ->
         cursorColor = colors.brass,
     )
 }
-
-/** The Bureau's sections are plain panels; the name is kept for the call sites. */
-@Composable
-private fun Card(content: @Composable ColumnScope.() -> Unit) = ChroniclePanel(content = content)
 
 @Composable
 private fun SectionTitle(text: String) {

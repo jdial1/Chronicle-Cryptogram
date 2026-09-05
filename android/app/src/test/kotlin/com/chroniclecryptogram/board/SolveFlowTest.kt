@@ -6,12 +6,9 @@ import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.data.DeskState
-import com.chroniclecryptogram.data.DeskStore
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -29,14 +26,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
-private class FakeStore(initial: DeskState = DeskState()) : DeskStore {
-    private val flow = MutableStateFlow(initial)
-    override val state: Flow<DeskState> = flow
-    override suspend fun update(transform: (DeskState) -> DeskState): DeskState {
-        flow.value = transform(flow.value)
-        return flow.value
-    }
-}
 
 /**
  * What happens when a puzzle is solved: the bulletin appears with the player's
@@ -105,7 +94,7 @@ class SolveFlowTest {
         val morning = Edition.morningPuzzleForEdition(puzzles, 1)!!
         val night = Edition.nightPuzzleForEdition(puzzles, 1)!!
         val model = BoardViewModel(
-            FakeStore(DeskState(solvedPuzzleIds = listOf(morning.id))),
+            FakeDeskStore(DeskState(solvedPuzzleIds = listOf(morning.id))),
             puzzles,
             compute = dispatcher,
         )
@@ -119,7 +108,7 @@ class SolveFlowTest {
         val morning = Edition.morningPuzzleForEdition(puzzles, 1)!!
         val night = Edition.nightPuzzleForEdition(puzzles, 1)!!
         val model = BoardViewModel(
-            FakeStore(DeskState(solvedPuzzleIds = listOf(morning.id, night.id))),
+            FakeDeskStore(DeskState(solvedPuzzleIds = listOf(morning.id, night.id))),
             puzzles,
             compute = dispatcher,
         )
@@ -134,7 +123,7 @@ class SolveFlowTest {
     @Test
     fun `an unsolved morning does not offer its night extra`() = runTest(dispatcher) {
         val morning = Edition.morningPuzzleForEdition(puzzles, 1)!!
-        val model = BoardViewModel(FakeStore(DeskState()), puzzles, compute = dispatcher)
+        val model = BoardViewModel(FakeDeskStore(DeskState()), puzzles, compute = dispatcher)
 
         assertNull("nothing is unlocked yet", model.nextPuzzle(morning))
     }
@@ -145,7 +134,7 @@ class SolveFlowTest {
         val last = Edition.maxEdition(puzzles)
         val finale = Edition.nightPuzzleForEdition(puzzles, last)!!
         val model = BoardViewModel(
-            FakeStore(DeskState(solvedPuzzleIds = puzzles.map { it.id })),
+            FakeDeskStore(DeskState(solvedPuzzleIds = puzzles.map { it.id })),
             puzzles,
             compute = dispatcher,
         )

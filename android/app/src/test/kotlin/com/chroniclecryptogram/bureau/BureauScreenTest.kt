@@ -33,8 +33,8 @@ class BureauScreenTest {
     val compose = createComposeRule()
 
     private var deleted = 0
-    private var codenames = mutableListOf<String>()
-    private var themes = mutableListOf<ThemeMode>()
+    /** Every edit the screen asked for, applied to the prefs it was given. */
+    private var edits = mutableListOf<DeskPrefs>()
 
     private fun show(
         prefs: DeskPrefs = DeskPrefs(),
@@ -47,12 +47,7 @@ class BureauScreenTest {
                     totalEditions = 30,
                     prefs = prefs,
                     account = account,
-                    onThemeMode = { themes += it },
-                    onKeyboardMode = {},
-                    onReduceMotion = {},
-                    onCodename = { codenames += it },
-                    onTitleBadge = {},
-                    onCountryCode = {},
+                    onPrefs = { edit -> edits += prefs.edit() },
                     onSignIn = {},
                     onSignOut = {},
                     onDeleteAccount = { deleted++ },
@@ -121,14 +116,14 @@ class BureauScreenTest {
         // that would quietly go on the board.
         compose.onNodeWithContentDescription("Codename").performScrollTo()
             .performTextInput("Nightdesk")
-        assertTrue(codenames.isNotEmpty())
-        assertEquals("Nightdesk", codenames.last())
+        assertTrue(edits.isNotEmpty())
+        assertEquals("Nightdesk", edits.last().codename)
     }
 
     @Test
     fun `the paper control reports the mode it was given`() {
         show(prefs = DeskPrefs(themeMode = ThemeMode.Dark))
         compose.onNodeWithContentDescription("Paper Day").performScrollTo().performClick()
-        assertEquals(listOf(ThemeMode.Light), themes)
+        assertEquals(listOf(ThemeMode.Light), edits.map { it.themeMode })
     }
 }

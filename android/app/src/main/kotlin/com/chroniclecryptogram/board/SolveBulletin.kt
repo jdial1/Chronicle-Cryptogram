@@ -49,9 +49,9 @@ fun SolveBulletin(
     val colors = ChronicleTheme.colors
     val context = LocalContext.current
 
-    val accuracy = Solve.accuracy(state.mappings, state.answer)
-    val hintsUsed = Wallets.DAILY_HINTS - state.hintsRemaining
-    val time = Solve.formatTime(state.timerSeconds)
+    val accuracy = state.accuracy
+    val hintsUsed = state.hintsUsed
+    val time = state.timeFormatted
 
     Column(
         modifier

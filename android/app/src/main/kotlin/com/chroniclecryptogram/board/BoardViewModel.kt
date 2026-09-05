@@ -2,6 +2,8 @@ package com.chroniclecryptogram.board
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chroniclecryptogram.cipher.Merge
+import com.chroniclecryptogram.cipher.model.Wallets
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.data.DeskActions
@@ -161,18 +163,18 @@ class BoardViewModel(
                 )
                 updated = DeskActions.saveHintWallet(
                     updated,
-                    com.chroniclecryptogram.cipher.Merge.clipDailyWallet(
+                    Merge.clipDailyWallet(
                         state.puzzle.editionNumber,
-                        (com.chroniclecryptogram.cipher.model.Wallets.DAILY_HINTS - state.hintsRemaining).toDouble(),
+                        state.hintsUsed.toDouble(),
                     ),
                     now(),
                 )
                 updated = DeskActions.saveCheckWallet(
                     updated,
-                    com.chroniclecryptogram.cipher.Merge.clipDailyWallet(
+                    Merge.clipDailyWallet(
                         state.puzzle.editionNumber,
-                        (com.chroniclecryptogram.cipher.model.Wallets.DAILY_CHECKS - state.checksRemaining).toDouble(),
-                        com.chroniclecryptogram.cipher.model.Wallets.DAILY_CHECKS,
+                        state.checksUsed.toDouble(),
+                        Wallets.DAILY_CHECKS,
                     ),
                     now(),
                 )

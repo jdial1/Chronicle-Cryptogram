@@ -30,10 +30,15 @@ const val LeaderboardListTag = "leaderboard-list"
 private const val BOARD_ROWS = 25
 
 /** What the board is doing, so the screen can say so rather than showing nothing. */
-sealed interface BoardState {
-    data object Loading : BoardState
-    data object Offline : BoardState
-    data class Ready(val standing: LeaderboardStanding) : BoardState
+/**
+ * Named for what it holds rather than for the screen that shows it: this used to
+ * be `BoardState`, which is also the name of the cipher board's state, so every
+ * file that touched both had to import one of them under an alias.
+ */
+sealed interface StandingsState {
+    data object Loading : StandingsState
+    data object Offline : StandingsState
+    data class Ready(val standing: LeaderboardStanding) : StandingsState
 }
 
 /**
@@ -47,7 +52,7 @@ sealed interface BoardState {
  */
 @Composable
 fun LeaderboardScreen(
-    state: BoardState,
+    state: StandingsState,
     playerUid: String?,
     modifier: Modifier = Modifier,
     /** Why the last posting did not go through, when it did not. */
@@ -76,13 +81,13 @@ fun LeaderboardScreen(
         }
 
         when (state) {
-            BoardState.Loading -> Notice("Reading the wire…")
+            StandingsState.Loading -> Notice("Reading the wire…")
 
-            BoardState.Offline -> Notice(
+            StandingsState.Offline -> Notice(
                 "The wire is down. Times post when the connection returns.",
             )
 
-            is BoardState.Ready -> {
+            is StandingsState.Ready -> {
                 if (state.standing.entries.isEmpty()) {
                     Notice("No times filed for this edition yet.")
                 } else {
