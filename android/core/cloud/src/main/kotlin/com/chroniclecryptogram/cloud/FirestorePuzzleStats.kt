@@ -168,8 +168,5 @@ class FirestorePuzzleStats(private val db: FirebaseFirestore) : PuzzleStatsRepos
 }
 
 /** Builds the counters, or the no-op ones when Firebase is absent. */
-fun createPuzzleStats(configured: Boolean): PuzzleStatsRepository = try {
-    if (configured) FirestorePuzzleStats(FirebaseFirestore.getInstance()) else NoPuzzleStats
-} catch (error: Throwable) {
-    NoPuzzleStats
-}
+fun createPuzzleStats(configured: Boolean): PuzzleStatsRepository =
+    firebaseOrElse(configured, NoPuzzleStats) { FirestorePuzzleStats(FirebaseFirestore.getInstance()) }

@@ -65,11 +65,38 @@ class GlyphCoverageTest {
 
     @Test
     fun `every bundled face loads`() {
-        val dir = File(repoRoot, "android/core/designsystem/src/main/res/font")
-        val faces = dir.listFiles { f -> f.extension == "ttf" }.orEmpty()
-        assertTrue(faces.size >= 12, "expected the 11 display faces plus the cipher font")
-        for (face in faces) {
+        for (face in bundledFaces()) {
             Font.createFont(Font.TRUETYPE_FONT, face)
         }
     }
+
+    /**
+     * Nothing is bundled that no type is set in.
+     *
+     * A face named in `Type.kt` cannot be stripped by resource shrinking, so an
+     * unused family is dead weight in every APK -- four of them were, for about
+     * 195KB, and the previous version of this test could not tell because it
+     * asserted a face *count*. A count goes stale the moment the design changes;
+     * this compares what is on disk against what the code actually names.
+     */
+    @Test
+    fun `no face is bundled that nothing draws with`() {
+        val declared = File(repoRoot, "android/core/designsystem/src/main/kotlin")
+            .walkTopDown()
+            .filter { it.name == "Type.kt" }
+            .flatMap { Regex("""R\.font\.(\w+)""").findAll(it.readText()) }
+            .map { it.groupValues[1] }
+            .toSet()
+
+        val bundled = bundledFaces().map { it.nameWithoutExtension }.toSet()
+
+        assertEquals(emptySet<String>(), bundled - declared, "bundled but never named")
+        assertEquals(emptySet<String>(), declared - bundled, "named but not bundled")
+    }
+
+    private fun bundledFaces(): List<File> =
+        File(repoRoot, "android/core/designsystem/src/main/res/font")
+            .listFiles { f -> f.extension == "ttf" }
+            .orEmpty()
+            .toList()
 }

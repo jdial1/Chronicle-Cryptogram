@@ -223,8 +223,5 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toStats() = GameStats
  * Lives here so `:app` never names a Firebase type and stays compilable in a
  * build with no credentials -- the same reasoning as [createAccountRepository].
  */
-fun createCloudDesk(configured: Boolean): CloudDesk = try {
-    if (configured) FirestoreDesk(FirebaseFirestore.getInstance()) else NoCloudDesk
-} catch (error: Throwable) {
-    NoCloudDesk
-}
+fun createCloudDesk(configured: Boolean): CloudDesk =
+    firebaseOrElse(configured, NoCloudDesk) { FirestoreDesk(FirebaseFirestore.getInstance()) }

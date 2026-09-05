@@ -2,6 +2,7 @@ package com.chroniclecryptogram.guide
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import com.chroniclecryptogram.designsystem.ChroniclePanel
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -96,15 +97,7 @@ fun GuideScreen(
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
     val colors = ChronicleTheme.colors
-    Column(
-        Modifier
-            // Capped before it fills; the other order leaves nothing to cap.
-            .widthIn(max = ReadingMeasure)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
-            .background(colors.paperCard)
-            .padding(12.dp),
-    ) {
+    ChroniclePanel(contentPadding = PaddingValues(12.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

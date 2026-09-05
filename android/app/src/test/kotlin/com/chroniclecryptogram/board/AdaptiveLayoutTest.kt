@@ -82,15 +82,13 @@ class AdaptiveLayoutTest {
         compose.onNodeWithContentDescription("Typewriter keyboard").assertExists()
     }
 
-    /** The breakpoints themselves, which are Material's 600dp and 840dp. */
+    /** The breakpoint itself, which is Material's 600dp. */
     @Test
     @Config(sdk = [34])
     fun `desk width is derived from the window, not a device category`() {
         assertEquals(DeskWidth.Compact, DeskWidth.fromWidth(360.dp))
         assertEquals(DeskWidth.Compact, DeskWidth.fromWidth(599.dp))
-        assertEquals(DeskWidth.Medium, DeskWidth.fromWidth(600.dp))
-        assertEquals(DeskWidth.Medium, DeskWidth.fromWidth(839.dp))
-        assertEquals(DeskWidth.Expanded, DeskWidth.fromWidth(840.dp))
+        assertEquals(DeskWidth.Expanded, DeskWidth.fromWidth(600.dp))
         assertEquals(DeskWidth.Expanded, DeskWidth.fromWidth(1280.dp))
     }
 
@@ -98,7 +96,6 @@ class AdaptiveLayoutTest {
     @Config(sdk = [34])
     fun `only an expanded window uses the side rail`() {
         assertTrue(!DeskWidth.Compact.usesSideRail)
-        assertTrue(!DeskWidth.Medium.usesSideRail)
         assertTrue(DeskWidth.Expanded.usesSideRail)
     }
 
@@ -107,7 +104,6 @@ class AdaptiveLayoutTest {
     @Config(sdk = [34])
     fun `wide windows cap the board to a reading measure`() {
         assertEquals(720.dp, DeskWidth.Expanded.boardMaxWidth)
-        assertEquals(640.dp, DeskWidth.Medium.boardMaxWidth)
         assertTrue(
             "a compact window should use all the width it has",
             DeskWidth.Compact.boardMaxWidth == androidx.compose.ui.unit.Dp.Unspecified,

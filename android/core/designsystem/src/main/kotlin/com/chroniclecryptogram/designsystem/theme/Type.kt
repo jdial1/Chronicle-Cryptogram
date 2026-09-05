@@ -20,6 +20,12 @@ import com.chroniclecryptogram.designsystem.R
  *
  * The TTFs are converted from the woff2 files the web already serves
  * (scripts/gen-fonts.mjs), so both surfaces render from identical outlines.
+ *
+ * Only the faces the app actually draws with are bundled. The web also defines
+ * Beth Ellen, UnifrakturMaguntia and Cinzel; nothing on Android sets type in
+ * them, and a face named here cannot be stripped by resource shrinking, so
+ * carrying them cost ~195KB of every APK for nothing. Add a family back when
+ * something draws with it, not before.
  */
 object ChronicleFonts {
 
@@ -34,21 +40,9 @@ object ChronicleFonts {
         Font(R.font.newsreader_700, FontWeight.Bold),
     )
 
-    /** `--font-treatise` on the web is the same family as the body face. */
-    val Treatise = Newspaper
-
     val Letterpress = FontFamily(Font(R.font.im_fell_english_400))
 
     val Typewriter = FontFamily(Font(R.font.special_elite_400))
-
-    val Handwritten = FontFamily(Font(R.font.beth_ellen_400))
-
-    val Gothic = FontFamily(Font(R.font.unifrakturmaguntia_400))
-
-    val Stamp = FontFamily(
-        Font(R.font.cinzel_700, FontWeight.Bold),
-        Font(R.font.cinzel_900, FontWeight.Black),
-    )
 
     /**
      * The 54 cipher glyphs, and nothing else.

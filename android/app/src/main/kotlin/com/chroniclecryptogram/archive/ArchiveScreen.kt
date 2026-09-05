@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import com.chroniclecryptogram.designsystem.ChroniclePanel
 import com.chroniclecryptogram.designsystem.ReadingMeasure
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -130,10 +131,7 @@ fun ArchiveScreen(
                         expanded = if (expanded == issue.editionNumber) null else issue.editionNumber
                     },
                     onOpen = onOpen,
-                    modifier = Modifier
-                        // Capped before it fills, for the same reason.
-                        .widthIn(max = ReadingMeasure)
-                        .fillMaxWidth(),
+                    modifier = Modifier,
                 )
             }
         }
@@ -181,12 +179,12 @@ private fun IssueRow(
     val nightSolved = issue.night?.id in solvedPuzzleIds
     val label = Edition.editionLabel(issue.editionNumber)
 
-    Column(
-        modifier
-            .padding(vertical = 3.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .background(colors.paperCard)
-            .border(1.dp, colors.paperRule, RoundedCornerShape(4.dp)),
+    ChroniclePanel(
+        modifier = modifier.padding(vertical = 3.dp),
+        border = colors.paperRule,
+        corner = 4.dp,
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.Top,
     ) {
         Row(
             Modifier

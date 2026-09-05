@@ -119,8 +119,5 @@ class FirestoreLeaderboard(private val db: FirebaseFirestore) : Leaderboard {
  * Lives here so `:app` never names a Firebase type and stays compilable in a
  * build with no credentials.
  */
-fun createLeaderboard(configured: Boolean): Leaderboard = try {
-    if (configured) FirestoreLeaderboard(FirebaseFirestore.getInstance()) else NoLeaderboard
-} catch (error: Throwable) {
-    NoLeaderboard
-}
+fun createLeaderboard(configured: Boolean): Leaderboard =
+    firebaseOrElse(configured, NoLeaderboard) { FirestoreLeaderboard(FirebaseFirestore.getInstance()) }

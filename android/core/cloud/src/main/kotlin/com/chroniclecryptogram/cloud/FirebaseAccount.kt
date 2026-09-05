@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.chroniclecryptogram.data.Account
 import com.chroniclecryptogram.data.AccountRepository
+import com.chroniclecryptogram.data.NoAccountRepository
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
@@ -133,12 +134,7 @@ private fun com.google.firebase.auth.FirebaseUser.toAccount() = Account(
  * Lives here so `:app` never names a Firebase type and stays compilable in a
  * build with no credentials.
  */
-fun createAccountRepository(webClientId: String): AccountRepository = try {
-    if (webClientId.isEmpty()) {
-        com.chroniclecryptogram.data.NoAccountRepository
-    } else {
+fun createAccountRepository(webClientId: String): AccountRepository =
+    firebaseOrElse(webClientId.isNotEmpty(), NoAccountRepository) {
         FirebaseAccount(FirebaseAuth.getInstance(), webClientId)
     }
-} catch (error: Throwable) {
-    com.chroniclecryptogram.data.NoAccountRepository
-}

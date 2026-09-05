@@ -10,7 +10,11 @@ import androidx.compose.ui.unit.dp
  *
  * Derived from the window's own width rather than from a device category: a
  * phone in landscape, a tablet, a foldable opened flat and a freeform window all
- * arrive here as widths, and the board only cares about the width.
+ * arrive here as widths.
+ *
+ * Width alone is not the whole story, and assuming it was is what made the game
+ * unplayable in landscape: a phone turned sideways is wide *and* short, so the
+ * desk also weighs its height before choosing the side rail. See `BoardScreen`.
  *
  * The web equivalent is a single `min-width: 640px` media query, which cannot
  * express "put the tools beside the board" -- so the tools stayed in a fixed
@@ -19,9 +23,6 @@ import androidx.compose.ui.unit.dp
 enum class DeskWidth {
     /** Phones, and anything narrow. Tools dock below the board. */
     Compact,
-
-    /** Large phones in landscape and small tablets. Wider tiles, roomier dock. */
-    Medium,
 
     /** Tablets, desktops, unfolded foldables. Tools move beside the board. */
     Expanded;
@@ -37,7 +38,6 @@ enum class DeskWidth {
     val boardMaxWidth: Dp
         get() = when (this) {
             Compact -> Dp.Unspecified
-            Medium -> 640.dp
             Expanded -> 720.dp
         }
 
@@ -45,19 +45,20 @@ enum class DeskWidth {
     val maxTileWidth: Dp
         get() = when (this) {
             Compact -> 56.dp
-            Medium -> 60.dp
             Expanded -> 64.dp
         }
 
     companion object {
         /**
-         * Material's own breakpoints: 600dp and 840dp. Named here so the board
-         * does not have to import the window-size-class API, and so tests can
-         * construct a width directly.
+         * Material's 600dp breakpoint. Named here so the board does not have to
+         * import the window-size-class API, and so a test can hand it a width.
+         *
+         * There used to be a Medium tier as well, at 840dp. It bought a 640dp
+         * board instead of 720dp and a 60dp tile instead of 64dp -- a difference
+         * nobody can see, expressed as a third case every `when` had to answer.
          */
         fun fromWidth(width: Dp): DeskWidth = when {
             width < 600.dp -> Compact
-            width < 840.dp -> Medium
             else -> Expanded
         }
     }

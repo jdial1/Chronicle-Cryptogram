@@ -3,6 +3,8 @@ package com.chroniclecryptogram.bureau
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import com.chroniclecryptogram.designsystem.ChroniclePanel
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -353,26 +355,9 @@ fun BureauScreen(
     }
 }
 
+/** The Bureau's sections are plain panels; the name is kept for the call sites. */
 @Composable
-private fun Card(content: @Composable ColumnScopeAlias.() -> Unit) {
-    val colors = ChronicleTheme.colors
-    Column(
-        Modifier
-            // The cap comes first: fillMaxWidth fixes the width, so a widthIn
-            // after it has nothing left to constrain. Left to fill, these cards
-            // spanned a landscape phone and put a label at one end of the desk
-            // with its value at the other.
-            .widthIn(max = ReadingMeasure)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
-            .background(colors.paperCard)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        content = content,
-    )
-}
-
-private typealias ColumnScopeAlias = androidx.compose.foundation.layout.ColumnScope
+private fun Card(content: @Composable ColumnScope.() -> Unit) = ChroniclePanel(content = content)
 
 @Composable
 private fun SectionTitle(text: String) {

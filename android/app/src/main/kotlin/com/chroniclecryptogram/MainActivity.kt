@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,31 +35,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import com.chroniclecryptogram.leaderboard.BoardState as LeaderboardBoardState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -95,10 +86,8 @@ import com.chroniclecryptogram.data.ThemeMode
 import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.theme.EditionSlot
-import com.chroniclecryptogram.data.CloudProfile
 import com.chroniclecryptogram.data.LeaderboardEntry
 import com.chroniclecryptogram.data.PuzzleLiveStats
-import com.chroniclecryptogram.data.hydrateFromCloud
 import com.chroniclecryptogram.data.TitleBadges
 import com.chroniclecryptogram.content.CaseFileContent
 import com.chroniclecryptogram.content.CipherTacticsContent
@@ -106,13 +95,11 @@ import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.guide.GuideScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import com.chroniclecryptogram.leaderboard.LeaderboardScreen
+import com.chroniclecryptogram.session.CloudSync
+import com.chroniclecryptogram.session.SyncTag
 import com.chroniclecryptogram.splash.SplashScreen
-import com.chroniclecryptogram.leaderboard.BoardState as LeaderboardBoardState
 
 class MainActivity : ComponentActivity() {
 
@@ -131,7 +118,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(kotlinx.coroutines.FlowPreview::class)
 @Composable
 private fun ChronicleApp() {
     val context = LocalContext.current
@@ -222,72 +208,14 @@ private fun ChronicleApp() {
         ThemeMode.Dark -> true
     }
 
-    // Sign-in pulls the cloud copy down and merges it into the local desk. The
-    // merge rules are the ones fixture-pinned against the web's localStore, so
-    // two devices disagreeing about a half-finished board resolves identically
-    // on both apps rather than one of them silently winning.
     val uid = account?.uid
-    LaunchedEffect(uid) {
-        if (uid != null) {
-            withContext(Dispatchers.IO) {
-                runCatching { store.hydrateFromCloud(cloud, uid) }
-            }
-        }
-    }
-
-    // ...and pushes back up. Debounced, because a keystroke changes the board
-    // and an unthrottled push would be one write per letter typed.
-    LaunchedEffect(uid) {
-        val id = uid ?: return@LaunchedEffect
-        store.state
-            .map { desk -> desk to desk.updatedAt }
-            .distinctUntilChangedBy { it.second }
-            .debounce(PUSH_DEBOUNCE_MS)
-            .collect { (desk, _) ->
-                withContext(Dispatchers.IO) {
-                    // Each write stands alone. Bundled in one runCatching, the
-                    // first refusal aborted every later write and reported
-                    // nothing -- which is how a user document that the rules
-                    // rejected went unnoticed while progress never synced.
-                    val failures = buildList {
-                        runCatching {
-                            cloud.pushStats(
-                                id,
-                                CloudProfile(
-                                    displayName = account?.displayName.orEmpty(),
-                                    codename = prefs.codename,
-                                    titleBadge = prefs.titleBadge,
-                                    countryCode = prefs.countryCode,
-                                ),
-                                desk.stats,
-                                desk.solvedPuzzleIds,
-                            )
-                        }.onFailure { add("profile: ${it.message}") }
-
-                        desk.progress.forEach { (puzzleId, progress) ->
-                            runCatching { cloud.pushProgress(id, puzzleId, progress) }
-                                .onFailure { add("progress $puzzleId: ${it.message}") }
-                        }
-
-                        desk.hints.forEach { (edition, hintWallet) ->
-                            val number = edition.toIntOrNull() ?: return@forEach
-                            runCatching {
-                                cloud.pushWallets(
-                                    id,
-                                    number,
-                                    hintWallet,
-                                    desk.checks[edition] ?: hintWallet,
-                                )
-                            }.onFailure { add("wallet $edition: ${it.message}") }
-                        }
-                    }
-
-                    if (failures.isNotEmpty()) {
-                        Log.w(SyncTag, "desk sync refused -- " + failures.joinToString("; "))
-                    }
-                }
-            }
-    }
+    CloudSync(
+        store = store,
+        cloud = cloud,
+        uid = uid,
+        displayName = account?.displayName,
+        prefs = prefs,
+    )
 
     var boardState by remember {
         mutableStateOf<LeaderboardBoardState>(
@@ -518,17 +446,6 @@ private fun ChronicleApp() {
  * Icons are not decoration here. A text-only bar leans entirely on reading, and
  * at a large font scale five words do not fit a narrow phone.
  */
-/**
- * How long the desk must be quiet before it is pushed to the cloud.
- *
- * Typing changes the board on every keystroke; the web debounces its writes for
- * the same reason. Long enough to coalesce a burst of typing, short enough that
- * closing the app straight after a solve still syncs it.
- */
-private const val SyncTag = "ChronicleSync"
-
-private const val PUSH_DEBOUNCE_MS = 2_000L
-
 @Composable
 internal fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
     val colors = ChronicleTheme.colors
