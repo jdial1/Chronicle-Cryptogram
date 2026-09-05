@@ -3,6 +3,10 @@ plugins {
 }
 
 android {
+    testOptions {
+        unitTests.all { it.useJUnitPlatform() }
+    }
+
     namespace = "com.chroniclecryptogram.cloud"
     compileSdk = 37
     defaultConfig { minSdk = 26 }
@@ -30,4 +34,7 @@ dependencies {
     implementation(libs.google.identity.googleid)
     // firebase-*.await() extensions.
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

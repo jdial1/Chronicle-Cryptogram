@@ -1,6 +1,7 @@
 package com.chroniclecryptogram.cloud
 
 import android.app.Activity
+import android.util.Log
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
@@ -107,19 +108,56 @@ class SignInProblem(message: String, cause: Throwable) : Exception(message, caus
  * signing certificate of the installed build is registered with the Firebase
  * project, so a debug build and a Play build each need their own SHA-1.
  */
-private fun explain(error: GetCredentialException): String = when (error) {
-    is GetCredentialCancellationException -> "Sign-in cancelled."
+private fun explain(error: GetCredentialException): String {
+    // The raw text is for whoever is holding the logs, never for the player.
+    Log.w(AuthTag, "google sign-in failed: ${error.type}: ${error.message}")
 
-    is NoCredentialException ->
-        "No Google account was offered. Either there is no Google account on " +
-            "this device, or this build's signing certificate is not registered " +
-            "with the bureau's Firebase project."
+    return when {
+        error is GetCredentialCancellationException -> "Sign-in cancelled."
 
-    is GetCredentialProviderConfigurationException ->
-        "Google Play services is missing or out of date on this device."
+        error is GetCredentialProviderConfigurationException ->
+            "Google Play services is missing or out of date on this device."
 
-    else -> error.message ?: "Sign-in failed."
+        error is NoCredentialException ->
+            "No Google account was offered. Either there is no Google account on " +
+                "this device, or this build's signing certificate is not registered " +
+                "with the bureau's Firebase project."
+
+        // Play services hands back its own status text here, and it is written
+        // for whoever set the project up: "[28444] Developer console is not set
+        // up correctly." is true, actionable, and completely opaque to someone
+        // who just wanted to save their progress. A player can do nothing about
+        // it, so they are told what it means for them and the detail goes to the
+        // log instead.
+        isConfigurationFailure(error.message) ->
+            "Sign-in is not available in this build. Everything else works, and " +
+                "your progress is kept on this device."
+
+        else -> "Sign-in failed. Your progress is safe on this device."
+    }
 }
+
+/**
+ * A failure on the project's side rather than the player's or the device's.
+ *
+ * Matched on the message because Credential Manager collapses every Play
+ * services status into one exception type; the bracketed code is the only thing
+ * distinguishing "your console is misconfigured" from a transient error.
+ */
+internal fun isConfigurationFailure(message: String?): Boolean {
+    val text = message.orEmpty()
+    return "Developer console" in text ||
+        "not set up correctly" in text ||
+        CONFIGURATION_STATUS_CODES.any { "[$it]" in text }
+}
+
+/** Play services statuses that mean the OAuth project is not ready. */
+private val CONFIGURATION_STATUS_CODES = listOf(
+    28444, // DEVELOPER_CONSOLE_IS_NOT_SET_UP_CORRECTLY
+    10,    // DEVELOPER_ERROR: package or certificate does not match a client
+)
+
+private const val AuthTag = "ChronicleAuth"
 
 private fun com.google.firebase.auth.FirebaseUser.toAccount() = Account(
     uid = uid,
