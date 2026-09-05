@@ -530,7 +530,7 @@ private const val SyncTag = "ChronicleSync"
 private const val PUSH_DEBOUNCE_MS = 2_000L
 
 @Composable
-private fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
+internal fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
     val colors = ChronicleTheme.colors
 
     Row(
@@ -586,7 +586,7 @@ private val inkRule = Color(0xFF1C1A17)
  * gets it past 48dp without a stock component doing it.
  */
 @Composable
-private fun DeskBarItem(
+internal fun DeskBarItem(
     label: String,
     icon: Int,
     selected: Boolean,

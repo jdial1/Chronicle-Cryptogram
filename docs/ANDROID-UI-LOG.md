@@ -222,9 +222,37 @@ current behaviour so it stays a known divergence rather than a lurking one.
 
 ---
 
-## Pass 7 — next
+## Pass 7 — the section rail's accessibility, and a false alarm
 
-- **TalkBack order and grouping.** Labels exist everywhere; whether the reading
-  order and grouping make sense has not been checked.
+**Theme:** the open section is marked by a cinnabar rule and heavier type,
+neither of which a screen reader can see. Does the rail say which section you
+are in?
+
+**It does.** `uiautomator dump` reports `selected="false"` on all five items,
+including the open one, and that reading is wrong: it is describing a container
+node, not the merged semantics node an accessibility service consumes. A Compose
+test asserting `assertIsSelected()` passes, and passes on the untouched code —
+verified by reverting and re-running, not assumed.
+
+**What this pass actually produced:** `DeskBarTest`, which pins the contract that
+was already being met. Worth having — the visual cue being correct is precisely
+why a missing `selected` would go unnoticed — but no bug was found.
+
+**The lesson is about the tool.** `uiautomator` has been reliable for driving
+taps and for asking "is this on screen at all", which is what found the landscape
+board. It is not a substitute for the semantics tree when the question is what a
+screen reader will announce. For that, use a Compose test.
+
+I briefly rewrote `Modifier.selectable` into `clickable` plus a hand-written
+semantics block to "fix" this, then reverted it: the idiomatic version was right
+all along.
+
+---
+
+## Pass 8 — next
+
 - **The night edition.** Every screen has been seen on night *paper*, but no
   Night Extra puzzle has been opened, which is a different thing.
+- **Reading order.** Pass 7 checked selection state, not traversal order.
+- **The archive at depth.** Only the first chapter has been opened; editions in
+  the twenties, and the season finale, have never been on screen.
