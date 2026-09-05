@@ -40,9 +40,11 @@ jobs:
         working-directory: android
         run: ./gradlew test --no-daemon
 
+      # Release as well as debug: it is the variant that ships, and it is the
+      # one whose report had gone unread. Both now fail on warnings.
       - name: Lint
         working-directory: android
-        run: ./gradlew :app:lintDebug --no-daemon
+        run: ./gradlew :app:lintDebug :app:lintRelease --no-daemon
 
       - name: Assemble debug APK
         working-directory: android

@@ -191,6 +191,23 @@ android {
             all { it.useJUnitPlatform() }
         }
     }
+
+    lint {
+        // The Kotlin compiler here already runs with allWarningsAsErrors, and a
+        // lint report nothing fails on is a report nobody reads: twenty-one
+        // warnings had accumulated unnoticed because the build only ever gated
+        // on lintVital, which is the fatal subset.
+        warningsAsErrors = true
+
+        // The one check that would break a green build without anyone touching
+        // the code: it fires whenever a newer version of a dependency is
+        // published, which is a fact about Maven Central and not about this
+        // commit. Upgrades are a deliberate act; `./gradlew :app:lintRelease
+        // -PchronicleCheckUpdates=true` reports them on demand.
+        if (!providers.gradleProperty("chronicleCheckUpdates").isPresent) {
+            disable += "GradleDependency"
+        }
+    }
 }
 
 kotlin {
