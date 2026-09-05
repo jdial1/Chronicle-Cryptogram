@@ -96,13 +96,7 @@ if (System.getenv("ANDROID_PUBLISHER_CREDENTIALS") != null) {
  */
 val chronicleSdk = providers.gradleProperty("chronicleTargetSdk").get().toInt()
 
-/**
- * Install beside the Play build rather than trying to replace it.
- *
- * Only valid because `com.chroniclecryptogram.app` is a registered Firebase
- * client carrying the debug certificate; check `google-services.json` before
- * changing the suffix.
- */
+/** Install beside the Play build rather than trying to replace it. */
 /**
  * The Play build number.
  *
@@ -160,33 +154,21 @@ android {
         debug {
             versionNameSuffix = "-debug"
 
-            // Sideloading onto a phone that already has the Play build fails:
-            // Play owns com.chroniclecryptogram and signs it with its own key,
-            // and Android will not let a differently-signed APK take over a
-            // package. The device reports only "You can't install this app on
-            // your phone", which says nothing about certificates.
+            // Sideloading onto a phone that already carries the Play build
+            // fails: Play owns com.chroniclecryptogram and signs it with its own
+            // key, and Android will not let a differently-signed APK take over a
+            // package. The device says only "You can't install this app on your
+            // phone", which mentions no certificate.
             //
-            // -PchronicleSideload=true installs under a second application id
-            // instead. It is not an arbitrary suffix: google-services.json
-            // registers com.chroniclecryptogram.app as a client in its own
-            // right, carrying this same debug certificate, so Firebase keeps
-            // working. Any other suffix would silently lose it.
-            //
-            // Two caveats, both learned the hard way.
-            //
-            // It is the id the retired Expo shell shipped under, so a device
-            // still carrying that build hits the same signature conflict here.
-            // No suffix dodges a signature mismatch -- only a package name
-            // nothing else already owns.
-            //
-            // And `.app` was an abandoned Play attempt: the bundle did not match
-            // the console's project, so it was never submitted. Firebase still
-            // lists it, but its OAuth setup was left half-finished, which is a
-            // likely source of `[28444] Developer console is not set up
-            // correctly` when signing in under this id. Use it to exercise the
-            // game; test sign-in on the real package instead.
+            // -PchronicleSideload=true installs under a second application id so
+            // the two coexist. The suffix is arbitrary and that is the point:
+            // nothing but a name nothing else already owns dodges a signature
+            // mismatch. It used to be `.app`, chosen because google-services.json
+            // registered that id -- a reason that died with the cloud build, and
+            // one that had it pointing at the id the retired Expo shell already
+            // owned, which is the one collision it needed to avoid.
             if (sideloadAlongsidePlay) {
-                applicationIdSuffix = ".app"
+                applicationIdSuffix = ".sideload"
                 versionNameSuffix = "-sideload"
             }
         }

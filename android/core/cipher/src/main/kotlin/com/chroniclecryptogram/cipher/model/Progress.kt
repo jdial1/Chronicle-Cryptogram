@@ -53,6 +53,4 @@ data class DailyHintWallet(
 object Wallets {
     const val DAILY_HINTS = 3
     const val DAILY_CHECKS = 3
-
-    val defaultGameStats = GameStats()
 }

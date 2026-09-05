@@ -1,23 +1,14 @@
 package com.chroniclecryptogram.bureau
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import com.chroniclecryptogram.designsystem.PaperList
 import com.chroniclecryptogram.designsystem.ChroniclePanel
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.widthIn
-import com.chroniclecryptogram.designsystem.ReadingMeasure
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -27,7 +18,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -37,13 +27,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -53,6 +42,8 @@ import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
 import com.chroniclecryptogram.data.ThemeMode
 import com.chroniclecryptogram.data.TitleBadges
+import com.chroniclecryptogram.designsystem.ChronicleDialog
+import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 const val BureauListTag = "bureau-list"
@@ -95,68 +86,35 @@ fun BureauScreen(
     var confirmingDelete by remember { mutableStateOf(false) }
 
     if (confirmingDelete) {
-        AlertDialog(
+        ChronicleDialog(
+            title = "Delete account",
             onDismissRequest = { confirmingDelete = false },
-            containerColor = colors.paperCard,
-            titleContentColor = colors.ink,
-            textContentColor = colors.ink,
-            // As above: square corners and an ink rule, so a dialog reads as a
-            // slip of paper rather than a Material surface.
-            shape = RoundedCornerShape(4.dp),
-            modifier = Modifier.border(2.dp, colors.ink, RoundedCornerShape(4.dp)),
-            title = { Text("Delete account", color = colors.ink) },
-            text = {
-                Text(
-                    // Says exactly what goes and what stays. The solve receipts
-                    // are non-deletable by rule -- they carry no personal data,
-                    // and being able to delete one would let a client re-run the
-                    // public solve counters.
-                    text = "This deletes your account and everything filed under " +
-                        "it: progress, posted times and your place on the board. " +
-                        "It cannot be undone. Progress on this device is kept.",
-                    color = colors.ink,
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
+            confirm = DialogAction(
+                // Paired with "Keep it" and distinct from the dialog's own
+                // title, so the destructive choice reads as a choice.
+                label = "Delete it",
+                onClick = {
                     confirmingDelete = false
                     onDeleteAccount()
-                }) {
-                    // Paired with "Keep it" and distinct from the dialog's
-                    // own title, so the destructive choice reads as a choice.
-                    Text("Delete it", color = colors.cinnabar)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmingDelete = false }) {
-                    Text("Keep it", color = colors.ink)
-                }
-            },
-        )
-    }
-
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.paper)
-            .safeDrawingPadding()
-            .testTag(BureauListTag),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        item {
+                },
+                destructive = true,
+            ),
+            dismiss = DialogAction(label = "Keep it", onClick = { confirmingDelete = false }),
+        ) {
             Text(
-                text = "Bureau File",
-                style = MaterialTheme.typography.displayMedium,
+                // Says exactly what goes and what stays. The solve receipts are
+                // non-deletable by rule -- they carry no personal data, and
+                // being able to delete one would let a client re-run the public
+                // solve counters.
+                text = "This deletes your account and everything filed under " +
+                    "it: progress, posted times and your place on the board. " +
+                    "It cannot be undone. Progress on this device is kept.",
                 color = colors.ink,
-                modifier = Modifier
-                    .widthIn(max = ReadingMeasure)
-                    .fillMaxWidth()
-                    .semantics { heading() },
             )
         }
+    }
 
+    PaperList(title = "Bureau File", testTag = BureauListTag, modifier = modifier) {
         item {
             // The campaign stat that replaced the streak, which only ever
             // incremented and was tautological under progression gating.
@@ -243,13 +201,7 @@ fun BureauScreen(
                     singleLine = true,
                     placeholder = { Text("Unsigned", color = colors.paperRule) },
                     supportingText = { Text("${prefs.codename.length} of 24") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = colors.ink,
-                        unfocusedTextColor = colors.ink,
-                        focusedBorderColor = colors.brass,
-                        unfocusedBorderColor = colors.paperRule,
-                        cursorColor = colors.brass,
-                    ),
+                    colors = paperFieldColors(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics { contentDescription = "Codename" },
@@ -265,13 +217,7 @@ fun BureauScreen(
                     singleLine = true,
                     isError = prefs.countryCode.length != 2,
                     supportingText = { Text("Two letters, like US") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = colors.ink,
-                        unfocusedTextColor = colors.ink,
-                        focusedBorderColor = colors.brass,
-                        unfocusedBorderColor = colors.paperRule,
-                        cursorColor = colors.brass,
-                    ),
+                    colors = paperFieldColors(),
                     modifier = Modifier.semantics { contentDescription = "Country code" },
                 )
             }
@@ -355,6 +301,26 @@ fun BureauScreen(
     }
 }
 
+/**
+ * Ink on ruled paper, for the three text fields on this screen.
+ *
+ * Written out three times before this, identically but for one field dropping
+ * the cursor colour -- which is exactly the drift a repeated recipe produces,
+ * and it made the dropdown's caret Material purple on a page with no purple
+ * anywhere else.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun paperFieldColors() = ChronicleTheme.colors.let { colors ->
+    OutlinedTextFieldDefaults.colors(
+        focusedTextColor = colors.ink,
+        unfocusedTextColor = colors.ink,
+        focusedBorderColor = colors.brass,
+        unfocusedBorderColor = colors.paperRule,
+        cursorColor = colors.brass,
+    )
+}
+
 /** The Bureau's sections are plain panels; the name is kept for the call sites. */
 @Composable
 private fun Card(content: @Composable ColumnScope.() -> Unit) = ChroniclePanel(content = content)
@@ -436,12 +402,7 @@ private fun TitlePicker(selected: String, onSelect: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(open) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = colors.ink,
-                unfocusedTextColor = colors.ink,
-                focusedBorderColor = colors.brass,
-                unfocusedBorderColor = colors.paperRule,
-            ),
+            colors = paperFieldColors(),
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()

@@ -19,23 +19,20 @@ import androidx.compose.ui.unit.Density
  * only make the truncation tidier; the labels would still be unreadable, and
  * these are the app's primary navigation.
  *
- * So chrome scales up to [maxScale] and then stops. That keeps large type doing
+ * So chrome scales up to [DefaultChromeScale] and then stops. That keeps large type doing
  * real work — these labels are still half again their default size at 2.0 — while
  * the words survive. It is applied only to short labels that sit beside an icon
  * carrying the same meaning, never to content.
  */
 @Composable
-fun CompactChrome(
-    maxScale: Float = DefaultChromeScale,
-    content: @Composable () -> Unit,
-) {
+fun CompactChrome(content: @Composable () -> Unit) {
     val density = LocalDensity.current
-    if (density.fontScale <= maxScale) {
+    if (density.fontScale <= DefaultChromeScale) {
         content()
         return
     }
     CompositionLocalProvider(
-        LocalDensity provides Density(density.density, maxScale),
+        LocalDensity provides Density(density.density, DefaultChromeScale),
         content = content,
     )
 }

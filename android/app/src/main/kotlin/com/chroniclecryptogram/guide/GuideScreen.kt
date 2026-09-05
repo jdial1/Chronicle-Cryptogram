@@ -1,25 +1,15 @@
 package com.chroniclecryptogram.guide
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import com.chroniclecryptogram.designsystem.PaperList
 import com.chroniclecryptogram.designsystem.ChroniclePanel
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.widthIn
-import com.chroniclecryptogram.designsystem.ReadingMeasure
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -47,24 +37,11 @@ fun GuideScreen(
 ) {
     val colors = ChronicleTheme.colors
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.paper)
-            .safeDrawingPadding()
-            .testTag(GuideListTag),
-        contentPadding = PaddingValues(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    PaperList(
+        title = "The Codebreaker's Handbook",
+        testTag = GuideListTag,
+        modifier = modifier,
     ) {
-        item {
-            Text(
-                text = "The Codebreaker's Handbook",
-                style = MaterialTheme.typography.displayMedium,
-                color = colors.ink,
-                modifier = Modifier.semantics { heading() },
-            )
-        }
         item {
             Text(
                 text = tactics.intro,

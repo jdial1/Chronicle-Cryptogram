@@ -2,7 +2,6 @@ package com.chroniclecryptogram.board
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +19,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -51,6 +48,8 @@ import com.chroniclecryptogram.data.PuzzleLiveStats
 import com.chroniclecryptogram.designsystem.DeskWidth
 import com.chroniclecryptogram.designsystem.scannedPaper
 import com.chroniclecryptogram.designsystem.LocalDeskWidth
+import com.chroniclecryptogram.designsystem.ChronicleDialog
+import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 /**
@@ -138,40 +137,26 @@ fun BoardScreen(
 
 @Composable
 private fun ClearLettersDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    val colors = ChronicleTheme.colors
-    AlertDialog(
+    ChronicleDialog(
+        title = "Clear letters",
         onDismissRequest = onDismiss,
-        containerColor = colors.paperCard,
-        titleContentColor = colors.ink,
-        textContentColor = colors.ink,
-        // A filed dispatch, not a Material card. The stock 28dp corner radius is
-        // the single most recognisable Material tell, and this app is printed.
-        shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.border(2.dp, colors.ink, RoundedCornerShape(4.dp)),
-        title = { Text("Clear letters", color = colors.ink) },
-        text = {
-            Text(
-                "This wipes every mapped letter on this edition. The cipher itself stays.",
-                color = colors.ink,
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                modifier = Modifier.semantics { contentDescription = "Confirm clearing every letter" },
-            ) {
-                Text("Clear letters", color = colors.cinnabar)
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.semantics { contentDescription = "Keep working" },
-            ) {
-                Text("Keep working", color = colors.ink)
-            }
-        },
-    )
+        confirm = DialogAction(
+            label = "Clear letters",
+            onClick = onConfirm,
+            destructive = true,
+            description = "Confirm clearing every letter",
+        ),
+        dismiss = DialogAction(
+            label = "Keep working",
+            onClick = onDismiss,
+            description = "Keep working",
+        ),
+    ) {
+        Text(
+            "This wipes every mapped letter on this edition. The cipher itself stays.",
+            color = ChronicleTheme.colors.ink,
+        )
+    }
 }
 
 @Composable

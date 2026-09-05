@@ -27,18 +27,18 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
  * the corner radius came to differ between screens and how the reading measure
  * was applied to some rows and not others.
  *
- * The measure is on by default because every caller wanted it: a card that fills
- * a landscape phone puts a label at one end of the desk and its value at the
- * other. Pass `Dp.Unspecified` for the few places that genuinely span.
+ * The reading measure is not a parameter. It was written as one, with an escape
+ * hatch "for the few places that genuinely span", and no caller has ever taken
+ * it: a card that fills a landscape phone puts a label at one end of the desk
+ * and its value at the other, which is true of every one of them. The same went
+ * for the card stock, which nothing ever changed either.
  */
 @Composable
 fun ChroniclePanel(
     modifier: Modifier = Modifier,
-    background: Color = ChronicleTheme.colors.paperCard,
     /** Null for no rule, which is the common case. */
     border: Color? = null,
     corner: Dp = 6.dp,
-    maxWidth: Dp = ReadingMeasure,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(6.dp),
     content: @Composable ColumnScope.() -> Unit,
@@ -49,10 +49,10 @@ fun ChroniclePanel(
             // Capped before it fills. The other order fixes the width first and
             // leaves the cap nothing to constrain -- a mistake this codebase has
             // made twice.
-            .then(if (maxWidth != Dp.Unspecified) Modifier.widthIn(max = maxWidth) else Modifier)
+            .widthIn(max = ReadingMeasure)
             .fillMaxWidth()
             .clip(shape)
-            .background(background)
+            .background(ChronicleTheme.colors.paperCard)
             .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier)
             .padding(contentPadding),
         verticalArrangement = verticalArrangement,

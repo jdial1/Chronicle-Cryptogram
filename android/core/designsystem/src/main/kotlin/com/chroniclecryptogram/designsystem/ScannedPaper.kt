@@ -4,7 +4,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -17,16 +16,12 @@ import androidx.compose.ui.unit.dp
  * size -- a few hundred at most -- and it is drawn behind static content, so it
  * costs one pass and never re-runs while the player types.
  */
-fun Modifier.scannedPaper(
-    fill: Color,
-    dot: Color,
-    spacing: Dp = 12.dp,
-    radius: Dp = 0.9.dp,
-): Modifier = drawBehind {
+fun Modifier.scannedPaper(fill: Color, dot: Color): Modifier = drawBehind {
     drawRect(fill)
-    val step = spacing.toPx()
-    if (step <= 0f) return@drawBehind
-    val r = radius.toPx()
+    // The web's grid, in its units. Both call sites want the same paper, so the
+    // spacing and dot size are the recipe rather than arguments.
+    val step = 12.dp.toPx()
+    val r = 0.9.dp.toPx()
 
     var y = step / 2f
     while (y < size.height) {

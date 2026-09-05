@@ -84,6 +84,14 @@ val ChronicleTypography = Typography(
         fontSize = 24.sp,
         lineHeight = 30.sp,
     ),
+    // What Material3 titles an AlertDialog with. It had no entry here, so every
+    // dialog in a printed newspaper announced itself in Roboto -- visible in one
+    // place only once the three hand-rolled dialogs became ChronicleDialog.
+    headlineSmall = TextStyle(
+        fontFamily = ChronicleFonts.Letterpress,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
+    ),
     titleMedium = TextStyle(
         fontFamily = ChronicleFonts.Newspaper,
         fontWeight = FontWeight.Bold,

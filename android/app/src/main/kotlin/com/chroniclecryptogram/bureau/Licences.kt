@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -23,6 +21,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.chroniclecryptogram.designsystem.ChronicleDialog
+import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import com.chroniclecryptogram.designsystem.R as DesignR
 
@@ -156,29 +156,21 @@ private fun LicenceDialog(licence: Licence, onDismiss: () -> Unit) {
             .use { it.readText() }
     }
 
-    AlertDialog(
+    ChronicleDialog(
+        title = licence.label,
         onDismissRequest = onDismiss,
-        containerColor = colors.paperCard,
-        titleContentColor = colors.ink,
-        textContentColor = colors.ink,
-        shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.border(2.dp, colors.ink, RoundedCornerShape(4.dp)),
-        title = { Text(licence.label, color = colors.ink) },
-        text = {
-            Text(
-                text = text,
-                // Monospace and small: both texts are laid out in fixed columns
-                // and reflowing them into the body face makes the section
-                // headings unreadable.
-                fontFamily = FontFamily.Monospace,
-                fontSize = 10.sp,
-                lineHeight = 14.sp,
-                color = colors.ink,
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Close", color = colors.ink) }
-        },
-    )
+        confirm = DialogAction(label = "Close", onClick = onDismiss),
+    ) {
+        Text(
+            text = text,
+            // Monospace and small: both texts are laid out in fixed columns and
+            // reflowing them into the body face makes the section headings
+            // unreadable.
+            fontFamily = FontFamily.Monospace,
+            fontSize = 10.sp,
+            lineHeight = 14.sp,
+            color = colors.ink,
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+        )
+    }
 }

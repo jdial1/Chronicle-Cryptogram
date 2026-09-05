@@ -36,8 +36,6 @@ object Edition {
 
     fun isHardPuzzle(puzzle: PuzzleData): Boolean = puzzleMode(puzzle) == PuzzleMode.HARD
 
-    fun matchesMode(puzzle: PuzzleData, mode: PuzzleMode): Boolean = puzzleMode(puzzle) == mode
-
     /** Night extra: the evening slot, or a hard plate (legacy records carry no slot). */
     fun isNightEdition(puzzle: PuzzleData): Boolean =
         puzzle.editionSlot == "Evening" || isHardPuzzle(puzzle)
@@ -121,20 +119,6 @@ object Edition {
     fun chapterForEdition(editionNumber: Int): IssueChapter =
         issueChapters.firstOrNull { editionNumber >= it.from && editionNumber <= it.to }
             ?: issueChapters.last()
-
-    fun groupIssuesByChapter(issues: List<Issue>): List<Pair<IssueChapter, List<Issue>>> {
-        val chapters = ArrayList<Pair<IssueChapter, MutableList<Issue>>>()
-        for (issue in issues) {
-            val meta = chapterForEdition(issue.editionNumber)
-            val last = chapters.lastOrNull()
-            if (last == null || last.first.week != meta.week) {
-                chapters += meta to mutableListOf(issue)
-            } else {
-                last.second += issue
-            }
-        }
-        return chapters.map { it.first to it.second.toList() }
-    }
 
     /** Every issue in the season, locked or not. Callers render lock state from [frontPageEdition]. */
     fun groupIssues(puzzles: List<PuzzleData>): List<Issue> {

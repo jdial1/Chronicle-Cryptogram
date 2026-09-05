@@ -44,12 +44,6 @@ object PuzzleState {
     fun decodedMappingsFromPuzzle(puzzle: PuzzleData): Map<String, String> =
         cipherForPuzzle(puzzle).decoded
 
-    fun decodedMappings(cells: List<Pair<String, String>>): Map<String, String> {
-        val next = LinkedHashMap<String, String>()
-        for ((symbolId, targetLetter) in cells) next[symbolId] = targetLetter
-        return next
-    }
-
     /** Forces every hinted or verified symbol to its true letter. */
     fun withHintedMappings(
         puzzle: PuzzleData,
