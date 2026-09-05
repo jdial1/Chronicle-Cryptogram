@@ -1,7 +1,10 @@
 package com.chroniclecryptogram.board
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
@@ -109,5 +112,43 @@ class AdaptiveLayoutTest {
             "a compact window should use all the width it has",
             DeskWidth.Compact.boardMaxWidth == androidx.compose.ui.unit.Dp.Unspecified,
         )
+    }
+
+    /**
+     * The case every earlier test in this file missed.
+     *
+     * They asserted the tools existed, which stayed true while the board itself
+     * was squeezed to nothing: on a phone in landscape the desk is ~310dp tall,
+     * the side rail alone wanted ~260dp of it, and the cipher rendered zero
+     * visible tiles. Asserting a glyph is on screen is what actually catches it.
+     */
+    @Test
+    @Config(sdk = [34], qualifiers = "w891dp-h411dp")
+    fun `a phone in landscape still shows the cipher`() {
+        showBoard()
+
+        // Every tile matches, which is the point: before the fix there were none.
+        compose.onAllNodesWithContentDescription("Cipher glyph", substring = true)
+            .onFirst()
+            .assertExists()
+
+        // ...and the instrument is still reachable beside it.
+        compose.onNodeWithContentDescription("Typewriter keyboard").assertExists()
+        compose.onNodeWithContentDescription(
+            "Wipe every guess and start the quote over.",
+        ).assertExists()
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w891dp-h411dp")
+    fun `a short desk drops the press plate rather than the cipher`() {
+        showBoard()
+        // The masthead's woodcut is decoration and goes first; the headline and
+        // the board both stay.
+        compose.onNodeWithText(puzzle.headline).assertExists()
+        // Every tile matches, which is the point: before the fix there were none.
+        compose.onAllNodesWithContentDescription("Cipher glyph", substring = true)
+            .onFirst()
+            .assertExists()
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -83,6 +84,15 @@ fun TypewriterKeyboard(
     onLetter: (String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
+    /**
+     * The most vertical room the bank may take.
+     *
+     * Sizing keys from width alone is fine on a phone held upright and wrong the
+     * moment it is turned: in landscape the widest row licenses 52dp keys, three
+     * rows of which swallowed the whole window and left the cipher clipped to
+     * nothing. Unspecified keeps the width-only behaviour.
+     */
+    maxHeight: Dp = Dp.Unspecified,
 ) {
     BoxWithConstraints(
         modifier
@@ -94,7 +104,18 @@ fun TypewriterKeyboard(
         val gap = 4.dp
         // Ten keys plus their gaps have to fit the widest row.
         val available = maxWidth - (gap * 9) - 8.dp
-        val key = (available / 10).coerceIn(28.dp, 52.dp)
+        val byWidth = available / 10
+
+        // Three rows, their two gaps, and the bed's own padding.
+        val byHeight = if (maxHeight == Dp.Unspecified) {
+            byWidth
+        } else {
+            (maxHeight - (gap * 2) - 18.dp) / 3
+        }
+
+        // The tighter of the two dimensions wins, then the floor keeps the keys
+        // touchable rather than letting a very short window shrink them away.
+        val key = minOf(byWidth, byHeight).coerceIn(28.dp, 52.dp)
 
         Column(
             Modifier
@@ -102,11 +123,17 @@ fun TypewriterKeyboard(
                 .background(BankInk)
                 .padding(horizontal = 4.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(gap),
+            // Centred, not left-aligned. When the keys are capped -- a wide
+            // window, or a short one that forced them small -- the bank was
+            // left sitting against one edge with a slab of empty bed beside it.
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Rows.forEachIndexed { index, row ->
                 Row(
                     Modifier
-                        .fillMaxWidth()
+                        // Width from the keys themselves, so the row can be
+                        // centred as a unit and keep its stagger.
+                        .wrapContentWidth()
                         // The stagger: 0.48 and 0.28 of a key, per board.css.
                         .padding(
                             start = when (index) {

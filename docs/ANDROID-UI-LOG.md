@@ -126,13 +126,52 @@ console, but at a much smaller patch of it than pass 2 claimed.
 
 ---
 
-## Pass 4 — next
+## Pass 4 — rotation
 
-- **Rotation and short screens.** Nothing has been looked at in landscape, where
-  the dock, keyboard and board compete for a much shorter viewport.
+**Theme:** turn the phone sideways. Never looked at before this pass.
+
+**Found:** the game was **unplayable in landscape.** The cipher rendered zero
+visible tiles — not clipped, not scrolled, simply not on screen. The desk is
+about 310dp tall there, and everything else took its cut first.
+
+Three separate causes, found in order by measuring rather than guessing:
+
+1. **The side rail was the tall one, not the keyboard.** `usesSideRail` is
+   chosen on width alone, and a phone in landscape is wide but short: five
+   stacked tools at the 48dp accessible minimum come to ~260dp of a ~310dp desk.
+   It is now chosen on height as well, and a short desk gets the flat dock,
+   which costs one row instead of five.
+2. **The keyboard sized itself from width alone.** At 881dp wide the widest row
+   licensed 52dp keys; three rows of those swallowed the window. It now takes a
+   height budget and uses whichever dimension is tighter.
+3. **Even then the stack did not fit.** Masthead, board, dock and keyboard
+   cannot share 310dp. On a wide, short desk they are now laid out **side by
+   side** — board left, instrument right — which gives the board the full height
+   and the keyboard its own width. The masthead drops its press plate and goes
+   to one line, since decoration yields before the cipher does.
+
+**Also fixed on the way**
+
+- **The board kept the previous edition's scroll position.** Opening a new
+  puzzle left it wherever the last one had been scrolled to, which in a short
+  window meant landing on blank paper. Each edition now starts at its own top.
+- **The key bank sat against one edge** with a slab of empty bed beside it
+  whenever the keys were capped. Centred now.
+
+**Why the existing tests missed all of it:** `AdaptiveLayoutTest` asserted that
+the *tools* existed, which stayed true the entire time the board was being
+squeezed to nothing. The new landscape cases assert a cipher tile is on screen —
+before the fix, zero matched; after it, twenty-nine do.
+
+---
+
+## Pass 5 — next
+
 - **TalkBack order and grouping.** Labels exist everywhere; whether the reading
   order and grouping make sense has not been checked.
 - **The share clipping.** Rendered but never opened: nobody has looked at the
   image `Clipping` actually produces.
 - **The night edition.** Every screen has been seen on night *paper*, but no
   Night Extra puzzle has been opened, which is a different thing.
+- **Landscape for the other screens.** Only the desk was looked at this pass;
+  archive, bureau, guide and case file were not.
