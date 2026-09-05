@@ -17,6 +17,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.designsystem.theme.ChronicleTypography
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -482,7 +485,15 @@ private fun ChronicleApp() {
                     )
                 }
             }
-            DeskBar(current = navigator.current, onGo = navigator::go)
+            // The section rail steps aside for the keyboard. It would be
+            // behind the IME and unreachable anyway -- and leaving it in the
+            // layout makes the board's imePadding over-inset by exactly the
+            // rail's height, which is the slab of dead paper that showed up
+            // above the keyboard.
+            val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+            if (!imeVisible) {
+                DeskBar(current = navigator.current, onGo = navigator::go)
+            }
         }
     }
 }

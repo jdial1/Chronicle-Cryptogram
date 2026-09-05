@@ -1,7 +1,6 @@
 package com.chroniclecryptogram.board
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -46,20 +45,28 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
  */
 @Composable
 fun SystemKeyboardField(
-    enabled: Boolean,
+    /**
+     * The selected cell, not merely whether one is selected: keying the effect
+     * on the id re-opens the keyboard when the player picks a different glyph
+     * after dismissing it, which a plain boolean cannot see.
+     */
+    selectedCellId: String?,
     onLetter: (String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ChronicleTheme.colors
+    val enabled = selectedCellId != null
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     // Reset to a single space after every keystroke, so a backspace always has
     // something to delete and is therefore always observable.
     var value by remember { mutableStateOf(" ") }
 
-    LaunchedEffect(enabled) {
+    LaunchedEffect(selectedCellId) {
         if (enabled) {
+            // Focus first, then ask for the keyboard: show() only does anything
+            // for a field that already holds focus.
             focus.requestFocus()
             keyboard?.show()
         } else {
@@ -112,7 +119,9 @@ fun SystemKeyboardField(
                 .size(1.dp)
                 .alpha(0f)
                 .focusRequester(focus)
-                .focusable()
+                // No .focusable(): BasicTextField is already a focus target, and
+                // a second one in the same chain takes the focus instead --
+                // which leaves the field unfocused and the IME never opens.
                 .semantics { contentDescription = "Cipher letter entry" },
         )
     }

@@ -279,7 +279,7 @@ private fun DeskContent(
             DeskDock(tools)
             if (useSystemKeyboard) {
                 SystemKeyboardField(
-                    enabled = state.selectedCellId != null,
+                    selectedCellId = state.selectedCellId,
                     onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
                     onBackspace = { onAction(BoardActions::backspace) },
                 )
