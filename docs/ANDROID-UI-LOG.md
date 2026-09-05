@@ -249,10 +249,40 @@ all along.
 
 ---
 
-## Pass 8 — next
+## Pass 8 — the Night Extra
 
-- **The night edition.** Every screen has been seen on night *paper*, but no
-  Night Extra puzzle has been opened, which is a different thing.
+**Theme:** open a Night Extra. Every screen had been seen on night *paper* — the
+user's theme setting — but the per-puzzle evening slot is a different axis and
+had never been on screen.
+
+Reaching one meant solving Edition 1 first, so `scripts/android-solve.py` reads
+the glyph-to-letter mapping straight out of `cipher-words.json`, the golden
+fixture that already holds every cell of all 61 puzzles. No screen-scraping, no
+re-deriving the cipher: sixteen taps and the edition is solved.
+
+**No bug found.** The Night Extra renders on the darker evening ground with the
+cipher on a light folio, while the day theme is still selected — which is the
+orthogonal-axes design working. Checked against the web rather than eyeballed:
+`.is-night` there swaps `--paper-desk` and leaves the sheet on `--paper`, and
+that is the same relationship Android draws.
+
+I first read the light folio on the tan ground as a flipped contrast. It is not:
+the Morning edition is a light sheet on a light desk, the Evening one a light
+sheet on a dark desk, and comparing the two directly is what made it look wrong.
+
+**Two shell traps worth recording**, both of which silently half-worked:
+
+- A `while read` loop feeding `adb` lost its input, because the subprocess
+  inherits stdin and eats the file. Read into an array first.
+- Python writing a mapping file on Windows gives CRLF, so the letter carried a
+  trailing `` and every key tap missed. `tr -d ''` before use.
+
+---
+
+## Pass 9 — next
+
 - **Reading order.** Pass 7 checked selection state, not traversal order.
 - **The archive at depth.** Only the first chapter has been opened; editions in
   the twenties, and the season finale, have never been on screen.
+- **The case file as it fills.** It has only ever been seen nearly empty; the
+  fragments arrive as editions are solved.
