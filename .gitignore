@@ -36,3 +36,8 @@ android/keystore.properties
 # Leftover Expo build output. The shell itself is gone (Phase 9); these are
 # generated directories git never tracked until .gitignore went with it.
 mobile/
+
+# Claude Code's own runtime state. launch.json is a shared dev-server config and
+# is tracked; the lock carries a session id, a pid and a wall-clock timestamp,
+# so it changes on every run and belongs to one machine.
+.claude/*.lock
