@@ -223,7 +223,10 @@ private fun TypewriterKey(
                     )
                 )
                 .border(BorderStroke(3.dp, colors.brass), shape)
-                .semantics { contentDescription = description }
+                // One stop per key. Unmerged, the letter drawn on the keycap
+                // came through as a second node, so every key was announced
+                // twice.
+                .semantics(mergeDescendants = true) { contentDescription = description }
                 .pointerInput(label) {
                     detectTapGestures(
                         onPress = {

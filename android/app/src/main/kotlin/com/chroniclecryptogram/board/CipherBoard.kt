@@ -305,7 +305,13 @@ private fun CipherTile(
                 shape = RoundedCornerShape(4.dp),
             )
             .clickable(onClick = onClick)
-            .semantics { contentDescription = description },
+            // Merged, so the tile is one stop for a screen reader rather than
+            // three. Unmerged, its children came through as separate nodes: the
+            // labelled tile, the empty letter-slot placeholder, and the raw
+            // glyph on its own -- so a 43-cell board was 129 stops, two thirds
+            // of them noise, and the careful label was followed by the same
+            // glyph announced again with no context.
+            .semantics(mergeDescendants = true) { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
         TileContents(

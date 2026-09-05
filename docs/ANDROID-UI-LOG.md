@@ -275,14 +275,49 @@ sheet on a dark desk, and comparing the two directly is what made it look wrong.
 - A `while read` loop feeding `adb` lost its input, because the subprocess
   inherits stdin and eats the file. Read into an array first.
 - Python writing a mapping file on Windows gives CRLF, so the letter carried a
-  trailing `` and every key tap missed. `tr -d ''` before use.
+  trailing `
+` and every key tap missed. `tr -d '
+'` before use.
 
 ---
 
-## Pass 9 — next
+## Pass 9 — traversal, and what a screen reader is handed
 
-- **Reading order.** Pass 7 checked selection state, not traversal order.
+**Theme:** pass 7 asked which item is marked selected. This asks what a screen
+reader walks through, and in what shape.
+
+**Order is correct** — headline, kicker, then the cipher in reading order, which
+for a cryptogram is the part that has to be right.
+
+**Shape was not.** Every tile came through as **three stops**: the labelled tile,
+the empty letter-slot placeholder, and the bare glyph again with no context. A
+43-cell board was 129 stops, two thirds of them noise, and the carefully ported
+label was immediately followed by the same glyph announced alone. Typewriter
+keys were two stops each, and dock tools separated their caption from their
+count.
+
+All three now merge their descendants, so each is one stop carrying one label.
+
+**Two false starts, both instructive**
+
+1. I checked the fix with `uiautomator dump` and saw no change, because it
+   reports something close to Compose's *unmerged* tree. That is the same tool
+   that misled pass 7. The merged tree is what an accessibility service gets,
+   and a Compose test is how to see it.
+2. My first assertion was `no node has this text`, which failed — merging does
+   not remove the glyph's text, it lifts it into the tile's own node. The second
+   was `every node with this text is a tile`, which also failed: when the glyph
+   is a Latin letter, the typewriter key for it legitimately carries the same
+   text. The property that actually matters is that **nothing carries a glyph
+   without saying what it is**, and that is what `BoardSemanticsTest` asserts.
+
+---
+
+## Pass 10 — next
+
 - **The archive at depth.** Only the first chapter has been opened; editions in
   the twenties, and the season finale, have never been on screen.
 - **The case file as it fills.** It has only ever been seen nearly empty; the
   fragments arrive as editions are solved.
+- **Reduced motion.** The setting exists and is honoured by the splash and the
+  coach; nothing has checked the board's letter jitter under it.

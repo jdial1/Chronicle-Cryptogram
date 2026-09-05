@@ -162,7 +162,10 @@ private fun DockTool(tool: DeskTool, modifier: Modifier = Modifier) {
             // 48dp is the accessible minimum; icon and label together clear it.
             .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
             .padding(vertical = 4.dp)
-            .semantics { contentDescription = tool.description },
+            // One stop per tool: the label and its count are the same thing.
+            .semantics(mergeDescendants = true) {
+                contentDescription = tool.description
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
