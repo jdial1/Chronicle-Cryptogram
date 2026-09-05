@@ -30,8 +30,10 @@ const val GuideListTag = "guide-list"
  * The Codebreaker's Handbook: what the tools do, and the five tells worth
  * hunting.
  *
- * All of it is content, not code -- `src/data/cipherTactics.json` is the same
- * file the web reads, so the advice cannot drift between the two surfaces.
+ * Mostly content, not code -- `src/data/cipherTactics.json` is the same file the
+ * web reads, so the advice cannot drift between the two surfaces. The desk
+ * section is the exception, because the two desks are not the same: see
+ * [deskTools].
  */
 @Composable
 fun GuideScreen(
@@ -67,7 +69,7 @@ fun GuideScreen(
 
         item {
             Section(title = "The desk") {
-                tactics.tools.forEach { Point(it) }
+                deskTools(tactics.tools).forEach { Point(it) }
             }
         }
 
@@ -107,6 +109,38 @@ private fun Section(title: String, content: @Composable () -> Unit) {
         content()
     }
 }
+
+/**
+ * The tools this desk actually has.
+ *
+ * The shared file describes the web's desk, and the two have diverged:
+ *
+ *  - **Zoom is gone here.** Tiles are measured from `sp` text, so the system
+ *    font-size setting *is* the zoom control and there are no A-/A+ buttons to
+ *    document. Leaving them listed told players to look for controls that do
+ *    not exist.
+ *  - **Undo is missing from the file.** The dock has it, so it is added here.
+ *    The web dock has one too, which makes the omission a gap in the shared
+ *    file rather than a difference between the apps -- worth fixing there.
+ */
+private fun deskTools(shared: List<TacticPoint>): List<TacticPoint> {
+    val withoutZoom = shared.filterNot { it.lead in ZoomLeads }
+    val undo = TacticPoint(
+        lead = "Undo",
+        body = "Take back the last letter you typed. Hints and checks already " +
+            "spent are not refunded.",
+    )
+    // Placed where it sits on the dock: after Hint, before the tally.
+    val at = withoutZoom.indexOfFirst { it.lead == "Glyph Tally" }
+    return if (at >= 0) {
+        withoutZoom.toMutableList().apply { add(at, undo) }
+    } else {
+        withoutZoom + undo
+    }
+}
+
+/** The two entries that describe controls this build does not have. */
+private val ZoomLeads = setOf("Smaller Type", "Larger Type")
 
 @Composable
 private fun Point(point: TacticPoint) {
