@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.designsystem.theme.ChronicleFonts
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
+import com.chroniclecryptogram.designsystem.theme.LocalReduceMotion
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -187,10 +188,17 @@ private fun TypewriterKey(
     var pressed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    val travel by animateDpAsState(if (pressed) KeyTravel else 0.dp, label = "keyTravel")
-    val scale by animateFloatAsState(if (pressed) 0.92f else 1f, label = "keyScale")
+    // "Still keys" is half of what the reduce-motion setting promises, and it
+    // was promising it without doing anything: the key travel and the squash
+    // animated regardless. The press still registers and the key still darkens,
+    // so the control stays legible -- it just does not move.
+    val still = LocalReduceMotion.current
+    val target = pressed && !still
+
+    val travel by animateDpAsState(if (target) KeyTravel else 0.dp, label = "keyTravel")
+    val scale by animateFloatAsState(if (target) 0.92f else 1f, label = "keyScale")
     // The key sits on a brass plinth; struck, it drops onto it.
-    val plinth by animateDpAsState(if (pressed) 0.dp else KeyTravel, label = "keyPlinth")
+    val plinth by animateDpAsState(if (target) 0.dp else KeyTravel, label = "keyPlinth")
 
     Box(
         Modifier

@@ -18,6 +18,15 @@ val LocalChronicleColors = staticCompositionLocalOf { LightChronicleColors }
 val LocalEditionSlot = staticCompositionLocalOf { EditionSlot.Morning }
 
 /**
+ * Whether the player has asked for less movement.
+ *
+ * A composition local rather than a parameter threaded through the board: it is
+ * a property of the whole presentation, every animation has to honour it, and
+ * anything added later gets it for free instead of quietly opting out.
+ */
+val LocalReduceMotion = staticCompositionLocalOf { false }
+
+/**
  * The app's theme. Two independent axes:
  *
  *  - [dark] is the player's preference, mirroring `html.theme-dark`.
@@ -31,6 +40,7 @@ val LocalEditionSlot = staticCompositionLocalOf { EditionSlot.Morning }
 fun ChronicleTheme(
     dark: Boolean,
     slot: EditionSlot = EditionSlot.Morning,
+    reduceMotion: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val base = if (dark) DarkChronicleColors else LightChronicleColors
@@ -43,6 +53,7 @@ fun ChronicleTheme(
     CompositionLocalProvider(
         LocalChronicleColors provides colors,
         LocalEditionSlot provides slot,
+        LocalReduceMotion provides reduceMotion,
     ) {
         MaterialTheme(
             colorScheme = colors.toMaterialScheme(dark),

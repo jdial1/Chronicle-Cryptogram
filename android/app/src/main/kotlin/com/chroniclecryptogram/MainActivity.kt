@@ -378,7 +378,7 @@ private fun ChronicleApp() {
     // is a splash that was not worth building.
     var entered by remember { mutableStateOf(false) }
 
-    ChronicleTheme(dark = dark, slot = slot) {
+    ChronicleTheme(dark = dark, slot = slot, reduceMotion = prefs.reduceMotion) {
         if (!entered) {
             SplashScreen(
                 onEnter = { entered = true },

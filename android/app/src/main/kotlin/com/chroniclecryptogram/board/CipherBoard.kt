@@ -32,6 +32,8 @@ import com.chroniclecryptogram.cipher.model.CipherCell
 import com.chroniclecryptogram.cipher.model.CryptogramWord
 import com.chroniclecryptogram.designsystem.DeskLayout
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
+import androidx.compose.ui.graphics.graphicsLayer
+import com.chroniclecryptogram.designsystem.theme.LocalReduceMotion
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlin.math.max
 
@@ -164,6 +166,7 @@ fun CipherBoard(
                     val cellId = "${wordId}_$index"
                     val (joinLeft, joinRight) = ruleJoins[flatIndex]
                     CipherTile(
+                        cellId = cellId,
                         joinLeft = joinLeft,
                         joinRight = joinRight,
                         cell = cell,
@@ -245,6 +248,7 @@ fun CipherBoard(
 
 @Composable
 private fun CipherTile(
+    cellId: String,
     joinLeft: Boolean,
     joinRight: Boolean,
     cell: CipherCell,
@@ -315,6 +319,7 @@ private fun CipherTile(
         contentAlignment = Alignment.Center,
     ) {
         TileContents(
+            cellId = cellId,
             glyph = cell.char.orEmpty(),
             guess = guess,
             tile = tile,
@@ -329,8 +334,35 @@ private fun CipherTile(
     }
 }
 
+/**
+ * How far a stamped letter sits off true.
+ *
+ * A typewriter never lands a letter square: the web rolls +/-3 degrees and
+ * +/-1px per stamped letter and holds it until the letter changes. Here the
+ * offset is derived from the cell and the letter rather than drawn at random,
+ * so it survives recomposition without needing somewhere to remember it -- the
+ * web needs a ref for exactly that reason -- and the same guess in the same cell
+ * always lands the same way.
+ */
+internal fun typewriterJitter(cellId: String, letter: String): Pair<Float, Float> {
+    // Scattered before it is sliced, so that neighbouring cell ids -- which
+    // differ by a character or two -- do not land on neighbouring offsets and
+    // lean in step, which is the one thing jitter must not do.
+    var seed = "$cellId:$letter".hashCode()
+    seed = seed xor (seed ushr 16)
+    seed *= 0x7FEB352D.toInt()
+    seed = seed xor (seed ushr 15)
+    seed *= 0x846CA68B.toInt()
+    seed = seed xor (seed ushr 16)
+
+    val rotation = ((seed ushr 8) and 0xFF) / 255f * 6f - 3f
+    val drop = (seed and 0xFF) / 255f * 2f - 1f
+    return rotation to drop
+}
+
 @Composable
 private fun TileContents(
+    cellId: String,
     glyph: String,
     guess: String?,
     tile: TileSize,
@@ -356,7 +388,21 @@ private fun TileContents(
                             .background(ruleColor)
                     )
                 } else {
-                    BoardText(guess, tile.letterStyle, inkColor)
+                    val still = LocalReduceMotion.current
+                    val (rotation, drop) = remember(cellId, guess, still) {
+                        if (still) 0f to 0f else typewriterJitter(cellId, guess)
+                    }
+                    BoardText(
+                        text = guess,
+                        style = tile.letterStyle,
+                        color = inkColor,
+                        modifier = Modifier.graphicsLayer {
+                            rotationZ = rotation
+                            // The web's +/-1px is a CSS pixel, so it is a dp
+                            // here; graphicsLayer wants device pixels.
+                            translationY = drop.dp.toPx()
+                        },
+                    )
                 }
             }
             BoardText(glyph, tile.glyphStyle, inkColor)
@@ -365,6 +411,17 @@ private fun TileContents(
 }
 
 @Composable
-private fun BoardText(text: String, style: TextStyle, color: androidx.compose.ui.graphics.Color) {
-    androidx.compose.material3.Text(text = text, style = style, color = color, maxLines = 1)
+private fun BoardText(
+    text: String,
+    style: TextStyle,
+    color: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.material3.Text(
+        text = text,
+        style = style,
+        color = color,
+        maxLines = 1,
+        modifier = modifier,
+    )
 }

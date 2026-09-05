@@ -313,11 +313,41 @@ All three now merge their descendants, so each is one stop carrying one label.
 
 ---
 
-## Pass 10 — next
+## Pass 10 — reduced motion, which promised two things and did neither
+
+**Theme:** the setting describes itself as *"Still keys and no letter jitter."*
+Check both halves.
+
+**Neither was true.**
+
+- There was **no letter jitter in the app at all**, so half the sentence offered
+  to switch off something that did not exist. The web stamps each letter
+  +/-3 degrees and +/-1px; the port had skipped it.
+- The typewriter's press animation **ignored the setting entirely**.
+  `reduceMotion` reached the splash and nothing else.
+
+Someone who turns this on is usually not expressing a taste, so a switch that
+does nothing is worse than no switch at all.
+
+Both are now real. `LocalReduceMotion` is a composition local provided by
+`ChronicleTheme`, rather than a boolean threaded through four layers, so
+anything animated later has to opt out rather than quietly forgetting.
+
+The offset is derived from the cell and the letter instead of drawn at random,
+so it survives recomposition with nowhere to remember it -- the web keeps a ref
+for exactly that reason.
+
+**The bug the test caught was not the bug it looked like.** "Every cell leaning
+identically" looked like hash structure, and I mixed the seed to scatter it. The
+real cause was that the seed string had been written with Kotlin's `$`-escape
+intact, so every cell hashed the same literal text. The mixing is kept -- it is
+cheap and correct -- but the comment now says what actually happened.
+
+---
+
+## Pass 11 — next
 
 - **The archive at depth.** Only the first chapter has been opened; editions in
   the twenties, and the season finale, have never been on screen.
 - **The case file as it fills.** It has only ever been seen nearly empty; the
   fragments arrive as editions are solved.
-- **Reduced motion.** The setting exists and is honoured by the splash and the
-  coach; nothing has checked the board's letter jitter under it.
