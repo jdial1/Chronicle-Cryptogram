@@ -10,6 +10,10 @@ import com.chroniclecryptogram.data.DeskStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import com.chroniclecryptogram.cipher.DeskTimer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -33,6 +37,7 @@ class BoardViewModel(
 
     private val _state = MutableStateFlow<BoardState?>(null)
     val state: StateFlow<BoardState?> = _state.asStateFlow()
+
 
     /**
      * Opens the edition the player has actually reached.
@@ -99,6 +104,33 @@ class BoardViewModel(
         val nextEdition = after.editionNumber + 1
         if (nextEdition > Edition.frontPageEdition(puzzles, solved)) return null
         return Edition.morningPuzzleForEdition(puzzles, nextEdition)
+    }
+
+    /**
+     * Runs the solve clock until cancelled.
+     *
+     * Nothing incremented `timerSeconds` before this: [DeskTimer] existed, was
+     * fixture-tested against the web's `useDeskTimer`, and had no caller. Every
+     * solve reported 00:00.0 -- and since both the leaderboard and the public
+     * solve counters refuse a time under five seconds, an Android player could
+     * never post one or be counted.
+     *
+     * Deliberately a suspending function the desk collects rather than a job the
+     * ViewModel starts for itself. The caller's scope decides when time accrues,
+     * so it stops when the desk leaves the screen and when the app goes to the
+     * background -- reading the archive is not solving -- and a test drives it
+     * with a virtual clock instead of hanging on an endless loop.
+     */
+    suspend fun runClock() {
+        while (currentCoroutineContext().isActive) {
+            delay(DeskTimer.TICK_MS)
+            val current = _state.value ?: continue
+            // A finished puzzle left open must not keep accruing time.
+            if (current.isSolved) continue
+            _state.value = current.copy(
+                timerSeconds = DeskTimer.advanceDeskClock(current.timerSeconds),
+            )
+        }
     }
 
     /** Opens whatever [nextPuzzle] finds, or stays put at the end of the season. */

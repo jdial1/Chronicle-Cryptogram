@@ -77,13 +77,62 @@ control and switch rows, the guide, the case file.
 
 ---
 
-## Pass 3 — next
+## Pass 3 — the solved state
 
-Candidates not yet swept, in rough order of likely yield:
+**Theme:** actually solve a puzzle. `SolveBulletin`, the live stats row and the
+share clipping had only ever been exercised by tests; nothing had rendered them
+on a device. `scripts/android-solve-primer.sh` does it in sixteen taps by lining
+the board's accessibility labels up against the Primer's known plaintext.
+
+**Found and fixed — the solve clock never ran**
+
+`timerSeconds` was read in nine places and incremented in none. `DeskTimer`
+existed, was fixture-tested against the web's `useDeskTimer`, and had no caller
+at all — the same shape of bug as `FirestoreDesk` having no factory.
+
+Every solve therefore reported **00:00.0**, and the consequences ran well past
+cosmetics: both the leaderboard and the public solve counters refuse a time
+under five seconds, so **no Android player could ever post a time or be counted
+as a solver.** The whole posting path was dead behind a zero.
+
+The clock is now a suspending function the desk collects rather than a job the
+ViewModel starts for itself, so the caller's scope decides when time accrues: it
+stops when the desk leaves the screen and when the app is backgrounded — reading
+the archive is not solving — and a test can drive it on a virtual clock instead
+of hanging on an endless loop. Verified on device: a real solve now reads
+**14:08.2**.
+
+**Learned — and it corrects an earlier conclusion**
+
+Pass 2's report said every Firestore write was refused and blamed the shared
+`isOwner()` → `isAuthenticated()` gate, implying anonymous users are rejected
+outright. **That was wrong.** Solving proved it: the `starts` receipt and the
+`puzzleStats` increment both *succeeded* for the same anonymous user — the
+public solve rate moved from 33.3% to 32.1% (9/27 → 9/28) on this device's own
+start. So `isAuthenticated()` passes.
+
+What is actually refused is narrower:
+
+| Path | Write | Gate |
+|---|---|---|
+| `starts/{uid}_{id}` | **accepted** | `isAuthenticated()` |
+| `puzzleStats/{id}` | **accepted** | `isAuthenticated()` |
+| `solves/{uid}_{id}` | refused | `isAuthenticated()` + `isValidSolve` |
+| `users/{uid}` and subcollections | refused | `isOwner()` + per-collection validators |
+
+Since `starts` and `solves` share the same auth gate, the auth gate is not the
+cause. It is `isOwner()` or the validators themselves — which still points at the
+console, but at a much smaller patch of it than pass 2 claimed.
+
+---
+
+## Pass 4 — next
 
 - **Rotation and short screens.** Nothing has been looked at in landscape, where
   the dock, keyboard and board compete for a much shorter viewport.
 - **TalkBack order and grouping.** Labels exist everywhere; whether the reading
   order and grouping make sense has not been checked.
-- **The solved state.** `SolveBulletin`, the live stats row and the share
-  clipping have never been seen on a real solve, only in tests.
+- **The share clipping.** Rendered but never opened: nobody has looked at the
+  image `Clipping` actually produces.
+- **The night edition.** Every screen has been seen on night *paper*, but no
+  Night Extra puzzle has been opened, which is a different thing.

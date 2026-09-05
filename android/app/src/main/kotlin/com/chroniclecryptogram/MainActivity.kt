@@ -400,14 +400,19 @@ private fun ChronicleApp() {
         Column(Modifier.fillMaxSize().background(ChronicleTheme.colors.paper)) {
             Box(Modifier.weight(1f)) {
                 when (navigator.current) {
-                    Destination.Board -> BoardScreen(
-                        state = current,
-                        onAction = model::act,
-                        onNext = model::advance,
-                        useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
-                        tactics = tactics.tactics,
-                        liveStats = liveStats,
-                    )
+                    Destination.Board -> {
+                        // The clock runs only while the desk is on screen, and
+                        // stops with the composition when the app is backgrounded.
+                        LaunchedEffect(current.puzzle.id) { model.runClock() }
+                        BoardScreen(
+                            state = current,
+                            onAction = model::act,
+                            onNext = model::advance,
+                            useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
+                            tactics = tactics.tactics,
+                            liveStats = liveStats,
+                        )
+                    }
 
                     Destination.Archive -> ArchiveScreen(
                         puzzles = puzzles,

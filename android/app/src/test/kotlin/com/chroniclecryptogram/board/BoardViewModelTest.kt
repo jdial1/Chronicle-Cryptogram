@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -197,5 +198,71 @@ class BoardViewModelTest {
             cell.symbolId in second.state.value!!.flaggedSymbolIds,
             "a corrected guess must not reload as flagged",
         )
+    }
+
+    @Test
+    fun `the clock runs while the desk is open`() = runTest(dispatcher) {
+        val model = viewModel(FakeDeskStore())
+        model.open()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(0.0, model.state.value!!.timerSeconds)
+
+        val clock = backgroundScope.launch { model.runClock() }
+        dispatcher.scheduler.advanceTimeBy(3_000)
+        dispatcher.scheduler.runCurrent()
+
+        // Ported tick for tick from the web's useDeskTimer: 100ms a step,
+        // rounded to one decimal so ten additions of 0.1 land on 1.0.
+        assertEquals(3.0, model.state.value!!.timerSeconds, 0.001)
+        clock.cancel()
+    }
+
+    @Test
+    fun `the clock stops when the puzzle is solved`() = runTest(dispatcher) {
+        val model = viewModel(FakeDeskStore())
+        model.open()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val clock = backgroundScope.launch { model.runClock() }
+        dispatcher.scheduler.advanceTimeBy(1_000)
+        val running = model.state.value!!.timerSeconds
+        assertTrue(running > 0.0, "the clock should have started")
+
+        // Solve it outright, then let real time pass.
+        model.act { board ->
+            board.copy(mappings = board.answer, isSolved = true)
+        }
+        dispatcher.scheduler.advanceUntilIdle()
+        val atSolve = model.state.value!!.timerSeconds
+        dispatcher.scheduler.advanceTimeBy(5_000)
+
+        // A finished puzzle left open must not keep accruing time -- the figure
+        // is posted to a public board.
+        assertEquals(atSolve, model.state.value!!.timerSeconds, 0.001)
+        clock.cancel()
+    }
+
+    @Test
+    fun `an accruing time is persisted with the board`() = runTest(dispatcher) {
+        val store = FakeDeskStore()
+        val model = viewModel(store)
+        model.open()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val clock = backgroundScope.launch { model.runClock() }
+        dispatcher.scheduler.advanceTimeBy(6_000)
+        dispatcher.scheduler.runCurrent()
+
+        // The clock itself does not write -- that would be ten writes a second.
+        // The next board change carries the time with it.
+        val cell = model.state.value!!.cells.first().cellId
+        model.act { BoardActions.select(it, cell) }
+        model.act { BoardActions.type(it, "E") }
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val saved = store.current().progress[model.state.value!!.puzzle.id]
+        assertNotNull(saved)
+        assertTrue(saved!!.timerSeconds >= 6, "expected the solve time to be saved")
+        clock.cancel()
     }
 }
