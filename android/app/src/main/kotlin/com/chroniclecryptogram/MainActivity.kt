@@ -398,7 +398,10 @@ private fun ChronicleApp() {
         }
 
         Column(Modifier.fillMaxSize().background(ChronicleTheme.colors.paper)) {
-            Box(Modifier.weight(1f)) {
+            // Centred, because the list screens now set themselves to a
+            // reading measure rather than filling a landscape phone's width.
+            // The desk fills the space anyway, so this is a no-op for it.
+            Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                 when (navigator.current) {
                     Destination.Board -> {
                         // The clock runs only while the desk is on screen, and

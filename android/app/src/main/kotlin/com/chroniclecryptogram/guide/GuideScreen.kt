@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.widthIn
+import com.chroniclecryptogram.designsystem.ReadingMeasure
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
@@ -49,6 +53,7 @@ fun GuideScreen(
             .safeDrawingPadding()
             .testTag(GuideListTag),
         contentPadding = PaddingValues(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
@@ -93,6 +98,8 @@ private fun Section(title: String, content: @Composable () -> Unit) {
     val colors = ChronicleTheme.colors
     Column(
         Modifier
+            // Capped before it fills; the other order leaves nothing to cap.
+            .widthIn(max = ReadingMeasure)
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
             .background(colors.paperCard)

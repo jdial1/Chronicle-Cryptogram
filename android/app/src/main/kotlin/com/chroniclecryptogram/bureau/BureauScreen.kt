@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.widthIn
+import com.chroniclecryptogram.designsystem.ReadingMeasure
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -138,13 +141,17 @@ fun BureauScreen(
             .testTag(BureauListTag),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
             Text(
                 text = "Bureau File",
                 style = MaterialTheme.typography.displayMedium,
                 color = colors.ink,
-                modifier = Modifier.semantics { heading() },
+                modifier = Modifier
+                    .widthIn(max = ReadingMeasure)
+                    .fillMaxWidth()
+                    .semantics { heading() },
             )
         }
 
@@ -351,6 +358,11 @@ private fun Card(content: @Composable ColumnScopeAlias.() -> Unit) {
     val colors = ChronicleTheme.colors
     Column(
         Modifier
+            // The cap comes first: fillMaxWidth fixes the width, so a widthIn
+            // after it has nothing left to constrain. Left to fill, these cards
+            // spanned a landscape phone and put a label at one end of the desk
+            // with its value at the other.
+            .widthIn(max = ReadingMeasure)
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
             .background(colors.paperCard)

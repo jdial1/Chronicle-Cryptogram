@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import com.chroniclecryptogram.designsystem.ReadingMeasure
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -95,6 +97,7 @@ fun ArchiveScreen(
             .safeDrawingPadding()
             .testTag(ArchiveListTag),
         contentPadding = PaddingValues(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
             // Every screen states what it is. Archive and the case file were the
@@ -128,8 +131,9 @@ fun ArchiveScreen(
                     },
                     onOpen = onOpen,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .widthIn(max = 720.dp),
+                        // Capped before it fills, for the same reason.
+                        .widthIn(max = ReadingMeasure)
+                        .fillMaxWidth(),
                 )
             }
         }

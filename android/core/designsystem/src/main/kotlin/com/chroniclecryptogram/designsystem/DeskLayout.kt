@@ -69,3 +69,16 @@ object DeskLayout {
     val width: DeskWidth
         @Composable get() = LocalDeskWidth.current
 }
+
+/**
+ * The measure a column of prose is set to.
+ *
+ * Newsprint is unreadable at 1200px wide, which is why the board already caps
+ * itself. The list screens did not, so on a phone in landscape the Bureau's
+ * cards stretched the full 2424px and "Editions decoded / 1 / 30" became a
+ * near-empty band with its two words at opposite ends of the desk.
+ *
+ * Applied to the scrolling column rather than to each row, so the headings and
+ * the cards share one edge instead of drifting apart.
+ */
+val ReadingMeasure = 760.dp

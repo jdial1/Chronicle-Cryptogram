@@ -165,7 +165,31 @@ before the fix, zero matched; after it, twenty-nine do.
 
 ---
 
-## Pass 5 — next
+## Pass 5 — the reading measure
+
+**Theme:** the screens pass 4 did not turn sideways — archive, bureau, guide,
+case file.
+
+**Found:** none of them had a reading measure. The board caps itself at a column
+width, with a comment in `DeskLayout` saying newsprint is unreadable at 1200px;
+the list screens never got the same treatment. On a landscape phone the Bureau's
+cards spanned all 2424px, so "Editions decoded" sat at one end of the desk with
+"1 / 30" at the other.
+
+`ReadingMeasure` is now a shared token, applied to the repeating unit on each
+screen — the Bureau's card, the Guide's section, the Archive's row — with the
+lists centred on it. The measure sits on the rows rather than the column so the
+page background still covers the whole desk.
+
+**The bug inside the fix:** the first attempt did nothing, because the modifiers
+were in the wrong order. `fillMaxWidth().widthIn(max = …)` fixes the width first
+and leaves the cap nothing to constrain; it has to be
+`widthIn(max = …).fillMaxWidth()`. The Archive had been carrying that same
+inverted order since it was written, so its 720dp cap had never once applied.
+
+---
+
+## Pass 6 — next
 
 - **TalkBack order and grouping.** Labels exist everywhere; whether the reading
   order and grouping make sense has not been checked.
@@ -173,5 +197,3 @@ before the fix, zero matched; after it, twenty-nine do.
   image `Clipping` actually produces.
 - **The night edition.** Every screen has been seen on night *paper*, but no
   Night Extra puzzle has been opened, which is a different thing.
-- **Landscape for the other screens.** Only the desk was looked at this pass;
-  archive, bureau, guide and case file were not.
