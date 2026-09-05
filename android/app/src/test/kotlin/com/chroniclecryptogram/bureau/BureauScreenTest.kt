@@ -94,10 +94,24 @@ class BureauScreenTest {
     }
 
     @Test
-    fun `a build with no credentials offers neither sign-in nor deletion`() {
+    fun `an offline build shows no cloud section at all`() {
+        // The 1.0 release ships with `chronicleCloud=false`, so this is the
+        // configuration every paying player sees. Three whole sections go, and
+        // the earlier version of this test only checked that two buttons were
+        // absent -- which an "unavailable" notice would also have passed, while
+        // still explaining a feature nobody had.
         show(account = AccountState(available = false, signedIn = false))
+
+        compose.onNodeWithText("Account").assertDoesNotExist()
+        compose.onNodeWithText("Posting").assertDoesNotExist()
+        compose.onNodeWithText("The board").assertDoesNotExist()
         compose.onNodeWithText("Sign in with Google").assertDoesNotExist()
         compose.onNodeWithText("Delete account and data").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Codename").assertDoesNotExist()
+
+        // What is left is the whole offline game: standing and settings.
+        compose.onNodeWithText("The press").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Editions decoded, 3 of 30").assertIsDisplayed()
     }
 
     @Test

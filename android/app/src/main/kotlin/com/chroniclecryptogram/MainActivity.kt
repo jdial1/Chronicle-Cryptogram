@@ -275,6 +275,7 @@ private fun ChronicleApp() {
     var statsRevision by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(puzzleId, uid, statsRevision) {
+        if (!BuildConfig.HAS_FIREBASE) return@LaunchedEffect
         val id = puzzleId ?: return@LaunchedEffect
         withContext(Dispatchers.IO) {
             if (uid != null) runCatching { puzzleStats.recordStart(uid, id) }

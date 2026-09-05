@@ -80,7 +80,11 @@ fun SolveBulletin(
             },
         )
 
-        LiveStatsRow(liveStats)
+        // Only once figures have actually been fetched. Null is "not asked" --
+        // an offline build never asks -- and rendering the row anyway printed
+        // three em dashes, which reads as "nobody has solved this" rather than
+        // as an absent feature.
+        if (liveStats != null) LiveStatsRow(liveStats)
 
         Row(
             Modifier.fillMaxWidth(),

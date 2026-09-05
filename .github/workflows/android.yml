@@ -61,9 +61,37 @@ jobs:
           report=app/build/outputs/mapping/release/resources.txt
           stripped=$(grep -c 'is not reachable' "$report" || true)
           echo "$stripped resources shrunk out"
-          if grep -qE '^(font|drawable:woodcut).*is not reachable' "$report"; then
-            echo "A font or press plate was stripped from the release build:"
-            grep -E '^(font|drawable:woodcut).*is not reachable' "$report"
+          # raw: is the licence texts. Both the OFL and Apache 2.0 require their
+          # text to ship with the fonts, and the only code reference to either is
+          # an id held in an enum field -- exactly the shape the shrinker is
+          # worst at seeing. Losing one is a licence breach that looks, in the
+          # app, like a dialog opening onto nothing.
+          if grep -qE '^(font|raw|drawable:woodcut).*is not reachable' "$report"; then
+            echo "A font, licence text or press plate was stripped from the release build:"
+            grep -E '^(font|raw|drawable:woodcut).*is not reachable' "$report"
+            exit 1
+          fi
+
+      # Play takes a bundle, not an APK, and the two do not shrink identically:
+      # a bundle splits resources per density and language, so a resource kept
+      # in the APK can still land in a split the device never downloads. Nothing
+      # had ever produced one before 1.0.
+      - name: Build the release bundle
+        working-directory: android
+        run: ./gradlew :app:bundleRelease --no-daemon
+
+      - name: Check the bundle kept the fonts and licence texts
+        working-directory: android
+        run: |
+          bundle=app/build/outputs/bundle/release/app-release.aab
+          fonts=$(unzip -l "$bundle" | grep -c 'base/res/font/.*[.]ttf$' || true)
+          texts=$(unzip -l "$bundle" | grep -c 'base/res/raw/license_.*[.]txt$' || true)
+          echo "bundle carries $fonts fonts and $texts licence texts"
+          # Eight faces and two licences. A count rather than a list because
+          # the point is that nothing was dropped, and a face added later
+          # should have to say so here.
+          if [ "$fonts" -ne 8 ] || [ "$texts" -ne 2 ]; then
+            unzip -l "$bundle" | grep -E 'base/res/(font|raw)/'
             exit 1
           fi
 

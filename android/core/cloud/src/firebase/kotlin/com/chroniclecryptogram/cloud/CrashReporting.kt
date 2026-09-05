@@ -19,13 +19,3 @@ fun setCrashReporting(enabled: Boolean) {
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = enabled
     }
 }
-
-/** Records a handled failure that would otherwise only reach logcat. */
-fun reportHandled(error: Throwable, context: String) {
-    runCatching {
-        FirebaseCrashlytics.getInstance().apply {
-            log(context)
-            recordException(error)
-        }
-    }
-}

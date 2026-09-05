@@ -68,6 +68,13 @@
         font-size: 1.15rem;
         margin: 1.75rem 0 0.5rem;
       }
+      /* The two versions of the game are h2; the sections inside one are h3. */
+      h3 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1rem;
+        margin: 1.35rem 0 0.4rem;
+        color: var(--muted);
+      }
       p,
       li {
         margin: 0 0 0.85rem;
@@ -84,12 +91,44 @@
   <body>
     <main>
       <h1>Privacy Policy</h1>
-      <p class="meta">Chronicle Cryptogram · Effective September 3, 2026</p>
+      <p class="meta">Chronicle Cryptogram · Effective September 5, 2026</p>
       <p>
         Chronicle Cryptogram is a daily cryptogram game. This policy describes what we collect and
         why. We do not sell personal information and we do not show ads.
       </p>
-      <h2>Account</h2>
+      <p>
+        There are two versions and they behave differently, so they are described separately. The
+        Android app is first because it is the shorter answer.
+      </p>
+
+      <h2>Android app</h2>
+      <p>
+        The Android app collects nothing and sends nothing. It has no account, no sign-in and no
+        leaderboard, and it does not hold the Android internet permission &mdash; so it could not
+        transmit anything even if it tried. There is no analytics or crash-reporting SDK in it.
+      </p>
+      <p>
+        Everything the app knows &mdash; which editions you have solved, your board, hint and check
+        wallets, timers, and your settings &mdash; is written to storage on your own device and read
+        back from there. It is removed when you uninstall the app or clear its storage.
+      </p>
+      <p>
+        Two of those files are marked as eligible for Android&rsquo;s own backup and device-transfer
+        features, so that a new phone can restore your progress. That backup is run by Android and
+        stored in your Google account under Google&rsquo;s terms; we never see it and it reaches no
+        server of ours. You can switch it off in your device&rsquo;s backup settings.
+      </p>
+      <p>
+        There is nothing to request the deletion of, and no deletion request to make: uninstalling
+        the app is the whole of it.
+      </p>
+
+      <h2>Web app</h2>
+      <p>
+        The rest of this policy describes the browser version at
+        chroniclecryptogram.com, which does have accounts and a leaderboard.
+      </p>
+      <h3>Account</h3>
       <p>
         Firebase Anonymous Authentication assigns a session identifier the first time you open the
         game so progress can sync before you sign in. That identifier is not your name or email.
@@ -100,22 +139,22 @@
         progress, and post times on the leaderboard. An anonymous session is linked to that Google
         account when you issue credentials.
       </p>
-      <h2>Game progress</h2>
+      <h3>Game progress</h3>
       <p>
         Puzzle mappings, timers, hints, checks, solves, and related stats are stored on your device
         in local storage. The same records are stored in Firebase Firestore under your auth
         identifier so they can sync across devices.
       </p>
-      <h2>Notifications</h2>
+      <h3>Notifications</h3>
       <p>
         The app sends no push notifications and registers no messaging token.
       </p>
-      <h2>What we do not collect</h2>
+      <h3>What we do not collect</h3>
       <p>
         We do not run advertising SDKs, do not sell data, and do not use your puzzles or account for
         profiling beyond operating the game and the leaderboard.
       </p>
-      <h2 id="deletion">Retention and deletion</h2>
+      <h3 id="deletion">Retention and deletion</h3>
       <p>
         Local data stays on your device until you clear site data or uninstall the app. That includes
         puzzle progress, hint and check wallets, theme, and an optional packed press copy
@@ -136,7 +175,7 @@
         If anything remains, email
         <a href="mailto:justinalandial@gmail.com">justinalandial@gmail.com</a>.
       </p>
-      <h2>Contact</h2>
+      <h3>Contact</h3>
       <p>
         Questions:
         <a href="mailto:justinalandial@gmail.com">justinalandial@gmail.com</a>

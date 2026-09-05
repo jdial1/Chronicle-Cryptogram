@@ -224,7 +224,7 @@ fun BureauScreen(
             }
         }
 
-        item {
+        if (account.available) item {
             Card {
                 SectionTitle("Posting")
                 Text(
@@ -277,79 +277,79 @@ fun BureauScreen(
             }
         }
 
-        item {
+        // Hidden, not disabled. An "unavailable" notice explains a feature to
+        // someone who never knew it existed, and reads as something broken; a
+        // player who has only ever seen this build has no account to miss. The
+        // 1.0 release ships offline, so the whole section goes.
+        if (account.available) item {
             Card {
                 SectionTitle("Account")
 
-                if (!account.available) {
+                Text(
+                    text = when {
+                        account.signedIn ->
+                            "Filed as ${account.displayName ?: "an anonymous solver"}."
+                        else ->
+                            "Sign in to carry your progress between devices and post times."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.ink,
+                )
+                account.error?.let { message ->
                     Text(
-                        // Honest about why, rather than showing a button that
-                        // cannot work.
-                        text = "This build has no bureau credentials, so sign-in " +
-                            "and the board are unavailable. Everything else works offline.",
+                        text = message,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = colors.paperRule,
+                        color = colors.cinnabar,
+                        modifier = Modifier.padding(top = 4.dp),
                     )
-                } else {
-                    Text(
-                        text = when {
-                            account.signedIn ->
-                                "Filed as ${account.displayName ?: "an anonymous solver"}."
-                            else ->
-                                "Sign in to carry your progress between devices and post times."
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.ink,
-                    )
-                    account.error?.let { message ->
-                        Text(
-                            text = message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.cinnabar,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                    if (account.signedIn) {
-                        // Play requires an in-app route to delete the account,
-                        // not just the data. It is deliberately plain text under
-                        // the sign-out button rather than a second loud button:
-                        // it is irreversible, and it asks before it acts.
-                        TextButton(
-                            onClick = { confirmingDelete = true },
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .heightIn(min = 48.dp),
-                        ) {
-                            Text("Delete account and data", color = colors.cinnabar)
-                        }
-                    }
-                    Button(
-                        onClick = if (account.signedIn) onSignOut else onSignIn,
-                        enabled = !account.busy,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colors.brass,
-                            contentColor = colors.paper,
-                        ),
+                }
+                if (account.signedIn) {
+                    // Play requires an in-app route to delete the account,
+                    // not just the data. It is deliberately plain text under
+                    // the sign-out button rather than a second loud button:
+                    // it is irreversible, and it asks before it acts.
+                    TextButton(
+                        onClick = { confirmingDelete = true },
                         modifier = Modifier
-                            .padding(top = 10.dp)
+                            .padding(top = 4.dp)
                             .heightIn(min = 48.dp),
                     ) {
-                        Text(
-                            when {
-                                account.busy -> "Working…"
-                                account.signedIn -> "Sign out"
-                                else -> "Sign in with Google"
-                            }
-                        )
+                        Text("Delete account and data", color = colors.cinnabar)
                     }
                 }
+                Button(
+                    onClick = if (account.signedIn) onSignOut else onSignIn,
+                    enabled = !account.busy,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.brass,
+                        contentColor = colors.paper,
+                    ),
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .heightIn(min = 48.dp),
+                ) {
+                    Text(
+                        when {
+                            account.busy -> "Working…"
+                            account.signedIn -> "Sign out"
+                            else -> "Sign in with Google"
+                        }
+                    )
+                }
+            }
+        }
+
+        if (account.available) item {
+            Card {
+                SectionTitle("The board")
+                board()
             }
         }
 
         item {
             Card {
-                SectionTitle("The board")
-                board()
+                SectionTitle("Type & credits")
+                LicencesSection()
             }
         }
     }

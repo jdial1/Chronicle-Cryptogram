@@ -6,17 +6,25 @@ plugins {
 }
 
 /**
- * Firebase is optional. Without google-services.json the plugin is not applied,
- * the app substitutes NoCloudDesk, and the whole game still works -- everything
- * but the leaderboard and cross-device sync is local anyway. That keeps the
- * build green for a contributor with no credentials, and keeps CI honest.
+ * Whether this build has a cloud at all.
+ *
+ * Two conditions, both required, and `core/cloud/build.gradle.kts` computes the
+ * same pair -- they must agree, or the UI here would gate on a flag that does
+ * not match the code it linked against.
+ *
+ * Credentials alone were the old test, and it was the wrong one twice over: a
+ * contributor without google-services.json got a working offline build (good),
+ * but there was no way to *ask* for one, and the Firebase dependencies shipped
+ * either way. `chronicleCloud=false` is how 1.0 ships offline while sign-in and
+ * the leaderboard wait on Google Cloud console work that cannot be done here.
  */
-val hasFirebaseConfig = file("google-services.json").exists()
+val hasFirebaseConfig = providers.gradleProperty("chronicleCloud").get().toBoolean() &&
+    file("google-services.json").exists()
 
 /** The type-3 (web) OAuth client from google-services.json, or empty. */
 fun googleWebClientId(): String {
     val config = file("google-services.json")
-    if (!config.exists()) return ""
+    if (!hasFirebaseConfig || !config.exists()) return ""
     // client_type 3 is the web client. Type 1 is Android and does NOT work with
     // Credential Manager -- using it is the classic cause of a silent sign-in
     // failure, so it is read from the file rather than pasted in by hand.
@@ -95,6 +103,21 @@ val chronicleSdk = providers.gradleProperty("chronicleTargetSdk").get().toInt()
  * client carrying the debug certificate; check `google-services.json` before
  * changing the suffix.
  */
+/**
+ * The Play build number.
+ *
+ * Committed rather than derived, because Play's rule is unforgiving: a version
+ * code can never be reused and can never go backwards, and a rejected upload
+ * burns the number anyway. This was previously the CI run number falling back
+ * to 1, which meant a hand-built bundle uploaded as 1 while a later CI build
+ * would jump to some unrelated number -- two different ways to be rejected on
+ * a value that cannot then be corrected.
+ *
+ * Bump it in gradle.properties in the same commit that ships the build.
+ * `-PchronicleVersionCode=` overrides it for a one-off upload.
+ */
+val chronicleVersionCode = providers.gradleProperty("chronicleVersionCode").get().toInt()
+
 val sideloadAlongsidePlay =
     providers.gradleProperty("chronicleSideload").orNull?.toBoolean() ?: false
 
@@ -110,8 +133,7 @@ android {
         // Credential Manager needs the *web* OAuth client id. Reading it from
         // google-services.json keeps it from being pasted in twice and drifting.
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${'$'}{googleWebClientId()}\"")
-        // CI stamps the build number; a local build is always 1.
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionCode = chronicleVersionCode
         versionName = "1.0.0"
     }
 
