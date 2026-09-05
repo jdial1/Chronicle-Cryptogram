@@ -150,11 +150,19 @@ android {
             // right, carrying this same debug certificate, so Firebase keeps
             // working. Any other suffix would silently lose it.
             //
-            // Note this id is the one the retired Expo shell shipped under, so
-            // a device that still has that build hits the identical signature
-            // conflict here. Uninstall whichever copy is in the way first --
-            // there is no suffix that dodges a signature mismatch, only a
-            // package name nothing else already owns.
+            // Two caveats, both learned the hard way.
+            //
+            // It is the id the retired Expo shell shipped under, so a device
+            // still carrying that build hits the same signature conflict here.
+            // No suffix dodges a signature mismatch -- only a package name
+            // nothing else already owns.
+            //
+            // And `.app` was an abandoned Play attempt: the bundle did not match
+            // the console's project, so it was never submitted. Firebase still
+            // lists it, but its OAuth setup was left half-finished, which is a
+            // likely source of `[28444] Developer console is not set up
+            // correctly` when signing in under this id. Use it to exercise the
+            // game; test sign-in on the real package instead.
             if (sideloadAlongsidePlay) {
                 applicationIdSuffix = ".app"
                 versionNameSuffix = "-sideload"
