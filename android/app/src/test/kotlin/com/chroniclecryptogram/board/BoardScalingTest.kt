@@ -82,6 +82,7 @@ class BoardScalingTest {
                             selectedSymbolId = null,
                             lockedSymbolIds = emptySet(),
                             flaggedSymbolIds = emptySet(),
+                            solved = false,
                             onCellClick = { _, _ -> },
                             modifier = Modifier.fillMaxWidth(),
                             onTilePlaced = { cellId, bounds -> placed[cellId] = bounds },

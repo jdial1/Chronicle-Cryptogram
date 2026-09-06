@@ -313,11 +313,16 @@ private fun DeskContent(
                         selectedSymbolId = state.selectedSymbolId,
                         lockedSymbolIds = state.lockedSymbolIds,
                         flaggedSymbolIds = state.flaggedSymbolIds,
+                        solved = state.isSolved,
                         onCellClick = { cellId, _ ->
                             onAction { BoardActions.select(it, cellId) }
                         },
                         heightBudget = folioBudget,
                     )
+
+                    // Struck over the sheet, not over the chrome: the stamp
+                    // belongs to the page the quote is printed on.
+                    if (state.isSolved) DecodedStamp(state.puzzle.id)
                 }
             }
             }

@@ -185,6 +185,12 @@ fun CipherBoard(
     selectedSymbolId: String?,
     lockedSymbolIds: Set<String>,
     flaggedSymbolIds: Set<String>,
+    /**
+     * A finished board prints as the decoded quote. The glyphs come off it: the
+     * cipher was scaffolding, and leaving it under the answer keeps the reader
+     * decoding a sentence they have already broken.
+     */
+    solved: Boolean,
     onCellClick: (cellId: String, symbolId: String) -> Unit,
     modifier: Modifier = Modifier,
     /** The folio's height budget, so a short quote is set larger. */
@@ -230,13 +236,15 @@ fun CipherBoard(
                         cell = cell,
                         guess = mappings[cell.symbolId],
                         tile = tile,
-                        selected = selectedSymbolId != null && cell.symbolId == selectedSymbolId,
+                        selected = !solved &&
+                            selectedSymbolId != null && cell.symbolId == selectedSymbolId,
                         // Which of the highlighted cells the caret sits on, so
                         // it is still clear where a typed letter lands and which
                         // way the cursor will move next.
-                        focused = cellId == selectedCellId,
+                        focused = !solved && cellId == selectedCellId,
                         locked = cell.symbolId in lockedSymbolIds,
                         flagged = cell.symbolId in flaggedSymbolIds,
+                        solved = solved,
                         onClick = { onCellClick(cellId, cell.symbolId) },
                         modifier = Modifier.layoutId(cellId),
                     )
@@ -320,6 +328,7 @@ private fun CipherTile(
     focused: Boolean,
     locked: Boolean,
     flagged: Boolean,
+    solved: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -338,6 +347,12 @@ private fun CipherTile(
     // The same aria-label wording the web board uses, so the accessibility
     // contract survives the port and UI tests get stable selectors for free.
     val description = buildString {
+        if (solved) {
+            // The glyph is gone from the tile, so naming it here would describe
+            // something nobody can see.
+            append(guess.orEmpty())
+            return@buildString
+        }
         append("Cipher glyph ")
         append(cell.char.orEmpty())
         when {
@@ -380,7 +395,8 @@ private fun CipherTile(
                 },
                 shape = RoundedCornerShape(4.dp),
             )
-            .clickable(onClick = onClick)
+            // A solved board is a printed page, not an instrument.
+            .then(if (solved) Modifier else Modifier.clickable(onClick = onClick))
             // Merged, so the tile is one stop for a screen reader rather than
             // three. Unmerged, its children came through as separate nodes: the
             // labelled tile, the empty letter-slot placeholder, and the raw
@@ -392,7 +408,7 @@ private fun CipherTile(
     ) {
         TileContents(
             cellId = cellId,
-            glyph = cell.char.orEmpty(),
+            glyph = if (solved) "" else cell.char.orEmpty(),
             guess = guess,
             tile = tile,
             ruleColor = colors.paperRule,
@@ -477,7 +493,9 @@ private fun TileContents(
                     )
                 }
             }
-            BoardText(glyph, tile.glyphStyle, inkColor)
+            // Blank on a solved board. The slot keeps its height so the page
+            // does not reflow the moment the last letter goes in.
+            BoardText(glyph.ifEmpty { " " }, tile.glyphStyle, inkColor)
         }
     }
 }
