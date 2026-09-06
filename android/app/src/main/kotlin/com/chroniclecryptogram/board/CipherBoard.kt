@@ -127,6 +127,12 @@ fun CipherBoard(
     words: List<CryptogramWord>,
     mappings: Map<String, String>,
     selectedCellId: String?,
+    /**
+     * The glyph the cursor is on. Every cell showing it lights up, not just the
+     * one that was tapped: a cryptogram is solved by seeing where a glyph
+     * recurs, and one highlighted tile out of nine hides exactly that.
+     */
+    selectedSymbolId: String?,
     lockedSymbolIds: Set<String>,
     flaggedSymbolIds: Set<String>,
     onCellClick: (cellId: String, symbolId: String) -> Unit,
@@ -172,7 +178,11 @@ fun CipherBoard(
                         cell = cell,
                         guess = mappings[cell.symbolId],
                         tile = tile,
-                        selected = cellId == selectedCellId,
+                        selected = selectedSymbolId != null && cell.symbolId == selectedSymbolId,
+                        // Which of the highlighted cells the caret sits on, so
+                        // it is still clear where a typed letter lands and which
+                        // way the cursor will move next.
+                        focused = cellId == selectedCellId,
                         locked = cell.symbolId in lockedSymbolIds,
                         flagged = cell.symbolId in flaggedSymbolIds,
                         onClick = { onCellClick(cellId, cell.symbolId) },
@@ -255,6 +265,7 @@ private fun CipherTile(
     guess: String?,
     tile: TileSize,
     selected: Boolean,
+    focused: Boolean,
     locked: Boolean,
     flagged: Boolean,
     onClick: () -> Unit,
@@ -283,6 +294,9 @@ private fun CipherTile(
             guess != null -> append(", mapped to $guess")
             else -> append(", unassigned")
         }
+        // Said out loud, because the highlight it describes is the whole point
+        // of selecting a glyph and a screen reader cannot see it.
+        if (focused) append(", selected")
     }
 
     val ruleColor = colors.paperRule
@@ -304,8 +318,14 @@ private fun CipherTile(
             .clip(RoundedCornerShape(4.dp))
             .background(if (selected) colors.selected else colors.paperCard)
             .border(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected) colors.brass else colors.paperRule,
+                // Every cell of the glyph takes the fill; only the one under the
+                // caret takes the heavier rule.
+                width = if (focused) 2.dp else 1.dp,
+                color = when {
+                    focused -> colors.brass
+                    selected -> colors.brass
+                    else -> colors.paperRule
+                },
                 shape = RoundedCornerShape(4.dp),
             )
             .clickable(onClick = onClick)

@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +32,14 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleFonts
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 /**
- * The clipping behind a solved edition: headline, dek, byline and the decoded
- * quote as printed copy.
+ * The story behind an edition: plate, headline, dek, byline, and -- once the
+ * cipher is broken -- the decoded dispatch as printed copy.
  *
- * Only reachable once the edition is solved -- the quote *is* the answer, so
- * opening it early would hand the player the puzzle.
+ * Open from the board at any time, the way the web's Story button is. The dek
+ * and the byline are the hook that makes a player want to solve it, so holding
+ * them back until afterwards gets the incentive backwards. The dispatch itself
+ * is the answer, so [solved] is what gates that one paragraph rather than the
+ * whole page.
  *
  * The web wrapped this in its own A-/A+ zoom control. That does not come across:
  * text is in sp, so the system font-size setting scales it, which is the control
@@ -40,6 +48,10 @@ import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 @Composable
 fun ArticleReader(
     puzzle: PuzzleData,
+    /** Whether the cipher has been broken. The dispatch is the answer. */
+    solved: Boolean,
+    /** Returns to the board. Back does the same thing. */
+    onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ChronicleTheme.colors
@@ -54,6 +66,24 @@ fun ArticleReader(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        // A ruled slug, matching the STORY control it was opened from.
+        Row(
+            Modifier
+                .border(1.dp, colors.ink, RoundedCornerShape(2.dp))
+                .clickable(onClick = onClose)
+                .heightIn(min = 40.dp)
+                .padding(horizontal = 10.dp)
+                .semantics { contentDescription = "Back to the desk" },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "← BACK TO THE DESK",
+                style = MaterialTheme.typography.labelLarge,
+                color = colors.ink,
+                maxLines = 1,
+            )
+        }
+
         puzzle.silhouette?.let {
             WoodcutPlate(it, Modifier.align(Alignment.CenterHorizontally))
         }
@@ -88,17 +118,33 @@ fun ArticleReader(
             },
         )
 
-        Text(
-            text = puzzle.originalText,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontFamily = ChronicleFonts.Letterpress,
-            ),
-            color = colors.ink,
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = 640.dp)
-                .align(Alignment.CenterHorizontally)
-                .semantics { contentDescription = "Decoded dispatch" },
-        )
+        if (solved) {
+            Text(
+                text = puzzle.originalText,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = ChronicleFonts.Letterpress,
+                ),
+                color = colors.ink,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 640.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .semantics { contentDescription = "Decoded dispatch" },
+            )
+        } else {
+            Text(
+                // Says why it is missing rather than leaving a gap where the
+                // copy should be, which reads as content that failed to load.
+                text = "The dispatch itself is still in cipher. Break it on the " +
+                    "desk and it prints here.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.paperRule,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 640.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .semantics { contentDescription = "The dispatch is still in cipher" },
+            )
+        }
     }
 }

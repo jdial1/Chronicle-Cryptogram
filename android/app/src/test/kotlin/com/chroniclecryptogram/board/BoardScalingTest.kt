@@ -79,6 +79,7 @@ class BoardScalingTest {
                             words = words,
                             mappings = emptyMap(),
                             selectedCellId = null,
+                            selectedSymbolId = null,
                             lockedSymbolIds = emptySet(),
                             flaggedSymbolIds = emptySet(),
                             onCellClick = { _, _ -> },

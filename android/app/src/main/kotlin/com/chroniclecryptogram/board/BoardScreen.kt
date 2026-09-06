@@ -2,6 +2,8 @@ package com.chroniclecryptogram.board
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -50,6 +53,7 @@ import com.chroniclecryptogram.designsystem.scannedPaper
 import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.ChronicleDialog
 import com.chroniclecryptogram.designsystem.DialogAction
+import com.chroniclecryptogram.reader.ArticleReader
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 /**
@@ -85,6 +89,8 @@ fun BoardScreen(
     // unrecoverable.
     var confirmingClear by remember { mutableStateOf(false) }
     var showingTally by remember { mutableStateOf(false) }
+    // Reset per edition: the story that is open belongs to the board under it.
+    var readingStory by remember(state.puzzle.id) { mutableStateOf(false) }
 
     val tools = deskTools(
         state = state,
@@ -94,6 +100,18 @@ fun BoardScreen(
         onTally = { showingTally = true },
         onClear = { confirmingClear = true },
     )
+
+    if (readingStory) {
+        // Back closes the story before it does anything else on this screen.
+        BackHandler { readingStory = false }
+        ArticleReader(
+            puzzle = puzzle,
+            solved = state.isSolved,
+            onClose = { readingStory = false },
+            modifier = modifier,
+        )
+        return
+    }
 
     BoxWithConstraints(modifier.fillMaxSize()) {
         val deskWidth = DeskWidth.fromWidth(maxWidth)
@@ -111,6 +129,7 @@ fun BoardScreen(
                 tactics = tactics,
                 liveStats = liveStats,
                 useSystemKeyboard = useSystemKeyboard,
+                onOpenStory = { readingStory = true },
             )
         }
     }
@@ -177,6 +196,7 @@ private fun DeskContent(
     tools: List<DeskTool>,
     tactics: List<CipherTactic>,
     liveStats: PuzzleLiveStats?,
+    onOpenStory: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -239,7 +259,7 @@ private fun DeskContent(
                     .verticalScroll(remember(state.puzzle.id) { ScrollState(0) })
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                Masthead(puzzle, compact = compactMasthead)
+                Masthead(puzzle, compact = compactMasthead, onOpenStory = onOpenStory)
 
                 // Only the Primer coaches. Its hints name the words in that one
                 // quote, and a permanent tutorial strip would be noise on every
@@ -277,6 +297,7 @@ private fun DeskContent(
                         words = state.words,
                         mappings = state.mappings,
                         selectedCellId = state.selectedCellId,
+                        selectedSymbolId = state.selectedSymbolId,
                         lockedSymbolIds = state.lockedSymbolIds,
                         flaggedSymbolIds = state.flaggedSymbolIds,
                         onCellClick = { cellId, _ ->
@@ -347,7 +368,11 @@ private fun DeskContent(
 }
 
 @Composable
-private fun Masthead(puzzle: PuzzleData, compact: Boolean = false) {
+private fun Masthead(
+    puzzle: PuzzleData,
+    compact: Boolean = false,
+    onOpenStory: (() -> Unit)? = null,
+) {
     val colors = ChronicleTheme.colors
     Row(
         Modifier.padding(bottom = if (compact) 4.dp else 10.dp),
@@ -384,6 +409,28 @@ private fun Masthead(puzzle: PuzzleData, compact: Boolean = false) {
                 style = MaterialTheme.typography.labelLarge,
                 color = colors.brass,
             )
+        }
+
+        // A ruled slug rather than a Material button: the masthead is print, and
+        // this is the one control that sits inside it.
+        if (onOpenStory != null) {
+            Row(
+                Modifier
+                    .border(1.dp, colors.ink, RoundedCornerShape(2.dp))
+                    .clickable(onClick = onOpenStory)
+                    .heightIn(min = 32.dp)
+                    .padding(horizontal = 8.dp)
+                    .semantics { contentDescription = "Open the story" },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = "STORY",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.ink,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }

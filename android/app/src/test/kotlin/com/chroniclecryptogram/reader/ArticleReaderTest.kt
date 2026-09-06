@@ -3,11 +3,13 @@ package com.chroniclecryptogram.reader
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,9 +32,13 @@ class ArticleReaderTest {
             .decodeFromString(File(root, "src/data/puzzles.json").readText())
     }
 
-    private fun show(puzzle: PuzzleData) {
+    private var closed = 0
+
+    private fun show(puzzle: PuzzleData, solved: Boolean = true) {
         compose.setContent {
-            ChronicleTheme(dark = false) { ArticleReader(puzzle) }
+            ChronicleTheme(dark = false) {
+                ArticleReader(puzzle, solved = solved, onClose = { closed++ })
+            }
         }
     }
 
@@ -73,5 +79,25 @@ class ArticleReaderTest {
         // The slot drives the background; asserting it renders at all is what a
         // screenshot test would otherwise be needed for.
         compose.onNodeWithText(night.headline).assertExists()
+    }
+
+    @Test
+    fun `an unsolved edition shows the story but withholds the dispatch`() {
+        val puzzle = Edition.morningPuzzleForEdition(puzzles, 1)!!
+        show(puzzle, solved = false)
+
+        // The hook is the point of opening it early, so headline, dek and
+        // byline all still print.
+        compose.onNodeWithText(puzzle.headline).assertExists()
+        // The dispatch is the answer.
+        compose.onNodeWithContentDescription("Decoded dispatch").assertDoesNotExist()
+        compose.onNodeWithContentDescription("The dispatch is still in cipher").assertExists()
+    }
+
+    @Test
+    fun `the story closes back to the desk`() {
+        show(Edition.morningPuzzleForEdition(puzzles, 1)!!)
+        compose.onNodeWithContentDescription("Back to the desk").performClick()
+        assertEquals(1, closed)
     }
 }
