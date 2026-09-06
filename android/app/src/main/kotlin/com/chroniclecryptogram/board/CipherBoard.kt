@@ -74,14 +74,23 @@ private val WordRuleWidth = 1.5.dp
  * type produces larger tiles instead of clipped ones.
  */
 @Composable
-fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
+fun rememberTileSize(
+    words: List<CryptogramWord>,
+    maxWidth: Dp,
+    /**
+     * The room the folio actually has. The ladder used to fit width alone, so a
+     * short quote on a tall phone was set at the same size as a long one and
+     * left a third of the page empty under it.
+     */
+    maxHeight: Dp = Dp.Unspecified,
+): TileSize {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val deskWidth = LocalDeskWidth.current
     val letterStyle = BoardTextStyles.tileLetter
     val glyphStyle = BoardTextStyles.tileGlyph
 
-    return remember(words, maxWidth, deskWidth, density.density, density.fontScale) {
+    return remember(words, maxWidth, maxHeight, deskWidth, density.density, density.fontScale) {
         val letterHeight = measurer.measure("W", letterStyle).size.height
         val glyphHeight = measurer.measure("⦿", glyphStyle).size.height
         val letterWidth = measurer.measure("W", letterStyle).size.width
@@ -92,12 +101,15 @@ fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
             val minWidth = max(letterWidth, glyphWidth).toDp() + 8.dp
             val longestWord = words.maxOfOrNull { it.symbols.size } ?: 1
 
-            // Largest width that still fits the longest word on one line; the
-            // smallest rung is a floor, and long words wrap inside themselves.
+            // Largest width that fits the longest word on one line *and* the
+            // whole quote in the height available. Height is checked by running
+            // the same greedy wrap the Layout below does, so the row count is
+            // the real one rather than an estimate.
             val width = TileWidthLadder.firstOrNull { candidate ->
                 candidate <= deskWidth.maxTileWidth &&
                     candidate >= minWidth &&
-                    (candidate * longestWord) + (CellGap * (longestWord - 1)) <= maxWidth
+                    (candidate * longestWord) + (CellGap * (longestWord - 1)) <= maxWidth &&
+                    fitsHeight(words, candidate, maxWidth, maxHeight, contentHeight)
             } ?: maxOf(TileWidthLadder.last(), minWidth)
 
             TileSize(
@@ -108,6 +120,44 @@ fun rememberTileSize(words: List<CryptogramWord>, maxWidth: Dp): TileSize {
             )
         }
     }
+}
+
+/**
+ * Whether the quote set at [width] still fits [maxHeight].
+ *
+ * The same greedy wrap the [Layout] performs: words are kept whole and a word
+ * wider than the folio breaks inside itself. Unspecified height means the caller
+ * does not know its budget, in which case any width passes and the ladder
+ * behaves as it did before.
+ */
+private fun fitsHeight(
+    words: List<CryptogramWord>,
+    width: Dp,
+    maxWidth: Dp,
+    maxHeight: Dp,
+    tileHeight: Dp,
+): Boolean {
+    if (maxHeight == Dp.Unspecified) return true
+
+    var lines = 1
+    var used = 0.dp
+    for (word in words) {
+        val cells = word.symbols.size
+        val span = (width * cells) + (CellGap * (cells - 1))
+        val needed = if (used == 0.dp) span else span + WordGap
+        if (used + needed <= maxWidth) {
+            used += needed
+        } else {
+            lines++
+            used = span
+        }
+        // A word too wide for the folio wraps inside itself; count the overflow.
+        while (used > maxWidth) {
+            lines++
+            used -= maxWidth
+        }
+    }
+    return (tileHeight * lines) + (LineGap * (lines - 1)) <= maxHeight
 }
 
 /**
@@ -137,10 +187,12 @@ fun CipherBoard(
     flaggedSymbolIds: Set<String>,
     onCellClick: (cellId: String, symbolId: String) -> Unit,
     modifier: Modifier = Modifier,
+    /** The folio's height budget, so a short quote is set larger. */
+    heightBudget: Dp = Dp.Unspecified,
     onTilePlaced: (cellId: String, bounds: Rect) -> Unit = { _, _ -> },
 ) {
     BoxWithConstraints(modifier) {
-        val tile = rememberTileSize(words, maxWidth)
+        val tile = rememberTileSize(words, maxWidth, heightBudget)
         val density = LocalDensity.current
 
         val cells = remember(words) {

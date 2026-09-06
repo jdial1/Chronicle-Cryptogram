@@ -57,14 +57,14 @@ private const val PressMillis = 150L
 /** How far a key travels when struck. `translateY(7px)` in the CSS. */
 private val KeyTravel = 7.dp
 
-/* The bank is near-black rather than paper: these keys are machine, not page. */
-internal val BankInk = Color(0xFF1A1816)
-internal val BankEdge = Color(0xFF0A0908)
-private val KeyTop = Color(0xFF3A342C)
-private val KeyBottom = Color(0xFF141210)
-private val KeyPressedTop = Color(0xFF1C1814)
-private val KeyPressedBottom = Color(0xFF070605)
-internal val KeyShadow = Color(0xFF5C4A28)
+/*
+ * The bank's colours moved to InstrumentColors, which follows the theme.
+ * They were six fixed near-blacks, which is what the web's board.css uses --
+ * but the web never puts them under a cream page on a phone-sized screen. In
+ * day they read as a different application bolted to the bottom, and in night
+ * the bank at #0A0908 was actually *darker* than the #1C1A17 paper above it,
+ * so the machine looked like a hole cut in the desk.
+ */
 
 /**
  * The brass typewriter bank, ported from `TypewriterKeyboard.tsx` and
@@ -95,10 +95,11 @@ fun TypewriterKeyboard(
      */
     maxHeight: Dp = Dp.Unspecified,
 ) {
+    val instrument = ChronicleTheme.instrument
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            .background(BankEdge)
+            .background(instrument.edge)
             .padding(top = 2.dp)
             .semantics { contentDescription = "Typewriter keyboard" }
     ) {
@@ -121,7 +122,7 @@ fun TypewriterKeyboard(
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(BankInk)
+                .background(instrument.bed)
                 .padding(horizontal = 4.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(gap),
             // Centred, not left-aligned. When the keys are capped -- a wide
@@ -183,7 +184,7 @@ private fun TypewriterKey(
     fontSize: androidx.compose.ui.unit.TextUnit,
     onPress: () -> Unit,
 ) {
-    val colors = ChronicleTheme.colors
+    val instrument = ChronicleTheme.instrument
     val haptics = LocalHapticFeedback.current
     var pressed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -212,7 +213,7 @@ private fun TypewriterKey(
                 .padding(top = travel + plinth)
                 .size(width, height)
                 .clip(shape)
-                .background(KeyShadow)
+                .background(instrument.keyRim)
         )
 
         Box(
@@ -223,14 +224,14 @@ private fun TypewriterKey(
                 .background(
                     Brush.radialGradient(
                         colors = if (pressed) {
-                            listOf(KeyPressedTop, KeyPressedBottom)
+                            listOf(instrument.keyPressedTop, instrument.keyPressedBottom)
                         } else {
-                            listOf(KeyTop, KeyBottom)
+                            listOf(instrument.keyTop, instrument.keyBottom)
                         },
                         center = Offset(0.5f, if (pressed) 0.78f else 0.24f),
                     )
                 )
-                .border(BorderStroke(3.dp, colors.brass), shape)
+                .border(BorderStroke(3.dp, instrument.keyRim), shape)
                 // One stop per key. Unmerged, the letter drawn on the keycap
                 // came through as a second node, so every key was announced
                 // twice.
@@ -257,7 +258,7 @@ private fun TypewriterKey(
                 text = label,
                 fontFamily = ChronicleFonts.Typewriter,
                 fontSize = fontSize,
-                color = colors.inkCream,
+                color = instrument.keyInk,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )

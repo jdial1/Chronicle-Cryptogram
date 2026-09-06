@@ -52,6 +52,8 @@ fun ChronicleTheme(
 
     CompositionLocalProvider(
         LocalChronicleColors provides colors,
+        LocalInstrumentColors provides
+            if (dark) DarkInstrumentColors else LightInstrumentColors,
         LocalEditionSlot provides slot,
         LocalReduceMotion provides reduceMotion,
     ) {
@@ -67,6 +69,10 @@ fun ChronicleTheme(
 object ChronicleTheme {
     val colors: ChronicleColors
         @Composable get() = LocalChronicleColors.current
+
+    /** The typewriter bank and the tool dock, which follow the paper. */
+    val instrument: InstrumentColors
+        @Composable get() = LocalInstrumentColors.current
 
     val slot: EditionSlot
         @Composable get() = LocalEditionSlot.current

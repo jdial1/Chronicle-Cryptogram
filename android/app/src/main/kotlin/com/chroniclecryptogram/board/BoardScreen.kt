@@ -251,9 +251,18 @@ private fun DeskContent(
         }
 
         val board: @Composable ColumnScope.() -> Unit = {
+            // Measured, not estimated. keyboardBudget is a cap the bank rarely
+            // reaches -- it draws to the size of its keys -- so deriving the
+            // folio's room by subtracting it left the board sized for a third
+            // less page than it actually had, and the shortfall showed as bare
+            // desk under the last line.
+            BoxWithConstraints(Modifier.weight(1f)) {
+            val folioBudget = (
+                maxHeight -
+                    (if (compactMasthead) CompactMastheadAllowance else MastheadAllowance)
+                ).coerceAtLeast(BoardMinHeight)
             Column(
                 Modifier
-                    .weight(1f)
                     // A new edition starts at the top of its own board rather
                     // than wherever the last one was left scrolled.
                     .verticalScroll(remember(state.puzzle.id) { ScrollState(0) })
@@ -290,6 +299,10 @@ private fun DeskContent(
                         // cipher is printed on, rather than glyphs floating on
                         // the desk.
                         .border(1.dp, colors.paperRule)
+                        // The sheet covers the room it has rather than stopping
+                        // under the last line: a small bordered box with bare
+                        // desk beneath reads as a cropped page.
+                        .heightIn(min = folioBudget)
                         .scannedPaper(fill = colors.paperGrainFill, dot = colors.paperGrain)
                         .padding(horizontal = 12.dp, vertical = 16.dp),
                 ) {
@@ -303,8 +316,10 @@ private fun DeskContent(
                         onCellClick = { cellId, _ ->
                             onAction { BoardActions.select(it, cellId) }
                         },
+                        heightBudget = folioBudget,
                     )
                 }
+            }
             }
         }
 
@@ -448,6 +463,10 @@ private val BoardMinHeight = 190.dp
 
 /** Roughly what the flat dock costs, so the budget can allow for it. */
 private val DockAllowance = 64.dp
+
+/** The masthead plus the folio's own border and padding. */
+private val MastheadAllowance = 132.dp
+private val CompactMastheadAllowance = 96.dp
 
 /** Below this the keys stop being worth pressing, so the board yields instead. */
 private val MinKeyboardHeight = 104.dp

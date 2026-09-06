@@ -370,6 +370,9 @@ private fun ChronicleApp() {
 @Composable
 internal fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
     val colors = ChronicleTheme.colors
+    // The rule was a fixed near-black, which is a hairline on cream and all but
+    // invisible on the night masthead it is meant to separate.
+    val ruleInk = colors.ink
 
     Row(
         Modifier
@@ -380,7 +383,7 @@ internal fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
             // rather than floating over it.
             .drawBehind {
                 drawRect(
-                    color = inkRule,
+                    color = ruleInk,
                     size = Size(size.width, ruleHeight.toPx()),
                 )
             }
@@ -413,7 +416,6 @@ internal fun DeskBar(current: Destination, onGo: (Destination) -> Unit) {
 
 /** The rule under the masthead, and the section marker on the open one. */
 private val ruleHeight = 2.dp
-private val inkRule = Color(0xFF1C1A17)
 
 /**
  * One section of the desk.

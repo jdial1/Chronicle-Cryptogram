@@ -3,8 +3,10 @@ package com.chroniclecryptogram.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -44,31 +46,44 @@ fun PaperList(
     modifier: Modifier = Modifier,
     /** The Archive is a long list of rows and wants less air than a page of cards. */
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(12.dp),
+    /**
+     * Pinned under the title, above the scrolling content. Tabs live here: a
+     * tab strip that scrolls away is one the reader has to scroll back up to
+     * before they can change section.
+     */
+    header: (@Composable () -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
-    LazyColumn(
-        modifier = modifier
+    Column(
+        Modifier
             .fillMaxSize()
             .background(ChronicleTheme.colors.paper)
             .safeDrawingPadding()
-            .testTag(testTag),
-        contentPadding = PaddingValues(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = verticalArrangement,
+            .then(modifier),
     ) {
-        item {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.displayMedium,
-                color = ChronicleTheme.colors.ink,
-                modifier = Modifier
-                    // Capped before it fills, the same order ChroniclePanel
-                    // needs and for the same reason.
-                    .widthIn(max = ReadingMeasure)
-                    .fillMaxWidth()
-                    .semantics { heading() },
-            )
-        }
-        content()
+        Text(
+            text = title,
+            style = MaterialTheme.typography.displayMedium,
+            color = ChronicleTheme.colors.ink,
+            modifier = Modifier
+                // Capped before it fills, the same order ChroniclePanel needs
+                // and for the same reason.
+                .widthIn(max = ReadingMeasure)
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                .semantics { heading() },
+        )
+
+        header?.invoke()
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(testTag),
+            contentPadding = PaddingValues(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = verticalArrangement,
+            content = content,
+        )
     }
 }

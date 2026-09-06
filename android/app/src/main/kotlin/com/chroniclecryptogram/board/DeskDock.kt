@@ -117,7 +117,7 @@ internal fun DeskDock(tools: List<DeskTool>, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(BankEdge)
+            .background(ChronicleTheme.instrument.edge)
             .padding(horizontal = 4.dp, vertical = 6.dp)
             .testTag(DockTag),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -136,7 +136,7 @@ internal fun DeskDock(tools: List<DeskTool>, modifier: Modifier = Modifier) {
 internal fun DeskRail(tools: List<DeskTool>, modifier: Modifier = Modifier) {
     Column(
         modifier
-            .background(BankEdge)
+            .background(ChronicleTheme.instrument.edge)
             .padding(vertical = 6.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -152,7 +152,9 @@ private fun DockTool(tool: DeskTool, modifier: Modifier = Modifier) {
     val colors = ChronicleTheme.colors
     // Brass on the dark bar, dimmed rather than hidden when spent: a spent
     // wallet still has to show its count, which is the point of the badge.
-    val tint = if (tool.enabled) colors.brass else Color(0xFF6B6156)
+    // The dock sits on the machine, not the page, so a disabled tool
+    // takes the instrument's own grey rather than the paper's rule colour.
+    val tint = if (tool.enabled) colors.brass else ChronicleTheme.instrument.toolDisabled
 
     Column(
         modifier

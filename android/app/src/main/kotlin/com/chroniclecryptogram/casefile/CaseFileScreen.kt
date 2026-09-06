@@ -17,6 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
+import com.chroniclecryptogram.designsystem.FolderTabs
+import com.chroniclecryptogram.designsystem.ChroniclePanel
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -64,117 +69,116 @@ fun CaseFileScreen(
     val colors = ChronicleTheme.colors
     var expanded by remember { mutableStateOf<String?>(null) }
 
+    // Only people the player has actually turned up something on. A dossier
+    // with no notes in it is not a teaser, it is an empty folder: it lists the
+    // cast before they have appeared and spoils who the story is about.
     val dossiers = remember(content, puzzles, solvedPuzzleIds) {
-        content.characters.map { character ->
-            character to CaseFiles.unlockedFragmentsForCharacter(
-                character.id, content, puzzles, solvedPuzzleIds,
-            )
-        }
+        content.characters
+            .map { character ->
+                character to CaseFiles.unlockedFragmentsForCharacter(
+                    character.id, content, puzzles, solvedPuzzleIds,
+                )
+            }
+            .filter { (_, fragments) -> fragments.isNotEmpty() }
     }
 
-    PaperList(title = "Case File", testTag = CaseFileListTag, modifier = modifier) {
-        items(dossiers, key = { it.first.id }) { (character, fragments) ->
-            val isOpen = expanded == character.id
-            // The chevron turns to point down when the row is open, so the
-            // affordance is visible before the tap rather than discovered by it.
-            val chevron by animateFloatAsState(
-                targetValue = if (isOpen) 90f else 0f,
-                label = "dossierChevron",
-            )
+    if (dossiers.isEmpty()) {
+        // Not an empty tab strip over an empty page: before the first edition
+        // is decoded there is no cast to file, and saying so is the whole
+        // content of this screen.
+        PaperList(title = "Case File", testTag = CaseFileListTag, modifier = modifier) {
+            item {
+                Text(
+                    text = "Nothing on file yet. Decode an edition and whoever it " +
+                        "names opens a dossier here.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colors.paperRule,
+                    modifier = Modifier.semantics {
+                        contentDescription = "No dossiers yet. Decode an edition to open one."
+                    },
+                )
+            }
+        }
+        return
+    }
 
+    // One dossier per tab, the way the web files them. Clamped rather than
+    // remembered by id: a tab can disappear between compositions only by the
+    // player losing progress, and landing on the first is the right answer then.
+    var open by rememberSaveable(dossiers.size) { mutableIntStateOf(0) }
+    val (character, fragments) = dossiers[open.coerceIn(dossiers.indices)]
+
+    PaperList(
+        title = "Case File",
+        testTag = CaseFileListTag,
+        modifier = modifier,
+        header = {
+            FolderTabs(
+                tabs = dossiers.map { dossierTab(it.first.name) },
+                selected = open.coerceIn(dossiers.indices),
+                onSelect = { open = it },
+            )
+        },
+    ) {
+        item(key = "${character.id}-head") {
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(colors.paperCard)
-                    .clickable(
-                        role = Role.Button,
-                        onClickLabel = if (isOpen) "Collapse dossier" else "Expand dossier",
-                    ) {
-                        expanded = if (isOpen) null else character.id
-                    }
-                    .padding(12.dp)
                     .semantics {
-                        contentDescription = if (fragments.isEmpty()) {
-                            "${character.name}, nothing decoded"
-                        } else {
+                        contentDescription =
                             "${character.name}, ${fragments.size} notes decoded"
-                        }
-                        // TalkBack announces open/closed, which colour and a
-                        // rotated glyph cannot convey on their own.
-                        stateDescription = if (isOpen) "Expanded" else "Collapsed"
                     },
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            text = character.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.ink,
-                        )
-                        Text(
-                            text = character.dossier,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = colors.brass,
-                        )
-                    }
-                    // A bare dash read as a placeholder rather than as "none".
-                    Text(
-                        text = if (fragments.isEmpty()) {
-                            "No notes"
-                        } else if (fragments.size == 1) {
-                            "1 note"
-                        } else {
-                            "${fragments.size} notes"
-                        },
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (fragments.isEmpty()) colors.paperRule else colors.brass,
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = colors.brass,
-                        modifier = Modifier
-                            .padding(start = 4.dp)
-                            .rotate(chevron),
-                    )
-                }
+                Text(
+                    text = character.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.ink,
+                )
+                Text(
+                    text = character.dossier,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.brass,
+                )
+            }
+        }
 
-                if (expanded == character.id) {
-                    if (fragments.isEmpty()) {
-                        Text(
-                            text = "Nothing on file yet. Decode an edition that names them.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.paperRule,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    } else {
-                        fragments.forEach { fragment ->
-                            Column(Modifier.padding(top = 12.dp)) {
-                                Text(
-                                    text = fragment.title,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = colors.ink,
-                                )
-                                Text(
-                                    text = buildNote(fragment.segments),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = colors.ink,
-                                )
-                            }
-                        }
-                    }
-                }
+        items(fragments, key = { "${character.id}-${it.title}" }) { fragment ->
+            ChroniclePanel(contentPadding = PaddingValues(12.dp)) {
+                Text(
+                    text = fragment.title,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.ink,
+                )
+                Text(
+                    text = buildNote(fragment.segments),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.ink,
+                )
             }
         }
     }
 }
+
 
 /**
  * Renders a dossier note. Decoded quotes are set in the typewriter face and
  * italicised, so the player's own solved text reads as evidence rather than as
  * more of the narrator's prose.
  */
+/**
+ * The name a tab carries.
+ *
+ * The honorific goes first, the way the web's `dossierSubject` drops it, or
+ * three of seven dossiers would file under "DETECTIVE" and "DR". What is left is
+ * the given name, which is distinct across the whole cast -- three of them are
+ * Vances, so a surname would not be.
+ */
+internal fun dossierTab(name: String): String = name
+    .removePrefix("Detective ")
+    .removePrefix("Dr. ")
+    .trim()
+    .substringBefore(' ')
+
 @Composable
 private fun buildNote(segments: List<CaseNoteSegment>) = buildAnnotatedString {
     for (segment in segments) {

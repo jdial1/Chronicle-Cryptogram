@@ -9,6 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.chroniclecryptogram.designsystem.FolderTabs
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -37,39 +43,66 @@ fun GuideScreen(
 ) {
     val colors = ChronicleTheme.colors
 
+    // One page per section, the way the web files the handbook. The whole thing
+    // as a single scroll was six panels deep and the tactic a player wanted was
+    // never the one on screen.
+    val pages = remember(tactics) {
+        buildList {
+            add("Desk" to null)
+            // The id, not the title: "Attack the Single-Letter Words First" is
+            // a heading, and as a tab it ran off the side of the phone and took
+            // every tab after it with it. The web tabs these on the same ids.
+            tactics.tactics.forEach { add(tacticTab(it.id) to it) }
+        }
+    }
+    var page by rememberSaveable(tactics.tactics.size) { mutableIntStateOf(0) }
+    val current = pages.getOrNull(page) ?: pages.first()
+
     PaperList(
         title = "The Codebreaker's Handbook",
         testTag = GuideListTag,
         modifier = modifier,
-    ) {
-        item {
-            Text(
-                text = tactics.intro,
-                style = MaterialTheme.typography.bodyLarge,
-                color = colors.ink,
+        header = {
+            FolderTabs(
+                tabs = pages.map { it.first },
+                selected = page,
+                onSelect = { page = it },
             )
-        }
-
-        item {
-            Section(title = "The desk") {
-                deskTools(tactics.tools).forEach { Point(it) }
-            }
-        }
-
-        items(tactics.tactics.size) { index ->
-            val tactic = tactics.tactics[index]
-            Section(title = tactic.title) {
+        },
+    ) {
+        val tactic = current.second
+        if (tactic == null) {
+            item {
                 Text(
-                    text = tactic.summary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.brass,
-                    modifier = Modifier.padding(bottom = 6.dp),
+                    text = tactics.intro,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colors.ink,
                 )
-                tactic.points.forEach { Point(it) }
+            }
+            item {
+                Section(title = "The desk") {
+                    deskTools(tactics.tools).forEach { Point(it) }
+                }
+            }
+        } else {
+            item(key = tactic.title) {
+                Section(title = tactic.title) {
+                    Text(
+                        text = tactic.summary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.brass,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                    tactic.points.forEach { Point(it) }
+                }
             }
         }
     }
 }
+
+/** `short-words` reads as "Short Words" on a tab. */
+private fun tacticTab(id: String): String =
+    id.split('-').joinToString(" ") { part -> part.replaceFirstChar { it.uppercase() } }
 
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {

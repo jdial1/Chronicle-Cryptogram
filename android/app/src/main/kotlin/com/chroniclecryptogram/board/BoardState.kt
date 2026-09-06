@@ -111,9 +111,33 @@ data class BoardState(
             val cipher = PuzzleState.cipherForPuzzle(puzzle)
             return BoardState(
                 puzzle = puzzle,
-                words = cipher.words,
+                words = withoutTrailingStop(cipher.words),
                 answer = cipher.decoded,
             )
+        }
+
+        /**
+         * Drops the full stop that ends nearly every quote.
+         *
+         * It carries no information -- there is nothing to decode in a period,
+         * and no cryptogram is solved by one -- but it is a cell like any other,
+         * so on a narrow board it regularly wrapped onto a line of its own and
+         * left a single dot floating under the last word.
+         *
+         * Display only, and deliberately not done in `:core:cipher`: the parse
+         * is fixture-pinned against the TypeScript, [answer] is keyed on letter
+         * symbols which a period is not, and `originalText` still carries the
+         * stop wherever the quote is printed as prose.
+         */
+        private fun withoutTrailingStop(words: List<CryptogramWord>): List<CryptogramWord> {
+            val last = words.lastOrNull() ?: return words
+            val trimmed = last.symbols.dropLastWhile { it.isPunctuation && it.char == "." }
+            return when {
+                trimmed.size == last.symbols.size -> words
+                // The stop was the whole of the last "word", so the word goes.
+                trimmed.isEmpty() -> words.dropLast(1)
+                else -> words.dropLast(1) + last.copy(symbols = trimmed)
+            }
         }
     }
 }
