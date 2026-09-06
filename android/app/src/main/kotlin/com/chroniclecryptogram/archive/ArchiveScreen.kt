@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.chroniclecryptogram.casefile.WoodcutPlate
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.cipher.PrimerPractice
 import com.chroniclecryptogram.cipher.model.Issue
 import com.chroniclecryptogram.cipher.model.IssueChapter
 import com.chroniclecryptogram.cipher.model.PuzzleData
@@ -78,6 +79,7 @@ fun ArchiveScreen(
 ) {
     val colors = ChronicleTheme.colors
     val issues = remember(puzzles) { Edition.groupIssues(puzzles) }
+    val practiceCard = remember(puzzles) { PrimerPractice.archiveCard(puzzles) }
     val frontPage = remember(puzzles, solvedPuzzleIds) {
         Edition.frontPageEdition(puzzles, solvedPuzzleIds.toList())
     }
@@ -107,6 +109,7 @@ fun ArchiveScreen(
             item(key = issue.editionNumber) {
                 IssueRow(
                     issue = issue,
+                    practiceCard = practiceCard,
                     unlocked = issue.editionNumber <= frontPage,
                     solvedPuzzleIds = solvedPuzzleIds,
                     expanded = expanded == issue.editionNumber,
@@ -148,6 +151,8 @@ private fun ChapterHeading(chapter: IssueChapter) {
 @Composable
 private fun IssueRow(
     issue: Issue,
+    /** The Primer's drill slot, where other editions have a Night Extra. */
+    practiceCard: PuzzleData?,
     unlocked: Boolean,
     solvedPuzzleIds: Set<String>,
     expanded: Boolean,
@@ -161,6 +166,12 @@ private fun IssueRow(
     val nightUnlocked = unlocked && morningSolved
     val nightSolved = issue.night?.id in solvedPuzzleIds
     val label = Edition.editionLabel(issue.editionNumber)
+
+    // The Primer has no Night Extra. Its second slot is a drill: unlimited,
+    // never solved, and unlocked by finishing the Primer itself.
+    val practice = practiceCard.takeIf { issue.editionNumber == 0 }
+    val extraUnlocked = if (practice != null) unlocked && morningSolved else nightUnlocked
+    val hasExtra = practice != null || issue.night != null
 
     ChroniclePanel(
         modifier = modifier,
@@ -181,7 +192,9 @@ private fun IssueRow(
                         append(label)
                         append(if (unlocked) ", unlocked" else ", locked")
                         append(if (morningSolved) ", morning decoded" else ", morning open")
-                        if (issue.night != null) {
+                        if (practice != null) {
+                            append(if (extraUnlocked) ", practice drill" else ", practice locked")
+                        } else if (issue.night != null) {
                             append(if (nightSolved) ", night extra decoded" else ", night extra")
                         }
                         append(if (expanded) ", expanded" else ", collapsed")
@@ -211,7 +224,11 @@ private fun IssueRow(
             }
 
             SlotDot(solved = morningSolved, unlocked = unlocked)
-            if (issue.night != null) SlotDot(solved = nightSolved, unlocked = nightUnlocked)
+            // A drill is never "solved" -- there is always another one -- so its
+            // dot only ever reports whether it can be opened.
+            if (hasExtra) {
+                SlotDot(solved = practice == null && nightSolved, unlocked = extraUnlocked)
+            }
 
             Icon(
                 imageVector = if (expanded) {
@@ -239,15 +256,27 @@ private fun IssueRow(
                         onOpen = onOpen,
                     )
                 }
-                issue.night?.let { night ->
+                if (practice != null) {
                     SlotCard(
-                        slot = "Night Extra",
-                        puzzle = night,
-                        unlocked = nightUnlocked,
-                        solved = nightSolved,
-                        lockReason = "Decode the Morning Edition to unlock.",
+                        slot = "Practice Drill",
+                        puzzle = practice,
+                        unlocked = extraUnlocked,
+                        // Never decoded: opening it mints a new one every time.
+                        solved = false,
+                        lockReason = "Decode the Primer to unlock.",
                         onOpen = onOpen,
                     )
+                } else {
+                    issue.night?.let { night ->
+                        SlotCard(
+                            slot = "Night Extra",
+                            puzzle = night,
+                            unlocked = nightUnlocked,
+                            solved = nightSolved,
+                            lockReason = "Decode the Morning Edition to unlock.",
+                            onOpen = onOpen,
+                        )
+                    }
                 }
             }
         }

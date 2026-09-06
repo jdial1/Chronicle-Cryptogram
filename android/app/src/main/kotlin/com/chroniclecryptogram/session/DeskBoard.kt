@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.chroniclecryptogram.BuildConfig
 import com.chroniclecryptogram.board.BoardState
+import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.Leaderboard
 import com.chroniclecryptogram.data.LeaderboardEntry
@@ -67,10 +68,15 @@ fun rememberDeskBoard(
     var statsRevision by remember { mutableIntStateOf(0) }
 
     val puzzleId = state?.puzzle?.id
-    val solved = state?.isSolved == true
+    // A drill is not an edition. It has no standings to fetch, no time worth
+    // posting and no public counter to file against -- and its id is minted
+    // fresh each time, so filing one would leave a single-solve board behind
+    // for every drill anyone ever ran.
+    val practice = state != null && Edition.isPracticePuzzle(state.puzzle)
+    val solved = state?.isSolved == true && !practice
 
     LaunchedEffect(puzzleId, uid, boardRevision) {
-        if (!BuildConfig.HAS_FIREBASE || puzzleId == null) return@LaunchedEffect
+        if (!BuildConfig.HAS_FIREBASE || puzzleId == null || practice) return@LaunchedEffect
         board = StandingsState.Loading
         board = runCatching { boards.standings(puzzleId, uid) }
             .fold(
@@ -111,7 +117,7 @@ fun rememberDeskBoard(
     // The public counters for whatever board is open. Opening a puzzle files a
     // start receipt, which is what the solve rate is measured against.
     LaunchedEffect(puzzleId, uid, statsRevision) {
-        if (!BuildConfig.HAS_FIREBASE) return@LaunchedEffect
+        if (!BuildConfig.HAS_FIREBASE || practice) return@LaunchedEffect
         val id = puzzleId ?: return@LaunchedEffect
         withContext(Dispatchers.IO) {
             if (uid != null) runCatching { puzzleStats.recordStart(uid, id) }

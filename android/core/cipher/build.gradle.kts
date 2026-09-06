@@ -24,7 +24,7 @@ java {
  */
 val stageContentForTests = tasks.register<Sync>("stageContentForTests") {
     // Only what the parity fixtures read.
-    from(rootProject.file("../src/data")) { include("puzzles.json") }
+    from(rootProject.file("../src/data")) { include("puzzles.json", "primerPractice.json") }
     into(layout.buildDirectory.dir("generated/test-content/content"))
 }
 

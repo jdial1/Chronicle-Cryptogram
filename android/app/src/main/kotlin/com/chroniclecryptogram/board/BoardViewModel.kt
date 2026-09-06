@@ -3,6 +3,7 @@ package com.chroniclecryptogram.board
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chroniclecryptogram.cipher.Merge
+import com.chroniclecryptogram.cipher.PrimerPractice
 import com.chroniclecryptogram.cipher.model.Wallets
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
@@ -75,7 +76,7 @@ class BoardViewModel(
             }
 
             _state.value = restored
-            if (saved == null) {
+            if (saved == null && !Edition.isPracticePuzzle(target)) {
                 store.update { DeskActions.recordStart(it, now()) }
             }
         }
@@ -135,6 +136,19 @@ class BoardViewModel(
         }
     }
 
+    /**
+     * Mints a fresh drill and opens it.
+     *
+     * [pool] is `primerPractice.json`, staged from `src/data` like the rest of
+     * the content. Nothing happens when the season carries no Primer to cut a
+     * drill from, which is the same thing the web does.
+     */
+    fun startPractice(pool: List<String>) {
+        val current = _state.value?.puzzle
+        val exclude = current?.takeIf { Edition.isPracticePuzzle(it) }?.originalText
+        PrimerPractice.create(puzzles, pool, excludeText = exclude)?.let { open(it) }
+    }
+
     /** Opens whatever [nextPuzzle] finds, or stays put at the end of the season. */
     fun advance() {
         viewModelScope.launch {
@@ -153,9 +167,19 @@ class BoardViewModel(
     }
 
     private fun persist(state: BoardState, wasSolved: Boolean) {
+        // A drill counts for nothing. It is not saved, because its id is unique
+        // per drill and the desk would accumulate a dead board for every one
+        // ever started; and it is not recorded, because a drill in the campaign
+        // count would let a player run the season total past the season.
+        //
+        // The wallets are the exception, and deliberately: a drill carries the
+        // Primer's edition number, so its hints and checks come out of the
+        // Primer's three. Otherwise drills would be an unlimited hint supply.
+        val practice = Edition.isPracticePuzzle(state.puzzle)
+
         viewModelScope.launch {
             store.update { desk ->
-                var updated = DeskActions.saveProgress(
+                var updated = if (practice) desk else DeskActions.saveProgress(
                     desk,
                     state.puzzle.id,
                     BoardActions.toProgress(state),
@@ -180,7 +204,7 @@ class BoardViewModel(
                 )
                 // Only on the transition into solved, so reopening a finished
                 // puzzle cannot pad the campaign count or the time played.
-                if (state.isSolved && !wasSolved) {
+                if (state.isSolved && !wasSolved && !practice) {
                     updated = DeskActions.recordSolve(
                         updated,
                         state.puzzle.id,

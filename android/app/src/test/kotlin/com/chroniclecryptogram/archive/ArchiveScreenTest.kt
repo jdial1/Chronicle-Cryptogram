@@ -14,6 +14,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.cipher.PrimerPractice
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlinx.serialization.json.Json
@@ -187,5 +188,39 @@ class ArchiveScreenTest {
         show()
         // Chapter titles are the landmarks that make thirty editions navigable.
         compose.onNodeWithText(Edition.chapterForEdition(1).title).assertExists()
+    }
+
+    @Test
+    fun `the Primer offers a practice drill where other editions have a Night Extra`() {
+        val primer = puzzles.first { Edition.isPrimerPuzzle(it) }
+        show(setOf(primer.id))
+
+        compose.onNodeWithTag(issueRowTag(0)).performClick()
+        compose.onNodeWithText("PRACTICE DRILL").assertIsDisplayed()
+        // The Primer has no evening slot to fill, which is why the drill can
+        // take it without displacing anything.
+        compose.onNodeWithText("NIGHT EXTRA").assertDoesNotExist()
+    }
+
+    @Test
+    fun `the drill is locked until the Primer itself is decoded`() {
+        show(emptySet())
+
+        compose.onNodeWithTag(issueRowTag(0)).performClick()
+        compose.onNodeWithText("Decode the Primer to unlock.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `opening the drill slot hands back the practice card, not the Primer`() {
+        val primer = puzzles.first { Edition.isPrimerPuzzle(it) }
+        show(setOf(primer.id))
+
+        compose.onNodeWithTag(issueRowTag(0)).performClick()
+        compose.onNodeWithText("PRACTICE DRILL").performClick()
+
+        // The card is a placeholder the caller swaps for a freshly minted drill.
+        // Handing back the Primer's own record here would reopen the Primer.
+        assertEquals(1, opened.size)
+        assertEquals(PrimerPractice.SLOT_ID, opened.last().id)
     }
 }

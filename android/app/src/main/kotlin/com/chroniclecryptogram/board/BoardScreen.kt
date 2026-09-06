@@ -66,6 +66,8 @@ fun BoardScreen(
     onAction: ((BoardState) -> BoardState) -> Unit,
     modifier: Modifier = Modifier,
     onNext: (() -> Unit)? = null,
+    /** Mints another Primer drill; null where the season has no Primer. */
+    onPractice: (() -> Unit)? = null,
     useSystemKeyboard: Boolean = false,
     tactics: List<CipherTactic> = emptyList(),
     liveStats: PuzzleLiveStats? = null,
@@ -104,6 +106,7 @@ fun BoardScreen(
                 colors = colors,
                 puzzle = puzzle,
                 onNext = onNext,
+                onPractice = onPractice,
                 tools = tools,
                 tactics = tactics,
                 liveStats = liveStats,
@@ -169,6 +172,7 @@ private fun DeskContent(
     colors: com.chroniclecryptogram.designsystem.theme.ChronicleColors,
     puzzle: PuzzleData,
     onNext: (() -> Unit)?,
+    onPractice: (() -> Unit)?,
     useSystemKeyboard: Boolean,
     tools: List<DeskTool>,
     tactics: List<CipherTactic>,
@@ -285,7 +289,17 @@ private fun DeskContent(
 
         val instrument: @Composable ColumnScope.() -> Unit = {
             if (state.isSolved) {
-                SolveBulletin(state = state, onNext = onNext, liveStats = liveStats)
+                SolveBulletin(
+                    state = state,
+                    onNext = onNext,
+                    liveStats = liveStats,
+                    // Offered off the Primer and off a drill; a real edition's
+                    // bulletin has its own way on.
+                    onPractice = onPractice.takeIf {
+                        Edition.isPrimerPuzzle(state.puzzle) ||
+                            Edition.isPracticePuzzle(state.puzzle)
+                    },
+                )
             } else if (useSideRail) {
                 // Room enough to put the tools beside the keyboard rather than
                 // stacking a full-width dock the player's thumbs cannot reach.

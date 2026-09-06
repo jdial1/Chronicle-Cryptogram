@@ -64,6 +64,7 @@ import com.chroniclecryptogram.board.BoardScreen
 import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.casefile.CaseFileScreen
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.cipher.PrimerPractice
 import com.chroniclecryptogram.content.ContentParser
 import com.chroniclecryptogram.cloud.createAccountRepository
 import com.chroniclecryptogram.cloud.createCloudDesk
@@ -160,6 +161,7 @@ private fun ChronicleApp() {
                 puzzles = repository.puzzles(),
                 caseFiles = repository.caseFiles(),
                 tactics = repository.cipherTactics(),
+                practice = repository.primerPractice().practicePuzzles,
             )
         }
     }
@@ -255,6 +257,7 @@ private fun ChronicleApp() {
                             state = current,
                             onAction = model::act,
                             onNext = model::advance,
+                            onPractice = { model.startPractice(loaded.practice) },
                             useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
                             tactics = tactics.tactics,
                             liveStats = standings.stats,
@@ -265,7 +268,14 @@ private fun ChronicleApp() {
                         puzzles = puzzles,
                         solvedPuzzleIds = solved,
                         onOpen = { puzzle ->
-                            model.open(puzzle)
+                            // The Archive's practice slot is a placeholder, not
+                            // a puzzle: opening it by id would hand the player
+                            // the Primer's own quote under a drill's headline.
+                            if (puzzle.id == PrimerPractice.SLOT_ID) {
+                                model.startPractice(loaded.practice)
+                            } else {
+                                model.open(puzzle)
+                            }
                             navigator.home()
                         },
                     )
@@ -473,4 +483,6 @@ private data class LoadedContent(
     val puzzles: List<PuzzleData>,
     val caseFiles: CaseFileContent,
     val tactics: CipherTacticsContent,
+    /** The Primer's drill quotes. */
+    val practice: List<String>,
 )

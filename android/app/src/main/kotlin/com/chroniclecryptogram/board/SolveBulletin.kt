@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.cipher.model.Wallets
 import com.chroniclecryptogram.data.PuzzleLiveStats
@@ -42,6 +43,8 @@ fun SolveBulletin(
     state: BoardState,
     onNext: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    /** Mints another drill. Offered on the Primer and on drills, nowhere else. */
+    onPractice: (() -> Unit)? = null,
     /** The public counters for this puzzle, or null before they have loaded. */
     liveStats: PuzzleLiveStats? = null,
 ) {
@@ -51,6 +54,7 @@ fun SolveBulletin(
     val accuracy = state.accuracy
     val hintsUsed = state.hintsUsed
     val time = state.timeFormatted
+    val practice = Edition.isPracticePuzzle(state.puzzle)
 
     Column(
         modifier
@@ -60,7 +64,9 @@ fun SolveBulletin(
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = "DECODED",
+            // A drill says so. Being told "DECODED" for something that changed
+            // no counter and unlocked nothing reads as a bug.
+            text = if (practice) "DRILL DECODED" else "DECODED",
             style = MaterialTheme.typography.displayMedium,
             color = colors.brass,
         )
@@ -120,7 +126,20 @@ fun SolveBulletin(
                 Text("Share", color = colors.ink)
             }
 
-            if (onNext != null) {
+            if (onPractice != null) {
+                TextButton(
+                    onClick = onPractice,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Start another practice drill"
+                    },
+                ) {
+                    Text(if (practice) "Another drill" else "Practice drill", color = colors.ink)
+                }
+            }
+
+            // A drill leads nowhere, so it offers no next edition: the way on is
+            // the Primer's own, which the player already has.
+            if (onNext != null && !practice) {
                 TextButton(
                     onClick = onNext,
                     modifier = Modifier.semantics { contentDescription = "Open the next edition" },
