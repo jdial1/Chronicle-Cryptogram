@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -88,6 +89,10 @@ fun ArchiveScreen(
     // screen and lose the overview the grouping just bought.
     var expanded by remember { mutableStateOf<Int?>(null) }
 
+    val grouped = remember(issues) {
+        issues.groupBy { Edition.chapterForEdition(it.editionNumber) }.toList()
+    }
+
     PaperList(
         title = "The Archive",
         testTag = ArchiveListTag,
@@ -98,24 +103,32 @@ fun ArchiveScreen(
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
 
-        var lastChapter: IssueChapter? = null
-        issues.forEach { issue ->
-            val chapter = Edition.chapterForEdition(issue.editionNumber)
-            if (chapter != lastChapter) {
-                lastChapter = chapter
-                item(key = "chapter-${chapter.week}") { ChapterHeading(chapter) }
+        for ((chapter, chapterIssues) in grouped) {
+            // A chapter the player cannot reach any of is a spoiler in list
+            // form: thirty locked rows tell them how long the season is and
+            // nothing else. It keeps its heading and a count until the first
+            // edition in it opens.
+            val reachable = chapterIssues.any { it.editionNumber <= frontPage }
+
+            item(key = "chapter-${chapter.week}") {
+                ChapterHeading(chapter, locked = !reachable, editions = chapterIssues.size)
             }
 
-            item(key = issue.editionNumber) {
+            if (!reachable) continue
+
+            items(chapterIssues, key = { it.editionNumber }) { issue ->
+                val unlocked = issue.editionNumber <= frontPage
                 IssueRow(
                     issue = issue,
                     practiceCard = practiceCard,
-                    unlocked = issue.editionNumber <= frontPage,
+                    unlocked = unlocked,
                     solvedPuzzleIds = solvedPuzzleIds,
-                    expanded = expanded == issue.editionNumber,
-                    onToggle = {
+                    expanded = unlocked && expanded == issue.editionNumber,
+                    // A locked row has nothing behind it but the headline of an
+                    // edition the player has not reached, so it does not open.
+                    onToggle = if (!unlocked) null else ({
                         expanded = if (expanded == issue.editionNumber) null else issue.editionNumber
-                    },
+                    }),
                     onOpen = onOpen,
                     modifier = Modifier,
                 )
@@ -126,20 +139,52 @@ fun ArchiveScreen(
 
 /** Where one chapter of the season starts. */
 @Composable
-private fun ChapterHeading(chapter: IssueChapter) {
+private fun ChapterHeading(chapter: IssueChapter, locked: Boolean, editions: Int) {
     val colors = ChronicleTheme.colors
-    Column(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 6.dp)) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp, bottom = 6.dp)
+            .semantics {
+                contentDescription = if (locked) {
+                    "${chapter.title}, locked, $editions editions"
+                } else {
+                    chapter.title
+                }
+            },
+    ) {
         Text(
             text = chapter.kicker.uppercase(),
             style = MaterialTheme.typography.labelLarge,
             color = colors.brass,
         )
-        Text(
-            text = chapter.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = chapter.title,
+                style = MaterialTheme.typography.titleMedium,
+                // Dimmed rather than hidden: the chapter titles are part of the
+                // season's shape, and a player should be able to see there is
+                // more ahead without being shown every edition in it.
+                color = if (locked) colors.paperRule else colors.ink,
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics { heading() },
+            )
+            if (locked) {
+                Icon(
+                    Icons.Filled.Lock,
+                    contentDescription = null,
+                    tint = colors.paperRule,
+                    modifier = Modifier.size(14.dp),
+                )
+                Text(
+                    text = if (editions == 1) "1 edition" else "$editions editions",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.paperRule,
+                    modifier = Modifier.padding(start = 4.dp),
+                )
+            }
+        }
         HorizontalDivider(Modifier.padding(top = 4.dp), color = colors.paperRule)
     }
 }
@@ -156,7 +201,8 @@ private fun IssueRow(
     unlocked: Boolean,
     solvedPuzzleIds: Set<String>,
     expanded: Boolean,
-    onToggle: () -> Unit,
+    /** Null when the edition is locked: there is nothing behind it to show. */
+    onToggle: (() -> Unit)?,
     onOpen: (PuzzleData) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -183,7 +229,9 @@ private fun IssueRow(
         Row(
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onToggle)
+                .then(
+                    if (onToggle == null) Modifier else Modifier.clickable(onClick = onToggle)
+                )
                 .heightIn(min = 56.dp)
                 .testTag(issueRowTag(issue.editionNumber))
                 .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -197,7 +245,11 @@ private fun IssueRow(
                         } else if (issue.night != null) {
                             append(if (nightSolved) ", night extra decoded" else ", night extra")
                         }
-                        append(if (expanded) ", expanded" else ", collapsed")
+                        // A locked row does not open, so it does not announce
+                        // a state it cannot be in.
+                        if (onToggle != null) {
+                            append(if (expanded) ", expanded" else ", collapsed")
+                        }
                     }
                 },
             verticalAlignment = Alignment.CenterVertically,
@@ -230,15 +282,19 @@ private fun IssueRow(
                 SlotDot(solved = practice == null && nightSolved, unlocked = extraUnlocked)
             }
 
-            Icon(
-                imageVector = if (expanded) {
-                    Icons.Filled.KeyboardArrowUp
-                } else {
-                    Icons.Filled.KeyboardArrowDown
-                },
-                contentDescription = null,
-                tint = colors.brass,
-            )
+            // No chevron on a locked row: it is the affordance that says
+            // "there is more here", and there is not.
+            if (onToggle != null) {
+                Icon(
+                    imageVector = if (expanded) {
+                        Icons.Filled.KeyboardArrowUp
+                    } else {
+                        Icons.Filled.KeyboardArrowDown
+                    },
+                    contentDescription = null,
+                    tint = colors.brass,
+                )
+            }
         }
 
         AnimatedVisibility(expanded) {

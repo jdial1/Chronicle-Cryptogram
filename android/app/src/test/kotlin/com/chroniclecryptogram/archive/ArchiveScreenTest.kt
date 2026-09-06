@@ -10,6 +10,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
@@ -19,6 +21,7 @@ import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -77,8 +80,8 @@ class ArchiveScreenTest {
 
     /**
      * Rows are collapsed until tapped, so every slot assertion has to open its
-     * edition first. That is the archive's actual shape now, and a test that
-     * skipped the tap would be testing a screen that no longer exists.
+     * edition first. Only an unlocked row opens: a locked one has nothing
+     * behind it but the headline of an edition the player has not reached.
      */
     private fun expand(edition: Int) {
         compose.onNodeWithTag(ArchiveListTag)
@@ -93,10 +96,39 @@ class ArchiveScreenTest {
     }
 
     @Test
-    fun `a fresh player sees edition one open and edition two locked`() {
+    fun `a fresh player sees edition one open`() {
         show()
         assertChip(1, "Morning Edition, Edition No. 1, open")
-        assertChip(2, "Morning Edition, Edition No. 2, locked")
+    }
+
+    @Test
+    fun `a locked edition does not expand`() {
+        show()
+        compose.onNodeWithTag(ArchiveListTag)
+            .performScrollToNode(hasTestTag(issueRowTag(2)))
+        compose.onNodeWithTag(issueRowTag(2)).performClick()
+
+        // Nothing behind it: the slot card carries the edition's headline, and
+        // an edition the player has not reached should not show one.
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 2, locked")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun `a locked row announces itself as locked and not as collapsed`() {
+        show()
+        compose.onNodeWithTag(ArchiveListTag)
+            .performScrollToNode(hasTestTag(issueRowTag(2)))
+
+        val said = compose.onNodeWithTag(issueRowTag(2))
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.ContentDescription]
+            .joinToString(" ")
+
+        assertTrue("a locked row should say so: $said", said.contains("locked"))
+        // "Collapsed" promises something opens, and nothing here does.
+        assertFalse("a locked row must not claim a state it cannot be in: $said",
+            said.contains("collapsed") || said.contains("expanded"))
     }
 
     @Test
@@ -116,7 +148,6 @@ class ArchiveScreenTest {
         show(setOf(morning(1).id))
         assertChip(1, "Morning Edition, Edition No. 1, decoded")
         assertChip(2, "Morning Edition, Edition No. 2, open")
-        assertChip(3, "Morning Edition, Edition No. 3, locked")
     }
 
     /**
@@ -127,7 +158,11 @@ class ArchiveScreenTest {
     fun `a hole in the run cannot be skipped`() {
         show(setOf(morning(1).id, morning(2).id, morning(4).id))
         assertChip(3, "Morning Edition, Edition No. 3, open")
-        assertChip(4, "Morning Edition, Edition No. 4, locked")
+        // 4 is solved in the save but still behind 3, so it stays shut.
+        compose.onNodeWithTag(ArchiveListTag)
+            .performScrollToNode(hasTestTag(issueRowTag(4)))
+        compose.onNodeWithTag(issueRowTag(4))
+            .assertContentDescriptionContains("locked", substring = true)
     }
 
     @Test
@@ -135,10 +170,9 @@ class ArchiveScreenTest {
         show()
         opened.clear()
 
-        expand(2)
-        val locked = "Morning Edition, Edition No. 2, locked"
-        scrollTo(locked)
-        compose.onNodeWithContentDescription(locked).performClick()
+        compose.onNodeWithTag(ArchiveListTag)
+            .performScrollToNode(hasTestTag(issueRowTag(2)))
+        compose.onNodeWithTag(issueRowTag(2)).performClick()
 
         assertTrue("a locked issue must not open", opened.isEmpty())
     }
@@ -155,31 +189,50 @@ class ArchiveScreenTest {
         assertEquals(morning(1).id, opened.first().id)
     }
 
-    /** Every issue is listed, locked or not -- including the season finale. */
+    /**
+     * A chapter with nothing reachable in it collapses to its heading.
+     *
+     * Thirty locked rows tell a new player how long the season is and nothing
+     * else; the heading and a count say the same thing without listing it.
+     */
     @Test
-    fun `the last edition in the season is reachable in the list`() {
+    fun `a fully locked chapter shows a count instead of its editions`() {
         show()
-        val last = Edition.maxEdition(puzzles)
-        assertChip(last, "Morning Edition, Edition No. $last, locked")
+        val later = Edition.chapterForEdition(Edition.maxEdition(puzzles))
+        val editions = (later.from..later.to).count { edition ->
+            Edition.morningPuzzleForEdition(puzzles, edition) != null
+        }
+
+        scrollTo("${later.title}, locked, $editions editions")
+        compose.onNodeWithContentDescription("${later.title}, locked, $editions editions")
+            .assertExists()
+        // Its rows are not in the list at all.
+        compose.onNodeWithTag(issueRowTag(later.from)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `the chapter in play lists its editions`() {
+        show()
+        compose.onNodeWithTag(issueRowTag(1)).assertExists()
     }
 
     @Test
     fun `rows start collapsed and only one opens at a time`() {
-        show()
+        show(setOf(morning(1).id))
 
-        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, decoded")
             .assertDoesNotExist()
 
         expand(1)
-        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, decoded")
             .assertExists()
 
         // Opening another edition must close the first, or a phone screen fills
         // with expanded rows and the overview is gone again.
         expand(2)
-        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, open")
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 1, decoded")
             .assertDoesNotExist()
-        compose.onNodeWithContentDescription("Morning Edition, Edition No. 2, locked")
+        compose.onNodeWithContentDescription("Morning Edition, Edition No. 2, open")
             .assertExists()
     }
 
