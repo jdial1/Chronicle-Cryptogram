@@ -29,7 +29,11 @@ import com.chroniclecryptogram.casefile.WoodcutPlate
 import com.chroniclecryptogram.cipher.Edition
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import com.chroniclecryptogram.designsystem.theme.ChronicleFonts
+import com.chroniclecryptogram.designsystem.readingMeasure
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
+
+/** Prose takes a narrower measure than a page of cards. */
+private val ArticleMeasure = 640.dp
 
 /**
  * The story behind an edition: plate, headline, dek, byline, and -- once the
@@ -103,9 +107,10 @@ fun ArticleReader(
             style = MaterialTheme.typography.titleMedium,
             color = colors.ink,
             modifier = Modifier
-                .fillMaxWidth()
-                // A reading measure. Long lines of newsprint are unreadable.
-                .widthIn(max = 640.dp)
+                // 640 rather than the list pages' 760: this is unbroken
+                // newsprint, and prose takes a narrower measure than a column
+                // of cards does.
+                .readingMeasure(ArticleMeasure)
                 .align(Alignment.CenterHorizontally),
         )
 
@@ -126,8 +131,7 @@ fun ArticleReader(
                 ),
                 color = colors.ink,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 640.dp)
+                    .readingMeasure(ArticleMeasure)
                     .align(Alignment.CenterHorizontally)
                     .semantics { contentDescription = "Decoded dispatch" },
             )
@@ -140,8 +144,7 @@ fun ArticleReader(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.paperRule,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 640.dp)
+                    .readingMeasure(ArticleMeasure)
                     .align(Alignment.CenterHorizontally)
                     .semantics { contentDescription = "The dispatch is still in cipher" },
             )

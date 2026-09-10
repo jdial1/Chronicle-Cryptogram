@@ -60,16 +60,17 @@ fun PaperList(
             .background(ChronicleTheme.colors.paper)
             .safeDrawingPadding()
             .then(modifier),
+        // The list centres its cards; without this the pinned title sat hard
+        // against the left edge while the content it names was centred, and on
+        // a tablet the two were three hundred dp apart.
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.displayMedium,
             color = ChronicleTheme.colors.ink,
             modifier = Modifier
-                // Capped before it fills, the same order ChroniclePanel needs
-                // and for the same reason.
-                .widthIn(max = ReadingMeasure)
-                .fillMaxWidth()
+                .readingMeasure()
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
                 .semantics { heading() },
         )

@@ -46,11 +46,7 @@ fun ChroniclePanel(
     val shape = RoundedCornerShape(corner)
     Column(
         modifier
-            // Capped before it fills. The other order fixes the width first and
-            // leaves the cap nothing to constrain -- a mistake this codebase has
-            // made twice.
-            .widthIn(max = ReadingMeasure)
-            .fillMaxWidth()
+            .readingMeasure()
             .clip(shape)
             .background(ChronicleTheme.colors.paperCard)
             .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier)

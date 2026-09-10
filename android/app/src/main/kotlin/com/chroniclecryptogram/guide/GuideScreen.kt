@@ -2,6 +2,7 @@ package com.chroniclecryptogram.guide
 
 import com.chroniclecryptogram.designsystem.PaperList
 import com.chroniclecryptogram.designsystem.ChroniclePanel
+import com.chroniclecryptogram.designsystem.readingMeasure
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -77,6 +78,10 @@ fun GuideScreen(
                     text = tactics.intro,
                     style = MaterialTheme.typography.bodyLarge,
                     color = colors.ink,
+                    // The panels below take the measure; this ran the full
+                    // width beside them, which on a fold was a 850dp line of
+                    // prose over a 760dp card.
+                    modifier = Modifier.readingMeasure(),
                 )
             }
             item {

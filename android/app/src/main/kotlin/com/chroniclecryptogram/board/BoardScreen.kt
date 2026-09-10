@@ -54,6 +54,7 @@ import com.chroniclecryptogram.designsystem.LocalDeskWidth
 import com.chroniclecryptogram.designsystem.ChronicleDialog
 import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.reader.ArticleReader
+import com.chroniclecryptogram.designsystem.readingMeasure
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 /**
@@ -231,8 +232,11 @@ private fun DeskContent(
         // Side by side they all fit, and the board keeps the full height.
         val sideBySide = deskWidth != DeskWidth.Compact && deskHeight < SideRailMinHeight
 
-        // A short desk cannot afford the full masthead as well.
-        val compactMasthead = deskHeight < SideRailMinHeight
+        // A short desk cannot afford the full masthead as well. The old line
+        // was the side-rail threshold, 480dp, which almost nothing trips: a
+        // 640dp phone kept a two-line 24sp headline over a board region of
+        // barely 300dp, so nearly half the page above the keyboard was title.
+        val compactMasthead = deskHeight < CompactMastheadBelow
 
         // The side rail is chosen on width alone, and a phone in landscape is
         // wide but short. Five stacked tools at the 48dp minimum come to about
@@ -284,14 +288,15 @@ private fun DeskContent(
 
                 Box(
                     Modifier
-                        .fillMaxWidth()
                         // A reading measure, so a wide window does not stretch
-                        // the board across the whole screen.
-                        .then(
+                        // the board across the whole screen. It did: the cap sat
+                        // after fillMaxWidth and constrained nothing, so on a
+                        // tablet the quote was set on one 1280dp line.
+                        .readingMeasure(
                             if (deskWidth.boardMaxWidth != Dp.Unspecified) {
-                                Modifier.widthIn(max = deskWidth.boardMaxWidth)
+                                deskWidth.boardMaxWidth
                             } else {
-                                Modifier
+                                Dp.Infinity
                             }
                         )
                         .align(Alignment.CenterHorizontally)
@@ -344,7 +349,17 @@ private fun DeskContent(
             } else if (useSideRail) {
                 // Room enough to put the tools beside the keyboard rather than
                 // stacking a full-width dock the player's thumbs cannot reach.
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                //
+                // The bed is on the Row, not on each piece. Five stacked tools
+                // are taller than three rows of keys, so bottom-aligned the rail
+                // stood proud of the keyboard by about sixty dp -- a dark tab
+                // sticking up out of the machine with bare paper behind it.
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(ChronicleTheme.instrument.edge),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
                     TypewriterKeyboard(
                         onLetter = { letter -> onAction { BoardActions.type(it, letter) } },
                         onBackspace = { onAction(BoardActions::backspace) },
@@ -470,6 +485,13 @@ private val BoardMinHeight = 190.dp
 private val DockAllowance = 64.dp
 
 /** The masthead plus the folio's own border and padding. */
+/**
+ * Under this the masthead sets small. Chosen from the board it leaves behind
+ * rather than from the device: a 640dp phone gives the cipher about 300dp once
+ * the keyboard and dock are paid for, and a full masthead takes 132 of it.
+ */
+private val CompactMastheadBelow = 700.dp
+
 private val MastheadAllowance = 132.dp
 private val CompactMastheadAllowance = 96.dp
 

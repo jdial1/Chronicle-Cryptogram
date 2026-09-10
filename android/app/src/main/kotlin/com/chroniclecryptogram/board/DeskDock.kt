@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -132,12 +133,19 @@ internal fun DeskDock(tools: List<DeskTool>, modifier: Modifier = Modifier) {
 }
 
 /** The same five tools, stacked for a window wide enough for a side rail. */
+/** Fits the longest caption and its badge without clipping. */
+private val RailMinWidth = 84.dp
+
 @Composable
 internal fun DeskRail(tools: List<DeskTool>, modifier: Modifier = Modifier) {
     Column(
         modifier
             .background(ChronicleTheme.instrument.edge)
-            .padding(vertical = 6.dp, horizontal = 4.dp),
+            // Wide enough for "CHECK 3", which is the longest thing on it. The
+            // rail sized itself to its content and sat against the window edge,
+            // so on a tablet the count was cut in half by the screen.
+            .widthIn(min = RailMinWidth)
+            .padding(vertical = 6.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {

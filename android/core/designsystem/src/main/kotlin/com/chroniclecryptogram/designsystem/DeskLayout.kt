@@ -1,6 +1,9 @@
 package com.chroniclecryptogram.designsystem
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -85,3 +88,18 @@ val LocalDeskWidth = staticCompositionLocalOf { DeskWidth.Compact }
  * the cards share one edge instead of drifting apart.
  */
 val ReadingMeasure = 760.dp
+
+/**
+ * Caps a column to a readable line length, then lets it fill what is left.
+ *
+ * The order is the whole point, and getting it wrong is silent: `fillMaxWidth`
+ * first takes the incoming maximum, and a `widthIn` after it has nothing left to
+ * constrain. Four call sites had it that way -- the folio, and all three
+ * paragraphs of the article reader -- so on a tablet the cipher was set across
+ * 1280dp of desk under a comment promising it would not be.
+ *
+ * Centring is left to the caller: alignment is scope-specific and a Modifier
+ * cannot express it.
+ */
+fun Modifier.readingMeasure(max: Dp = ReadingMeasure): Modifier =
+    widthIn(max = max).fillMaxWidth()
