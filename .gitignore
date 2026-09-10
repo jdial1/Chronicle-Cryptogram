@@ -17,3 +17,27 @@ mobile/.ship/
 # Staged web bundle for the Android build (see scripts/stage-web-assets.mjs).
 # Build output: git-ignored, but deliberately NOT in mobile/.easignore.
 mobile/web-assets/
+
+# Android build
+.gradle/
+local.properties
+*.jks
+*.keystore
+!mobile/android/app/debug.keystore
+android/keystore.properties
+
+# Noto sources for scripts/gen-glyph-font.mjs (OFL; only needed to regenerate).
+.fontsrc/node_modules/
+.fontsrc/package-lock.json
+
+# Firebase config for the native app. Matches the existing mobile/ exception.
+!android/app/google-services.json
+
+# Leftover Expo build output. The shell itself is gone (Phase 9); these are
+# generated directories git never tracked until .gitignore went with it.
+mobile/
+
+# Claude Code's own runtime state. launch.json is a shared dev-server config and
+# is tracked; the lock carries a session id, a pid and a wall-clock timestamp,
+# so it changes on every run and belongs to one machine.
+.claude/*.lock

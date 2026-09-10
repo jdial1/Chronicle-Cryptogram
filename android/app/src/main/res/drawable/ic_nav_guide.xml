@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The guide: an open primer. Drawn in the app's own line idiom rather than a stock Material glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="#000000">
+    <path android:fillColor="#000000"
+        android:pathData="M2.6,5 C5.4,4.2 8.6,4.4 11.2,6 L11.2,19.4 C8.6,17.8 5.4,17.6 2.6,18.4 Z M4.4,7 L4.4,16.1 C6.2,15.9 8,16 9.4,16.5 L9.4,7.4 C7.8,6.7 6.1,6.6 4.4,7 Z" />
+    <path android:fillColor="#000000"
+        android:pathData="M21.4,5 C18.6,4.2 15.4,4.4 12.8,6 L12.8,19.4 C15.4,17.8 18.6,17.6 21.4,18.4 Z M19.6,7 L19.6,16.1 C17.8,15.9 16,16 14.6,16.5 L14.6,7.4 C16.2,6.7 17.9,6.6 19.6,7 Z" />
+</vector>

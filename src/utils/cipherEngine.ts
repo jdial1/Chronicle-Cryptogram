@@ -109,7 +109,17 @@ export interface HomophonicCipherMap {
   symbolIdToInfo: Record<string, { glyph: string; targetLetter: string; name: string }>;
 }
 
-function hashSeed(seedString: string): number {
+/**
+ * Exported only so scripts/emit-fixtures.mjs can pin them for the Kotlin port.
+ * Two details are load-bearing and easy to lose in translation:
+ *   - `hash |= 0` truncates to int32, but `Math.abs` on -2147483648 widens to the
+ *     double 2147483648; Kotlin's abs(Int.MIN_VALUE) stays negative.
+ *   - nextSeed runs on JS doubles, so 233279 * 9301 never overflows. In Kotlin the
+ *     whole LCG must be Long.
+ * Glyph assignment is recomputed per device and never stored, so a divergence here
+ * silently hands one client a different cipher for the same puzzle.
+ */
+export function hashSeed(seedString: string): number {
   let hash = 0;
   for (let i = 0; i < seedString.length; i++) {
     hash = (hash << 5) - hash + seedString.charCodeAt(i);
@@ -118,7 +128,7 @@ function hashSeed(seedString: string): number {
   return hash;
 }
 
-function nextSeed(currentSeed: number): number {
+export function nextSeed(currentSeed: number): number {
   return (currentSeed * 9301 + 49297) % 233280;
 }
 

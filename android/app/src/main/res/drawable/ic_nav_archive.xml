@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The archive: a stack of filed broadsheets. Drawn in the app's own line idiom rather than a stock Material glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="#000000">
+    <path android:fillColor="#000000" android:pathData="M4,4 L20,4 L20,6 L4,6 Z" />
+    <path android:fillColor="#000000" android:pathData="M4,8.6 L20,8.6 L20,10.6 L4,10.6 Z" />
+    <path android:fillColor="#000000" android:pathData="M4,13.2 L20,13.2 L20,15.2 L4,15.2 Z" />
+    <path android:fillColor="#000000" android:pathData="M4,17.8 L14,17.8 L14,19.8 L4,19.8 Z" />
+</vector>

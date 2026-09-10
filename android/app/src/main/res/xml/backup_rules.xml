@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto Backup, for Android 11 and below.
+
+  Written out rather than left to the default, because the default is "back up
+  everything" and this app now keeps a player's whole campaign in exactly two
+  files on the device. With the cloud off in 1.0, a restore is the only way
+  progress survives a new phone, so the desk is deliberately included.
+
+  Only those two are, and naming them is what excludes everything else. One
+  include element turns the whole set into an allowlist, so a blanket exclude
+  beside it is not belt and braces but an error; lint rejects it as a path that
+  sits inside no included one.
+-->
+<full-backup-content>
+    <include domain="file" path="datastore/desk.json" />
+    <include domain="file" path="datastore/desk-prefs.preferences_pb" />
+</full-backup-content>

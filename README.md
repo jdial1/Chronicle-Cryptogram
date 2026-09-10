@@ -25,3 +25,13 @@ The Android app and the web app use the same Bureau File control. After packing,
 Sign-in, the bureau board, and live solver counts stay on the network. Local notes remain either way.
 
 The Codebreaker's Handbook (Guide) has a Press tab with the same field instructions.
+
+---
+
+## Building this yourself
+
+`npm run dev` serves the web app.
+
+The Android app is being rewritten natively in Kotlin and Jetpack Compose, in [`android/`](android). `cd android && ./gradlew test` runs it; no credentials are needed, and the game is fully playable without them. See **[docs/ANDROID-REWRITE.md](docs/ANDROID-REWRITE.md)** for what is built, what is verified, and what still has to happen on a real device. For the older Expo WebView shell, see **[docs/ANDROID-BUILD.md](docs/ANDROID-BUILD.md)**; `mobile/` still builds and is the only Android path that has shipped an artifact, but it goes away when the native app has run on hardware.
+
+Deploying, or building either Android app for release, needs credentials — see **[docs/SECRETS.md](docs/SECRETS.md)** for what each one is, where it goes, and how to get it.

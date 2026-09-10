@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { PuzzleData } from '../types';
 import { FileText, BookOpen, Type } from '../deskIcons';
-import { isAndroidAppShell } from '../utils/androidApp';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { editionLabel, isNightEdition } from '../utils/edition';
 import { forgetCloud } from '../utils/deskError';
@@ -91,8 +90,7 @@ export function GoogleDeskButton({
   identity?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const android = isAndroidAppShell();
-  const fedcm = identity && !android && !signedIn;
+  const fedcm = identity && !signedIn;
 
   useLayoutEffect(() => {
     const host = hostRef.current;
@@ -153,7 +151,6 @@ export const Header: React.FC<HeaderProps> = ({
   showCaseFiles,
 }) => {
   const { isInstallable, promptInstall } = usePWAInstall();
-  const androidApp = isAndroidAppShell();
   const night = isNightEdition(currentPuzzle);
 
   return (
@@ -236,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={promptInstall}
-                className={`${androidApp ? 'inline-flex' : 'hidden sm:inline-flex'} items-center hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-700 whitespace-nowrap`}
+                className="hidden sm:inline-flex items-center hover:underline cursor-pointer uppercase tracking-widest font-bold text-emerald-700 whitespace-nowrap"
                 title="Install the paper, then pack a field copy from Bureau File for offline play"
               >
                 INSTALL APP

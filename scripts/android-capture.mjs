@@ -11,6 +11,8 @@ const PKG = "com.chroniclecryptogram";
 const CRITICAL_RE = [
   /FATAL EXCEPTION/i,
   /Fatal signal/i,
+  /SIGILL/i,
+  /libwebviewchromium/i,
   /ANR in com\.chroniclecryptogram/i,
   /\[chronicle-native\] FATAL/i,
   /\[chronicle-webview\]/i,

@@ -1,19 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { isFirebaseConfigured } from '../utils/firebaseFlags';
-import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 import { firebaseCode, toUserMessage, forgetCloud } from '../utils/deskError';
-
-type NativeAuthDetail = {
-  type?: string;
-  idToken?: string;
-  message?: string;
-};
-
-type AndroidAuthWindow = Window & {
-  __CHRONICLE_NATIVE_AUTH__?: (detail: NativeAuthDetail) => void;
-  __CHRONICLE_NATIVE_AUTH_QUEUE__?: NativeAuthDetail[];
-};
 
 function runWhenIdle(fn: () => void) {
   if (typeof requestIdleCallback === 'function') {
@@ -99,40 +87,7 @@ export function useAuth() {
           });
         };
         onGoogleIdToken(applyToken);
-        if (!isAndroidAppShell()) {
-          clearNative = () => onGoogleIdToken(null);
-          return;
-        }
-        let seenToken = '';
-        const apply = (detail: NativeAuthDetail) => {
-          if (detail?.type === 'ID_TOKEN' && detail.idToken) {
-            postToAndroidApp({ type: 'NATIVE_AUTH_ACK' });
-            if (seenToken === detail.idToken) return;
-            seenToken = detail.idToken;
-            applyToken(detail.idToken);
-            return;
-          }
-          if (detail?.type === 'ERROR') {
-            postToAndroidApp({ type: 'NATIVE_AUTH_ACK' });
-            setError(detail.message || 'Sign-in failed');
-          }
-        };
-        const onNative = (event: Event) => {
-          apply((event as CustomEvent<NativeAuthDetail>).detail);
-        };
-        const w = window as AndroidAuthWindow;
-        w.__CHRONICLE_NATIVE_AUTH__ = apply;
-        const queued = w.__CHRONICLE_NATIVE_AUTH_QUEUE__;
-        if (Array.isArray(queued)) {
-          w.__CHRONICLE_NATIVE_AUTH_QUEUE__ = [];
-          queued.forEach(apply);
-        }
-        window.addEventListener('chronicle-native-auth', onNative);
-        clearNative = () => {
-          onGoogleIdToken(null);
-          if (w.__CHRONICLE_NATIVE_AUTH__ === apply) w.__CHRONICLE_NATIVE_AUTH__ = undefined;
-          window.removeEventListener('chronicle-native-auth', onNative);
-        };
+        clearNative = () => onGoogleIdToken(null);
       })();
     });
 
@@ -149,7 +104,6 @@ export function useAuth() {
     const { auth } = await import('../utils/firebase');
     if (!auth) return;
     setError(null);
-    if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_IN' });
   };
 
   const signOutUser = async () => {
@@ -162,7 +116,6 @@ export function useAuth() {
       setError(toUserMessage(err, 'Sign-out failed'));
       return;
     }
-    if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_OUT' });
   };
 
   /**
@@ -185,7 +138,6 @@ export function useAuth() {
       setError(toUserMessage(err, 'The bureau could not close the file.'));
       throw err;
     }
-    if (isAndroidAppShell()) postToAndroidApp({ type: 'GOOGLE_SIGN_OUT' });
   };
 
   return {

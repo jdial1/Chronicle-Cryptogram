@@ -1,0 +1,457 @@
+{
+  "puzzleId": "day_1_easy",
+  "cells": [
+    {
+      "cellId": "word_0_0",
+      "symbolId": "mono_T_zod_W"
+    },
+    {
+      "cellId": "word_0_1",
+      "symbolId": "mono_H_zod_turn_J"
+    },
+    {
+      "cellId": "word_0_2",
+      "symbolId": "mono_E_zod_solid_sq"
+    },
+    {
+      "cellId": "word_1_0",
+      "symbolId": "mono_F_zod_N"
+    },
+    {
+      "cellId": "word_1_1",
+      "symbolId": "mono_A_zod_half_sq"
+    },
+    {
+      "cellId": "word_1_2",
+      "symbolId": "mono_T_zod_W"
+    },
+    {
+      "cellId": "word_1_3",
+      "symbolId": "mono_A_zod_half_sq"
+    },
+    {
+      "cellId": "word_1_4",
+      "symbolId": "mono_L_zod_T"
+    },
+    {
+      "cellId": "word_2_0",
+      "symbolId": "mono_D_zod_V"
+    },
+    {
+      "cellId": "word_2_1",
+      "symbolId": "mono_O_zod_dot_tri"
+    },
+    {
+      "cellId": "word_2_2",
+      "symbolId": "mono_S_zod_A"
+    },
+    {
+      "cellId": "word_2_3",
+      "symbolId": "mono_E_zod_solid_sq"
+    },
+    {
+      "cellId": "word_3_0",
+      "symbolId": "mono_W_zod_H"
+    },
+    {
+      "cellId": "word_3_1",
+      "symbolId": "mono_A_zod_half_sq"
+    },
+    {
+      "cellId": "word_3_2",
+      "symbolId": "mono_S_zod_A"
+    },
+    {
+      "cellId": "word_4_0",
+      "symbolId": "mono_I_zod_hollow_tri"
+    },
+    {
+      "cellId": "word_4_1",
+      "symbolId": "mono_N_zod_S"
+    },
+    {
+      "cellId": "word_5_0",
+      "symbolId": "mono_T_zod_W"
+    },
+    {
+      "cellId": "word_5_1",
+      "symbolId": "mono_H_zod_turn_J"
+    },
+    {
+      "cellId": "word_5_2",
+      "symbolId": "mono_E_zod_solid_sq"
+    },
+    {
+      "cellId": "word_6_0",
+      "symbolId": "mono_C_zod_6"
+    },
+    {
+      "cellId": "word_6_1",
+      "symbolId": "mono_H_zod_turn_J"
+    },
+    {
+      "cellId": "word_6_2",
+      "symbolId": "mono_A_zod_half_sq"
+    },
+    {
+      "cellId": "word_6_3",
+      "symbolId": "mono_M_zod_U"
+    },
+    {
+      "cellId": "word_6_4",
+      "symbolId": "mono_P_zod_J"
+    },
+    {
+      "cellId": "word_6_5",
+      "symbolId": "mono_A_zod_half_sq"
+    },
+    {
+      "cellId": "word_6_6",
+      "symbolId": "mono_G_zod_rev_E"
+    },
+    {
+      "cellId": "word_6_7",
+      "symbolId": "mono_N_zod_S"
+    },
+    {
+      "cellId": "word_6_8",
+      "symbolId": "mono_E_zod_solid_sq"
+    }
+  ],
+  "letterCellsEmpty": [],
+  "cellCursor": [
+    {
+      "name": "no-selection",
+      "selectedSymbolId": null,
+      "selectedCellId": null,
+      "index": 0
+    },
+    {
+      "name": "by-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": null,
+      "index": 3
+    },
+    {
+      "name": "by-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_1_2",
+      "index": 5
+    },
+    {
+      "name": "cell-wins-over-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": "word_2_1",
+      "index": 9
+    },
+    {
+      "name": "unknown-symbol",
+      "selectedSymbolId": "not_a_symbol",
+      "selectedCellId": null,
+      "index": 0
+    },
+    {
+      "name": "unknown-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "not_a_cell",
+      "index": 0
+    },
+    {
+      "name": "last-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_6_8",
+      "index": 28
+    },
+    {
+      "name": "first-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_0_0",
+      "index": 0
+    }
+  ],
+  "previousCell": [
+    {
+      "name": "no-selection",
+      "selectedSymbolId": null,
+      "selectedCellId": null,
+      "cell": null
+    },
+    {
+      "name": "by-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": null,
+      "cell": {
+        "cellId": "word_0_2",
+        "symbolId": "mono_E_zod_solid_sq"
+      }
+    },
+    {
+      "name": "by-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_1_2",
+      "cell": {
+        "cellId": "word_1_1",
+        "symbolId": "mono_A_zod_half_sq"
+      }
+    },
+    {
+      "name": "cell-wins-over-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": "word_2_1",
+      "cell": {
+        "cellId": "word_2_0",
+        "symbolId": "mono_D_zod_V"
+      }
+    },
+    {
+      "name": "unknown-symbol",
+      "selectedSymbolId": "not_a_symbol",
+      "selectedCellId": null,
+      "cell": null
+    },
+    {
+      "name": "unknown-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "not_a_cell",
+      "cell": null
+    },
+    {
+      "name": "last-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_6_8",
+      "cell": {
+        "cellId": "word_6_7",
+        "symbolId": "mono_N_zod_S"
+      }
+    },
+    {
+      "name": "first-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_0_0",
+      "cell": null
+    }
+  ],
+  "nextOpenCell": [
+    {
+      "name": "none/no-selection",
+      "selectedSymbolId": null,
+      "selectedCellId": null,
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_0_1",
+        "symbolId": "mono_H_zod_turn_J"
+      }
+    },
+    {
+      "name": "none/by-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": null,
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_1_1",
+        "symbolId": "mono_A_zod_half_sq"
+      }
+    },
+    {
+      "name": "none/by-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_1_2",
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_1_3",
+        "symbolId": "mono_A_zod_half_sq"
+      }
+    },
+    {
+      "name": "none/cell-wins-over-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": "word_2_1",
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_2_2",
+        "symbolId": "mono_S_zod_A"
+      }
+    },
+    {
+      "name": "none/unknown-symbol",
+      "selectedSymbolId": "not_a_symbol",
+      "selectedCellId": null,
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_0_1",
+        "symbolId": "mono_H_zod_turn_J"
+      }
+    },
+    {
+      "name": "none/unknown-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "not_a_cell",
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_0_1",
+        "symbolId": "mono_H_zod_turn_J"
+      }
+    },
+    {
+      "name": "none/last-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_6_8",
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_0_0",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "none/first-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_0_0",
+      "mappedSymbolCount": 0,
+      "cell": {
+        "cellId": "word_0_1",
+        "symbolId": "mono_H_zod_turn_J"
+      }
+    },
+    {
+      "name": "all/no-selection",
+      "selectedSymbolId": null,
+      "selectedCellId": null,
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/by-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": null,
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/by-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_1_2",
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/cell-wins-over-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": "word_2_1",
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/unknown-symbol",
+      "selectedSymbolId": "not_a_symbol",
+      "selectedCellId": null,
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/unknown-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "not_a_cell",
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/last-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_6_8",
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all/first-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_0_0",
+      "mappedSymbolCount": 16,
+      "cell": null
+    },
+    {
+      "name": "all-but-first/no-selection",
+      "selectedSymbolId": null,
+      "selectedCellId": null,
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_1_2",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/by-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": null,
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_1_2",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/by-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_1_2",
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_5_0",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/cell-wins-over-symbol",
+      "selectedSymbolId": "mono_F_zod_N",
+      "selectedCellId": "word_2_1",
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_5_0",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/unknown-symbol",
+      "selectedSymbolId": "not_a_symbol",
+      "selectedCellId": null,
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_1_2",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/unknown-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "not_a_cell",
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_1_2",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/last-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_6_8",
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_0_0",
+        "symbolId": "mono_T_zod_W"
+      }
+    },
+    {
+      "name": "all-but-first/first-cell",
+      "selectedSymbolId": null,
+      "selectedCellId": "word_0_0",
+      "mappedSymbolCount": 15,
+      "cell": {
+        "cellId": "word_1_2",
+        "symbolId": "mono_T_zod_W"
+      }
+    }
+  ],
+  "emptyBoard": {
+    "cellCursor": 0,
+    "nextOpenCell": null,
+    "previousCell": null
+  }
+}

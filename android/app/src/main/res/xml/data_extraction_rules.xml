@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12 and above. Two separate transports, and they want different
+  answers.
+
+  cloud-backup: the same two files as backup_rules.xml. A restore from Google's
+  servers is how a player who lost a phone gets their editions back.
+
+  device-transfer: also included. The old phone is in the owner's hands during a
+  transfer, so there is no additional exposure, and refusing it would mean
+  setting up a new phone loses the campaign.
+
+  Nothing here is worth excluding, and nothing needs an explicit exclude: an
+  include element makes each block an allowlist on its own. What is listed is
+  puzzle progress, plus a theme, a keyboard choice and a codename the player
+  typed. No credentials, no account, no identifier.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="datastore/desk.json" />
+        <include domain="file" path="datastore/desk-prefs.preferences_pb" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="datastore/desk.json" />
+        <include domain="file" path="datastore/desk-prefs.preferences_pb" />
+    </device-transfer>
+</data-extraction-rules>

@@ -70,9 +70,22 @@
       "expo-web-browser",
       "react-native-nitro-google-signin",
       "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "minSdkVersion": 24,
+            "buildToolsVersion": "36.0.0",
+            "ndkVersion": "27.1.12297006"
+          }
+        }
+      ],
       "./plugins/with-adi-registration.js",
       "./plugins/with-cipher-ime.js",
-      "./plugins/with-android-edge-to-edge.js"
+      "./plugins/with-android-edge-to-edge.js",
+      "./plugins/with-native-build-paths.js"
     ],
     "web": {
       "favicon": "./assets/favicon.png"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The case file: a dossier folder, tab and all. Drawn in the app's own line idiom rather than a stock Material glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="#000000">
+    <path android:fillColor="#000000"
+        android:pathData="M3,5.4 L9.4,5.4 L11,7.4 L21,7.4 L21,19 L3,19 Z M4.8,9.2 L4.8,17.2 L19.2,17.2 L19.2,9.2 Z" />
+    <path android:fillColor="#000000" android:pathData="M7,11.4 L17,11.4 L17,12.7 L7,12.7 Z" />
+    <path android:fillColor="#000000" android:pathData="M7,14 L13.5,14 L13.5,15.3 L7,15.3 Z" />
+</vector>

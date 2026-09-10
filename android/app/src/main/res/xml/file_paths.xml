@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Only the clippings directory is exposed, not the whole cache: a FileProvider
+  grants read access to whatever it can address, so its scope is the security
+  boundary and is kept as narrow as the feature needs.
+-->
+<paths>
+    <cache-path name="clippings" path="clippings/" />
+</paths>

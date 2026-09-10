@@ -62,6 +62,19 @@ function wakeDisplay(adb) {
   }
 }
 
+function warnWebViewPageSize(adb, log) {
+  try {
+    const page = adbRun(adb, ["shell", "getconf", "PAGE_SIZE"], { timeoutMs: 5000 });
+    if (Number(page) > 4096) {
+      log(
+        `WARN: emulator PAGE_SIZE=${page} (16 KB). Chrome WebView has SIGILL-crashed on this image and dumped to the launcher.`
+      );
+    }
+  } catch {
+    // non-fatal
+  }
+}
+
 export async function waitBoot(adb, maxSec = 240, log = () => {}) {
   for (let i = 0; i < maxSec; i++) {
     if (i > 0 && i % 15 === 0) {
@@ -99,6 +112,7 @@ export async function ensureEmulator({ avd = DEFAULT_AVD, sdk = DEFAULT_SDK, log
   if (hasDevice(adb)) {
     log("Device already connected.");
     wakeDisplay(adb);
+    warnWebViewPageSize(adb, log);
     return { adb, emulator };
   }
 
@@ -106,6 +120,7 @@ export async function ensureEmulator({ avd = DEFAULT_AVD, sdk = DEFAULT_SDK, log
     log("Emulator detected (offline/booting) — waiting...");
     await waitBoot(adb, 240, log);
     log("Emulator ready.");
+    warnWebViewPageSize(adb, log);
     return { adb, emulator };
   }
 
@@ -118,5 +133,6 @@ export async function ensureEmulator({ avd = DEFAULT_AVD, sdk = DEFAULT_SDK, log
 
   await waitBoot(adb, 240, log);
   log("Emulator ready.");
+  warnWebViewPageSize(adb, log);
   return { adb, emulator };
 }

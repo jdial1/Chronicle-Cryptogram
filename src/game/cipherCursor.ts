@@ -1,11 +1,9 @@
 import { SymbolMapping } from '../types';
-import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 
 export function dismissMobileKeyboard(input: HTMLInputElement | null) {
   input?.blur();
   const active = document.activeElement;
   if (active instanceof HTMLElement) active.blur();
-  postToAndroidApp({ type: 'CIPHER_BLUR' });
 }
 
 export function selectedGlyphTile(symbolId: string, cellId?: string | null) {
@@ -81,7 +79,6 @@ export function previousCell(
 }
 
 export function webTypeFeel(kind: 'tap' | 'key') {
-  if (isAndroidAppShell()) return;
   try {
     navigator.vibrate?.(kind === 'tap' ? 12 : 8);
   } catch {

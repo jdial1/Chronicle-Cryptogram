@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, Trophy, Send, Check, ArrowRight, ShieldCheck, PuzzleSilhouette } from '../icons';
 import { PuzzleData } from '../types';
-import { isAndroidAppShell, postToAndroidApp } from '../utils/androidApp';
 import { DeskModal } from './DeskModal';
 
 /**
@@ -45,10 +44,6 @@ Play Chronicle Cryptogram: ${SHARE_URL}`;
 
   const share = async () => {
     const title = 'Chronicle Cryptogram';
-    if (isAndroidAppShell()) {
-      postToAndroidApp({ type: 'SHARE', title, text: shareText });
-      return;
-    }
     if (typeof navigator.share === 'function') {
       try {
         await navigator.share({ title, text: shareText });

@@ -1,0 +1,329 @@
+{
+  "note": "Order is load-bearing: the Fisher-Yates shuffle indexes into this array.",
+  "symbols": [
+    {
+      "id": "zod_A",
+      "glyph": "A",
+      "name": "Letter A",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_B",
+      "glyph": "B",
+      "name": "Letter B",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_C",
+      "glyph": "Ↄ",
+      "name": "Reversed C",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_D",
+      "glyph": "D",
+      "name": "Letter D",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_D",
+      "glyph": "ᗡ",
+      "name": "Reversed D",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_E",
+      "glyph": "E",
+      "name": "Letter E",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_E",
+      "glyph": "Ǝ",
+      "name": "Reversed E",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_F",
+      "glyph": "F",
+      "name": "Letter F",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_inv_F",
+      "glyph": "Ⅎ",
+      "name": "Turned F",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_6",
+      "glyph": "6",
+      "name": "Numeral 6",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_H",
+      "glyph": "H",
+      "name": "Letter H",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_I",
+      "glyph": "I",
+      "name": "Serif I",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_anchor_I",
+      "glyph": "Ɪ",
+      "name": "Curved Serif I",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_J",
+      "glyph": "J",
+      "name": "Letter J",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_turn_J",
+      "glyph": "Ꞁ",
+      "name": "Turned J",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_K",
+      "glyph": "K",
+      "name": "Letter K",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_K",
+      "glyph": "ꓘ",
+      "name": "Reversed K",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_tilt_K",
+      "glyph": "ㅈ",
+      "name": "Tilted K",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_L",
+      "glyph": "L",
+      "name": "Letter L",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_L",
+      "glyph": "ᒧ",
+      "name": "Reversed L",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_M",
+      "glyph": "M",
+      "name": "Letter M",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_N",
+      "glyph": "N",
+      "name": "Letter N",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_O",
+      "glyph": "O",
+      "name": "Letter O",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_P",
+      "glyph": "P",
+      "name": "Letter P",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_turn_b",
+      "glyph": "q",
+      "name": "Turned b / q",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_Q",
+      "glyph": "Q",
+      "name": "Letter Q",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_slash_Q",
+      "glyph": "⍉",
+      "name": "Slashed Q",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_R",
+      "glyph": "R",
+      "name": "Letter R",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_rev_R",
+      "glyph": "Я",
+      "name": "Reversed R",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_S",
+      "glyph": "S",
+      "name": "Letter S",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_T",
+      "glyph": "T",
+      "name": "Letter T",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_inv_T",
+      "glyph": "⊥",
+      "name": "Inverted T",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_U",
+      "glyph": "U",
+      "name": "Letter U",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_V",
+      "glyph": "V",
+      "name": "Letter V",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_inv_V",
+      "glyph": "∧",
+      "name": "Inverted V",
+      "category": "inverted"
+    },
+    {
+      "id": "zod_W",
+      "glyph": "W",
+      "name": "Letter W",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_X",
+      "glyph": "X",
+      "name": "Letter X",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_Y",
+      "glyph": "Y",
+      "name": "Letter Y",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_Z",
+      "glyph": "Z",
+      "name": "Letter Z",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_hollow_tri",
+      "glyph": "△",
+      "name": "Hollow Triangle",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_dot_tri",
+      "glyph": "◬",
+      "name": "Triangle with Dot",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_solid_tri",
+      "glyph": "▲",
+      "name": "Solid Triangle",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_hollow_sq",
+      "glyph": "□",
+      "name": "Hollow Square",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_dot_sq",
+      "glyph": "⊡",
+      "name": "Square with Dot",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_half_sq",
+      "glyph": "◪",
+      "name": "Diagonal Half Square",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_solid_sq",
+      "glyph": "■",
+      "name": "Solid Square",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_bullseye",
+      "glyph": "⦿",
+      "name": "Bullseye Circle",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_solid_circle",
+      "glyph": "●",
+      "name": "Solid Circle",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_horiz_circle",
+      "glyph": "⦵",
+      "name": "Circle with Horizontal Bar",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_vert_circle",
+      "glyph": "ϕ",
+      "name": "Circle with Vertical Bar",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_crosshair",
+      "glyph": "⊕",
+      "name": "Zodiac Crosshair",
+      "category": "zodiac"
+    },
+    {
+      "id": "zod_plus",
+      "glyph": "+",
+      "name": "Cross / Plus",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_fwd_slash",
+      "glyph": "/",
+      "name": "Forward Slash",
+      "category": "geometric"
+    },
+    {
+      "id": "zod_back_slash",
+      "glyph": "\\",
+      "name": "Backslash",
+      "category": "geometric"
+    }
+  ]
+}
