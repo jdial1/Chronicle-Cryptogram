@@ -2,6 +2,7 @@ package com.chroniclecryptogram.reader
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -69,8 +73,16 @@ fun ArticleReader(
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
+        // Centred by the container rather than by each child. Three children
+        // opted in and the byline did not, so on a tablet it sat alone at the
+        // far left while the story it signs was six hundred dp away.
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // A ruled slug, matching the STORY control it was opened from.
+        // Left-aligned within the article's own column rather than the
+        // window's, so on a wide screen it sits over the story instead of
+        // stranded in the margin beside it.
+        Box(Modifier.readingMeasure(ArticleMeasure)) {
         Row(
             Modifier
                 .border(1.dp, colors.ink, RoundedCornerShape(2.dp))
@@ -87,10 +99,9 @@ fun ArticleReader(
                 maxLines = 1,
             )
         }
-
-        puzzle.silhouette?.let {
-            WoodcutPlate(it, Modifier.align(Alignment.CenterHorizontally))
         }
+
+        puzzle.silhouette?.let { WoodcutPlate(it) }
 
         Text(
             text = puzzle.headline,
@@ -98,30 +109,36 @@ fun ArticleReader(
             color = colors.ink,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
+                .readingMeasure(ArticleMeasure)
                 .semantics { heading() },
         )
 
         Text(
             text = Edition.articleDek(puzzle),
-            style = MaterialTheme.typography.titleMedium,
+            // bodyLarge, not titleMedium: this is ten lines of newsprint, and a
+            // subhead face set that long reads as shouting rather than as a dek.
+            style = MaterialTheme.typography.bodyLarge,
             color = colors.ink,
             modifier = Modifier
-                // 640 rather than the list pages' 760: this is unbroken
-                // newsprint, and prose takes a narrower measure than a column
-                // of cards does.
-                .readingMeasure(ArticleMeasure)
-                .align(Alignment.CenterHorizontally),
+                .readingMeasure(ArticleMeasure),
         )
 
         Text(
             text = Edition.articleByline(puzzle),
             style = MaterialTheme.typography.labelLarge,
             color = colors.brass,
-            modifier = Modifier.semantics {
-                contentDescription = "Filed by ${Edition.articleByline(puzzle)}"
-            },
+            modifier = Modifier
+                .readingMeasure(ArticleMeasure)
+                // Pulled up against the dek it signs, and the spacer below puts
+                // the air before the dispatch instead. Even spacing made the
+                // byline read as another paragraph rather than as a signature.
+                .offset(y = (-6).dp)
+                .semantics {
+                    contentDescription = "Filed by ${Edition.articleByline(puzzle)}"
+                },
         )
+
+        Spacer(Modifier.height(6.dp))
 
         if (solved) {
             Text(

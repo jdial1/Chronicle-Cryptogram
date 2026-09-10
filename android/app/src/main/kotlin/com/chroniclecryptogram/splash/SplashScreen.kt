@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -183,6 +184,9 @@ private fun PressPlate(reduceMotion: Boolean) {
 }
 
 /** The way in: one typewriter key, the same instrument the board is played on. */
+/** Wide enough to read as the way in, narrow enough to still read as a key. */
+private val EnterKeyMaxWidth = 320.dp
+
 @Composable
 private fun EnterKey(onEnter: () -> Unit) {
     val colors = ChronicleTheme.colors
@@ -192,6 +196,10 @@ private fun EnterKey(onEnter: () -> Unit) {
             .background(colors.brass)
             .clickable(onClick = onEnter)
             .heightIn(min = 56.dp)
+            // 80% of the window was fine on a phone and absurd on a tablet: a
+            // brass pill a thousand dp wide with thirteen point type lost in
+            // the middle of it. A button is sized by its label, not its screen.
+            .widthIn(max = EnterKeyMaxWidth)
             .fillMaxWidth(0.8f)
             .padding(horizontal = 24.dp, vertical = 16.dp)
             .testTag(SplashEnterTag)
