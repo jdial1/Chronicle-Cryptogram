@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Key } from '../deskIcons';
+import { CheckCircle2, ChevronLeft, ChevronRight, Key } from '../deskIcons';
 import { CryptogramWord, SymbolMapping } from '../types';
 import { CIPHER_TACTICS } from '../data/cipherTactics';
 
@@ -184,12 +184,22 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
               : 'border-amber-700 bg-amber-100/70 ring-1 ring-amber-700'
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="w-3.5 h-3.5 flex items-center justify-center font-typewriter font-black text-xs text-stone-700 shrink-0">
               {tellNumber}
             </span>
-            <span className="font-typewriter font-black text-xs uppercase tracking-widest text-stone-900">
+            <span className="min-w-0 font-typewriter font-black text-xs uppercase tracking-widest text-stone-900">
               {viewed.title}
+            </span>
+            {/* The card already turns green when a tell is found. Colour alone is not a
+                signal, and the rail and copy are both hidden on a phone, so say it. */}
+            <span
+              className={`ml-auto shrink-0 inline-flex items-center gap-1 font-typewriter font-bold text-xs uppercase tracking-widest ${
+                done ? 'text-emerald-800' : 'text-amber-900'
+              }`}
+            >
+              {done && <CheckCircle2 className="w-3 h-3" />}
+              {done ? 'Spotted' : 'Still open'}
             </span>
           </div>
           <p className="primer-coach-copy mt-1 font-treatise text-xs text-stone-700 leading-relaxed">
