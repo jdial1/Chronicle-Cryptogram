@@ -47,6 +47,20 @@ function isSymbolSolved(words: CryptogramWord[], mappings: SymbolMapping, symbol
   return false;
 }
 
+function glyphCopies(words: CryptogramWord[], symbolId: string) {
+  let copies = 0;
+  for (const word of words) {
+    for (const symbol of word.symbols) {
+      if (!symbol.isPunctuation && symbol.symbolId === symbolId) copies += 1;
+    }
+  }
+  return copies;
+}
+
+function marks(count: number) {
+  return count === 1 ? '1 mark' : `${count} marks`;
+}
+
 function typewriterJitter() {
   return {
     rotate: `${(Math.random() * 6 - 3).toFixed(2)}deg`,
@@ -79,7 +93,11 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
 }) => {
   const { zoom, zoomOut, zoomIn, canZoomOut, canZoomIn } = useZoom(ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, ZOOM_DEFAULT);
   const [showTally, setShowTally] = useState(false);
+  // seq re-keys the text node so an identical note (K onto 1 mark, twice running)
+  // is still a DOM change, and so still reaches the reader.
+  const [boardNote, setBoardNote] = useState({ text: '', seq: 0 });
   const jitterRef = useRef<Record<string, { letter: string; rotate: string; y: string }>>({});
+  const priorMappings = useRef<SymbolMapping | null>(null);
   const skipJitter =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -101,7 +119,34 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   useEffect(() => {
     jitterRef.current = {};
     setShowTally(false);
+    // A fresh board, or one rehydrated from saved progress, is not something the
+    // reader did. Forget the old mappings so the diff below stays quiet for it.
+    priorMappings.current = null;
+    setBoardNote((prev) => ({ text: '', seq: prev.seq + 1 }));
   }, [words]);
+
+  // Typing one letter fills every copy of that glyph at once. Sighted players watch
+  // the board change; this says the same thing out loud.
+  useEffect(() => {
+    const prior = priorMappings.current;
+    priorMappings.current = mappings;
+    if (!prior) return;
+    const touched = [...new Set([...Object.keys(prior), ...Object.keys(mappings)])].filter(
+      (symbolId) => (prior[symbolId] || '') !== (mappings[symbolId] || '')
+    );
+    if (touched.length === 0) return;
+    const say = (text: string) => setBoardNote((prev) => ({ text, seq: prev.seq + 1 }));
+    if (touched.length > 1) {
+      // Several at once is a wipe, or progress arriving from storage. Only the wipe
+      // is the reader's own doing, so only the wipe is worth saying.
+      if (touched.every((symbolId) => !mappings[symbolId])) say('Board wiped clean.');
+      return;
+    }
+    const [symbolId] = touched;
+    const copies = marks(glyphCopies(words, symbolId));
+    const letter = mappings[symbolId];
+    say(letter ? `${letter} typed onto ${copies}.` : `${prior[symbolId]} cleared from ${copies}.`);
+  }, [mappings, words]);
 
   const renderWords = (list: CryptogramWord[]) =>
     list.map((word) => (
@@ -227,6 +272,9 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
       } ${!isSolved ? 'is-desk-armed' : ''} ${!isSolved && gameKeyboard ? 'has-typewriter' : ''} ${showTally ? 'has-tally' : ''}`}
     >
       {isSolved && <DecodedStamp size="board" />}
+      <p className="sr-only" role="status">
+        <span key={boardNote.seq}>{boardNote.text}</span>
+      </p>
       <div className="cipher-folio">
       <PuzzleSilhouette
         name={silhouette}
