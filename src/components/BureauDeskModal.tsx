@@ -136,7 +136,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                   Closes your bureau account and removes cloud progress and leaderboard entries. Notes on this desk stay until you clear the site.
                 </p>
                 {wipeError && (
-                  <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+                  <p role="alert" className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                     {wipeError}
                   </p>
                 )}
@@ -216,7 +216,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                     : 'Offline field copy. Save type, plates, and the serial on this desk so Morning and Night Extra still open with the wire down. Sign-in and the bureau board stay on the network.'}
             </p>
             {pack.error && (
-              <p className="font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+              <p role="alert" className="font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                 {pack.error}
               </p>
             )}
@@ -319,7 +319,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
                 <GoogleDeskButton onClick={onIssueCredentials} full identity />
               </div>
               {authError && (
-                <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+                <p role="alert" className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
                   {authError}
                 </p>
               )}
