@@ -264,6 +264,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   autoComplete="nickname"
                   required
                   maxLength={20}
+                  aria-invalid={submitError ? true : undefined}
+                  aria-describedby={submitError ? 'leaderboard-submit-error' : undefined}
                   value={codename}
                   onChange={(e) => setCodename(e.target.value)}
                   placeholder="e.g. Agent_Shadow"
@@ -318,13 +320,22 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               </div>
             </form>
             {submitError ? (
-              <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">{submitError}</p>
+              <p
+                id="leaderboard-submit-error"
+                role="alert"
+                className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800"
+              >
+                {submitError}
+              </p>
             ) : null}
           </div>
         )}
 
         {hasSubmitted && submissionRank && (
-          <div className="p-3 bg-emerald-100 border-b border-emerald-300 text-emerald-900 text-xs font-mono-code flex items-center justify-between">
+          <div
+            role="status"
+            className="p-3 bg-emerald-100 border-b border-emerald-300 text-emerald-900 text-xs font-mono-code flex items-center justify-between"
+          >
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-emerald-700" />
               {/* Times are filed by the solver, not measured by the bureau — see the
@@ -355,7 +366,9 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         {/* Leaderboard Table */}
         <div className="flex-1 min-h-0 overflow-y-auto p-2 sm:p-4 bg-newsprint">
           {boardError ? (
-            <p className="mb-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">{boardError}</p>
+            <p role="status" className="mb-2 font-typewriter text-[13px] uppercase tracking-widest text-red-800">
+              {boardError}
+            </p>
           ) : null}
           <div className="border border-stone-400 rounded-xs bg-[#fdfbf7] overflow-hidden shadow-xs">
             <table className="w-full text-left border-collapse text-xs font-mono-code">

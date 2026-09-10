@@ -821,7 +821,10 @@ export default function App() {
         Skip to puzzle
       </a>
       {deskNotice ? (
-        <p className="font-typewriter text-[13px] uppercase tracking-widest text-center py-2 px-3 bg-[var(--paper-reading)] text-[color:var(--cinnabar)] border-b-2 border-stone-800">
+        <p
+          role="status"
+          className="font-typewriter text-[13px] uppercase tracking-widest text-center py-2 px-3 bg-[var(--paper-reading)] text-[color:var(--cinnabar)] border-b-2 border-stone-800"
+        >
           {deskNotice}
         </p>
       ) : null}
