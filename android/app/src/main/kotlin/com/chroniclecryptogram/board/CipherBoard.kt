@@ -50,6 +50,8 @@ data class TileSize(
     val height: Dp,
     val letterStyle: TextStyle,
     val glyphStyle: TextStyle,
+    /** Leading between wrapped lines. Comes down with the type, as leading does. */
+    val lineGap: Dp,
 )
 
 /**
@@ -58,6 +60,14 @@ data class TileSize(
  * enormous type.
  */
 private val TileWidthLadder = listOf(64.dp, 60.dp, 56.dp, 48.dp, 44.dp, 40.dp, 36.dp, 32.dp)
+
+/**
+ * How far the tile type will come down to keep a quote on one screen.
+ *
+ * Stops at 72%: below that the cipher glyphs stop being tellable apart, and a
+ * board nobody can read is worse than one they have to scroll.
+ */
+private val TypeScaleLadder = listOf(1f, 0.9f, 0.8f, 0.72f)
 
 private val WordGap = 20.dp
 private val LineGap = 18.dp
@@ -97,24 +107,53 @@ fun rememberTileSize(
         val glyphWidth = measurer.measure("⦿", glyphStyle).size.width
 
         with(density) {
-            val contentHeight = (letterHeight + glyphHeight).toDp() + 14.dp
-            val minWidth = max(letterWidth, glyphWidth).toDp() + 8.dp
+            val fullHeight = (letterHeight + glyphHeight).toDp() + 14.dp
+            val fullMinWidth = max(letterWidth, glyphWidth).toDp() + 8.dp
             val longestWord = words.maxOfOrNull { it.symbols.size } ?: 1
 
-            // Largest width that fits the longest word on one line *and* the
-            // whole quote in the height available. Height is checked by running
-            // the same greedy wrap the Layout below does, so the row count is
-            // the real one rather than an estimate.
-            val width = TileWidthLadder.firstOrNull { candidate ->
-                candidate <= deskWidth.maxTileWidth &&
-                    candidate >= minWidth &&
-                    (candidate * longestWord) + (CellGap * (longestWord - 1)) <= maxWidth &&
-                    fitsHeight(words, candidate, maxWidth, maxHeight, contentHeight)
-            } ?: maxOf(TileWidthLadder.last(), minWidth)
+            // Narrower tiles put more of the quote on each line, but the rows
+            // are as tall as the type whatever the width -- so on a short desk
+            // the ladder could run to its last rung and still not fit, which is
+            // how a 360x640 phone ended up with the closing line sliced in half
+            // behind the dock. The type comes down with it.
+            //
+            // Type scale first, width within it: the largest type that fits at
+            // all wins, and the board only sets small when it must.
+            var picked: Pair<Dp, Float>? = null
+            outer@ for (scale in TypeScaleLadder) {
+                val contentHeight = fullHeight * scale
+                val minWidth = fullMinWidth * scale
+                for (candidate in TileWidthLadder) {
+                    if (candidate > deskWidth.maxTileWidth) continue
+                    if (candidate < minWidth) continue
+                    if ((candidate * longestWord) + (CellGap * (longestWord - 1)) > maxWidth) {
+                        continue
+                    }
+                    if (!fitsHeight(
+                            words, candidate, maxWidth, maxHeight, contentHeight, LineGap * scale,
+                        )
+                    ) {
+                        continue
+                    }
+                    picked = candidate to scale
+                    break@outer
+                }
+            }
+
+            // Nothing fits even at the smallest type: take the smallest tile and
+            // let the board scroll, which is honest on a screen that small.
+            val (width, scale) = picked
+                ?: (maxOf(TileWidthLadder.last(), fullMinWidth * TypeScaleLadder.last())
+                    to TypeScaleLadder.last())
+
+            val contentHeight = fullHeight * scale
+            val letterStyle = letterStyle.copy(fontSize = letterStyle.fontSize * scale)
+            val glyphStyle = glyphStyle.copy(fontSize = glyphStyle.fontSize * scale)
 
             TileSize(
                 width = width,
                 height = contentHeight,
+                lineGap = LineGap * scale,
                 letterStyle = letterStyle,
                 glyphStyle = glyphStyle,
             )
@@ -136,6 +175,7 @@ private fun fitsHeight(
     maxWidth: Dp,
     maxHeight: Dp,
     tileHeight: Dp,
+    lineGap: Dp,
 ): Boolean {
     if (maxHeight == Dp.Unspecified) return true
 
@@ -157,7 +197,7 @@ private fun fitsHeight(
             used -= maxWidth
         }
     }
-    return (tileHeight * lines) + (LineGap * (lines - 1)) <= maxHeight
+    return (tileHeight * lines) + (lineGap * (lines - 1)) <= maxHeight
 }
 
 /**
@@ -253,7 +293,7 @@ fun CipherBoard(
         ) { measurables, constraints ->
             val cellGap = with(density) { CellGap.roundToPx() }
             val wordGap = with(density) { WordGap.roundToPx() }
-            val lineGap = with(density) { LineGap.roundToPx() }
+            val lineGap = with(density) { tile.lineGap.roundToPx() }
             val tileHeight = with(density) { tile.height.roundToPx() }
 
             val placeables = measurables.map { it.measure(Constraints()) }

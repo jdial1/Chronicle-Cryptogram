@@ -32,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -260,10 +262,21 @@ private fun DeskContent(
             // folio's room by subtracting it left the board sized for a third
             // less page than it actually had, and the shortfall showed as bare
             // desk under the last line.
+            val density = LocalDensity.current
             BoxWithConstraints(Modifier.weight(1f)) {
+            // Measured, not allowed for. A constant has to be generous enough
+            // for the worst case -- a two-line headline at a large font scale --
+            // so on every other edition it over-reserved, and the surplus showed
+            // as bare desk between the sheet and the machine.
+            var mastheadHeight by remember(state.puzzle.id) { mutableStateOf(Dp.Unspecified) }
             val folioBudget = (
-                maxHeight -
-                    (if (compactMasthead) CompactMastheadAllowance else MastheadAllowance)
+                maxHeight - (
+                    if (mastheadHeight == Dp.Unspecified) {
+                        if (compactMasthead) CompactMastheadAllowance else MastheadAllowance
+                    } else {
+                        mastheadHeight + FolioChrome
+                    }
+                    )
                 ).coerceAtLeast(BoardMinHeight)
             Column(
                 Modifier
@@ -272,7 +285,14 @@ private fun DeskContent(
                     .verticalScroll(remember(state.puzzle.id) { ScrollState(0) })
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                Masthead(puzzle, compact = compactMasthead, onOpenStory = onOpenStory)
+                Masthead(
+                    puzzle,
+                    compact = compactMasthead,
+                    onOpenStory = onOpenStory,
+                    modifier = Modifier.onSizeChanged {
+                        mastheadHeight = with(density) { it.height.toDp() }
+                    },
+                )
 
                 // Only the Primer coaches. Its hints name the words in that one
                 // quote, and a permanent tutorial strip would be noise on every
@@ -405,12 +425,13 @@ private fun DeskContent(
 @Composable
 private fun Masthead(
     puzzle: PuzzleData,
+    modifier: Modifier = Modifier,
     compact: Boolean = false,
     onOpenStory: (() -> Unit)? = null,
 ) {
     val colors = ChronicleTheme.colors
     Row(
-        Modifier.padding(bottom = if (compact) 4.dp else 10.dp),
+        modifier.padding(bottom = if (compact) 4.dp else 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -491,6 +512,9 @@ private val DockAllowance = 64.dp
  * the keyboard and dock are paid for, and a full masthead takes 132 of it.
  */
 private val CompactMastheadBelow = 700.dp
+
+/** The folio's own border, padding and the gap under the masthead. */
+private val FolioChrome = 44.dp
 
 private val MastheadAllowance = 132.dp
 private val CompactMastheadAllowance = 96.dp

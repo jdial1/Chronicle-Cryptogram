@@ -23,13 +23,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -40,10 +38,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chroniclecryptogram.designsystem.CompactChrome
 import com.chroniclecryptogram.designsystem.theme.BoardTextStyles
+import androidx.compose.foundation.layout.heightIn
+import com.chroniclecryptogram.designsystem.ChronicleDialog
+import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
 
 const val DockTag = "desk-dock"
 const val TallySheetTag = "tally-sheet"
+
+/** Roughly four rows of cells before it scrolls, which covers most quotes. */
+private val TallyMaxHeight = 300.dp
 
 /** What a tool does, so the dock and the side rail can share one list. */
 internal data class DeskTool(
@@ -221,24 +225,13 @@ internal fun TallySheet(
     onDismiss: () -> Unit,
 ) {
     val colors = ChronicleTheme.colors
-    ModalBottomSheet(
+
+    ChronicleDialog(
+        title = "Glyph tally",
         onDismissRequest = onDismiss,
-        containerColor = colors.paperCard,
-        // Square at the top, like a sheet pulled from a drawer.
-        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
-        dragHandle = null,
+        confirm = DialogAction(label = "Close", onClick = onDismiss),
     ) {
-        Column(
-            Modifier
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp)
-                .testTag(TallySheetTag)
-        ) {
-            Text(
-                text = "Glyph tally",
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.ink,
-            )
+        Column(Modifier.testTag(TallySheetTag)) {
             Text(
                 text = "Busiest first. English leans on E, T, A, O, I, N.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -256,7 +249,16 @@ internal fun TallySheet(
             }
 
             val hottest = state.tally.first().count
-            LazyVerticalGrid(columns = GridCells.Adaptive(56.dp)) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(56.dp),
+                // A dialog gives its body no height of its own, so the grid has
+                // to declare one or it measures to zero and the sheet opens
+                // empty. Capped rather than fixed: a quote with four repeating
+                // glyphs should not reserve room for twenty.
+                modifier = Modifier.heightIn(max = TallyMaxHeight),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 items(state.tally.size) { index ->
                     val item = state.tally[index]
                     TallyCell(

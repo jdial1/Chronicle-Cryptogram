@@ -33,8 +33,9 @@ val LocalReduceMotion = staticCompositionLocalOf { false }
  *  - [slot] is the current puzzle's edition, mirroring `.is-night`.
  *
  * Everything the game draws reads [LocalChronicleColors]. The Material scheme
- * below exists only so `ModalBottomSheet`, `Snackbar` and ripples do not arrive
- * in default purple; it is not where the palette lives.
+ * below exists only so the few stock components still in use -- the dialog
+ * window, text-field internals, ripples -- do not arrive in default purple; it
+ * is not where the palette lives.
  */
 @Composable
 fun ChronicleTheme(

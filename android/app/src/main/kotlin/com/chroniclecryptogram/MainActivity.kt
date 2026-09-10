@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -360,9 +359,11 @@ private fun ChronicleApp() {
 /**
  * The desk controls.
  *
- * Material3's NavigationBar rather than a hand-rolled Row: it gives the 48dp
- * targets, the selected indicator, and the selected/unselected semantics for
- * free, and it handles large font scales without the labels colliding.
+ * A hand-rolled Row, not Material3's NavigationBar. The stock bar's pill
+ * indicator and ripple are the two most recognisable Material tells, and this
+ * app is print: the open section takes a cinnabar rule and heavier type
+ * instead. The 48dp targets and the selected semantics the bar would have given
+ * for free are done by hand in [DeskBarItem], which is the cost of that.
  *
  * Icons are not decoration here. A text-only bar leans entirely on reading, and
  * at a large font scale five words do not fit a narrow phone.
