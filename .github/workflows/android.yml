@@ -28,6 +28,26 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # Heap for the runner, written to the user-level file rather than the
+      # project's.
+      #
+      # android/gradle.properties deliberately carries no org.gradle.jvmargs:
+      # a project-level value overrides the user-level one, and the machine this
+      # app is developed on needs its own JVM flag to start a daemon at all (see
+      # android/README.md). So the setting has to land here instead, on the
+      # runner's own ~/.gradle, where it cannot follow the repository home.
+      #
+      # Without it the daemon runs on Gradle's 512 MiB default, and R8 -- which
+      # holds the whole merged program in memory -- thrashed the collector until
+      # the daemon was killed mid-minify.
+      - name: Give the daemon room for R8
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError"
+            echo "org.gradle.daemon.performance.disable-logging=true"
+          } >> ~/.gradle/gradle.properties
+
       # The parity gate. :core:cipher asserts against fixtures generated from
       # the TypeScript, and :core:content parses the same src/data JSON the web
       # app reads -- so a data or logic change that Kotlin cannot follow fails
