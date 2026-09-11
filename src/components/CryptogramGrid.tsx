@@ -95,7 +95,14 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   const [showTally, setShowTally] = useState(false);
   // seq re-keys the text node so an identical note (K onto 1 mark, twice running)
   // is still a DOM change, and so still reaches the reader.
-  const [boardNote, setBoardNote] = useState({ text: '', seq: 0 });
+  // struck names the glyph whose copies just took a letter. The note says the
+  // fill out loud; struck lets the board show it as one stroke (.is-struck).
+  const [boardNote, setBoardNote] = useState<{ text: string; seq: number; struck: string | null }>({
+    text: '',
+    seq: 0,
+    struck: null,
+  });
+  const solvedFor = useRef<CryptogramWord[] | null>(null);
   const jitterRef = useRef<Record<string, { letter: string; rotate: string; y: string }>>({});
   const priorMappings = useRef<SymbolMapping | null>(null);
   const skipJitter =
@@ -122,7 +129,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
     // A fresh board, or one rehydrated from saved progress, is not something the
     // reader did. Forget the old mappings so the diff below stays quiet for it.
     priorMappings.current = null;
-    setBoardNote((prev) => ({ text: '', seq: prev.seq + 1 }));
+    setBoardNote((prev) => ({ text: '', seq: prev.seq + 1, struck: null }));
   }, [words]);
 
   // Typing one letter fills every copy of that glyph at once. Sighted players watch
@@ -135,7 +142,8 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
       (symbolId) => (prior[symbolId] || '') !== (mappings[symbolId] || '')
     );
     if (touched.length === 0) return;
-    const say = (text: string) => setBoardNote((prev) => ({ text, seq: prev.seq + 1 }));
+    const say = (text: string, struck: string | null = null) =>
+      setBoardNote((prev) => ({ text, seq: prev.seq + 1, struck }));
     if (touched.length > 1) {
       // Several at once is a wipe, or progress arriving from storage. Only the wipe
       // is the reader's own doing, so only the wipe is worth saying.
@@ -145,11 +153,34 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
     const [symbolId] = touched;
     const copies = marks(glyphCopies(words, symbolId));
     const letter = mappings[symbolId];
-    say(letter ? `${letter} typed onto ${copies}.` : `${prior[symbolId]} cleared from ${copies}.`);
+    say(
+      letter ? `${letter} typed onto ${copies}.` : `${prior[symbolId]} cleared from ${copies}.`,
+      letter ? symbolId : null
+    );
   }, [mappings, words]);
 
-  const renderWords = (list: CryptogramWord[]) =>
-    list.map((word) => (
+  // The solve is the one board event that is not just another letter, and until
+  // now it sounded like one: the mapping effect said what the last letter did,
+  // then a dialog appeared. Say the payoff on the board itself.
+  useEffect(() => {
+    // A board that arrives already solved -- the archive, or restored progress --
+    // was not solved just now, so only a board we were already watching counts.
+    const watched = solvedFor.current === words;
+    solvedFor.current = words;
+    if (!isSolved || !watched) return;
+    setBoardNote((prev) => ({
+      text: 'Decoded. Every mark on the board is filled.',
+      seq: prev.seq + 1,
+      struck: null,
+    }));
+  }, [isSolved, words]);
+
+  const renderWords = (list: CryptogramWord[]) => {
+    // How many copies of this glyph have already been laid down the page. The
+    // strike staggers off it, so a fill reads as one stroke sweeping the board
+    // rather than every copy blinking at once.
+    const copyIndex: Record<string, number> = {};
+    return list.map((word) => (
       <div
         key={word.id}
         className="cipher-word flex flex-wrap items-end gap-3 w-fit max-w-full min-w-0 pb-1 border-b-2 border-stone-700/80 overflow-visible"
@@ -168,6 +199,9 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
 
           const isSelected = !isSolved && selectedSymbolId === item.symbolId;
           const mappedLetter = mappings[item.symbolId] || '';
+          const strikeIndex = copyIndex[item.symbolId] ?? 0;
+          copyIndex[item.symbolId] = strikeIndex + 1;
+          const struck = !isSolved && !skipJitter && boardNote.struck === item.symbolId;
           const isError = !isSolved && flaggedSymbolIds.includes(item.symbolId) && mappedLetter && mappedLetter !== item.targetLetter;
           const cellKey = `${word.id}_${charIdx}`;
           let jitter = jitterRef.current[cellKey];
@@ -213,16 +247,15 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
               <div className="cipher-letter w-full flex items-center justify-center border-b border-stone-400/80 relative">
                 {mappedLetter ? (
                   <span
+                    key={struck ? `strike-${boardNote.seq}` : 'letter'}
                     className={`cipher-mapped font-typewriter font-black uppercase tracking-wider leading-none select-none ${
                       isError ? 'text-red-700' : 'text-stone-950 scanned-ink'
-                    }`}
+                    } ${struck ? 'is-struck' : ''}`}
                     style={
-                      jitter
-                        ? ({
-                            '--type-rot': jitter.rotate,
-                            '--type-y': jitter.y,
-                          } as React.CSSProperties)
-                        : undefined
+                      {
+                        ...(jitter ? { '--type-rot': jitter.rotate, '--type-y': jitter.y } : null),
+                        ...(struck ? { '--strike-index': strikeIndex } : null),
+                      } as React.CSSProperties
                     }
                   >
                     {mappedLetter}
@@ -256,6 +289,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
         })}
       </div>
     ));
+  };
 
   return (
     <div
