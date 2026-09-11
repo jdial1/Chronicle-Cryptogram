@@ -315,7 +315,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-bold rounded-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? 'Verifying...' : 'Post to Leaderboard'}</span>
+                  <span>{isSubmitting ? 'Filing…' : 'Post to Leaderboard'}</span>
                 </button>
               </div>
             </form>
