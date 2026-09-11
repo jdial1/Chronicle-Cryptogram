@@ -70,6 +70,12 @@ jobs:
           VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
           VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          # Pages is the demo, and the Android app is paid. Without this the
+          # public site ships all thirty editions for free and the paid app is
+          # a wrapper around its own giveaway. src/data/puzzles.ts filters the
+          # season at module load, so everything downstream inherits the ceiling.
+          # Must stay unset for the Android build -- see docs/SECRETS.md.
+          VITE_MAX_EDITION: "3"
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
