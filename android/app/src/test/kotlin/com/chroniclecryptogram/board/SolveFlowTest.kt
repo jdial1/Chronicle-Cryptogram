@@ -62,7 +62,7 @@ class SolveFlowTest {
     }
 
     @Test
-    fun `the bulletin reports the time, accuracy and hints used`() {
+    fun `the bulletin reports the time and the help taken`() {
         val puzzle = Edition.morningPuzzleForEdition(puzzles, 1)!!
         compose.setContent {
             ChronicleTheme(dark = false) {
@@ -71,7 +71,7 @@ class SolveFlowTest {
         }
 
         compose.onNodeWithContentDescription(
-            "Solved in 02:05.3, accuracy 100 percent, 0 hints used",
+            "Clean, no hints or checks, solved in 02:05",
         ).assertExists()
         compose.onNodeWithContentDescription("Share this solve").assertExists()
         compose.onNodeWithContentDescription("Open the next edition").assertExists()
@@ -149,11 +149,11 @@ class SolveFlowTest {
         val text = Solve.shareText(
             puzzle,
             board.timerSeconds,
-            Solve.accuracy(board.mappings, board.answer),
-            hintsUsed = 0,
+            hintsUsed = board.hintsUsed,
+            checksUsed = board.checksUsed,
         )
         assertEquals(true, text.contains("Time: 02:05.3"))
-        assertEquals(true, text.contains("Accuracy: 100%"))
+        assertEquals(true, text.contains("Clean — no hints, no checks"))
         assertEquals(true, text.contains("EDITION #${puzzle.editionNumber}"))
     }
 }

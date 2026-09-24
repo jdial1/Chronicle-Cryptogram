@@ -7,7 +7,7 @@ import type { CaseCharacterId } from './data/caseFiles';
 import { PuzzleData, PuzzleProgress, SymbolMapping, GameStats } from './types';
 import { isHardPuzzle, isMorningEdition, isNightEdition, isNightUnlocked, isPracticePuzzle, isPrimerPuzzle, matchesMode, articleDek, articleByline, currentMorningPuzzle, morningPuzzleForEdition, nightPuzzleForEdition } from './utils/edition';
 import { useCampaignProgress } from './hooks/useCampaignProgress';
-import { getInitialPuzzle, loadPuzzleState, withHintedMappings, decodedMappings } from './game/puzzleState';
+import { getInitialPuzzle, loadPuzzleState, withHintedMappings, decodedMappings, undoMappings } from './game/puzzleState';
 import { usePuzzleSession } from './hooks/usePuzzleSession';
 import { useDailyWalletActions } from './hooks/useDailyWalletActions';
 import { useDeskTimer } from './hooks/useDeskTimer';
@@ -28,6 +28,7 @@ import {
   writeSolvedPuzzleIds,
 } from './utils/localStore';
 import { formatTime } from './utils/formatTime';
+import { deskLedger } from './utils/deskLedger';
 import { deskThemeIsDark, toggleDeskTheme } from './utils/deskTheme';
 import { useEditionUpdate } from './hooks/useEditionUpdate';
 import { Newspaper, WoodcutPressFilter } from './deskIcons';
@@ -37,15 +38,14 @@ import { useDeskOnline } from './hooks/useDeskOnline';
 import {
   bureauDeskSeen,
   markBureauDeskSeen,
+  nightMemoSeen,
+  markNightMemoSeen,
   usesGameKeyboard,
   toggleGameKeyboard,
 } from './utils/deskPrefs';
 
 const LeaderboardModal = lazy(() =>
   import('./components/LeaderboardModal').then((mod) => ({ default: mod.LeaderboardModal }))
-);
-const NewspaperClippingModal = lazy(() =>
-  import('./components/NewspaperClippingModal').then((mod) => ({ default: mod.NewspaperClippingModal }))
 );
 const ArchiveModal = lazy(() =>
   import('./components/ArchiveModal').then((mod) => ({ default: mod.ArchiveModal }))
@@ -71,6 +71,9 @@ const CaseFileToast = lazy(() =>
 const EditionUpdateBanner = lazy(() =>
   import('./components/EditionUpdateBanner').then((mod) => ({ default: mod.EditionUpdateBanner }))
 );
+const NightMemoModal = lazy(() =>
+  import('./components/NightMemoModal').then((mod) => ({ default: mod.NightMemoModal }))
+);
 const TodayStatsBulletin = lazy(() =>
   import('./components/TodayStatsBulletin').then((mod) => ({ default: mod.TodayStatsBulletin }))
 );
@@ -85,7 +88,6 @@ function prefetchDeskModals() {
   void import('./components/BureauDeskModal');
   void import('./components/ArticleReaderModal');
   void import('./components/CaseFileModal');
-  void import('./components/NewspaperClippingModal');
   void import('./components/ResetLettersModal');
   void import('./components/TodayStatsBulletin');
   void import('./components/EditionUpdateBanner');
@@ -131,14 +133,9 @@ export default function App() {
   const [isSolved, setIsSolved] = useState(BOOT_STATE.isSolved);
 
   const [isTimerRunning, setIsTimerRunning] = useState(!BOOT_STATE.isSolved && !splashBlocksDesk());
-  const { timerSeconds, getTimerSeconds, commitTimer } = useDeskTimer(
-    BOOT_STATE.timerSeconds,
-    isTimerRunning && !isSolved
-  );
 
   // Modals
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
-  const [isNewspaperClippingOpen, setIsNewspaperClippingOpen] = useState(false);
   const [isSolveBulletinOpen, setIsSolveBulletinOpen] = useState(false);
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const [isCaseFileOpen, setIsCaseFileOpen] = useState(false);
@@ -149,12 +146,35 @@ export default function App() {
   const [isArticleOpen, setIsArticleOpen] = useState(false);
   const [isResetLettersOpen, setIsResetLettersOpen] = useState(false);
   const [isBureauDeskOpen, setIsBureauDeskOpen] = useState(false);
+  const [isNightMemoOpen, setIsNightMemoOpen] = useState(false);
   const [bureauPreview, setBureauPreview] = useState(false);
   const bureauAfterRef = useRef<(() => void) | null>(null);
   const mappingHistoryRef = useRef<SymbolMapping[]>([]);
   const [canUndo, setCanUndo] = useState(false);
   const [deskArmed, setDeskArmed] = useState(() => !splashBlocksDesk());
   const [viewportKeyboard, setViewportKeyboard] = useState(false);
+
+  const sheetDepth =
+    Number(Boolean(caseFileToastPuzzle)) +
+    Number(isResetLettersOpen) +
+    Number(isBureauDeskOpen) +
+    Number(isCaseFileOpen) +
+    Number(isLeaderboardOpen) +
+    Number(isSolveBulletinOpen) +
+    Number(isArchiveOpen) +
+    Number(isHowToPlayOpen) +
+    Number(isArticleOpen);
+  const sheetLocked = sheetDepth > Number(Boolean(caseFileToastPuzzle));
+
+  // The clock stops whenever a sheet covers the board. Reading the article or the
+  // case file is how an agent gets the crib; it must never cost them time.
+  const { timerSeconds, getTimerSeconds, commitTimer } = useDeskTimer(
+    BOOT_STATE.timerSeconds,
+    // The Night memo stops the clock too, but stays out of the sheet stack: it
+    // opens as the Archive or bulletin closes, and that close's back-navigation
+    // would otherwise land on the memo and dismiss it unread.
+    isTimerRunning && !isSolved && !sheetLocked && !isNightMemoOpen
+  );
 
   if (progressReadyId !== currentPuzzle.id) {
     const loaded = loadPuzzleState(currentPuzzle, allPuzzles);
@@ -476,8 +496,11 @@ export default function App() {
     const previous = mappingHistoryRef.current.pop();
     if (!previous) return;
     setCanUndo(mappingHistoryRef.current.length > 0);
-    setMappings(previous);
-  }, []);
+    const restored = undoMappings(previous, mappings, [...hintedSymbolIds, ...verifiedSymbolIds]);
+    setMappings(restored);
+    // A red mark describes the letter that was checked; once undo changes it, the mark is stale.
+    setFlaggedSymbolIds((prev) => prev.filter((id) => restored[id] === mappings[id]));
+  }, [mappings, hintedSymbolIds, verifiedSymbolIds]);
 
   const onStorageFail = useCallback(() => setDeskNotice(STORAGE_JAMMED), []);
   const { handleUseHint, handleCheckLetter } = useDailyWalletActions({
@@ -620,18 +643,10 @@ export default function App() {
     setIsSolveBulletinOpen(false);
   };
 
-  const sheetDepth =
-    Number(Boolean(caseFileToastPuzzle)) +
-    Number(isResetLettersOpen) +
-    Number(isBureauDeskOpen) +
-    Number(isCaseFileOpen) +
-    Number(isLeaderboardOpen) +
-    Number(isNewspaperClippingOpen) +
-    Number(isSolveBulletinOpen) +
-    Number(isArchiveOpen) +
-    Number(isHowToPlayOpen) +
-    Number(isArticleOpen);
-  const sheetLocked = sheetDepth > Number(Boolean(caseFileToastPuzzle));
+  const closeNightMemo = () => {
+    markNightMemoSeen();
+    setIsNightMemoOpen(false);
+  };
 
   const closeTopSheet = () => {
     if (caseFileToastPuzzle) {
@@ -654,10 +669,6 @@ export default function App() {
       setIsLeaderboardOpen(false);
       return true;
     }
-    if (isNewspaperClippingOpen) {
-      setIsNewspaperClippingOpen(false);
-      return true;
-    }
     if (isSolveBulletinOpen) {
       closeSolveBulletin();
       return true;
@@ -678,6 +689,14 @@ export default function App() {
   };
 
   useSheetStack(sheetDepth, closeTopSheet);
+
+  // The Night Extra's rule arrives as orders the first time it applies, before a
+  // single mark is typed on a night page.
+  useEffect(() => {
+    if (boardReady && deskArmed && isHardPuzzle(currentPuzzle) && !isSolved && !nightMemoSeen()) {
+      setIsNightMemoOpen(true);
+    }
+  }, [boardReady, deskArmed, currentPuzzle, isSolved]);
 
   useEffect(() => {
     if (!import.meta.env.DEV) return;
@@ -719,16 +738,13 @@ export default function App() {
   };
 
   /** Morning -> that edition's Night once unlocked, Night -> the next edition's Morning. */
-  const handleNextPuzzle = () => {
+  const nextPuzzle = () => {
     const edition = currentPuzzle.editionNumber;
-    const next =
-      isMorningEdition(currentPuzzle) && isNightUnlocked(allPuzzles, solvedPuzzleIds, edition)
-        ? nightPuzzleForEdition(allPuzzles, edition)
-        : edition + 1 <= frontPage
-          ? morningPuzzleForEdition(INITIAL_PUZZLES, edition + 1)
-          : undefined;
-    if (next) setCurrentPuzzle(next);
-    setIsNewspaperClippingOpen(false);
+    return isMorningEdition(currentPuzzle) && isNightUnlocked(allPuzzles, solvedPuzzleIds, edition)
+      ? nightPuzzleForEdition(allPuzzles, edition)
+      : edition + 1 <= frontPage
+        ? morningPuzzleForEdition(INITIAL_PUZZLES, edition + 1)
+        : undefined;
   };
 
   // Determine if Hard mode is unlocked for the current edition
@@ -1005,6 +1021,7 @@ export default function App() {
                 timeSeconds: timerSeconds,
                 timeFormatted: formatTime(timerSeconds),
                 hintsUsed,
+                checksUsed,
                 accuracy,
               }
             : null
@@ -1012,12 +1029,25 @@ export default function App() {
       />
       ) : null}
 
+      {isNightMemoOpen ? <NightMemoModal isOpen={isNightMemoOpen} onClose={closeNightMemo} /> : null}
+
       {isSolveBulletinOpen ? (
       <TodayStatsBulletin
         isOpen={isSolveBulletinOpen}
         onClose={closeSolveBulletin}
         currentPuzzle={currentPuzzle}
         timerSeconds={timerSeconds}
+        hintsUsed={hintsUsed}
+        checksUsed={checksUsed}
+        nextHeadline={isPracticePuzzle(currentPuzzle) ? undefined : nextPuzzle()?.headline}
+        onNextEdition={
+          isHardPuzzle(currentPuzzle) && nextPuzzle()
+            ? () => {
+                const next = nextPuzzle();
+                if (next) setCurrentPuzzle(next);
+              }
+            : undefined
+        }
         onUnlockHardMode={() => handleSelectDifficulty('Hard')}
         onOpenTodayEdition={handleOpenTodayEdition}
         onStartPractice={handleStartPractice}
@@ -1030,19 +1060,6 @@ export default function App() {
           setCaseFileToastPuzzle(null);
           setIsCaseFileOpen(true);
         }}
-      />
-      ) : null}
-
-      {isNewspaperClippingOpen ? (
-      <NewspaperClippingModal
-        isOpen={isNewspaperClippingOpen}
-        onClose={() => setIsNewspaperClippingOpen(false)}
-        puzzle={currentPuzzle}
-        timeFormatted={formatTime(timerSeconds)}
-        accuracy={accuracy}
-        hintsUsed={hintsUsed}
-        onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
-        onNextPuzzle={handleNextPuzzle}
       />
       ) : null}
 
@@ -1117,6 +1134,7 @@ export default function App() {
         user={identified ? user : null}
         night={isNightEdition(currentPuzzle)}
         gameStats={gameStats}
+        ledger={isBureauDeskOpen ? deskLedger(solvedPuzzleIds) : undefined}
         seasonLength={seasonLength}
         authConfigured={bureauPreview ? true : configured}
         authError={authError}
@@ -1127,7 +1145,6 @@ export default function App() {
         gameKeyboard={gameKeyboard}
         onToggleKeyboard={toggleKeyboard}
         pressVersion={editionUpdate.serverVersion}
-        todayClue={currentPuzzle.hints[0] || null}
         onDeleteRecords={
           user
             ? async () => {

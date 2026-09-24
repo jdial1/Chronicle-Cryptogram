@@ -10,6 +10,9 @@ import androidx.compose.ui.test.performTextInput
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.ThemeMode
 import com.chroniclecryptogram.designsystem.theme.ChronicleTheme
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.hasText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -56,18 +59,24 @@ class BureauScreenTest {
         }
     }
 
+    /** The list is lazy: scroll it to the button, which may not be composed yet. */
+    private fun openDelete() {
+        compose.onNodeWithTag(BureauListTag).performScrollToNode(hasText("Delete account and data"))
+        compose.onNodeWithText("Delete account and data").performClick()
+    }
+
     @Test
     fun `deleting an account asks before it acts`() {
         show()
 
-        compose.onNodeWithText("Delete account and data").performScrollTo().performClick()
+        openDelete()
         // The tap opens a dialog; it must not have deleted anything yet.
         assertEquals(0, deleted)
 
         compose.onNodeWithText("Keep it").performClick()
         assertEquals("dismissing the dialog must not delete", 0, deleted)
 
-        compose.onNodeWithText("Delete account and data").performScrollTo().performClick()
+        openDelete()
         compose.onNodeWithText("Delete it").performClick()
         assertEquals(1, deleted)
     }
@@ -75,7 +84,7 @@ class BureauScreenTest {
     @Test
     fun `the deletion warning says it cannot be undone`() {
         show()
-        compose.onNodeWithText("Delete account and data").performScrollTo().performClick()
+        openDelete()
 
         compose.onNode(
             androidx.compose.ui.test.hasText("cannot be undone", substring = true)

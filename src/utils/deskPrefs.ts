@@ -12,6 +12,14 @@ export function markBureauDeskSeen() {
   storageSet(BUREAU_DESK_SEEN_KEY, '1');
 }
 
+export function nightMemoSeen() {
+  return storageGet(STORAGE_KEYS.nightMemoSeen) === '1';
+}
+
+export function markNightMemoSeen() {
+  storageSet(STORAGE_KEYS.nightMemoSeen, '1');
+}
+
 export function usesGameKeyboard() {
   return storageGet(CIPHER_KEYBOARD_KEY) !== 'native';
 }

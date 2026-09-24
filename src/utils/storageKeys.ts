@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   codename: 'cryptogram_codename',
   deskTheme: 'cryptogram_desk_theme',
   bureauDeskSeen: 'cryptogram_bureau_desk_seen',
+  nightMemoSeen: 'cryptogram_night_memo_seen',
   cipherKeyboard: 'cryptogram_cipher_keyboard',
   offlinePack: 'cryptogram_offline_pack',
   splashEntered: 'chronicle_splash_entered',

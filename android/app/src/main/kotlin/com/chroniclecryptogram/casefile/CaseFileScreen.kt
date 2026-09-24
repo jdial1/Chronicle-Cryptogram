@@ -13,6 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.cipher.Morgue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.animation.core.animateFloatAsState
@@ -108,6 +111,11 @@ fun CaseFileScreen(
     var open by rememberSaveable(dossiers.size) { mutableIntStateOf(0) }
     val (character, fragments) = dossiers[open.coerceIn(dossiers.indices)]
 
+    // The morgue: the paper's own clippings, searched by a word. Solved pages only.
+    var query by rememberSaveable { mutableStateOf("") }
+    val searching = query.trim().length >= Morgue.MIN_QUERY
+    val clippings = remember(puzzles, solvedPuzzleIds, query) { Morgue.search(puzzles, solvedPuzzleIds, query) }
+
     PaperList(
         title = "Case File",
         testTag = CaseFileListTag,
@@ -120,6 +128,54 @@ fun CaseFileScreen(
             )
         },
     ) {
+        item(key = "morgue") {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it.take(40) },
+                singleLine = true,
+                label = { Text("Morgue") },
+                placeholder = { Text("Search your decoded pages", color = colors.paperRule) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = "Search the morgue: your decoded pages" },
+            )
+        }
+
+        if (searching) {
+            if (clippings.isEmpty()) {
+                item(key = "morgue-empty") {
+                    Text(
+                        text = "Nothing in the morgue. Only pages you have decoded are on file.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.paperRule,
+                    )
+                }
+            }
+            items(clippings, key = { "morgue-${it.id}" }) { clip ->
+                ChroniclePanel(contentPadding = PaddingValues(12.dp)) {
+                    Text(
+                        text = when {
+                            Edition.isPrimerPuzzle(clip) -> "PRIMER"
+                            Edition.isNightEdition(clip) -> "DAY ${clip.editionNumber} · NIGHT EXTRA"
+                            else -> "DAY ${clip.editionNumber} · MORNING EDITION"
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = colors.brass,
+                    )
+                    Text(text = clip.headline, style = MaterialTheme.typography.titleMedium, color = colors.ink)
+                    Text(
+                        text = "“${clip.originalText}”",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = ChronicleFonts.Typewriter,
+                            fontStyle = FontStyle.Italic,
+                        ),
+                        color = colors.ink,
+                    )
+                }
+            }
+            return@PaperList
+        }
+
         item(key = "${character.id}-head") {
             Column(
                 Modifier

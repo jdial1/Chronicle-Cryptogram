@@ -35,18 +35,6 @@ const ZOOM_MAX = 1.6;
 const ZOOM_STEP = 0.15;
 const ZOOM_DEFAULT = 1;
 
-function isSymbolSolved(words: CryptogramWord[], mappings: SymbolMapping, symbolId: string | null) {
-  if (!symbolId) return false;
-  for (const word of words) {
-    for (const symbol of word.symbols) {
-      if (symbol.symbolId === symbolId && !symbol.isPunctuation) {
-        return mappings[symbolId] === symbol.targetLetter;
-      }
-    }
-  }
-  return false;
-}
-
 function glyphCopies(words: CryptogramWord[], symbolId: string) {
   let copies = 0;
   for (const word of words) {
@@ -108,9 +96,11 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
   const skipJitter =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hintReady = Boolean(selectedSymbolId) && !isSymbolSolved(words, mappings, selectedSymbolId);
   const mappedSelected = Boolean(selectedSymbolId && mappings[selectedSymbolId]);
   const selectedLocked = Boolean(selectedSymbolId && lockedSymbolIds.includes(selectedSymbolId));
+  // Whether the guess is right must never change what a control looks like or does.
+  // A Hint that greyed out on a correct letter was a free, unlimited oracle.
+  const hintReady = Boolean(selectedSymbolId) && !selectedLocked;
   const selectedWrong = Boolean(selectedSymbolId && flaggedSymbolIds.includes(selectedSymbolId));
   const checkReady = mappedSelected && !selectedLocked && !selectedWrong;
   const deskNote = selectedLocked
@@ -388,9 +378,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
                   : selectedLocked
                     ? 'Hint unavailable, that mark is locked'
                     : !hintReady
-                      ? selectedSymbolId
-                        ? 'Hint unavailable, that letter is already solved'
-                        : 'Hint unavailable, select a mark first'
+                      ? 'Hint unavailable, select a mark first'
                       : `Reveal the highlighted letter, ${hintsRemaining} remaining today`
               }
               title={
@@ -399,9 +387,7 @@ export const CryptogramGrid: React.FC<CryptogramGridProps> = ({
                   : selectedLocked
                     ? 'That mark is locked.'
                     : !hintReady
-                      ? selectedSymbolId
-                        ? 'That letter is already solved.'
-                        : 'Select a mark first'
+                      ? 'Select a mark first'
                       : 'Reveal the highlighted letter. Three per edition.'
               }
               disabled={hintsRemaining <= 0 || !hintReady}

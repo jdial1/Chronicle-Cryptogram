@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { INITIAL_PUZZLES } from './puzzles';
 import { CASE_FRAGMENTS } from './caseFiles';
 import { cipherForPuzzle } from '../game/puzzleState';
+import { splitLetters } from '../game/deskCheck';
 import { HOMOPHONE_ALLOCATIONS } from '../utils/cipherEngine';
 import {
   ISSUE_CHAPTERS,
@@ -133,20 +134,6 @@ describe('every shipped puzzle builds a playable cipher', () => {
     expect(empty).toEqual([]);
   });
 
-  /** Which letters a board actually spreads across more than one glyph. */
-  function splitLetters(puzzle: (typeof INITIAL_PUZZLES)[number]) {
-    const perLetter = new Map<string, Set<string>>();
-    for (const word of cipherForPuzzle(puzzle).words) {
-      for (const symbol of word.symbols) {
-        if (symbol.isPunctuation) continue;
-        const set = perLetter.get(symbol.targetLetter) ?? new Set<string>();
-        set.add(symbol.symbolId);
-        perLetter.set(symbol.targetLetter, set);
-      }
-    }
-    return [...perLetter.entries()].filter(([, ids]) => ids.size > 1).map(([letter]) => letter);
-  }
-
   it('splits every repeated homophone letter in a Night Extra', () => {
     // Engine invariant: homophones cycle per occurrence, so a letter allocated two
     // glyphs must use both once it appears twice. Independent of how the quote reads.
@@ -175,11 +162,10 @@ describe('every shipped puzzle builds a playable cipher', () => {
    * plain 1:1 substitution -- frequency counting works cleanly and the mode's whole
    * promise ("E, T and A each get two glyphs", per the store listing) does not land.
    *
-   * day_4_hard is a known miss: 24 letters, with E, T and A appearing exactly once
-   * each. Fixing it means rewriting the quote, which is authoring work. The list is
-   * here so the defect is visible and so new content cannot quietly join it.
+   * day_4_hard was the one miss (E, T and A each appeared once) until its quote was
+   * rewritten to repeat all three. The list stays so a new flat page is visible.
    */
-  const KNOWN_FLAT_NIGHT_EXTRAS = ['day_4_hard'];
+  const KNOWN_FLAT_NIGHT_EXTRAS: string[] = [];
 
   it('gives Night Extras real homophones, which is the whole promise of the mode', () => {
     const nights = INITIAL_PUZZLES.filter(isHardPuzzle);

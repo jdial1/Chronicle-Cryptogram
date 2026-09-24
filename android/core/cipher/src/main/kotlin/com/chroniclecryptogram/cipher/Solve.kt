@@ -39,6 +39,15 @@ object Solve {
     }
 
     /**
+     * What the agent needed from the Bureau, as the receipt prints it. Help, not
+     * accuracy: a solve only fires once every mark is right, so accuracy always
+     * read 100% and said nothing. Mirrors `helpLine` in `src/utils/shareText.ts`.
+     */
+    fun helpLine(hintsUsed: Int, checksUsed: Int): String =
+        if (hintsUsed == 0 && checksUsed == 0) "Clean — no hints, no checks"
+        else "Hints $hintsUsed · Checks $checksUsed"
+
+    /**
      * The score card a player posts. Byte-identical to the web's, so the same
      * solve shared from either surface reads the same.
      *
@@ -49,15 +58,14 @@ object Solve {
     fun shareText(
         puzzle: PuzzleData,
         timerSeconds: Double,
-        accuracy: Int,
         hintsUsed: Int,
+        checksUsed: Int,
         url: String = SHARE_URL,
     ): String = buildString {
         append("📰 CHRONICLE CRYPTOGRAM — EDITION #${puzzle.editionNumber}\n")
         append("🔍 Solved: \"${puzzle.headline}\"\n")
         append("⏱️ Time: ${formatTime(timerSeconds)}\n")
-        append("🎯 Accuracy: $accuracy%\n")
-        append("💡 Hints Used: $hintsUsed\n")
+        append("🔎 ${helpLine(hintsUsed, checksUsed)}\n")
         append("Play Chronicle Cryptogram: $url")
     }
 

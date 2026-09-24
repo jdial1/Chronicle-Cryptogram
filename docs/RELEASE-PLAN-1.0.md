@@ -1,5 +1,10 @@
 # Chronicle Cryptogram — 1.0 Release Plan
 
+> **Superseded for the path to release by [MVP-1.0.md](MVP-1.0.md) (23 September 2026).**
+> This plan was written for the Expo WebView shell, which has since been deleted in
+> favour of the native Kotlin app. Its market analysis and decisions still stand; its
+> phases, secrets, and store steps are historical.
+
 ## Context
 
 Chronicle Cryptogram is a 1920s-newspaper cryptogram game: a React 19 + Vite PWA deployed to GitHub Pages, wrapped for Android by an Expo/React Native WebView shell (`mobile/`), backed by Firebase (anonymous + Google auth, Firestore progress/leaderboards, one scheduled FCM push). It has never shipped. The goal is a step ladder from the current state to a full (non-track-limited) Google Play production release.
@@ -394,7 +399,7 @@ Two guards exist specifically for Season 2, both verified against a simulated Se
 
 `day_4_hard` is 24 letters with E, T and A each appearing exactly once. Homophones cycle per *occurrence*, so a letter appearing once never splits — that Night Extra renders as a plain 1:1 substitution, frequency counting works cleanly on it, and the mode's advertised promise does not land. `day_6_hard` and `day_28_hard` manage only a single split.
 
-It is pinned as a named exception in the test so it stays visible and new content cannot join it. Fixing it means rewriting a story quote that also feeds a case-file fragment.
+Fixed in September 2026: the quote now reads "THE CUBAN SILK CRATES ARE FULL OF LIQUID GOLD.", which repeats all three, and the exception list in the test is empty. No case-file fragment quotes it.
 
 ### For whoever builds Season 2
 
@@ -507,7 +512,7 @@ Ranked, biggest cut first. All are safe, independent, and can land in Phase 0:
 
 - `delete:` `mobile/.ship/test.apk` — 78 MB tracked binary. Nothing replaces it; add `mobile/.ship/` to `.gitignore`.
 - `delete:` `src/data/vance-case-file.txt` — 45 KB, referenced by **nothing** in `src`, `mobile`, `scripts`, or `vite.config.ts`. Appears to be authoring source material. Move it out of `src/` or drop it.
-- `delete:` `motion` (`^12.23.24`) in `package.json` dependencies — imported nowhere. (`canvas-confetti` *is* used, via dynamic import in `useSolveCelebration.ts` and `useOfflinePack.ts` — keep it.)
+- `delete:` `motion` (`^12.23.24`) in `package.json` dependencies — imported nowhere. (`canvas-confetti` was later removed too: the stamp is the solve's only celebration.)
 - `delete:` `vite` is listed in **both** `dependencies` and `devDependencies`. Keep the devDependency.
 - `delete:` duplicated full description in `listing.json` and `fullDescription.txt` — identical byte-for-byte. One source of truth.
 - `yagni:` `server.ts` (69 lines) + `express` + the `esbuild` server bundling step in `npm run build`. Production deploys to **GitHub Pages** (`base: './'` in `vite.config.ts`, `deploy.yml`); the Express server exists only for local dev and a `/api/health` route nothing calls. Its one unique behaviour is rewriting `/splash*` → `index.html`, which `vite.config.ts` can do in a few lines alongside the existing `editionVersionPlugin()`. Cutting this removes a dependency, a build step, and a whole production path that is never exercised. *This is the biggest structural `delete:` available.*

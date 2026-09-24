@@ -8,6 +8,7 @@ import {
   gateCloudHydrate,
   getInitialPuzzle,
   liveFlaggedIds,
+  undoMappings,
   withHintedMappings,
 } from './puzzleState';
 
@@ -82,5 +83,21 @@ describe('getInitialPuzzle', () => {
     if (!primer) throw new Error('missing primer');
     writeSolvedPuzzleIds([primer.id]);
     expect(getInitialPuzzle().id).not.toBe(primer.id);
+  });
+});
+
+describe('undoMappings', () => {
+  it('rewinds typing but never drops a letter the agent paid for', () => {
+    const beforeHint = { a: 'X' };
+    const afterHint = { a: 'X', b: 'E' }; // b was hinted
+    expect(undoMappings(beforeHint, afterHint, ['b'])).toEqual({ a: 'X', b: 'E' });
+  });
+
+  it('keeps a checked letter even when the saved board had another guess there', () => {
+    expect(undoMappings({ a: 'Q' }, { a: 'T' }, ['a'])).toEqual({ a: 'T' });
+  });
+
+  it('rewinds unlocked marks as before', () => {
+    expect(undoMappings({ a: 'Q' }, { a: 'T', c: 'R' }, [])).toEqual({ a: 'Q' });
   });
 });

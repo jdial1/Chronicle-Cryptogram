@@ -65,6 +65,7 @@ class PostingTest {
 
     @Test
     fun `out-of-range figures are refused`() {
+        assertNotNull(Posting.reject(entry().copy(checksUsed = 21)))
         assertNotNull(Posting.reject(entry(accuracy = 101)))
         assertNotNull(Posting.reject(entry(accuracy = -1)))
         assertNotNull(Posting.reject(entry(hintsUsed = 21)))

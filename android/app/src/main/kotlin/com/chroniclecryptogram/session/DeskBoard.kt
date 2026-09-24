@@ -103,6 +103,7 @@ fun rememberDeskBoard(
                 timeSeconds = finished.timerSeconds.toInt(),
                 accuracy = finished.accuracy,
                 hintsUsed = finished.hintsUsed,
+                checksUsed = finished.checksUsed,
                 postedAt = System.currentTimeMillis(),
                 titleBadge = prefs.titleBadge.ifBlank { TitleBadges.last() },
                 timeFormatted = finished.timeFormatted,

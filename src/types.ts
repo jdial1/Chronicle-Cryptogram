@@ -69,6 +69,9 @@ export interface LeaderboardEntry {
   timeSeconds: number; // in seconds
   timeFormatted: string; // '01:42.5'
   hintsUsed: number;
+  checksUsed: number;
+  /** hintsUsed + checksUsed, stored so the board can be queried in rank order. */
+  helpUsed: number;
   accuracy: number; // 0-100%
   countryCode: string;
   timestamp: string;

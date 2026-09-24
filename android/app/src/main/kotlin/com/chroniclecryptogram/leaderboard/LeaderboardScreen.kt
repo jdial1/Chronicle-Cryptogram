@@ -108,6 +108,7 @@ fun LeaderboardScreen(
                                     codename = entry.codename,
                                     time = Solve.formatTime(entry.timeSeconds.toDouble()),
                                     hints = entry.hintsUsed,
+                                    checks = entry.checksUsed,
                                     isPlayer = entry.uid == playerUid,
                                 )
                             }
@@ -175,8 +176,10 @@ private fun EntryRow(
     codename: String,
     time: String,
     hints: Int,
+    checks: Int,
     isPlayer: Boolean,
 ) {
+    val clean = hints == 0 && checks == 0
     val colors = ChronicleTheme.colors
     Row(
         Modifier
@@ -186,7 +189,9 @@ private fun EntryRow(
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .semantics {
                 contentDescription = buildString {
-                    append("Rank $rank, $codename, $time, $hints hints")
+                    append("Rank $rank, $codename, ")
+                    append(if (clean) "clean" else "$hints hints, $checks checks")
+                    append(", $time")
                     if (isPlayer) append(", your time")
                 }
             },
@@ -203,6 +208,12 @@ private fun EntryRow(
             style = MaterialTheme.typography.bodyLarge,
             color = if (isPlayer) colors.selectedInk else colors.ink,
             modifier = Modifier.weight(1f),
+        )
+        // Help before time: it is the first thing the board sorts on.
+        Text(
+            text = if (clean) "Clean" else "${hints}h · ${checks}c",
+            style = MaterialTheme.typography.labelLarge,
+            color = if (isPlayer) colors.selectedInk else colors.brass,
         )
         Text(
             text = time,

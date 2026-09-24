@@ -77,6 +77,8 @@ fun ArchiveScreen(
     solvedPuzzleIds: Set<String>,
     onOpen: (PuzzleData) -> Unit,
     modifier: Modifier = Modifier,
+    /** Solved with no hint and no check. Pages that took help show nothing extra. */
+    cleanPuzzleIds: Set<String> = emptySet(),
 ) {
     val colors = ChronicleTheme.colors
     val issues = remember(puzzles) { Edition.groupIssues(puzzles) }
@@ -123,6 +125,7 @@ fun ArchiveScreen(
                     practiceCard = practiceCard,
                     unlocked = unlocked,
                     solvedPuzzleIds = solvedPuzzleIds,
+                    cleanPuzzleIds = cleanPuzzleIds,
                     expanded = unlocked && expanded == issue.editionNumber,
                     // A locked row has nothing behind it but the headline of an
                     // edition the player has not reached, so it does not open.
@@ -200,6 +203,7 @@ private fun IssueRow(
     practiceCard: PuzzleData?,
     unlocked: Boolean,
     solvedPuzzleIds: Set<String>,
+    cleanPuzzleIds: Set<String>,
     expanded: Boolean,
     /** Null when the edition is locked: there is nothing behind it to show. */
     onToggle: (() -> Unit)?,
@@ -308,6 +312,7 @@ private fun IssueRow(
                         puzzle = morning,
                         unlocked = unlocked,
                         solved = morningSolved,
+                        clean = morning.id in cleanPuzzleIds,
                         lockReason = "Decode the editions before this one to unlock.",
                         onOpen = onOpen,
                     )
@@ -329,6 +334,7 @@ private fun IssueRow(
                             puzzle = night,
                             unlocked = nightUnlocked,
                             solved = nightSolved,
+                            clean = night.id in cleanPuzzleIds,
                             lockReason = "Decode the Morning Edition to unlock.",
                             onOpen = onOpen,
                         )
@@ -370,6 +376,7 @@ private fun SlotCard(
     solved: Boolean,
     lockReason: String,
     onOpen: (PuzzleData) -> Unit,
+    clean: Boolean = false,
 ) {
     val colors = ChronicleTheme.colors
     // Lock wins over solved. A save can carry a solve for an edition the player
@@ -377,6 +384,7 @@ private fun SlotCard(
     // and in that case what matters is that the row cannot be opened.
     val state = when {
         !unlocked -> "locked"
+        solved && clean -> "decoded clean"
         solved -> "decoded"
         else -> "open"
     }
@@ -410,6 +418,13 @@ private fun SlotCard(
                     contentDescription = null,
                     tint = colors.brass,
                     modifier = Modifier.size(14.dp),
+                )
+            }
+            if (solved && clean && unlocked) {
+                Text(
+                    text = "CLEAN",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.cinnabar,
                 )
             }
             if (!unlocked) {

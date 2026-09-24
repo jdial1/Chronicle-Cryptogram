@@ -75,16 +75,6 @@ export function useSolveCelebration({
         setCaseFileToastPuzzle(currentPuzzle);
       }
     });
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      void import('canvas-confetti').then(({ default: fireConfetti }) => {
-        fireConfetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#78350f', '#f59e0b', '#d97706', '#1c1917', '#10b981'],
-        });
-      });
-    }
     if (isPracticePuzzle(currentPuzzle)) return;
 
     const nextSolved = Array.from(new Set([...solvedPuzzleIds, currentPuzzle.id]));

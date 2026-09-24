@@ -78,6 +78,7 @@ fun BoardScreen(
     useSystemKeyboard: Boolean = false,
     tactics: List<CipherTactic> = emptyList(),
     liveStats: PuzzleLiveStats? = null,
+    nextHeadline: String? = null,
 ) {
     val colors = ChronicleTheme.colors
     val puzzle = state.puzzle
@@ -131,6 +132,7 @@ fun BoardScreen(
                 tools = tools,
                 tactics = tactics,
                 liveStats = liveStats,
+                nextHeadline = nextHeadline,
                 useSystemKeyboard = useSystemKeyboard,
                 onOpenStory = { readingStory = true },
             )
@@ -199,6 +201,7 @@ private fun DeskContent(
     tools: List<DeskTool>,
     tactics: List<CipherTactic>,
     liveStats: PuzzleLiveStats?,
+    nextHeadline: String?,
     onOpenStory: () -> Unit,
 ) {
     Column(
@@ -359,6 +362,7 @@ private fun DeskContent(
                     state = state,
                     onNext = onNext,
                     liveStats = liveStats,
+                    nextHeadline = nextHeadline,
                     // Offered off the Primer and off a drill; a real edition's
                     // bulletin has its own way on.
                     onPractice = onPractice.takeIf {

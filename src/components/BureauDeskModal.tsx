@@ -4,6 +4,7 @@ import { FileText, Send } from '../icons';
 import { GameStats } from '../types';
 import { formatTime } from '../utils/cipherEngine';
 import { DEFAULT_GAME_STATS } from '../utils/localStore';
+import type { DeskLedger } from '../utils/deskLedger';
 import { AgentPlate, GoogleDeskButton } from './Header';
 import { DeskModal } from './DeskModal';
 import {
@@ -29,7 +30,8 @@ interface BureauDeskModalProps {
   gameKeyboard: boolean;
   onToggleKeyboard: () => void;
   pressVersion?: string | null;
-  todayClue?: { letter: string; clue: string } | null;
+  /** Books on craft: clean pages and help requisitioned. */
+  ledger?: DeskLedger;
   onDeleteRecords?: () => Promise<void>;
 }
 
@@ -57,26 +59,20 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
   gameKeyboard,
   onToggleKeyboard,
   pressVersion = null,
-  todayClue,
+  ledger,
   onDeleteRecords,
 }) => {
   const pack = useOfflinePack(pressVersion);
   const [wipeBusy, setWipeBusy] = useState(false);
   const [wipeConfirm, setWipeConfirm] = useState(false);
   const [wipeError, setWipeError] = useState<string | null>(null);
-  const [showClue, setShowClue] = useState(false);
 
   useEffect(() => {
     if (isOpen) return;
     setWipeBusy(false);
     setWipeConfirm(false);
     setWipeError(null);
-    setShowClue(false);
   }, [isOpen]);
-
-  useEffect(() => {
-    setShowClue(false);
-  }, [todayClue?.letter, todayClue?.clue]);
 
   if (!isOpen) return null;
 
@@ -88,7 +84,15 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
       label: 'Editions decoded',
       value: seasonLength ? `${gameStats.puzzlesSolved} / ${seasonLength}` : String(gameStats.puzzlesSolved),
     },
-    { short: 'Quickest', label: 'Quickest solve', value: gameStats.fastestTime == null ? '—' : formatTime(gameStats.fastestTime) },
+    // Clean pages and help requisitioned, not the quickest solve: the desk keeps
+    // books on craft, and the stopwatch is not the measure (docs/SOUL.md).
+    { short: 'Clean', label: 'Decoded clean', value: String(ledger?.clean ?? 0) },
+    {
+      short: 'Requisitioned',
+      label: 'Requisitioned',
+      value: `${ledger?.checksTaken ?? 0} checks · ${ledger?.hintsTaken ?? 0} hints`,
+      wide: true,
+    },
     { short: 'On desk', label: 'Time on desk', value: formatTime(gameStats.totalTimePlayed), wide: true },
   ];
 
@@ -222,34 +226,6 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
             )}
             </>
           )}
-          {todayClue ? (
-            <>
-              <button
-                type="button"
-                onClick={() => setShowClue((open) => !open)}
-                aria-pressed={showClue}
-                aria-label={showClue ? "Hide today's clue" : "Show today's clue"}
-                className={`${slipPress} ${
-                  showClue ? 'border-stone-800 bg-amber-200 text-stone-950' : slipFill
-                }`}
-              >
-                {showClue ? "Hide today's clue" : "Today's clue"}
-              </button>
-              {showClue ? (
-                <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
-                  <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
-                    Copy desk
-                  </p>
-                  <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
-                    {todayClue.clue}
-                  </p>
-                  <p className="mt-2 font-typewriter text-[13px] uppercase tracking-widest text-stone-600">
-                    A mark stands for {todayClue.letter}
-                  </p>
-                </article>
-              ) : null}
-            </>
-          ) : null}
 
           {!showFile && deleteRecordsControls && (
             <article className="evidence-slip border border-stone-700 px-2.5 py-2 sm:px-3 sm:pt-2 sm:pb-3">
@@ -310,7 +286,7 @@ export const BureauDeskModal: React.FC<BureauDeskModalProps> = ({
           {showCredentials && (
             <article className="evidence-slip border border-stone-700 px-3 pt-2 pb-3">
               <p className="font-typewriter font-black text-[13px] uppercase tracking-widest text-stone-800">
-                Issue Detective Credentials
+                Issue Agent Credentials
               </p>
               <p className="mt-1.5 font-newspaper text-sm text-stone-700 leading-relaxed">
                 Save investigation records and sync the case across devices.

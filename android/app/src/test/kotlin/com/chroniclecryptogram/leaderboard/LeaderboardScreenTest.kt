@@ -75,9 +75,9 @@ class LeaderboardScreenTest {
         )
         show(StandingsState.Ready(standing))
 
-        compose.onNodeWithContentDescription("Rank 1, A, 01:40.0, 0 hints").assertExists()
-        compose.onNodeWithContentDescription("Rank 2, B, 03:20.0, 0 hints").assertExists()
-        compose.onNodeWithContentDescription("Rank 3, C, 05:00.0, 0 hints").assertExists()
+        compose.onNodeWithContentDescription("Rank 1, A, clean, 01:40.0").assertExists()
+        compose.onNodeWithContentDescription("Rank 2, B, clean, 03:20.0").assertExists()
+        compose.onNodeWithContentDescription("Rank 3, C, clean, 05:00.0").assertExists()
     }
 
     @Test
@@ -88,7 +88,7 @@ class LeaderboardScreenTest {
         )
         show(StandingsState.Ready(standing), playerUid = "me")
 
-        compose.onNodeWithContentDescription("Rank 2, ME, 03:20.0, 0 hints, your time").assertExists()
+        compose.onNodeWithContentDescription("Rank 2, ME, clean, 03:20.0, your time").assertExists()
     }
 
     /**

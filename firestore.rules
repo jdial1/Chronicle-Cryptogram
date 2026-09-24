@@ -84,6 +84,8 @@ service cloud.firestore {
     //   - timeSeconds: number (required, >= 5, <= 86400)
     //   - timeFormatted: string (required, 1-16)
     //   - hintsUsed: number (required, 0-20)
+    //   - checksUsed: number (required, 0-20)
+    //   - helpUsed: number (required, equals hintsUsed + checksUsed; the board's first sort key)
     //   - accuracy: number (required, 0-100)
     //   - countryCode: string (required, exactly 2 A-Z)
     //   - timestamp: timestamp (required)
@@ -323,7 +325,7 @@ service cloud.firestore {
     function isValidLeaderboard(data, puzzleId, userId) {
       return hasOnlyAllowedFields([
           'uid', 'puzzleId', 'codename', 'titleBadge', 'timeSeconds', 'timeFormatted',
-          'hintsUsed', 'accuracy', 'countryCode', 'timestamp'
+          'hintsUsed', 'checksUsed', 'helpUsed', 'accuracy', 'countryCode', 'timestamp'
         ]) &&
         data.uid == userId &&
         data.uid == request.auth.uid &&
@@ -333,6 +335,8 @@ service cloud.firestore {
         inRange(data.timeSeconds, 5, 86400) &&
         validString(data.timeFormatted, 1, 16) &&
         inRange(data.hintsUsed, 0, 20) &&
+        inRange(data.checksUsed, 0, 20) &&
+        data.helpUsed == data.hintsUsed + data.checksUsed &&
         inRange(data.accuracy, 0, 100) &&
         validCountry(data.countryCode) &&
         isRecentTimestamp(data.timestamp);

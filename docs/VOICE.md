@@ -43,8 +43,13 @@ one place where the charm works against the product.
 
 Guarded on both surfaces:
 
-- Web — `src/components/LeaderboardModal.test.ts`
-- Android — `LeaderboardScreenTest.nothing on the board claims a time is verified`
+- Web — `src/components/LeaderboardModal.test.ts`, and `src/components/voice.test.ts`
+  for the copy in every component
+- Android — `LeaderboardScreenTest.nothing on the board claims a time is verified`,
+  and `VoiceCopyTest` for the string literals in every screen
+
+The guard used to watch the leaderboard alone, and the clipping screen shipped
+"CERTIFIED" and "OFFICIALLY DECRYPTED" right past it. That screen is gone.
 
 The line both surfaces use: **"Times as filed by solvers."**
 

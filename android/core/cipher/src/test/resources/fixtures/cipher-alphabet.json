@@ -2876,147 +2876,147 @@
   },
   {
     "puzzleId": "day_4_hard",
-    "seed": "day_4_hardTHE CUBAN SILK IS LIQUID GOLD.",
+    "seed": "day_4_hardTHE CUBAN SILK CRATES ARE FULL OF LIQUID GOLD.",
     "homophonic": true,
     "letterToSymbols": {
       "A": [
         {
-          "id": "homo_A_0_zod_rev_R",
-          "glyph": "Я",
-          "name": "Reversed R (Variant 1)",
-          "category": "inverted"
+          "id": "homo_A_0_zod_dot_sq",
+          "glyph": "⊡",
+          "name": "Square with Dot (Variant 1)",
+          "category": "geometric"
         },
         {
-          "id": "homo_A_1_zod_bullseye",
-          "glyph": "⦿",
-          "name": "Bullseye Circle (Variant 2)",
+          "id": "homo_A_1_zod_hollow_tri",
+          "glyph": "△",
+          "name": "Hollow Triangle (Variant 2)",
           "category": "geometric"
         }
       ],
       "B": [
         {
-          "id": "homo_B_0_zod_O",
-          "glyph": "O",
-          "name": "Letter O (Variant 1)",
-          "category": "zodiac"
+          "id": "homo_B_0_zod_solid_tri",
+          "glyph": "▲",
+          "name": "Solid Triangle (Variant 1)",
+          "category": "geometric"
         }
       ],
       "C": [
         {
-          "id": "homo_C_0_zod_W",
-          "glyph": "W",
-          "name": "Letter W (Variant 1)",
-          "category": "zodiac"
-        }
-      ],
-      "D": [
-        {
-          "id": "homo_D_0_zod_rev_D",
+          "id": "homo_C_0_zod_rev_D",
           "glyph": "ᗡ",
           "name": "Reversed D (Variant 1)",
           "category": "inverted"
         }
       ],
+      "D": [
+        {
+          "id": "homo_D_0_zod_X",
+          "glyph": "X",
+          "name": "Letter X (Variant 1)",
+          "category": "zodiac"
+        }
+      ],
       "E": [
         {
-          "id": "homo_E_0_zod_H",
-          "glyph": "H",
-          "name": "Letter H (Variant 1)",
+          "id": "homo_E_0_zod_F",
+          "glyph": "F",
+          "name": "Letter F (Variant 1)",
           "category": "zodiac"
         },
         {
-          "id": "homo_E_1_zod_X",
-          "glyph": "X",
-          "name": "Letter X (Variant 2)",
+          "id": "homo_E_1_zod_B",
+          "glyph": "B",
+          "name": "Letter B (Variant 2)",
           "category": "zodiac"
         }
       ],
       "F": [
         {
-          "id": "homo_F_0_zod_vert_circle",
-          "glyph": "ϕ",
-          "name": "Circle with Vertical Bar (Variant 1)",
-          "category": "geometric"
+          "id": "homo_F_0_zod_inv_V",
+          "glyph": "∧",
+          "name": "Inverted V (Variant 1)",
+          "category": "inverted"
         }
       ],
       "G": [
         {
-          "id": "homo_G_0_zod_anchor_I",
-          "glyph": "Ɪ",
-          "name": "Curved Serif I (Variant 1)",
+          "id": "homo_G_0_zod_A",
+          "glyph": "A",
+          "name": "Letter A (Variant 1)",
           "category": "zodiac"
         }
       ],
       "H": [
         {
-          "id": "homo_H_0_zod_back_slash",
+          "id": "homo_H_0_zod_inv_F",
+          "glyph": "Ⅎ",
+          "name": "Turned F (Variant 1)",
+          "category": "inverted"
+        }
+      ],
+      "I": [
+        {
+          "id": "homo_I_0_zod_back_slash",
           "glyph": "\\",
           "name": "Backslash (Variant 1)",
           "category": "geometric"
         }
       ],
-      "I": [
-        {
-          "id": "homo_I_0_zod_N",
-          "glyph": "N",
-          "name": "Letter N (Variant 1)",
-          "category": "zodiac"
-        }
-      ],
       "J": [
         {
-          "id": "homo_J_0_zod_E",
-          "glyph": "E",
-          "name": "Letter E (Variant 1)",
-          "category": "zodiac"
-        }
-      ],
-      "K": [
-        {
-          "id": "homo_K_0_zod_F",
-          "glyph": "F",
-          "name": "Letter F (Variant 1)",
-          "category": "zodiac"
-        }
-      ],
-      "L": [
-        {
-          "id": "homo_L_0_zod_T",
-          "glyph": "T",
-          "name": "Letter T (Variant 1)",
-          "category": "zodiac"
-        }
-      ],
-      "M": [
-        {
-          "id": "homo_M_0_zod_crosshair",
+          "id": "homo_J_0_zod_crosshair",
           "glyph": "⊕",
           "name": "Zodiac Crosshair (Variant 1)",
           "category": "zodiac"
         }
       ],
-      "N": [
+      "K": [
         {
-          "id": "homo_N_0_zod_hollow_sq",
-          "glyph": "□",
-          "name": "Hollow Square (Variant 1)",
-          "category": "geometric"
+          "id": "homo_K_0_zod_W",
+          "glyph": "W",
+          "name": "Letter W (Variant 1)",
+          "category": "zodiac"
         }
       ],
-      "O": [
+      "L": [
         {
-          "id": "homo_O_0_zod_K",
+          "id": "homo_L_0_zod_S",
+          "glyph": "S",
+          "name": "Letter S (Variant 1)",
+          "category": "zodiac"
+        }
+      ],
+      "M": [
+        {
+          "id": "homo_M_0_zod_Q",
+          "glyph": "Q",
+          "name": "Letter Q (Variant 1)",
+          "category": "zodiac"
+        }
+      ],
+      "N": [
+        {
+          "id": "homo_N_0_zod_K",
           "glyph": "K",
           "name": "Letter K (Variant 1)",
           "category": "zodiac"
         }
       ],
+      "O": [
+        {
+          "id": "homo_O_0_zod_rev_C",
+          "glyph": "Ↄ",
+          "name": "Reversed C (Variant 1)",
+          "category": "inverted"
+        }
+      ],
       "P": [
         {
-          "id": "homo_P_0_zod_tilt_K",
-          "glyph": "ㅈ",
-          "name": "Tilted K (Variant 1)",
-          "category": "inverted"
+          "id": "homo_P_0_zod_H",
+          "glyph": "H",
+          "name": "Letter H (Variant 1)",
+          "category": "zodiac"
         }
       ],
       "Q": [
@@ -3029,228 +3029,228 @@
       ],
       "R": [
         {
-          "id": "homo_R_0_zod_M",
-          "glyph": "M",
-          "name": "Letter M (Variant 1)",
+          "id": "homo_R_0_zod_I",
+          "glyph": "I",
+          "name": "Serif I (Variant 1)",
           "category": "zodiac"
         }
       ],
       "S": [
         {
-          "id": "homo_S_0_zod_rev_L",
-          "glyph": "ᒧ",
-          "name": "Reversed L (Variant 1)",
+          "id": "homo_S_0_zod_rev_R",
+          "glyph": "Я",
+          "name": "Reversed R (Variant 1)",
           "category": "inverted"
         }
       ],
       "T": [
         {
-          "id": "homo_T_0_zod_rev_E",
-          "glyph": "Ǝ",
-          "name": "Reversed E (Variant 1)",
-          "category": "inverted"
+          "id": "homo_T_0_zod_O",
+          "glyph": "O",
+          "name": "Letter O (Variant 1)",
+          "category": "zodiac"
         },
         {
-          "id": "homo_T_1_zod_dot_sq",
-          "glyph": "⊡",
-          "name": "Square with Dot (Variant 2)",
-          "category": "geometric"
+          "id": "homo_T_1_zod_Y",
+          "glyph": "Y",
+          "name": "Letter Y (Variant 2)",
+          "category": "zodiac"
         }
       ],
       "U": [
         {
-          "id": "homo_U_0_zod_horiz_circle",
-          "glyph": "⦵",
-          "name": "Circle with Horizontal Bar (Variant 1)",
-          "category": "geometric"
+          "id": "homo_U_0_zod_U",
+          "glyph": "U",
+          "name": "Letter U (Variant 1)",
+          "category": "zodiac"
         }
       ],
       "V": [
         {
-          "id": "homo_V_0_zod_Y",
-          "glyph": "Y",
-          "name": "Letter Y (Variant 1)",
+          "id": "homo_V_0_zod_R",
+          "glyph": "R",
+          "name": "Letter R (Variant 1)",
           "category": "zodiac"
         }
       ],
       "W": [
         {
-          "id": "homo_W_0_zod_A",
-          "glyph": "A",
-          "name": "Letter A (Variant 1)",
+          "id": "homo_W_0_zod_D",
+          "glyph": "D",
+          "name": "Letter D (Variant 1)",
           "category": "zodiac"
         }
       ],
       "X": [
         {
-          "id": "homo_X_0_zod_dot_tri",
-          "glyph": "◬",
-          "name": "Triangle with Dot (Variant 1)",
+          "id": "homo_X_0_zod_solid_sq",
+          "glyph": "■",
+          "name": "Solid Square (Variant 1)",
           "category": "geometric"
         }
       ],
       "Y": [
         {
-          "id": "homo_Y_0_zod_turn_J",
-          "glyph": "Ꞁ",
-          "name": "Turned J (Variant 1)",
+          "id": "homo_Y_0_zod_turn_b",
+          "glyph": "q",
+          "name": "Turned b / q (Variant 1)",
           "category": "inverted"
         }
       ],
       "Z": [
         {
-          "id": "homo_Z_0_zod_Z",
-          "glyph": "Z",
-          "name": "Letter Z (Variant 1)",
+          "id": "homo_Z_0_zod_anchor_I",
+          "glyph": "Ɪ",
+          "name": "Curved Serif I (Variant 1)",
           "category": "zodiac"
         }
       ]
     },
     "symbolIdToInfo": {
-      "homo_A_0_zod_rev_R": {
-        "glyph": "Я",
+      "homo_A_0_zod_dot_sq": {
+        "glyph": "⊡",
         "targetLetter": "A",
-        "name": "Reversed R (Variant 1)"
+        "name": "Square with Dot (Variant 1)"
       },
-      "homo_A_1_zod_bullseye": {
-        "glyph": "⦿",
+      "homo_A_1_zod_hollow_tri": {
+        "glyph": "△",
         "targetLetter": "A",
-        "name": "Bullseye Circle (Variant 2)"
+        "name": "Hollow Triangle (Variant 2)"
       },
-      "homo_B_0_zod_O": {
-        "glyph": "O",
+      "homo_B_0_zod_solid_tri": {
+        "glyph": "▲",
         "targetLetter": "B",
-        "name": "Letter O (Variant 1)"
+        "name": "Solid Triangle (Variant 1)"
       },
-      "homo_C_0_zod_W": {
-        "glyph": "W",
-        "targetLetter": "C",
-        "name": "Letter W (Variant 1)"
-      },
-      "homo_D_0_zod_rev_D": {
+      "homo_C_0_zod_rev_D": {
         "glyph": "ᗡ",
-        "targetLetter": "D",
+        "targetLetter": "C",
         "name": "Reversed D (Variant 1)"
       },
-      "homo_E_0_zod_H": {
-        "glyph": "H",
-        "targetLetter": "E",
-        "name": "Letter H (Variant 1)"
-      },
-      "homo_E_1_zod_X": {
+      "homo_D_0_zod_X": {
         "glyph": "X",
-        "targetLetter": "E",
-        "name": "Letter X (Variant 2)"
+        "targetLetter": "D",
+        "name": "Letter X (Variant 1)"
       },
-      "homo_F_0_zod_vert_circle": {
-        "glyph": "ϕ",
-        "targetLetter": "F",
-        "name": "Circle with Vertical Bar (Variant 1)"
-      },
-      "homo_G_0_zod_anchor_I": {
-        "glyph": "Ɪ",
-        "targetLetter": "G",
-        "name": "Curved Serif I (Variant 1)"
-      },
-      "homo_H_0_zod_back_slash": {
-        "glyph": "\\",
-        "targetLetter": "H",
-        "name": "Backslash (Variant 1)"
-      },
-      "homo_I_0_zod_N": {
-        "glyph": "N",
-        "targetLetter": "I",
-        "name": "Letter N (Variant 1)"
-      },
-      "homo_J_0_zod_E": {
-        "glyph": "E",
-        "targetLetter": "J",
-        "name": "Letter E (Variant 1)"
-      },
-      "homo_K_0_zod_F": {
+      "homo_E_0_zod_F": {
         "glyph": "F",
-        "targetLetter": "K",
+        "targetLetter": "E",
         "name": "Letter F (Variant 1)"
       },
-      "homo_L_0_zod_T": {
-        "glyph": "T",
-        "targetLetter": "L",
-        "name": "Letter T (Variant 1)"
+      "homo_E_1_zod_B": {
+        "glyph": "B",
+        "targetLetter": "E",
+        "name": "Letter B (Variant 2)"
       },
-      "homo_M_0_zod_crosshair": {
+      "homo_F_0_zod_inv_V": {
+        "glyph": "∧",
+        "targetLetter": "F",
+        "name": "Inverted V (Variant 1)"
+      },
+      "homo_G_0_zod_A": {
+        "glyph": "A",
+        "targetLetter": "G",
+        "name": "Letter A (Variant 1)"
+      },
+      "homo_H_0_zod_inv_F": {
+        "glyph": "Ⅎ",
+        "targetLetter": "H",
+        "name": "Turned F (Variant 1)"
+      },
+      "homo_I_0_zod_back_slash": {
+        "glyph": "\\",
+        "targetLetter": "I",
+        "name": "Backslash (Variant 1)"
+      },
+      "homo_J_0_zod_crosshair": {
         "glyph": "⊕",
-        "targetLetter": "M",
+        "targetLetter": "J",
         "name": "Zodiac Crosshair (Variant 1)"
       },
-      "homo_N_0_zod_hollow_sq": {
-        "glyph": "□",
-        "targetLetter": "N",
-        "name": "Hollow Square (Variant 1)"
+      "homo_K_0_zod_W": {
+        "glyph": "W",
+        "targetLetter": "K",
+        "name": "Letter W (Variant 1)"
       },
-      "homo_O_0_zod_K": {
+      "homo_L_0_zod_S": {
+        "glyph": "S",
+        "targetLetter": "L",
+        "name": "Letter S (Variant 1)"
+      },
+      "homo_M_0_zod_Q": {
+        "glyph": "Q",
+        "targetLetter": "M",
+        "name": "Letter Q (Variant 1)"
+      },
+      "homo_N_0_zod_K": {
         "glyph": "K",
-        "targetLetter": "O",
+        "targetLetter": "N",
         "name": "Letter K (Variant 1)"
       },
-      "homo_P_0_zod_tilt_K": {
-        "glyph": "ㅈ",
+      "homo_O_0_zod_rev_C": {
+        "glyph": "Ↄ",
+        "targetLetter": "O",
+        "name": "Reversed C (Variant 1)"
+      },
+      "homo_P_0_zod_H": {
+        "glyph": "H",
         "targetLetter": "P",
-        "name": "Tilted K (Variant 1)"
+        "name": "Letter H (Variant 1)"
       },
       "homo_Q_0_zod_P": {
         "glyph": "P",
         "targetLetter": "Q",
         "name": "Letter P (Variant 1)"
       },
-      "homo_R_0_zod_M": {
-        "glyph": "M",
+      "homo_R_0_zod_I": {
+        "glyph": "I",
         "targetLetter": "R",
-        "name": "Letter M (Variant 1)"
+        "name": "Serif I (Variant 1)"
       },
-      "homo_S_0_zod_rev_L": {
-        "glyph": "ᒧ",
+      "homo_S_0_zod_rev_R": {
+        "glyph": "Я",
         "targetLetter": "S",
-        "name": "Reversed L (Variant 1)"
+        "name": "Reversed R (Variant 1)"
       },
-      "homo_T_0_zod_rev_E": {
-        "glyph": "Ǝ",
+      "homo_T_0_zod_O": {
+        "glyph": "O",
         "targetLetter": "T",
-        "name": "Reversed E (Variant 1)"
+        "name": "Letter O (Variant 1)"
       },
-      "homo_T_1_zod_dot_sq": {
-        "glyph": "⊡",
-        "targetLetter": "T",
-        "name": "Square with Dot (Variant 2)"
-      },
-      "homo_U_0_zod_horiz_circle": {
-        "glyph": "⦵",
-        "targetLetter": "U",
-        "name": "Circle with Horizontal Bar (Variant 1)"
-      },
-      "homo_V_0_zod_Y": {
+      "homo_T_1_zod_Y": {
         "glyph": "Y",
+        "targetLetter": "T",
+        "name": "Letter Y (Variant 2)"
+      },
+      "homo_U_0_zod_U": {
+        "glyph": "U",
+        "targetLetter": "U",
+        "name": "Letter U (Variant 1)"
+      },
+      "homo_V_0_zod_R": {
+        "glyph": "R",
         "targetLetter": "V",
-        "name": "Letter Y (Variant 1)"
+        "name": "Letter R (Variant 1)"
       },
-      "homo_W_0_zod_A": {
-        "glyph": "A",
+      "homo_W_0_zod_D": {
+        "glyph": "D",
         "targetLetter": "W",
-        "name": "Letter A (Variant 1)"
+        "name": "Letter D (Variant 1)"
       },
-      "homo_X_0_zod_dot_tri": {
-        "glyph": "◬",
+      "homo_X_0_zod_solid_sq": {
+        "glyph": "■",
         "targetLetter": "X",
-        "name": "Triangle with Dot (Variant 1)"
+        "name": "Solid Square (Variant 1)"
       },
-      "homo_Y_0_zod_turn_J": {
-        "glyph": "Ꞁ",
+      "homo_Y_0_zod_turn_b": {
+        "glyph": "q",
         "targetLetter": "Y",
-        "name": "Turned J (Variant 1)"
+        "name": "Turned b / q (Variant 1)"
       },
-      "homo_Z_0_zod_Z": {
-        "glyph": "Z",
+      "homo_Z_0_zod_anchor_I": {
+        "glyph": "Ɪ",
         "targetLetter": "Z",
-        "name": "Letter Z (Variant 1)"
+        "name": "Curved Serif I (Variant 1)"
       }
     }
   },
