@@ -33,6 +33,25 @@ export function withHintedMappings(
   return next;
 }
 
+/**
+ * One step back through typing. The saved board predates any hint or check spent
+ * since, so restoring it wholesale dropped a hinted letter while its symbol stayed
+ * locked: the agent lost a letter they paid for and could not type it back. Locked
+ * symbols keep the letter they carry now; only typing is rewound.
+ */
+export function undoMappings(
+  previous: SymbolMapping,
+  current: SymbolMapping,
+  lockedSymbolIds: string[]
+): SymbolMapping {
+  const next = { ...previous };
+  for (const id of lockedSymbolIds) {
+    if (current[id]) next[id] = current[id];
+    else delete next[id];
+  }
+  return next;
+}
+
 export function liveFlaggedIds(
   puzzle: PuzzleData,
   mappings: SymbolMapping,

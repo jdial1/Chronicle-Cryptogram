@@ -233,7 +233,7 @@ internal fun TallySheet(
     ) {
         Column(Modifier.testTag(TallySheetTag)) {
             Text(
-                text = "Busiest first. English leans on E, T, A, O, I, N.",
+                text = "Busiest first. S: starts a word. D: doubled. English leans on E, T, A, O, I, N.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.paperRule,
                 modifier = Modifier.padding(bottom = 12.dp),
@@ -315,6 +315,9 @@ private fun TallyCell(
                     append(", ")
                     append(item.count)
                     append(if (item.count == 1) " time" else " times")
+                    append(", starts ${item.starts} ")
+                    append(if (item.starts == 1) "word" else "words")
+                    append(", doubled ${item.doubled}")
                     append(item.mappedLetter?.let { ", mapped to $it" } ?: ", unmapped")
                 }
             },
@@ -334,6 +337,15 @@ private fun TallyCell(
             color = colors.ink,
             fontSize = 11.sp,
             fontWeight = FontWeight.Black,
+        )
+        // Starts and doubles, only where there are any: counts, never a letter.
+        Text(
+            text = listOfNotNull(
+                item.starts.takeIf { it > 0 }?.let { "S$it" },
+                item.doubled.takeIf { it > 0 }?.let { "D$it" },
+            ).joinToString(" ").ifEmpty { " " },
+            color = colors.paperRule,
+            fontSize = 9.sp,
         )
         // Always occupies its line, so the grid does not jog as letters land.
         Text(

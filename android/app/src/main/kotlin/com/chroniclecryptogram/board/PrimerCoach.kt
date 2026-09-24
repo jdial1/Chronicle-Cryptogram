@@ -67,17 +67,18 @@ private val PrimerHints = mapOf(
 /** Above this font scale the coach starts folded. Below it, everything fits. */
 private const val FoldAboveScale = 1.3f
 
-/** True once the player has correctly placed [letter] somewhere on the board. */
-private fun letterMapped(
+/**
+ * True once every glyph of every one of [letters] carries its letter. A tell
+ * confirms as a set, never one mark at a time, so the Primer teaches the soul's
+ * contract instead of bending it. Mirrors `lettersSolved` in `src/game/worksheet.ts`.
+ */
+internal fun lettersSolved(
     words: List<CryptogramWord>,
     mappings: Map<String, String>,
-    letter: String,
-): Boolean = words.any { word ->
-    word.symbols.any { symbol ->
-        !symbol.isPunctuation &&
-            symbol.targetLetter == letter &&
-            mappings[symbol.symbolId] == letter
-    }
+    letters: List<String>,
+): Boolean = letters.all { letter ->
+    val glyphs = words.flatMap { word -> word.symbols.filter { !it.isPunctuation && it.targetLetter == letter } }
+    glyphs.isNotEmpty() && glyphs.all { mappings[it.symbolId] == letter }
 }
 
 /**
@@ -99,21 +100,7 @@ fun PrimerCoach(
     val colors = ChronicleTheme.colors
 
     val done = remember(tactics, words, mappings) {
-        tactics.map { tactic ->
-            when (tactic.id) {
-                "singles" -> letterMapped(words, mappings, "I")
-                "frequency" ->
-                    letterMapped(words, mappings, "E") || letterMapped(words, mappings, "T")
-                "short-words" ->
-                    letterMapped(words, mappings, "T") &&
-                        letterMapped(words, mappings, "H") &&
-                        letterMapped(words, mappings, "E")
-                "apostrophes" ->
-                    letterMapped(words, mappings, "N") && letterMapped(words, mappings, "T")
-                "doubles" -> letterMapped(words, mappings, "O")
-                else -> false
-            }
-        }
+        tactics.map { tactic -> lettersSolved(words, mappings, tactic.primerConfirms) }
     }
 
     val unlocked = done.indexOfFirst { !it }.let { if (isSolved || it == -1) tactics.lastIndex else it }

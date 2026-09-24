@@ -17,6 +17,10 @@ data class GlyphCount(
     val glyph: String,
     val count: Int,
     val mappedLetter: String?,
+    /** Words this glyph starts. */
+    val starts: Int = 0,
+    /** Times it sits doubled inside a word. */
+    val doubled: Int = 0,
 )
 
 /**
@@ -88,6 +92,15 @@ data class BoardState(
      */
     val tally: List<GlyphCount> by lazy {
         val glyphs = words.flatMap { it.symbols }.associateBy({ it.symbolId }, { it.char.orEmpty() })
+        // The worksheet's two extra counts (idea 33): word starts and doubles, as
+        // the web's `worksheetCounts` takes them. Counts only, never a letter.
+        val starts = words.mapNotNull { word -> word.symbols.firstOrNull { !it.isPunctuation }?.symbolId }
+            .groupingBy { it }.eachCount()
+        val doubled = words.flatMap { word ->
+            word.symbols.zipWithNext()
+                .filter { (a, b) -> !a.isPunctuation && !b.isPunctuation && a.symbolId == b.symbolId }
+                .map { it.second.symbolId }
+        }.groupingBy { it }.eachCount()
         cells.groupingBy { it.symbolId }.eachCount()
             .filterValues { it > 1 }
             .entries
@@ -98,6 +111,8 @@ data class BoardState(
                     glyph = glyphs[symbolId].orEmpty(),
                     count = count,
                     mappedLetter = mappings[symbolId],
+                    starts = starts[symbolId] ?: 0,
+                    doubled = doubled[symbolId] ?: 0,
                 )
             }
     }
@@ -244,18 +259,24 @@ object BoardActions {
         }
     }
 
-    /** Wipes every guess the player made. Locked symbols and the timer survive. */
-    /** One step back through typing. Wallet spends are not rewound. */
+    /**
+     * One step back through typing. Wallet spends are not rewound -- and neither
+     * are the letters they bought. The saved board predates any hint or check
+     * spent since, so restoring it wholesale dropped a hinted letter while its
+     * symbol stayed locked, leaving a mark the player could not type back.
+     */
     fun undo(state: BoardState): BoardState {
         val previous = state.history.lastOrNull() ?: return state
+        val locked = state.mappings.filterKeys { it in state.lockedSymbolIds }
         return state.copy(
-            mappings = previous,
+            mappings = previous.filterKeys { it !in state.lockedSymbolIds } + locked,
             history = state.history.dropLast(1),
             flaggedSymbolIds = emptySet(),
             isSolved = false,
         )
     }
 
+    /** Wipes every guess the player made. Locked symbols and the timer survive. */
     fun clearLetters(state: BoardState): BoardState = state.copy(
         history = state.history + state.mappings,
         mappings = state.mappings.filterKeys { it in state.lockedSymbolIds },

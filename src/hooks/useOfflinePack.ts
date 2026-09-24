@@ -158,11 +158,6 @@ async function collectPressPackUrls() {
   for (const file of [...FONT_FILES, ...ICON_FILES]) {
     urls.add(assetUrl(file));
   }
-  try {
-    await import('canvas-confetti');
-  } catch {
-    /* optional capability */
-  }
   for (const src of await collectCacheUrls()) urls.add(src);
   return [...urls].filter((url) => !isVersionJson(url));
 }

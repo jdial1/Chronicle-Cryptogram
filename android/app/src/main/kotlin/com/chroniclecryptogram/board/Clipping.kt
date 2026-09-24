@@ -14,6 +14,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withSave
 import androidx.core.content.res.ResourcesCompat
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.cipher.Solve
 import com.chroniclecryptogram.designsystem.R as DesignR
 import com.chroniclecryptogram.cipher.model.PuzzleData
 import java.io.File
@@ -44,17 +45,17 @@ object Clipping {
      * Renders the clipping.
      *
      * Height is measured from the laid-out text rather than assumed, so a long
-     * quote is never clipped and a short one leaves no dead paper.
+     * headline is never clipped and a short one leaves no dead paper. The decoded
+     * line is deliberately absent: a shared picture must not give away the page.
      */
     fun render(
         context: Context,
         puzzle: PuzzleData,
         time: String,
-        accuracy: Int,
         hintsUsed: Int,
+        checksUsed: Int,
     ): Bitmap {
         val masthead = font(context, DesignR.font.playfair_display_700) ?: Typeface.SERIF
-        val body = font(context, DesignR.font.newsreader_400) ?: Typeface.SERIF
         val typewriter = font(context, DesignR.font.special_elite_400) ?: Typeface.MONOSPACE
 
         val contentWidth = (WIDTH - MARGIN * 2).toInt()
@@ -69,14 +70,8 @@ object Clipping {
             width = contentWidth,
             paint = textPaint(masthead, 78f, Ink),
         )
-        val quote = layout(
-            text = "“${puzzle.originalText}”",
-            width = contentWidth,
-            paint = textPaint(body, 42f, Ink),
-            lineSpacing = 1.25f,
-        )
         val figures = layout(
-            text = "TIME $time   ACCURACY $accuracy%   HINTS $hintsUsed",
+            text = "${Solve.helpLine(hintsUsed, checksUsed).uppercase()}   TIME $time",
             width = contentWidth,
             paint = textPaint(typewriter, 34f, Ink, letterSpacing = 0.08f),
         )
@@ -89,7 +84,7 @@ object Clipping {
         val gap = 34f
         val height = (
             MARGIN + kicker.height + gap + headline.height + gap * 1.4f +
-                quote.height + gap * 1.4f + figures.height + gap + footer.height + MARGIN
+                figures.height + gap + footer.height + MARGIN
             ).toInt()
 
         val bitmap = createBitmap(WIDTH, height)
@@ -113,8 +108,6 @@ object Clipping {
         y += gap
 
         y = canvas.draw(headline, y)
-        y += gap * 1.4f
-        y = canvas.draw(quote, y)
         y += gap * 1.4f
         y = canvas.draw(figures, y)
         y += gap * 0.6f

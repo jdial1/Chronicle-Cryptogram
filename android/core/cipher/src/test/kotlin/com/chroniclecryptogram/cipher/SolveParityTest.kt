@@ -72,14 +72,20 @@ class SolveParityTest {
             "📰 CHRONICLE CRYPTOGRAM — EDITION #7",
             "🔍 Solved: \"TRAGEDY AT THE VANCE ESTATE\"",
             "⏱️ Time: 02:05.3",
-            "🎯 Accuracy: 92%",
-            "💡 Hints Used: 1",
+            "🔎 Hints 1 · Checks 2",
             "Play Chronicle Cryptogram: ${Solve.SHARE_URL}",
         ).joinToString("\n")
 
         assertEquals(
             expected,
-            Solve.shareText(puzzle, timerSeconds = 125.3, accuracy = 92, hintsUsed = 1),
+            Solve.shareText(puzzle, timerSeconds = 125.3, hintsUsed = 1, checksUsed = 2),
         )
+    }
+
+    /** Pinned against `src/utils/shareText.test.ts`, which asserts the same strings. */
+    @Test
+    fun `a solve with no help reads as clean`() {
+        assertEquals("Clean — no hints, no checks", Solve.helpLine(0, 0))
+        assertEquals("Hints 0 · Checks 1", Solve.helpLine(0, 1))
     }
 }

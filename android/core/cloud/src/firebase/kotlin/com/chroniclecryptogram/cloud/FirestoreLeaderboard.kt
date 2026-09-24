@@ -6,6 +6,7 @@ import com.chroniclecryptogram.data.LeaderboardStanding
 import com.chroniclecryptogram.data.NoLeaderboard
 import com.chroniclecryptogram.data.Posting
 import com.chroniclecryptogram.data.Standings
+import com.chroniclecryptogram.data.helpUsed
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -36,14 +37,16 @@ class FirestoreLeaderboard(private val db: FirebaseFirestore) : Leaderboard {
         val snapshot = db.collection(LEADERBOARD)
             .document(puzzleId)
             .collection(ENTRIES)
+            // Least help first, then fastest -- the composite index in
+            // firestore.indexes.json exists for exactly this query.
+            .orderBy("helpUsed", Query.Direction.ASCENDING)
             .orderBy("timeSeconds", Query.Direction.ASCENDING)
             .limit(BOARD_LIMIT)
             .get()
             .await()
 
-        // Ranked locally rather than trusted from the query: the server can only
-        // order by time, and ties are broken by hints and then by who posted
-        // first, which is what makes the order total and stable.
+        // Ranked locally as well: the final tie-break (who posted first) is what
+        // makes the order total and stable, and the query cannot express it.
         return Standings.rank(snapshot.documents.mapNotNull { it.toEntry() }, uid)
     }
 
@@ -58,10 +61,10 @@ class FirestoreLeaderboard(private val db: FirebaseFirestore) : Leaderboard {
             .collection(ENTRIES)
             .document(entry.uid)
 
-        // A worse time never overwrites a better one. The board is a personal
+        // A worse filing never overwrites a better one. The board is a personal
         // best per player, so replaying a puzzle cannot cost someone their rank.
         val existing = ref.get().await().toEntry()
-        if (existing == null || entry.timeSeconds < existing.timeSeconds) {
+        if (existing == null || Standings.isBetter(entry, existing)) {
             ref.set(entry.toDocument(puzzleId)).await()
         }
 
@@ -76,6 +79,8 @@ class FirestoreLeaderboard(private val db: FirebaseFirestore) : Leaderboard {
         "timeSeconds" to timeSeconds,
         "timeFormatted" to timeFormatted.take(16),
         "hintsUsed" to hintsUsed,
+        "checksUsed" to checksUsed,
+        "helpUsed" to helpUsed,
         "accuracy" to accuracy,
         "countryCode" to countryCode.uppercase().take(2),
         // The server's clock, not the device's: the rules require a recent
@@ -93,6 +98,7 @@ class FirestoreLeaderboard(private val db: FirebaseFirestore) : Leaderboard {
             timeSeconds = time,
             accuracy = getLong("accuracy")?.toInt() ?: 0,
             hintsUsed = getLong("hintsUsed")?.toInt() ?: 0,
+            checksUsed = getLong("checksUsed")?.toInt() ?: 0,
             // A document written moments ago still has a null server timestamp
             // locally. Treating that as "now" keeps it from sorting to the front
             // of every tie-break.

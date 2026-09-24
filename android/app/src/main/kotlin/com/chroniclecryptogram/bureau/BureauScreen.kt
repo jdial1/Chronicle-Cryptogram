@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.chroniclecryptogram.data.DeskLedger
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
 import com.chroniclecryptogram.data.ThemeMode
@@ -82,6 +83,8 @@ fun BureauScreen(
     onDeleteAccount: () -> Unit,
     modifier: Modifier = Modifier,
     board: @Composable () -> Unit = {},
+    /** Books on craft: clean pages and help requisitioned, never a quickest time. */
+    ledger: DeskLedger = DeskLedger(),
 ) {
     val colors = ChronicleTheme.colors
     var confirmingDelete by remember { mutableStateOf(false) }
@@ -131,6 +134,16 @@ fun BureauScreen(
                     color = colors.ink,
                     modifier = Modifier.semantics {
                         contentDescription = "Editions decoded, $solvedCount of $totalEditions"
+                    },
+                )
+                Text(
+                    text = "Decoded clean ${ledger.clean} · Requisitioned " +
+                        "${ledger.checksTaken} checks, ${ledger.hintsTaken} hints",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.ink,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Decoded clean, ${ledger.clean}. Requisitioned " +
+                            "${ledger.checksTaken} checks and ${ledger.hintsTaken} hints"
                     },
                 )
             }

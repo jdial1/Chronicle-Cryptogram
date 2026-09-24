@@ -21,7 +21,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.key
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -240,6 +243,28 @@ fun CipherBoard(
     BoxWithConstraints(modifier) {
         val tile = rememberTileSize(words, maxWidth, heightBudget)
         val density = LocalDensity.current
+
+        /*
+         * The board says what it just did. Tiles carry careful
+         * contentDescriptions but can never be focused -- the taps deliberately
+         * do not move focus, so the mobile keyboard stays down -- which leaves
+         * a live region as the only way any of this reaches a screen reader.
+         *
+         * key(seq) replaces the node instead of updating it: a live region set
+         * to the same string twice is silent, and "K typed onto 1 mark." repeats
+         * constantly in this game.
+         */
+        val note = rememberBoardNote(words, mappings, solved)
+        if (note.text.isNotEmpty()) {
+            key(note.seq) {
+                Box(
+                    Modifier.size(0.dp).semantics {
+                        liveRegion = LiveRegionMode.Polite
+                        contentDescription = note.text
+                    },
+                )
+            }
+        }
 
         val cells = remember(words) {
             words.flatMap { word ->

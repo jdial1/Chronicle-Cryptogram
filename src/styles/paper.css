@@ -239,6 +239,10 @@ header button:focus-visible {
     transform: none;
   }
 
+  #cryptogram-board .cipher-mapped.is-struck {
+    animation: none;
+  }
+
   .typewriter-key,
   .cipher-desk .brass-loupe button {
     transition: none;
@@ -379,6 +383,36 @@ header button:focus-visible {
   font-size: calc(var(--tile-letter-size) * var(--cipher-zoom));
   display: inline-block;
   transform: rotate(var(--type-rot, 0deg)) translateY(var(--type-y, 0px));
+}
+
+/*
+ * The signature move: one letter fills every copy of a glyph at once. Before
+ * this the copies simply appeared, so the biggest event on the board looked
+ * like nothing at all. The strike sweeps down the page in reading order, which
+ * is what makes "every copy, at once" legible as a single stroke.
+ *
+ * backwards fill holds each copy off the paper until its own delay lands --
+ * without it they all show immediately and the sweep is invisible. The delay
+ * caps at six copies so a common glyph still lands inside a beat.
+ */
+#cryptogram-board .cipher-mapped.is-struck {
+  animation: ink-strike 240ms cubic-bezier(0.2, 0.85, 0.3, 1) backwards;
+  animation-delay: calc(min(var(--strike-index, 0), 6) * 40ms);
+}
+
+@keyframes ink-strike {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--type-rot, 0deg)) translateY(calc(var(--type-y, 0px) - 4px)) scale(1.35);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--type-rot, 0deg)) translateY(var(--type-y, 0px)) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--type-rot, 0deg)) translateY(var(--type-y, 0px)) scale(1);
+  }
 }
 
 #cryptogram-board.is-solved {

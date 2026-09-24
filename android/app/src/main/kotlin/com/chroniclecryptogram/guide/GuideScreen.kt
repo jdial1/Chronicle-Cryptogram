@@ -50,6 +50,7 @@ fun GuideScreen(
     val pages = remember(tactics) {
         buildList {
             add("Desk" to null)
+            add("Fair Play" to tactics.charter)
             // The id, not the title: "Attack the Single-Letter Words First" is
             // a heading, and as a tab it ran off the side of the phone and took
             // every tab after it with it. The web tabs these on the same ids.

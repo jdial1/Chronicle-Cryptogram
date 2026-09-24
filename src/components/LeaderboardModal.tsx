@@ -22,18 +22,19 @@ interface LeaderboardModalProps {
     timeSeconds: number;
     timeFormatted: string;
     hintsUsed: number;
+    checksUsed: number;
     accuracy: number;
   } | null;
   onScoreSubmitted?: () => void;
 }
 
 const TITLE_BADGES = [
-  'Grandmaster Cryptanalyst',
-  'Senior Bureau Inspector',
-  'Broadsheet Cipher Breaker',
-  'Codebreaker Specialist',
+  'Night Desk',
+  'Morning Desk',
+  'Wire Room',
+  'Copy Desk',
   'Field Operative',
-  'Cadet Decryptor',
+  'Cipher Clerk',
 ];
 
 const REGION_NAMES = new Intl.DisplayNames(['en'], { type: 'region', fallback: 'none' });
@@ -135,6 +136,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         timeSeconds: currentSolveStats.timeSeconds,
         timeFormatted: currentSolveStats.timeFormatted,
         hintsUsed: currentSolveStats.hintsUsed,
+        checksUsed: currentSolveStats.checksUsed,
         accuracy: currentSolveStats.accuracy,
         countryCode,
       });
@@ -315,7 +317,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-stone-950 font-bold rounded-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? 'Verifying...' : 'Post to Leaderboard'}</span>
+                  <span>{isSubmitting ? 'Filing…' : 'Post to Leaderboard'}</span>
                 </button>
               </div>
             </form>
@@ -376,16 +378,15 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 <tr className="bg-[var(--paper-masthead)] text-stone-950 border-b border-stone-400">
                   <th className="p-2 sm:p-2.5 text-center w-12">Rank</th>
                   <th className="p-2 sm:p-2.5">Agent Codename & Badge</th>
+                  <th className="p-2 sm:p-2.5 text-center">Help taken</th>
                   <th className="p-2 sm:p-2.5 text-right">Time</th>
-                  <th className="p-2 sm:p-2.5 text-center hidden sm:table-cell">Hints</th>
-                  <th className="p-2 sm:p-2.5 text-center hidden sm:table-cell">Accuracy</th>
                   <th className="p-2 sm:p-2.5 text-center w-14">Region</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-300">
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-stone-700 italic font-newspaper">
+                    <td colSpan={5} className="p-6 text-center text-stone-700 italic font-newspaper">
                       No matching records found in the cryptographic archives.
                     </td>
                   </tr>
@@ -434,29 +435,20 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                           </div>
                         </td>
 
-                        {/* Time */}
-                        <td className="p-2 sm:p-2.5 text-right font-bold text-stone-950 tabular-nums">
-                          {entry.timeFormatted}
-                        </td>
-
-                        {/* Hints */}
-                        <td className="p-2 sm:p-2.5 text-center text-stone-700 hidden sm:table-cell">
-                          {entry.hintsUsed === 0 ? (
-                            <span className="text-emerald-700 font-bold">0 Clean</span>
+                        {/* Help taken: the first sort key */}
+                        <td className="p-2 sm:p-2.5 text-center text-stone-700">
+                          {entry.helpUsed === 0 ? (
+                            <span className="text-emerald-700 font-bold">Clean</span>
                           ) : (
-                            <span>{entry.hintsUsed}</span>
+                            <span>
+                              {entry.hintsUsed}h · {entry.checksUsed}c
+                            </span>
                           )}
                         </td>
 
-                        {/* Accuracy */}
-                        <td className="p-2 sm:p-2.5 text-center hidden sm:table-cell">
-                          <span
-                            className={`font-semibold ${
-                              entry.accuracy >= 95 ? 'text-emerald-800' : 'text-stone-700'
-                            }`}
-                          >
-                            {entry.accuracy}%
-                          </span>
+                        {/* Time */}
+                        <td className="p-2 sm:p-2.5 text-right font-bold text-stone-950 tabular-nums">
+                          {entry.timeFormatted}
                         </td>
 
                         {/* Country */}

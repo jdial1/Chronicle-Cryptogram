@@ -10,6 +10,8 @@ import {
   isPracticePuzzle,
 } from '../utils/edition';
 import { PRACTICE_ARCHIVE_CARD } from '../data/primerPractice';
+import { isCleanSolve } from '../utils/deskLedger';
+import { readLocalProgress } from '../utils/localStore';
 
 interface ArchiveModalProps {
   isOpen: boolean;
@@ -45,6 +47,7 @@ function IssueSlot({
   locked,
   isCurrent,
   isSolved,
+  clean = false,
   lockHint = 'Decode Morning Edition to unlock.',
   extra = false,
   onOpen,
@@ -54,6 +57,8 @@ function IssueSlot({
   locked: boolean;
   isCurrent: boolean;
   isSolved: boolean;
+  /** Solved with no hint and no check. Pages that took help show nothing extra. */
+  clean?: boolean;
   lockHint?: string;
   extra?: boolean;
   onOpen: () => void;
@@ -71,7 +76,15 @@ function IssueSlot({
         >
           {label}
         </span>
-        {isSolved && !locked && <span className="sr-only">Decoded</span>}
+        {isSolved && !locked && <span className="sr-only">{clean ? 'Decoded clean' : 'Decoded'}</span>}
+        {clean && !locked && (
+          <span
+            aria-hidden="true"
+            className="px-1 border border-[color:var(--ink-cinnabar)] text-[color:var(--ink-cinnabar)] font-typewriter font-bold text-xs uppercase tracking-widest"
+          >
+            Clean
+          </span>
+        )}
         {isCurrent && (
           <span className="font-typewriter font-bold text-xs uppercase tracking-widest text-stone-600">
             Now Reading
@@ -239,6 +252,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       lockHint="Decode the edition before it to unlock."
                       isCurrent={issue.morning?.id === currentPuzzleId}
                       isSolved={morningSolved}
+                      clean={morningSolved && isCleanSolve(readLocalProgress(issue.morning!.id))}
                       onOpen={() => {
                         if (!issue.morning || editionLocked) return;
                         onSelectPuzzle(issue.morning);
@@ -252,6 +266,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
                       locked={!extraUnlocked}
                       isCurrent={extraCurrent}
                       isSolved={primerIssue ? false : nightSolved}
+                      clean={!primerIssue && nightSolved && isCleanSolve(readLocalProgress(issue.night!.id))}
                       lockHint={
                         primerIssue
                           ? 'Decode the Primer to unlock.'

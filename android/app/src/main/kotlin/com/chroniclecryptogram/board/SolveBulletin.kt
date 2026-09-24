@@ -47,13 +47,16 @@ fun SolveBulletin(
     onPractice: (() -> Unit)? = null,
     /** The public counters for this puzzle, or null before they have loaded. */
     liveStats: PuzzleLiveStats? = null,
+    /** The next page's headline, and only its headline: the question the agent leaves with. */
+    nextHeadline: String? = null,
 ) {
     val colors = ChronicleTheme.colors
     val context = LocalContext.current
 
-    val accuracy = state.accuracy
     val hintsUsed = state.hintsUsed
-    val time = state.timeFormatted
+    val checksUsed = state.checksUsed
+    // Whole seconds: the time is a record, not a race, so the tenths don't print.
+    val time = state.timeFormatted.substringBeforeLast('.')
     val practice = Edition.isPracticePuzzle(state.puzzle)
 
     Column(
@@ -76,12 +79,13 @@ fun SolveBulletin(
             color = colors.ink,
         )
         Text(
-            text = "Time $time · Accuracy $accuracy% · Hints $hintsUsed",
+            text = "${Solve.helpLine(hintsUsed, checksUsed)} · Time on desk $time",
             style = MaterialTheme.typography.labelLarge,
             color = colors.ink,
             modifier = Modifier.semantics {
                 contentDescription =
-                    "Solved in $time, accuracy $accuracy percent, $hintsUsed hints used"
+                    (if (hintsUsed == 0 && checksUsed == 0) "Clean, no hints or checks"
+                    else "$hintsUsed hints, $checksUsed checks") + ", solved in $time"
             },
         )
 
@@ -90,6 +94,20 @@ fun SolveBulletin(
         // three em dashes, which reads as "nobody has solved this" rather than
         // as an absent feature.
         if (liveStats != null) LiveStatsRow(liveStats)
+
+        if (nextHeadline != null && !practice) {
+            Text(
+                text = "NEXT ON THE WIRE",
+                style = MaterialTheme.typography.labelLarge,
+                color = colors.brass,
+            )
+            Text(
+                text = nextHeadline,
+                style = MaterialTheme.typography.titleMedium,
+                color = colors.ink,
+                modifier = Modifier.semantics { contentDescription = "Next on the wire: $nextHeadline" },
+            )
+        }
 
         Row(
             Modifier.fillMaxWidth(),
@@ -102,8 +120,8 @@ fun SolveBulletin(
                         text = Solve.shareText(
                             state.puzzle,
                             state.timerSeconds,
-                            accuracy,
                             hintsUsed,
+                            checksUsed,
                         ),
                         // The clipping is a nicety, not the payload: if it
                         // cannot be drawn or written, the text still shares.
@@ -114,8 +132,8 @@ fun SolveBulletin(
                                     context = context,
                                     puzzle = state.puzzle,
                                     time = time,
-                                    accuracy = accuracy,
                                     hintsUsed = hintsUsed,
+                                    checksUsed = checksUsed,
                                 ),
                             )
                         }.getOrNull(),
@@ -163,10 +181,6 @@ fun LiveStatsRow(liveStats: PuzzleLiveStats?, modifier: Modifier = Modifier) {
     val colors = ChronicleTheme.colors
     val stats = liveStats.derivePublicStats()
 
-    // An em dash rather than a zero: before anyone has solved it, "0" would be a
-    // claim about the edition rather than an absence of data.
-    val blank = "—"
-
     Row(
         modifier
             .fillMaxWidth()
@@ -175,11 +189,6 @@ fun LiveStatsRow(liveStats: PuzzleLiveStats?, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         StatCell(
-            label = "Quickest",
-            value = if (stats.hasSolves) Solve.formatTime(stats.quickestSolveTime.toDouble()) else blank,
-            modifier = Modifier.weight(1f),
-        )
-        StatCell(
             label = "Solvers",
             value = "${stats.totalSolvers}",
             modifier = Modifier.weight(1f),
@@ -187,11 +196,6 @@ fun LiveStatsRow(liveStats: PuzzleLiveStats?, modifier: Modifier = Modifier) {
         StatCell(
             label = "Rate",
             value = "${stats.solveRatePercentage}%",
-            modifier = Modifier.weight(1f),
-        )
-        StatCell(
-            label = "Average",
-            value = if (stats.hasSolves) Solve.formatTime(stats.averageTimeSeconds) else blank,
             modifier = Modifier.weight(1f),
         )
     }

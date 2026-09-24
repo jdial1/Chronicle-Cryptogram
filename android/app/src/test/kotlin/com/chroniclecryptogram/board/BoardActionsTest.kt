@@ -219,6 +219,38 @@ class BoardActionsTest {
         assertTrue(back.hintedSymbolIds.isNotEmpty())
     }
 
+    /** Undo after a hint used to restore a board without the hinted letter, while the mark stayed locked. */
+    @Test
+    fun `undo never drops a letter a hint paid for`() {
+        val typed = BoardActions.type(boardAtFirstCell(), "Q")
+        val cursor = typed.selectedSymbolId!!
+        val hinted = BoardActions.hint(typed)
+
+        val back = BoardActions.undo(hinted)
+
+        assertEquals(hinted.answer[cursor], back.mappings[cursor])
+        assertTrue(cursor in back.lockedSymbolIds)
+        assertEquals(Wallets.DAILY_HINTS - 1, back.hintsRemaining)
+    }
+
+    @Test
+    fun `undo never changes a letter a check confirmed`() {
+        val state = boardAtFirstCell()
+        val cell = state.selectedCellId!!
+        val symbolId = state.selectedSymbolId!!
+        val truth = state.answer[symbolId]!!
+        val wrong = if (truth == "Q") "Z" else "Q"
+        val first = BoardActions.type(state, wrong)
+        val fixed = BoardActions.type(BoardActions.select(first, cell), truth)
+        val checked = BoardActions.check(BoardActions.select(fixed, cell))
+        assertTrue(symbolId in checked.verifiedSymbolIds)
+
+        val back = BoardActions.undo(checked)
+
+        assertEquals(truth, back.mappings[symbolId])
+        assertEquals(Wallets.DAILY_CHECKS - 1, back.checksRemaining)
+    }
+
     @Test
     fun `undo on an untouched board is a no-op`() {
         val state = boardAtFirstCell()

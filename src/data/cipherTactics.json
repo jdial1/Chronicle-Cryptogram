@@ -15,11 +15,11 @@
     },
     {
       "lead": "Hint",
-      "body": "Reveal the highlighted glyph. Select an unsolved letter first. Three hints per edition, shared by the morning and night extras; the count sits on the bulb."
+      "body": "Reveal the highlighted glyph. Select a mark first. Three hints per edition, shared by the morning and night extras; the count sits on the bulb."
     },
     {
       "lead": "Glyph Tally",
-      "body": "Open a count of repeating glyphs, busiest first. English leans on E, T, A, O, I, N."
+      "body": "Open a worksheet of repeating glyphs, busiest first: how often each appears, how often it starts a word, and how often it sits doubled. Counts only; the letters are yours. English leans on E, T, A, O, I, N."
     },
     {
       "lead": "Clear Letters",
@@ -48,6 +48,10 @@
           "lead": "By Edition",
           "body": "Morning keeps A as one glyph. Night Extra splits A across two, so a second one-letter word with a different mark can still be A."
         }
+      ],
+      "primerConfirms": [
+        "I",
+        "A"
       ]
     },
     {
@@ -67,6 +71,10 @@
           "lead": "By Edition",
           "body": "Morning Edition uses one glyph per letter, so counting works. Night Extra gives E, T, and A two glyphs each; every other letter stays one-to-one. The busiest marks are still E or T, just split across a pair."
         }
+      ],
+      "primerConfirms": [
+        "E",
+        "T"
       ]
     },
     {
@@ -90,6 +98,14 @@
           "lead": "By Edition",
           "body": "Night Extra splits T and E, so THE can show up as two glyph patterns that share the same middle mark for H."
         }
+      ],
+      "primerConfirms": [
+        "T",
+        "H",
+        "E",
+        "A",
+        "N",
+        "D"
       ]
     },
     {
@@ -113,6 +129,12 @@
           "lead": "By Edition",
           "body": "N'T still solves N on both editions. Night Extra splits T, so the mark after the apostrophe is only one of the two T glyphs."
         }
+      ],
+      "primerConfirms": [
+        "C",
+        "A",
+        "N",
+        "T"
       ]
     },
     {
@@ -136,7 +158,43 @@
           "lead": "By Edition",
           "body": "Morning doubles always match. Night Extra splits E and T, so EE and TT may look like two marks. OO, LL, and SS still pair."
         }
+      ],
+      "primerConfirms": [
+        "E",
+        "O",
+        "T"
       ]
     }
-  ]
+  ],
+  "charter": {
+    "id": "fair-play",
+    "title": "The Bureau's Rules of Fair Play",
+    "summary": "Every agent is owed a fair page. These are the terms the Bureau holds its press to before a page is set.",
+    "points": [
+      {
+        "lead": "Everything on the Desk",
+        "body": "Every page is written to be read from what is in front of you: the cipher, its article, and the pages you have already decoded."
+      },
+      {
+        "lead": "One Reading",
+        "body": "Where the last word of a line could be read two ways, the article or plain grammar settles it. The press checks every page for such a word before it runs."
+      },
+      {
+        "lead": "One Rule at a Time",
+        "body": "A harder page is harder by a rule this Handbook states, never by one it keeps back. Night Extras split E, T and A, and nothing else."
+      },
+      {
+        "lead": "Silence Until Asked",
+        "body": "The desk never says a guess is right or wrong until you spend a check. The page stamps itself when every mark is right."
+      },
+      {
+        "lead": "Help on the Record",
+        "body": "Hints and checks are rationed and printed on your result. A clean page is one decoded without either."
+      }
+    ]
+  },
+  "nightMemo": {
+    "title": "Memorandum: The Night Desk",
+    "body": "Night Extras come off a different machine. E, T and A each print as one of two marks, used in turn; every other letter keeps its single mark. Count as you always have, but pair the busiest marks: two of them may be the same letter. The Handbook has the full procedure under each tell."
+  }
 }

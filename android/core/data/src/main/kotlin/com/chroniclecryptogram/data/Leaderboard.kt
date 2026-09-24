@@ -15,6 +15,8 @@ data class LeaderboardEntry(
     val accuracy: Int,
     val hintsUsed: Int,
     val postedAt: Long,
+    /** Checks spent on this solve. With [hintsUsed], the board's first sort key. */
+    val checksUsed: Int = 0,
     /** The rank the poster chose for themselves. Decoration, not earned. */
     val titleBadge: String = TitleBadges.first(),
     /** `mm:ss.t`. Stored as posted so the board reads identically on both apps. */
@@ -22,14 +24,20 @@ data class LeaderboardEntry(
     val countryCode: String = "US",
 )
 
-/** The ranks a poster can put beside their name, in the web build's order. */
+/** Hints plus checks: everything the agent asked the Bureau for. */
+val LeaderboardEntry.helpUsed: Int get() = hintsUsed + checksUsed
+
+/**
+ * The desk a poster says they work, in the web build's order. Postings, not ranks:
+ * a title the player picks from a list must not read as one the Bureau awarded.
+ */
 val TitleBadges = listOf(
-    "Grandmaster Cryptanalyst",
-    "Senior Bureau Inspector",
-    "Broadsheet Cipher Breaker",
-    "Codebreaker Specialist",
+    "Night Desk",
+    "Morning Desk",
+    "Wire Room",
+    "Copy Desk",
     "Field Operative",
-    "Cadet Decryptor",
+    "Cipher Clerk",
 )
 
 /**
@@ -57,6 +65,7 @@ object Posting {
         entry.timeSeconds > MAX_SECONDS -> "That time is too long to post."
         entry.accuracy !in 0..100 -> "That accuracy cannot be right."
         entry.hintsUsed !in 0..20 -> "That hint count cannot be right."
+        entry.checksUsed !in 0..20 -> "That check count cannot be right."
         !entry.countryCode.matches(Regex("^[A-Z]{2}$")) ->
             "A country is two letters, like US."
         entry.timeFormatted.isBlank() || entry.timeFormatted.length > 16 ->
@@ -96,10 +105,12 @@ object Standings {
     /**
      * Orders a board and finds the player in it.
      *
-     * Fastest first; ties broken by fewer hints, then by who posted first, so
-     * the order is total and stable rather than dependent on fetch order. One
-     * entry per uid -- a player's own better time replaces their earlier one
-     * instead of appearing twice.
+     * Least help first (hints and checks count alike), then fastest, then who
+     * posted first, so the order is total and stable rather than dependent on
+     * fetch order. A clean solve outranks a quick one: the measure is how little
+     * the agent needed. The web's `utils/boardRank.ts` orders by the same keys.
+     * One entry per uid -- a player's own better filing replaces their earlier
+     * one instead of appearing twice.
      */
     fun rank(entries: List<LeaderboardEntry>, uid: String?): LeaderboardStanding {
         val best = entries
@@ -114,9 +125,14 @@ object Standings {
         return LeaderboardStanding(ordered, rank)
     }
 
-    private val ordering = compareBy<LeaderboardEntry>(
+    /** Whether [next] should replace the filing a player already has. */
+    fun isBetter(next: LeaderboardEntry, existing: LeaderboardEntry): Boolean =
+        filing.compare(next, existing) < 0
+
+    private val filing = compareBy<LeaderboardEntry>(
+        { it.helpUsed },
         { it.timeSeconds },
-        { it.hintsUsed },
-        { it.postedAt },
     )
+
+    private val ordering = filing.thenBy { it.postedAt }
 }

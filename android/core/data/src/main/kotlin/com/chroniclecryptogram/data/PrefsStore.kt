@@ -36,6 +36,8 @@ data class DeskPrefs(
     val codename: String = "",
     val titleBadge: String = "",
     val countryCode: String = "US",
+    /** The Night Extra memo is shown once, before the first night page. */
+    val nightMemoSeen: Boolean = false,
 ) {
     /** A board posting needs a name; everything else has a default. */
     val canPost: Boolean get() = codename.isNotBlank()
@@ -86,6 +88,7 @@ class DeskPrefsStore(private val store: DataStore<Preferences>) {
             values[CodenameKey] = next.codename
             values[TitleBadgeKey] = next.titleBadge
             values[CountryKey] = next.countryCode
+            values[NightMemoKey] = next.nightMemoSeen
         }
     }
 
@@ -96,6 +99,7 @@ class DeskPrefsStore(private val store: DataStore<Preferences>) {
         codename = this[CodenameKey].orEmpty(),
         titleBadge = this[TitleBadgeKey] ?: TitleBadges.last(),
         countryCode = this[CountryKey] ?: "US",
+        nightMemoSeen = this[NightMemoKey] ?: false,
     )
 
     companion object {
@@ -105,6 +109,7 @@ class DeskPrefsStore(private val store: DataStore<Preferences>) {
         private val CodenameKey = stringPreferencesKey("codename")
         private val TitleBadgeKey = stringPreferencesKey("titleBadge")
         private val CountryKey = stringPreferencesKey("countryCode")
+        private val NightMemoKey = booleanPreferencesKey("nightMemoSeen")
 
         /** An unrecognised stored value falls back rather than throwing. */
         private fun String.toThemeMode() =

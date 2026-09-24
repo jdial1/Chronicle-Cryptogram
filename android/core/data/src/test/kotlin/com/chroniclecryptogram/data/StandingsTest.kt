@@ -11,6 +11,7 @@ class StandingsTest {
         time: Int,
         hints: Int = 0,
         postedAt: Long = 0,
+        checks: Int = 0,
     ) = LeaderboardEntry(
         uid = uid,
         codename = uid.uppercase(),
@@ -18,7 +19,24 @@ class StandingsTest {
         accuracy = 100,
         hintsUsed = hints,
         postedAt = postedAt,
+        checksUsed = checks,
     )
+
+    @Test
+    fun `a clean solve outranks a quicker one that took help`() {
+        val ranked = Standings.rank(
+            listOf(entry("quick-hint", 30, hints = 1), entry("quick-check", 40, checks = 1), entry("clean", 600)),
+            uid = null,
+        )
+        assertEquals(listOf("clean", "quick-hint", "quick-check"), ranked.entries.map { it.uid })
+    }
+
+    @Test
+    fun `a slower clean filing is not replaced by a faster one that took help`() {
+        val clean = entry("a", 600)
+        assertEquals(false, Standings.isBetter(entry("a", 30, hints = 1), clean))
+        assertEquals(true, Standings.isBetter(entry("a", 500), clean))
+    }
 
     @Test
     fun `fastest first`() {

@@ -83,7 +83,9 @@ export function useDailyWalletActions({
   const handleUseHint = useCallback(() => {
     if (hintsRemaining <= 0 || !boardReady || isSolved || !selectedSymbolId) return;
     const target = uniqueSymbols.find((s) => s.symbolId === selectedSymbolId);
-    if (!target || mappings[target.symbolId] === target.targetLetter) return;
+    // A hint spends even when the guess under it was already right, exactly as a
+    // check does. Refusing only right guesses would say which guesses are right.
+    if (!target) return;
     if (hintedSymbolIds.includes(target.symbolId) || verifiedSymbolIds.includes(target.symbolId)) return;
     const nextHinted = clipHintedSymbolIds([...hintedSymbolIds, target.symbolId]);
     const nextUsed = Math.max(hintsUsed + 1, nextHinted.length);

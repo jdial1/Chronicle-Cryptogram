@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { PuzzleData, PuzzleProgress, SymbolMapping } from '../types';
 import { cipherForPuzzle } from '../game/puzzleState';
 import { calculateSymbolFrequencies } from '../utils/cipherEngine';
+import { worksheetCounts } from '../game/worksheet';
 
 export function usePuzzleSession(currentPuzzle: PuzzleData, mappings: SymbolMapping) {
   const cipher = useMemo(() => cipherForPuzzle(currentPuzzle), [currentPuzzle]);
@@ -18,12 +19,15 @@ export function usePuzzleSession(currentPuzzle: PuzzleData, mappings: SymbolMapp
     });
     return syms;
   }, [cipher.words]);
+  const worksheet = useMemo(() => worksheetCounts(cipher.words), [cipher.words]);
   const symbolFrequencies = useMemo(() => {
     return calculateSymbolFrequencies(cipher.words, cipher.alphabet).map((f) => ({
       ...f,
       mappedLetter: mappings[f.symbolId] || '',
+      starts: worksheet[f.symbolId]?.starts ?? 0,
+      doubled: worksheet[f.symbolId]?.doubled ?? 0,
     }));
-  }, [cipher.words, cipher.alphabet, mappings]);
+  }, [cipher.words, cipher.alphabet, mappings, worksheet]);
   return {
     cipherAlphabet: cipher.alphabet,
     words: cipher.words,

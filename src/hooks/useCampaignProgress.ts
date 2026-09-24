@@ -3,7 +3,7 @@ import { PuzzleData } from '../types';
 import { frontPageEdition, isSeasonComplete, maxEdition } from '../utils/edition';
 
 /**
- * Demo builds ship a truncated season (see demoContentPlugin in vite.config.ts).
+ * Demo builds ship a truncated season (see MAX_EDITION in src/data/puzzles.ts).
  * The gate needs no ceiling check -- maxEdition() over the shipped puzzles already
  * clamps it -- so this flag exists purely to tell "the demo ends here" apart from
  * "the story ends here" in copy.

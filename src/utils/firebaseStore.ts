@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from './firebase';
+import { helpUsed, isBetterFiling } from './boardRank';
 import {
   GameStats,
   LeaderboardEntry,
@@ -406,6 +407,9 @@ export async function fetchLeaderboard(puzzleId: string): Promise<LeaderboardEnt
   if (!db || !puzzleId) return [];
   const q = query(
     collection(db, 'leaderboard', puzzleId, 'entries'),
+    // Least help first, then fastest: the order in utils/boardRank.ts. Needs the
+    // composite index in firestore.indexes.json.
+    orderBy('helpUsed'),
     orderBy('timeSeconds'),
     limit(100)
   );
@@ -420,6 +424,8 @@ export async function fetchLeaderboard(puzzleId: string): Promise<LeaderboardEnt
       timeSeconds: data.timeSeconds,
       timeFormatted: data.timeFormatted,
       hintsUsed: data.hintsUsed,
+      checksUsed: data.checksUsed ?? 0,
+      helpUsed: data.helpUsed ?? data.hintsUsed,
       accuracy: data.accuracy,
       countryCode: data.countryCode,
       timestamp: data.timestamp?.toDate?.()?.toISOString?.() || new Date().toISOString(),
@@ -430,13 +436,21 @@ export async function fetchLeaderboard(puzzleId: string): Promise<LeaderboardEnt
 
 export async function submitLeaderboardEntry(
   uid: string,
-  entry: Omit<LeaderboardEntry, 'id' | 'timestamp' | 'isToday'>
+  entry: Omit<LeaderboardEntry, 'id' | 'timestamp' | 'isToday' | 'helpUsed'>
 ) {
   if (!db) return { rank: null as number | null };
   if (entry.timeSeconds < 5 || entry.timeSeconds > 86400) return { rank: null as number | null };
   const ref = doc(db, 'leaderboard', entry.puzzleId, 'entries', uid);
   const existing = await getDoc(ref);
-  if (existing.exists() && existing.data().timeSeconds <= entry.timeSeconds) {
+  const filed = existing.data();
+  if (
+    filed &&
+    !isBetterFiling(entry, {
+      hintsUsed: filed.hintsUsed,
+      checksUsed: filed.checksUsed ?? 0,
+      timeSeconds: filed.timeSeconds,
+    })
+  ) {
     const board = await fetchLeaderboard(entry.puzzleId);
     return { rank: board.findIndex((item) => item.id === uid) + 1 || null };
   }
@@ -448,6 +462,8 @@ export async function submitLeaderboardEntry(
     timeSeconds: entry.timeSeconds,
     timeFormatted: clip(entry.timeFormatted, 16),
     hintsUsed: entry.hintsUsed,
+    checksUsed: entry.checksUsed,
+    helpUsed: helpUsed(entry),
     accuracy: entry.accuracy,
     countryCode: clip(entry.countryCode.toUpperCase(), 2),
     timestamp: serverTimestamp(),

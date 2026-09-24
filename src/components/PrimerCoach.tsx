@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle2, ChevronLeft, ChevronRight, Key } from '../deskIcons';
 import { CryptogramWord, SymbolMapping } from '../types';
 import { CIPHER_TACTICS } from '../data/cipherTactics';
+import { lettersSolved } from '../game/worksheet';
 
 export interface GlyphCount {
   symbolId: string;
   glyph: string;
   count: number;
   mappedLetter: string;
+  /** Words this glyph starts. */
+  starts?: number;
+  /** Times it sits doubled inside a word. */
+  doubled?: number;
 }
 
 interface PrimerCoachProps {
@@ -44,7 +49,7 @@ export function GlyphTally({
           Glyph tally
         </span>
         <span className="font-treatise text-xs text-stone-800">
-          Busiest first. English leans on E, T, A, O, I, N
+          Busiest first. S: starts a word · D: doubled
         </span>
       </div>
       <div className="glyph-tally-row flex flex-nowrap sm:flex-wrap gap-1 overflow-x-auto sm:overflow-visible">
@@ -65,12 +70,15 @@ export function GlyphTally({
                     : 'bg-[var(--paper-card)] border-stone-400 hover:border-stone-700'
               }`}
               title={`${item.count} ${item.count === 1 ? 'time' : 'times'}${item.mappedLetter ? ` → ${item.mappedLetter}` : ''}`}
-              aria-label={`Glyph ${item.glyph}, ${item.count} ${item.count === 1 ? 'time' : 'times'}${item.mappedLetter ? `, mapped to ${item.mappedLetter}` : ', unmapped'}`}
+              aria-label={`Glyph ${item.glyph}, ${item.count} ${item.count === 1 ? 'time' : 'times'}, starts ${item.starts ?? 0} ${item.starts === 1 ? 'word' : 'words'}, doubled ${item.doubled ?? 0}${item.mappedLetter ? `, mapped to ${item.mappedLetter}` : ', unmapped'}`}
               aria-pressed={selected}
             >
               <span className="font-treatise text-base leading-none text-stone-950">{item.glyph}</span>
               <span className="font-typewriter font-black text-xs text-stone-800 leading-none mt-0.5">
                 {item.count}
+              </span>
+              <span className="font-typewriter text-[10px] text-stone-700 leading-none mt-0.5 min-h-3" aria-hidden="true">
+                {[item.starts ? `S${item.starts}` : '', item.doubled ? `D${item.doubled}` : ''].filter(Boolean).join(' ') || ' '}
               </span>
               <span className="font-typewriter text-xs font-bold text-amber-900 leading-none mt-0.5 min-h-3">
                 {item.mappedLetter || ' '}
@@ -80,17 +88,6 @@ export function GlyphTally({
         })}
       </div>
     </div>
-  );
-}
-
-function letterMapped(words: CryptogramWord[], mappings: SymbolMapping, letter: string) {
-  return words.some((word) =>
-    word.symbols.some(
-      (symbol) =>
-        !symbol.isPunctuation &&
-        symbol.targetLetter === letter &&
-        mappings[symbol.symbolId] === letter
-    )
   );
 }
 
@@ -113,21 +110,12 @@ export const PrimerCoach: React.FC<PrimerCoachProps> = ({
   isSolved,
   compact = false,
 }) => {
-  const doneById: Record<string, boolean> = {
-    singles: letterMapped(words, mappings, 'I'),
-    frequency: letterMapped(words, mappings, 'E') || letterMapped(words, mappings, 'T'),
-    'short-words':
-      letterMapped(words, mappings, 'T') &&
-      letterMapped(words, mappings, 'H') &&
-      letterMapped(words, mappings, 'E'),
-    apostrophes: letterMapped(words, mappings, 'N') && letterMapped(words, mappings, 'T'),
-    doubles: letterMapped(words, mappings, 'O'),
-  };
-
+  // A tell is spotted only when all of its letters are right together, never one
+  // mark at a time: the Primer teaches the soul's contract instead of bending it.
   const steps = CIPHER_TACTICS.map((tactic) => ({
     ...tactic,
     hint: PRIMER_HINTS[tactic.id],
-    done: Boolean(doneById[tactic.id]),
+    done: lettersSolved(words, mappings, tactic.primerConfirms),
   }));
   const nextTell = steps.findIndex((step) => !step.done);
   const unlockedIndex = isSolved || nextTell === -1 ? steps.length - 1 : nextTell;

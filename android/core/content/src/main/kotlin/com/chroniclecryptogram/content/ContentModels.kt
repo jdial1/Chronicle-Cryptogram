@@ -48,6 +48,16 @@ data class CipherTacticsContent(
     val intro: String,
     val tools: List<TacticPoint>,
     val tactics: List<CipherTactic>,
+    /** The Bureau's promise of a fair page, a Handbook page of its own. */
+    val charter: CipherTactic,
+    /** The orders that arrive before the first Night Extra. */
+    val nightMemo: Memo,
+)
+
+@Serializable
+data class Memo(
+    val title: String,
+    val body: String,
 )
 
 @Serializable
@@ -56,6 +66,8 @@ data class CipherTactic(
     val title: String,
     val summary: String,
     val points: List<TacticPoint>,
+    /** The letters the Primer confirms together when this tell is spotted. */
+    val primerConfirms: List<String> = emptyList(),
 )
 
 @Serializable

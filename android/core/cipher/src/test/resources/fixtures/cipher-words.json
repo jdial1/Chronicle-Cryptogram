@@ -1867,28 +1867,28 @@
   {
     "puzzleId": "day_4_hard",
     "homophonic": true,
-    "text": "THE CUBAN SILK IS LIQUID GOLD.",
+    "text": "THE CUBAN SILK CRATES ARE FULL OF LIQUID GOLD.",
     "words": [
       {
         "id": "word_0",
         "symbols": [
           {
-            "symbolId": "homo_T_0_zod_rev_E",
+            "symbolId": "homo_T_0_zod_O",
             "targetLetter": "T",
             "isPunctuation": false,
-            "char": "Ǝ"
+            "char": "O"
           },
           {
-            "symbolId": "homo_H_0_zod_back_slash",
+            "symbolId": "homo_H_0_zod_inv_F",
             "targetLetter": "H",
             "isPunctuation": false,
-            "char": "\\"
+            "char": "Ⅎ"
           },
           {
-            "symbolId": "homo_E_0_zod_H",
+            "symbolId": "homo_E_0_zod_F",
             "targetLetter": "E",
             "isPunctuation": false,
-            "char": "H"
+            "char": "F"
           }
         ]
       },
@@ -1896,34 +1896,34 @@
         "id": "word_1",
         "symbols": [
           {
-            "symbolId": "homo_C_0_zod_W",
+            "symbolId": "homo_C_0_zod_rev_D",
             "targetLetter": "C",
             "isPunctuation": false,
-            "char": "W"
+            "char": "ᗡ"
           },
           {
-            "symbolId": "homo_U_0_zod_horiz_circle",
+            "symbolId": "homo_U_0_zod_U",
             "targetLetter": "U",
             "isPunctuation": false,
-            "char": "⦵"
+            "char": "U"
           },
           {
-            "symbolId": "homo_B_0_zod_O",
+            "symbolId": "homo_B_0_zod_solid_tri",
             "targetLetter": "B",
             "isPunctuation": false,
-            "char": "O"
+            "char": "▲"
           },
           {
-            "symbolId": "homo_A_0_zod_rev_R",
+            "symbolId": "homo_A_0_zod_dot_sq",
             "targetLetter": "A",
             "isPunctuation": false,
-            "char": "Я"
+            "char": "⊡"
           },
           {
-            "symbolId": "homo_N_0_zod_hollow_sq",
+            "symbolId": "homo_N_0_zod_K",
             "targetLetter": "N",
             "isPunctuation": false,
-            "char": "□"
+            "char": "K"
           }
         ]
       },
@@ -1931,28 +1931,28 @@
         "id": "word_2",
         "symbols": [
           {
-            "symbolId": "homo_S_0_zod_rev_L",
+            "symbolId": "homo_S_0_zod_rev_R",
             "targetLetter": "S",
             "isPunctuation": false,
-            "char": "ᒧ"
+            "char": "Я"
           },
           {
-            "symbolId": "homo_I_0_zod_N",
+            "symbolId": "homo_I_0_zod_back_slash",
             "targetLetter": "I",
             "isPunctuation": false,
-            "char": "N"
+            "char": "\\"
           },
           {
-            "symbolId": "homo_L_0_zod_T",
+            "symbolId": "homo_L_0_zod_S",
             "targetLetter": "L",
             "isPunctuation": false,
-            "char": "T"
+            "char": "S"
           },
           {
-            "symbolId": "homo_K_0_zod_F",
+            "symbolId": "homo_K_0_zod_W",
             "targetLetter": "K",
             "isPunctuation": false,
-            "char": "F"
+            "char": "W"
           }
         ]
       },
@@ -1960,16 +1960,40 @@
         "id": "word_3",
         "symbols": [
           {
-            "symbolId": "homo_I_0_zod_N",
-            "targetLetter": "I",
+            "symbolId": "homo_C_0_zod_rev_D",
+            "targetLetter": "C",
             "isPunctuation": false,
-            "char": "N"
+            "char": "ᗡ"
           },
           {
-            "symbolId": "homo_S_0_zod_rev_L",
+            "symbolId": "homo_R_0_zod_I",
+            "targetLetter": "R",
+            "isPunctuation": false,
+            "char": "I"
+          },
+          {
+            "symbolId": "homo_A_1_zod_hollow_tri",
+            "targetLetter": "A",
+            "isPunctuation": false,
+            "char": "△"
+          },
+          {
+            "symbolId": "homo_T_1_zod_Y",
+            "targetLetter": "T",
+            "isPunctuation": false,
+            "char": "Y"
+          },
+          {
+            "symbolId": "homo_E_1_zod_B",
+            "targetLetter": "E",
+            "isPunctuation": false,
+            "char": "B"
+          },
+          {
+            "symbolId": "homo_S_0_zod_rev_R",
             "targetLetter": "S",
             "isPunctuation": false,
-            "char": "ᒧ"
+            "char": "Я"
           }
         ]
       },
@@ -1977,16 +2001,85 @@
         "id": "word_4",
         "symbols": [
           {
-            "symbolId": "homo_L_0_zod_T",
-            "targetLetter": "L",
+            "symbolId": "homo_A_0_zod_dot_sq",
+            "targetLetter": "A",
             "isPunctuation": false,
-            "char": "T"
+            "char": "⊡"
           },
           {
-            "symbolId": "homo_I_0_zod_N",
+            "symbolId": "homo_R_0_zod_I",
+            "targetLetter": "R",
+            "isPunctuation": false,
+            "char": "I"
+          },
+          {
+            "symbolId": "homo_E_0_zod_F",
+            "targetLetter": "E",
+            "isPunctuation": false,
+            "char": "F"
+          }
+        ]
+      },
+      {
+        "id": "word_5",
+        "symbols": [
+          {
+            "symbolId": "homo_F_0_zod_inv_V",
+            "targetLetter": "F",
+            "isPunctuation": false,
+            "char": "∧"
+          },
+          {
+            "symbolId": "homo_U_0_zod_U",
+            "targetLetter": "U",
+            "isPunctuation": false,
+            "char": "U"
+          },
+          {
+            "symbolId": "homo_L_0_zod_S",
+            "targetLetter": "L",
+            "isPunctuation": false,
+            "char": "S"
+          },
+          {
+            "symbolId": "homo_L_0_zod_S",
+            "targetLetter": "L",
+            "isPunctuation": false,
+            "char": "S"
+          }
+        ]
+      },
+      {
+        "id": "word_6",
+        "symbols": [
+          {
+            "symbolId": "homo_O_0_zod_rev_C",
+            "targetLetter": "O",
+            "isPunctuation": false,
+            "char": "Ↄ"
+          },
+          {
+            "symbolId": "homo_F_0_zod_inv_V",
+            "targetLetter": "F",
+            "isPunctuation": false,
+            "char": "∧"
+          }
+        ]
+      },
+      {
+        "id": "word_7",
+        "symbols": [
+          {
+            "symbolId": "homo_L_0_zod_S",
+            "targetLetter": "L",
+            "isPunctuation": false,
+            "char": "S"
+          },
+          {
+            "symbolId": "homo_I_0_zod_back_slash",
             "targetLetter": "I",
             "isPunctuation": false,
-            "char": "N"
+            "char": "\\"
           },
           {
             "symbolId": "homo_Q_0_zod_P",
@@ -1995,51 +2088,51 @@
             "char": "P"
           },
           {
-            "symbolId": "homo_U_0_zod_horiz_circle",
+            "symbolId": "homo_U_0_zod_U",
             "targetLetter": "U",
             "isPunctuation": false,
-            "char": "⦵"
+            "char": "U"
           },
           {
-            "symbolId": "homo_I_0_zod_N",
+            "symbolId": "homo_I_0_zod_back_slash",
             "targetLetter": "I",
             "isPunctuation": false,
-            "char": "N"
+            "char": "\\"
           },
           {
-            "symbolId": "homo_D_0_zod_rev_D",
+            "symbolId": "homo_D_0_zod_X",
             "targetLetter": "D",
             "isPunctuation": false,
-            "char": "ᗡ"
+            "char": "X"
           }
         ]
       },
       {
-        "id": "word_5",
+        "id": "word_8",
         "symbols": [
           {
-            "symbolId": "homo_G_0_zod_anchor_I",
+            "symbolId": "homo_G_0_zod_A",
             "targetLetter": "G",
             "isPunctuation": false,
-            "char": "Ɪ"
+            "char": "A"
           },
           {
-            "symbolId": "homo_O_0_zod_K",
+            "symbolId": "homo_O_0_zod_rev_C",
             "targetLetter": "O",
             "isPunctuation": false,
-            "char": "K"
+            "char": "Ↄ"
           },
           {
-            "symbolId": "homo_L_0_zod_T",
+            "symbolId": "homo_L_0_zod_S",
             "targetLetter": "L",
             "isPunctuation": false,
-            "char": "T"
+            "char": "S"
           },
           {
-            "symbolId": "homo_D_0_zod_rev_D",
+            "symbolId": "homo_D_0_zod_X",
             "targetLetter": "D",
             "isPunctuation": false,
-            "char": "ᗡ"
+            "char": "X"
           },
           {
             "symbolId": "punct_.",

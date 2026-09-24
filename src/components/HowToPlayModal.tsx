@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Type, RotateCcw, Lightbulb } from '../icons';
-import { CIPHER_INTRO, CIPHER_TACTICS, CIPHER_TOOLS } from '../data/cipherTactics';
+import { CIPHER_INTRO, CIPHER_TACTICS, CIPHER_TOOLS, FAIR_PLAY_CHARTER } from '../data/cipherTactics';
 import { DeskModal } from './DeskModal';
 
 interface HowToPlayModalProps {
@@ -16,6 +16,14 @@ const HANDBOOK_PAGES = [
     dek: 'Tap a mark, then type a letter. That is the whole game.',
     summary: CIPHER_INTRO,
     points: CIPHER_TOOLS,
+  },
+  {
+    id: FAIR_PLAY_CHARTER.id,
+    tab: ['Fair', 'Play'],
+    title: FAIR_PLAY_CHARTER.title,
+    dek: FAIR_PLAY_CHARTER.summary,
+    summary: null as string | null,
+    points: FAIR_PLAY_CHARTER.points,
   },
   ...CIPHER_TACTICS.map((tactic, index) => ({
     id: tactic.id,

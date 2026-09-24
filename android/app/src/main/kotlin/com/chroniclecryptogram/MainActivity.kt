@@ -63,6 +63,8 @@ import com.chroniclecryptogram.board.BoardScreen
 import com.chroniclecryptogram.board.BoardViewModel
 import com.chroniclecryptogram.casefile.CaseFileScreen
 import com.chroniclecryptogram.cipher.Edition
+import com.chroniclecryptogram.designsystem.ChronicleDialog
+import com.chroniclecryptogram.designsystem.DialogAction
 import com.chroniclecryptogram.cipher.PrimerPractice
 import com.chroniclecryptogram.content.ContentParser
 import com.chroniclecryptogram.cloud.createAccountRepository
@@ -73,6 +75,7 @@ import com.chroniclecryptogram.cloud.setCrashReporting
 import com.chroniclecryptogram.bureau.AccountState
 import com.chroniclecryptogram.bureau.BureauScreen
 import com.chroniclecryptogram.data.DataStoreDeskStore
+import com.chroniclecryptogram.data.DeskLedger
 import com.chroniclecryptogram.data.DeskPrefsStore
 import com.chroniclecryptogram.data.DeskPrefs
 import com.chroniclecryptogram.data.KeyboardMode
@@ -234,6 +237,11 @@ private fun ChronicleApp() {
 
         val current = board
         val solved = desk?.solvedPuzzleIds?.toSet().orEmpty()
+        val ledger = remember(desk) { desk?.let { DeskLedger.of(it) } ?: DeskLedger() }
+        // The next page's headline, printed on a solved page's bulletin.
+        val nextHeadline by produceState<String?>(null, current?.puzzle?.id, current?.isSolved, solved) {
+            value = current?.takeIf { it.isSolved }?.let { model.nextPuzzle(it.puzzle)?.headline }
+        }
 
         if (current == null) {
             // The desk is read from disk before the first frame; a blank paper
@@ -248,7 +256,23 @@ private fun ChronicleApp() {
             // The desk fills the space anyway, so this is a no-op for it.
             Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                 when (navigator.current) {
-                    Destination.Board -> {
+                    Destination.Board -> if (
+                        Edition.isNightEdition(current.puzzle) && !current.isSolved && !prefs.nightMemoSeen
+                    ) {
+                        // The Night Extra's rule arrives as orders the first time it
+                        // applies. Shown instead of the board, so the clock (which
+                        // runs with the board's composition) does not run while the
+                        // agent reads it.
+                        val dismiss: () -> Unit = { scope.launch { prefsStore.update { it.copy(nightMemoSeen = true) } } }
+                        Box(Modifier.fillMaxSize().background(ChronicleTheme.colors.paper))
+                        ChronicleDialog(
+                            title = tactics.nightMemo.title,
+                            onDismissRequest = dismiss,
+                            confirm = DialogAction(label = "Understood", onClick = dismiss),
+                        ) {
+                            Text(text = tactics.nightMemo.body, color = ChronicleTheme.colors.ink)
+                        }
+                    } else {
                         // The clock runs only while the desk is on screen, and
                         // stops with the composition when the app is backgrounded.
                         LaunchedEffect(current.puzzle.id) { model.runClock() }
@@ -260,12 +284,14 @@ private fun ChronicleApp() {
                             useSystemKeyboard = prefs.keyboardMode == KeyboardMode.System,
                             tactics = tactics.tactics,
                             liveStats = standings.stats,
+                            nextHeadline = nextHeadline,
                         )
                     }
 
                     Destination.Archive -> ArchiveScreen(
                         puzzles = puzzles,
                         solvedPuzzleIds = solved,
+                        cleanPuzzleIds = ledger.cleanPuzzleIds,
                         onOpen = { puzzle ->
                             // The Archive's practice slot is a placeholder, not
                             // a puzzle: opening it by id would hand the player
@@ -290,6 +316,7 @@ private fun ChronicleApp() {
                     Destination.Desk -> BureauScreen(
                         solvedCount = solved.size,
                         totalEditions = Edition.maxEdition(puzzles),
+                        ledger = ledger,
                         prefs = prefs,
                         account = AccountState(
                             available = BuildConfig.HAS_FIREBASE,

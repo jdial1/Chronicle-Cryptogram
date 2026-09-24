@@ -1051,132 +1051,172 @@
     "puzzleId": "day_4_hard",
     "frequencies": [
       {
-        "symbolId": "homo_I_0_zod_N",
-        "glyph": "N",
-        "count": 4,
-        "percentage": 16.666666666666664,
-        "mappedLetter": "",
-        "targetLetter": "I"
-      },
-      {
-        "symbolId": "homo_L_0_zod_T",
-        "glyph": "T",
-        "count": 3,
-        "percentage": 12.5,
+        "symbolId": "homo_L_0_zod_S",
+        "glyph": "S",
+        "count": 5,
+        "percentage": 13.513513513513514,
         "mappedLetter": "",
         "targetLetter": "L"
       },
       {
-        "symbolId": "homo_U_0_zod_horiz_circle",
-        "glyph": "⦵",
-        "count": 2,
-        "percentage": 8.333333333333332,
+        "symbolId": "homo_U_0_zod_U",
+        "glyph": "U",
+        "count": 3,
+        "percentage": 8.108108108108109,
         "mappedLetter": "",
         "targetLetter": "U"
       },
       {
-        "symbolId": "homo_S_0_zod_rev_L",
-        "glyph": "ᒧ",
-        "count": 2,
-        "percentage": 8.333333333333332,
-        "mappedLetter": "",
-        "targetLetter": "S"
-      },
-      {
-        "symbolId": "homo_D_0_zod_rev_D",
-        "glyph": "ᗡ",
-        "count": 2,
-        "percentage": 8.333333333333332,
-        "mappedLetter": "",
-        "targetLetter": "D"
-      },
-      {
-        "symbolId": "homo_T_0_zod_rev_E",
-        "glyph": "Ǝ",
-        "count": 1,
-        "percentage": 4.166666666666666,
-        "mappedLetter": "",
-        "targetLetter": "T"
-      },
-      {
-        "symbolId": "homo_H_0_zod_back_slash",
+        "symbolId": "homo_I_0_zod_back_slash",
         "glyph": "\\",
-        "count": 1,
-        "percentage": 4.166666666666666,
+        "count": 3,
+        "percentage": 8.108108108108109,
         "mappedLetter": "",
-        "targetLetter": "H"
+        "targetLetter": "I"
       },
       {
-        "symbolId": "homo_E_0_zod_H",
-        "glyph": "H",
-        "count": 1,
-        "percentage": 4.166666666666666,
+        "symbolId": "homo_E_0_zod_F",
+        "glyph": "F",
+        "count": 2,
+        "percentage": 5.405405405405405,
         "mappedLetter": "",
         "targetLetter": "E"
       },
       {
-        "symbolId": "homo_C_0_zod_W",
-        "glyph": "W",
-        "count": 1,
-        "percentage": 4.166666666666666,
+        "symbolId": "homo_C_0_zod_rev_D",
+        "glyph": "ᗡ",
+        "count": 2,
+        "percentage": 5.405405405405405,
         "mappedLetter": "",
         "targetLetter": "C"
       },
       {
-        "symbolId": "homo_B_0_zod_O",
-        "glyph": "O",
-        "count": 1,
-        "percentage": 4.166666666666666,
-        "mappedLetter": "",
-        "targetLetter": "B"
-      },
-      {
-        "symbolId": "homo_A_0_zod_rev_R",
-        "glyph": "Я",
-        "count": 1,
-        "percentage": 4.166666666666666,
+        "symbolId": "homo_A_0_zod_dot_sq",
+        "glyph": "⊡",
+        "count": 2,
+        "percentage": 5.405405405405405,
         "mappedLetter": "",
         "targetLetter": "A"
       },
       {
-        "symbolId": "homo_N_0_zod_hollow_sq",
-        "glyph": "□",
+        "symbolId": "homo_S_0_zod_rev_R",
+        "glyph": "Я",
+        "count": 2,
+        "percentage": 5.405405405405405,
+        "mappedLetter": "",
+        "targetLetter": "S"
+      },
+      {
+        "symbolId": "homo_R_0_zod_I",
+        "glyph": "I",
+        "count": 2,
+        "percentage": 5.405405405405405,
+        "mappedLetter": "",
+        "targetLetter": "R"
+      },
+      {
+        "symbolId": "homo_F_0_zod_inv_V",
+        "glyph": "∧",
+        "count": 2,
+        "percentage": 5.405405405405405,
+        "mappedLetter": "",
+        "targetLetter": "F"
+      },
+      {
+        "symbolId": "homo_O_0_zod_rev_C",
+        "glyph": "Ↄ",
+        "count": 2,
+        "percentage": 5.405405405405405,
+        "mappedLetter": "",
+        "targetLetter": "O"
+      },
+      {
+        "symbolId": "homo_D_0_zod_X",
+        "glyph": "X",
+        "count": 2,
+        "percentage": 5.405405405405405,
+        "mappedLetter": "",
+        "targetLetter": "D"
+      },
+      {
+        "symbolId": "homo_T_0_zod_O",
+        "glyph": "O",
         "count": 1,
-        "percentage": 4.166666666666666,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "T"
+      },
+      {
+        "symbolId": "homo_H_0_zod_inv_F",
+        "glyph": "Ⅎ",
+        "count": 1,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "H"
+      },
+      {
+        "symbolId": "homo_B_0_zod_solid_tri",
+        "glyph": "▲",
+        "count": 1,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "B"
+      },
+      {
+        "symbolId": "homo_N_0_zod_K",
+        "glyph": "K",
+        "count": 1,
+        "percentage": 2.7027027027027026,
         "mappedLetter": "",
         "targetLetter": "N"
       },
       {
-        "symbolId": "homo_K_0_zod_F",
-        "glyph": "F",
+        "symbolId": "homo_K_0_zod_W",
+        "glyph": "W",
         "count": 1,
-        "percentage": 4.166666666666666,
+        "percentage": 2.7027027027027026,
         "mappedLetter": "",
         "targetLetter": "K"
+      },
+      {
+        "symbolId": "homo_A_1_zod_hollow_tri",
+        "glyph": "△",
+        "count": 1,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "A"
+      },
+      {
+        "symbolId": "homo_T_1_zod_Y",
+        "glyph": "Y",
+        "count": 1,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "T"
+      },
+      {
+        "symbolId": "homo_E_1_zod_B",
+        "glyph": "B",
+        "count": 1,
+        "percentage": 2.7027027027027026,
+        "mappedLetter": "",
+        "targetLetter": "E"
       },
       {
         "symbolId": "homo_Q_0_zod_P",
         "glyph": "P",
         "count": 1,
-        "percentage": 4.166666666666666,
+        "percentage": 2.7027027027027026,
         "mappedLetter": "",
         "targetLetter": "Q"
       },
       {
-        "symbolId": "homo_G_0_zod_anchor_I",
-        "glyph": "Ɪ",
+        "symbolId": "homo_G_0_zod_A",
+        "glyph": "A",
         "count": 1,
-        "percentage": 4.166666666666666,
+        "percentage": 2.7027027027027026,
         "mappedLetter": "",
         "targetLetter": "G"
-      },
-      {
-        "symbolId": "homo_O_0_zod_K",
-        "glyph": "K",
-        "count": 1,
-        "percentage": 4.166666666666666,
-        "mappedLetter": "",
-        "targetLetter": "O"
       }
     ]
   },
